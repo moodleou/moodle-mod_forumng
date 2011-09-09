@@ -1,0 +1,42 @@
+<project name="forumng-stable" basedir="." default="zip">
+    <description>
+        Builds the contrib version of ForummNG stable.
+    </description>
+
+    <!-- Target for zip file -->
+    <property name="zipfolder" value="${user.home}/Desktop"/>
+
+    <!-- File base name -->
+    <property name="basename" value="forumng"/>
+
+    <target name="zip">
+        <echo message="Update stable branch BEFORE running this script!"/>
+
+        <!-- Get the version number from file -->
+        <loadfile property="versionfile" srcFile="version.php">
+          <filterchain>
+              <containsregex
+                  pattern="^.*Stable R([^']+)';.*$"
+                  replace="\1"/>
+              <striplinebreaks/>
+           </filterchain>
+        </loadfile>
+        <fail unless="versionfile" message="Unable to find version number (did you run this on HEAD by accident?)" />
+
+        <!-- Work out full filename -->
+        <property name="target" value="${zipfolder}/${basename}.${versionfile}.zip"/>
+
+        <!-- Build zip file of all files (except this build script and Ant
+             default excludes, such as source control files) -->
+        <delete file="${target}" />
+        <zip destfile="${target}" level="9">
+            <fileset dir="..">
+                <include name="forumng/**"/>
+                <exclude name="forumng/build.xml" />
+            </fileset>
+        </zip>
+
+        <echo message="Now upload this to..."/>
+    </target>
+
+</project>

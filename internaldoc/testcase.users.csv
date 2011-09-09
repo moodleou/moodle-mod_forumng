@@ -1,0 +1,4 @@
+username,password,firstname,lastname,course1,role1,group1,email
+uet,passwordA1;,U,ET,FORUMTEST,editingteacher,,YOUR@email
+us1,passwordA1;,U,S1,FORUMTEST,student,G1,YOur@email
+us2,passwordA1;,U,S2,FORUMTEST,student,G2,yoUR@email

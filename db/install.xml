@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<XMLDB PATH="mod/forumng/db" VERSION="20110201" COMMENT="ForumNG is a reimplemented variant of the original Moodle forum system. It provides asynchronous discussion facilities."
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
+>
+  <TABLES>
+    <TABLE NAME="forumng" COMMENT="Standard module table. Holds information about a forum instance." NEXT="forumng_discussions">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" NEXT="course"/>
+        <FIELD NAME="course" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" COMMENT="Moodle course ID" PREVIOUS="id" NEXT="name"/>
+        <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="Name of activity." PREVIOUS="course" NEXT="intro"/>
+        <FIELD NAME="intro" TYPE="text" LENGTH="small" NOTNULL="false" SEQUENCE="false" COMMENT="Introductory text that displays on the forum view page. This text is optional; if set to null, there is no such text." PREVIOUS="name" NEXT="introformat"/>
+        <FIELD NAME="introformat" TYPE="int" LENGTH="4" NOTNULL="false" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" COMMENT="Text format for intro field" PREVIOUS="intro" NEXT="type"/>
+
+        <FIELD NAME="type" TYPE="char" LENGTH="255" NOTNULL="true" DEFAULT="general" SEQUENCE="false" COMMENT="Forum type that will be used to display this forum. May be NULL for default type." PREVIOUS="introformat" NEXT="ratingscale"/>
+        <FIELD NAME="ratingscale" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="false" DEFAULT="0" SEQUENCE="false" COMMENT="0 to disable ratings. Positive integer to use numeric 0..N scale. Negative number to select a scale by (negative) scale ID." PREVIOUS="type" NEXT="ratingfrom"/>
+        <FIELD NAME="ratingfrom" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" COMMENT="Time (in seconds since epoch). Users can only rate posts that are created on or after this time. 0 if no limit." PREVIOUS="ratingscale" NEXT="ratinguntil"/>
+        <FIELD NAME="ratinguntil" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" COMMENT="Time (in seconds since epoch). Users can only rate posts that were created before this time. 0 if no limit." PREVIOUS="ratingfrom" NEXT="ratingthreshold"/>
+        <FIELD NAME="ratingthreshold" TYPE="int" LENGTH="9" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" COMMENT="Required number of ratings. If a post receives fewer than this number of ratings, the average rating is not displayed or included in grades." PREVIOUS="ratinguntil" NEXT="grading"/>
+        <FIELD NAME="grading" TYPE="int" LENGTH="1" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" COMMENT="0 = no grade 1 = average rating 2 = count of ratings 3 = max of ratings 4 = min of ratings 5 = sum of ratings" PREVIOUS="ratingthreshold" NEXT="attachmentmaxbytes"/>
+        <FIELD NAME="attachmentmaxbytes" TYPE="int" LENGTH="9" NOTNULL="true" UNSIGNED="false" DEFAULT="0" SEQUENCE="false" COMMENT="Maximum size of forum attachments in bytes." PREVIOUS="grading" NEXT="reportingemail"/>
+        <FIELD NAME="reportingemail" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="Email address for reporting unacceptable post" PREVIOUS="attachmentmaxbytes" NEXT="subscription"/>
+        <FIELD NAME="subscription" TYPE="int" LENGTH="1" NOTNULL="true" UNSIGNED="true" DEFAULT="1" SEQUENCE="false" COMMENT="Controls whether users can subscribe to this forum via email. 0 = subscription not permitted 1 = subscription permitted 2 = initially subscribed, can unsubscribe 3 = force subscribe" PREVIOUS="reportingemail" NEXT="feedtype"/>
+
+        <FIELD NAME="feedtype" TYPE="int" LENGTH="1" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" COMMENT="Whether RSS/Atom feeds are permitted. 0 = no feed, 1 = discussions feed, 2 = all-posts feed." PREVIOUS="subscription" NEXT="feeditems"/>
+        <FIELD NAME="feeditems" TYPE="int" LENGTH="9" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" COMMENT="Number of articles included in RSS feed. 0 = site default." PREVIOUS="feedtype" NEXT="maxpostsperiod"/>
+        <FIELD NAME="maxpostsperiod" TYPE="int" LENGTH="9" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" COMMENT="Time in seconds over which the maximum post counts are evaluated. (For example, if this is set to 1 day, and max posts is set to 10, then it will not let you post more than 10 posts in any 24-hour period.) 0 = no post restrictions." PREVIOUS="feeditems" NEXT="maxpostsblock"/>
+        <FIELD NAME="maxpostsblock" TYPE="int" LENGTH="9" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" COMMENT="After you make this many posts in the time period, you cannot post any more. 0 = not set." PREVIOUS="maxpostsperiod" NEXT="postingfrom"/>
+        <FIELD NAME="postingfrom" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" COMMENT="If nonzero, then users cannot make posts or replies to the forum until the specified date." PREVIOUS="maxpostsblock" NEXT="postinguntil"/>
+        <FIELD NAME="postinguntil" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" COMMENT="If non-zero, users cannot make posts or replies to the forum after the specified date." PREVIOUS="postingfrom" NEXT="typedata"/>
+        <FIELD NAME="typedata" TYPE="text" LENGTH="small" NOTNULL="false" SEQUENCE="false" COMMENT="Stores arbitrary extra settings related to the forum type, if any; otherwise null. Data is stored as a serialized php object." PREVIOUS="postinguntil" NEXT="magicnumber"/>
+        <FIELD NAME="magicnumber" TYPE="int" LENGTH="16" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" COMMENT="A random number generated when the forum is created. This is used (along with user ID, group ID) to create hashes that allow remote access to the RSS/Atom feeds for the forum, providing limited access security for the feeds." PREVIOUS="typedata" NEXT="completiondiscussions"/>
+        <FIELD NAME="completiondiscussions" TYPE="int" LENGTH="9" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" COMMENT="Nonzero if a certain number of posts are required to mark this forum completed for a user." PREVIOUS="magicnumber" NEXT="completionreplies"/>
+
+        <FIELD NAME="completionreplies" TYPE="int" LENGTH="9" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" COMMENT="Nonzero if a certain number of replies are required to mark this forum complete for a user." PREVIOUS="completiondiscussions" NEXT="completionposts"/>
+        <FIELD NAME="completionposts" TYPE="int" LENGTH="9" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" COMMENT="Nonzero if a certain number of posts or replies (total) are required to mark this forum complete for a user." PREVIOUS="completionreplies" NEXT="removeafter"/>
+        <FIELD NAME="removeafter" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" COMMENT="Remove old discussions after certain period. 1 for one month, 2 for two months...12 for one year, 13 for two years and 14 for three years." PREVIOUS="completionposts" NEXT="removeto"/>
+        <FIELD NAME="removeto" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" SEQUENCE="false" COMMENT="This field stores the mod instance id of the target forum. Null means delete old discussions permanently." PREVIOUS="removeafter" NEXT="shared"/>
+        <FIELD NAME="shared" TYPE="int" LENGTH="1" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" COMMENT="If the forum is available for sharing on other courses, this flag will be set to 1." PREVIOUS="removeto" NEXT="originalcmid"/>
+        <FIELD NAME="originalcmid" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" SEQUENCE="false" COMMENT="If this forum is a reference to (clone of) a shared forum, this field is non-null and points to the original forum. (When this is set, other settings in this table are ignored.)" PREVIOUS="shared"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id" NEXT="course"/>
+
+        <KEY NAME="course" TYPE="foreign" FIELDS="course" REFTABLE="course" REFFIELDS="id" PREVIOUS="primary" NEXT="originalcmid"/>
+        <KEY NAME="originalcmid" TYPE="foreign" FIELDS="originalcmid" REFTABLE="course_modules" REFFIELDS="id" PREVIOUS="course"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="forumng_discussions" COMMENT="Represents a single discussion (thread) in a forum." PREVIOUS="forumng" NEXT="forumng_posts">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" NEXT="forumngid"/>
+        <FIELD NAME="forumngid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" COMMENT="Forum that contains this discussion" PREVIOUS="id" NEXT="groupid"/>
+        <FIELD NAME="groupid" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" SEQUENCE="false" COMMENT="ID of group this discussion is in. NULL = any group" PREVIOUS="forumngid" NEXT="postid"/>
+
+        <FIELD NAME="postid" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" SEQUENCE="false" COMMENT="ID within the forumng_posts table of the first post in this discussion. May be null, but only temporarily during discussion creation. (Note: This field may not point to a deleted post. If deleting the first post, you need to delete the whole discussion instead.)" PREVIOUS="groupid" NEXT="lastpostid"/>
+        <FIELD NAME="lastpostid" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" SEQUENCE="false" COMMENT="ID of the most-recently updated post in this discussion. May be null, but only temporarily during discussion creation. (Note: This field may not point to a deleted post. If deleting a post that is referenced by this field, this field must be changed.)" PREVIOUS="postid" NEXT="timestart"/>
+        <FIELD NAME="timestart" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" COMMENT="If non-zero, this discussion does not appear until the given time." PREVIOUS="lastpostid" NEXT="timeend"/>
+        <FIELD NAME="timeend" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" COMMENT="If non-zero, the discussion disappears after the given time." PREVIOUS="timestart" NEXT="deleted"/>
+        <FIELD NAME="deleted" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" COMMENT="Set to the date at which the discussion was 'deleted'. Discussions can still be undeleted. A process in cron will 'really' delete discussions after a certain date." PREVIOUS="timeend" NEXT="locked"/>
+        <FIELD NAME="locked" TYPE="int" LENGTH="1" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" COMMENT="If set to 1, nobody can post to this discussion any more. The post pointed to by lastpostid is the post that was added while locking the thread." PREVIOUS="deleted" NEXT="sticky"/>
+        <FIELD NAME="sticky" TYPE="int" LENGTH="1" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" COMMENT="If set to 1, this discussion appears in a special area at the top of the forum thread list." PREVIOUS="locked"/>
+      </FIELDS>
+      <KEYS>
+
+        <KEY NAME="primary" TYPE="primary" FIELDS="id" NEXT="forumngid"/>
+        <KEY NAME="forumngid" TYPE="foreign" FIELDS="forumngid" REFTABLE="forumng" REFFIELDS="id" PREVIOUS="primary" NEXT="groupid"/>
+        <KEY NAME="groupid" TYPE="foreign" FIELDS="groupid" REFTABLE="group" REFFIELDS="id" PREVIOUS="forumngid"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="forumng_posts" COMMENT="Holds actual forum post data" PREVIOUS="forumng_discussions" NEXT="forumng_ratings">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" NEXT="discussionid"/>
+        <FIELD NAME="discussionid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" COMMENT="Discussion that contains this post." PREVIOUS="id" NEXT="parentpostid"/>
+
+        <FIELD NAME="parentpostid" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" SEQUENCE="false" COMMENT="ID of parent post within the same discussion; null if no parent (first post)." PREVIOUS="discussionid" NEXT="userid"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" COMMENT="User ID - must be a valid ID (not 0 or NULL)." PREVIOUS="parentpostid" NEXT="created"/>
+        <FIELD NAME="created" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" COMMENT="Time originally created (seconds since epoch). This time remains the same if the post is edited." PREVIOUS="userid" NEXT="modified"/>
+        <FIELD NAME="modified" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" COMMENT="Time modified (seconds since epoch). Initially same as creation time. Changes if post is edited." PREVIOUS="created" NEXT="deleted"/>
+        <FIELD NAME="deleted" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" COMMENT="Normally 0. If this post was deleted, this field stores the time at which it was deleted. Posts may be 'really' removed from the database later by cron." PREVIOUS="modified" NEXT="deleteuserid"/>
+        <FIELD NAME="deleteuserid" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" SEQUENCE="false" COMMENT="If the post has been deleted, this field stores the ID of the user who deleted it. Null if the post has not been deleted." PREVIOUS="deleted" NEXT="important"/>
+        <FIELD NAME="important" TYPE="int" LENGTH="1" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" COMMENT="If important is equal to 1, highlight the post. Default value is 0." PREVIOUS="deleteuserid" NEXT="mailstate"/>
+        <FIELD NAME="mailstate" TYPE="int" LENGTH="1" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" COMMENT="0 = post has not been mailed yet. 1 = post has not been mailed, is set to 'mail now'. 2 = post has been mailed. 3 = post has been mailed and included in any digests." PREVIOUS="important" NEXT="oldversion"/>
+        <FIELD NAME="oldversion" TYPE="int" LENGTH="1" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" COMMENT="0 for all current posts. When a post is edited, a copy of the previous version is added to this table. The copy has this field set to 1, and the parentpostid field set to the ID of the real post. These extra copies may be deleted periodically via cron." PREVIOUS="mailstate" NEXT="edituserid"/>
+
+        <FIELD NAME="edituserid" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" SEQUENCE="false" COMMENT="If the post has been edited, this field stores the ID of the user who made this edit. (For posts with oldversion set to 0, this field will correspond to the user who made that previous edit.) Null if the post has not been edited." PREVIOUS="oldversion" NEXT="subject"/>
+        <FIELD NAME="subject" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="Contains the message subject. May be null if there is no change in subject (the system will automatically generate 'Re: whatever' in the appropriate language when necessary)." PREVIOUS="edituserid" NEXT="message"/>
+        <FIELD NAME="message" TYPE="text" LENGTH="small" NOTNULL="true" SEQUENCE="false" COMMENT="Actual text of message in format specified by format field." PREVIOUS="subject" NEXT="messageformat"/>
+        <FIELD NAME="messageformat" TYPE="int" LENGTH="1" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" COMMENT="Format of text in the 'message' field, e.g. FORMAT_HTML." PREVIOUS="message" NEXT="attachments"/>
+        <FIELD NAME="attachments" TYPE="int" LENGTH="1" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" COMMENT="This flag is set to 1 if there are attachments, 0 if not. Information (count, names, sizes) about the attachments in the post must be obtained by accessing the filesystem folder related to this post ID." PREVIOUS="messageformat"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id" NEXT="discussionid"/>
+        <KEY NAME="discussionid" TYPE="foreign" FIELDS="discussionid" REFTABLE="forumng_discussions" REFFIELDS="id" PREVIOUS="primary" NEXT="parentpostid"/>
+
+        <KEY NAME="parentpostid" TYPE="foreign" FIELDS="parentpostid" REFTABLE="forumng_posts" REFFIELDS="id" PREVIOUS="discussionid" NEXT="userid"/>
+        <KEY NAME="userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id" PREVIOUS="parentpostid"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="created" UNIQUE="false" FIELDS="created" COMMENT="Index on creation date. Used when building remote feeds." NEXT="mailstate"/>
+        <INDEX NAME="mailstate" UNIQUE="false" FIELDS="mailstate" PREVIOUS="created"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="forumng_ratings" COMMENT="Stores post ratings." PREVIOUS="forumng_posts" NEXT="forumng_subscriptions">
+
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" NEXT="userid"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" COMMENT="ID of user who rated post" PREVIOUS="id" NEXT="postid"/>
+        <FIELD NAME="postid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" COMMENT="ID of post that was rated." PREVIOUS="userid" NEXT="time"/>
+        <FIELD NAME="time" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" COMMENT="Time at which rating was given (or last updated)." PREVIOUS="postid" NEXT="rating"/>
+        <FIELD NAME="rating" TYPE="int" LENGTH="4" NOTNULL="true" UNSIGNED="false" SEQUENCE="false" COMMENT="Actual rating. The meaning of this value depends on the scale used." PREVIOUS="time"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id" NEXT="userid"/>
+
+        <KEY NAME="userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id" PREVIOUS="primary" NEXT="postid"/>
+        <KEY NAME="postid" TYPE="foreign" FIELDS="postid" REFTABLE="forumng_posts" REFFIELDS="id" PREVIOUS="userid"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="forumng_subscriptions" COMMENT="Stores list of users who are subscribed to a forum by email. Note that this list is not used if 'force subscription' or 'prevent subscription' options are selected." PREVIOUS="forumng_ratings" NEXT="forumng_read">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" NEXT="userid"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" COMMENT="ID of user who will receive forum email." PREVIOUS="id" NEXT="forumngid"/>
+        <FIELD NAME="forumngid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" COMMENT="ID of forum that subscription relates to." PREVIOUS="userid" NEXT="subscribed"/>
+
+        <FIELD NAME="subscribed" TYPE="int" LENGTH="1" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" COMMENT="This field is usually 1. It indicates that the user has chosen to subscribe to the forum. In the case of initial-subscription forums it may be 0, indicating that the user has chosen to unsubscribe. (If the user has not changed the default state, there would be no row for them in this table.)" PREVIOUS="forumngid" NEXT="discussionid"/>
+        <FIELD NAME="discussionid" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" SEQUENCE="false" COMMENT="User has subscribed to this discussion if not NULL." PREVIOUS="subscribed" NEXT="clonecmid"/>
+        <FIELD NAME="clonecmid" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" SEQUENCE="false" COMMENT="Used only for shared forums. This records the clone forum that you subscribed from. It is used in order to correctly determine your course when sending out emails. Note this field is not strictly necessary because you could use the forumngid field instead, but that makes the email queries even more complicated, so I added this field instead. (For non-clone forums it is always null.)" PREVIOUS="discussionid" NEXT="groupid"/>
+        <FIELD NAME="groupid" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" SEQUENCE="false" COMMENT="The group you subscribe to." PREVIOUS="clonecmid"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id" NEXT="userid"/>
+        <KEY NAME="userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id" PREVIOUS="primary" NEXT="forumngid"/>
+        <KEY NAME="forumngid" TYPE="foreign" FIELDS="forumngid" REFTABLE="forumng" REFFIELDS="id" PREVIOUS="userid" NEXT="clonecmid"/>
+
+        <KEY NAME="clonecmid" TYPE="foreign" FIELDS="clonecmid" REFTABLE="course_modules" REFFIELDS="id" PREVIOUS="forumngid"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="forumng_read" COMMENT="Tracks information about who has read each discussion, and when. Note that information here is only retained for recent discussions; older discussions are assumed to be read." PREVIOUS="forumng_subscriptions" NEXT="forumng_drafts">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" NEXT="userid"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" COMMENT="ID of user who's read the discussion" PREVIOUS="id" NEXT="discussionid"/>
+        <FIELD NAME="discussionid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" COMMENT="ID of discussion the user has read." PREVIOUS="userid" NEXT="time"/>
+        <FIELD NAME="time" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" COMMENT="Time at which they read the discussion." PREVIOUS="discussionid"/>
+
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id" NEXT="userid"/>
+        <KEY NAME="userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id" PREVIOUS="primary" NEXT="discussionid"/>
+        <KEY NAME="discussionid" TYPE="foreign" FIELDS="discussionid" REFTABLE="forumng_discussions" REFFIELDS="id" PREVIOUS="userid"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="userid-discussionid" UNIQUE="false" FIELDS="userid, discussionid"/>
+      </INDEXES>
+
+    </TABLE>
+    <TABLE NAME="forumng_drafts" COMMENT="Draft messages that have not yet been posted." PREVIOUS="forumng_read" NEXT="forumng_flags">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" NEXT="userid"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" COMMENT="User who wrote this draft post." PREVIOUS="id" NEXT="forumngid"/>
+        <FIELD NAME="forumngid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" COMMENT="Forum where the draft might be posted." PREVIOUS="userid" NEXT="groupid"/>
+        <FIELD NAME="groupid" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" SEQUENCE="false" COMMENT="When creating a new discussion in a group-mode forum, this field should be set to indicate the group for the discussion. (null = 'all groups', or for use in a non-grouped forum). This field is not set when replying to an existing discussion, even if it is in a group." PREVIOUS="forumngid" NEXT="parentpostid"/>
+        <FIELD NAME="parentpostid" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" SEQUENCE="false" COMMENT="If this draft is of a reply (rather than a new discussion), then this contains the id of the post it's replying to. New discussions are null." PREVIOUS="groupid" NEXT="subject"/>
+        <FIELD NAME="subject" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="Message subject. Should be null if this reply does not change the subject." PREVIOUS="parentpostid" NEXT="message"/>
+
+        <FIELD NAME="message" TYPE="text" LENGTH="small" NOTNULL="true" SEQUENCE="false" COMMENT="Text of message (required, but may be empty string)." PREVIOUS="subject" NEXT="messageformat"/>
+        <FIELD NAME="messageformat" TYPE="int" LENGTH="1" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" COMMENT="Identifier for Moodle format (e.g. HTML) used for message content." PREVIOUS="message" NEXT="attachments"/>
+        <FIELD NAME="attachments" TYPE="int" LENGTH="1" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" COMMENT="Set to 1 if this draft contains any attachments, 0 otherwise. Attachment files themselves can be determined based on contents of the relevant folder." PREVIOUS="messageformat" NEXT="saved"/>
+        <FIELD NAME="saved" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" COMMENT="Time last saved in seconds since epoch. (Note: Unlike the created/modified times in forumng_posts, the 'saved' time is used for both states here.)" PREVIOUS="attachments" NEXT="options"/>
+        <FIELD NAME="options" TYPE="text" LENGTH="small" NOTNULL="false" SEQUENCE="false" COMMENT="This field may be set to contain serialised/encoded values of additional form fields, depending on the state of the form when the draft was created." PREVIOUS="saved"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id" NEXT="userid"/>
+        <KEY NAME="userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id" PREVIOUS="primary" NEXT="forumngid"/>
+
+        <KEY NAME="forumngid" TYPE="foreign" FIELDS="forumngid" REFTABLE="forumng" REFFIELDS="id" PREVIOUS="userid" NEXT="parentpostid"/>
+        <KEY NAME="parentpostid" TYPE="foreign" FIELDS="parentpostid" REFTABLE="forumng_posts" REFFIELDS="id" PREVIOUS="forumngid"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="forumng_flags" COMMENT="Users can flag individual posts that are of interest. These are listed directly on the forum discussion list page." PREVIOUS="forumng_drafts">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" NEXT="userid"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" COMMENT="User who has flagged the post." PREVIOUS="id" NEXT="postid"/>
+        <FIELD NAME="postid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" COMMENT="ID of post that has been flagged." PREVIOUS="userid" NEXT="flagged"/>
+
+        <FIELD NAME="flagged" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" COMMENT="Time (seconds since epoch) that the post was flagged." PREVIOUS="postid"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id" NEXT="userid"/>
+        <KEY NAME="userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id" PREVIOUS="primary" NEXT="postid"/>
+        <KEY NAME="postid" TYPE="foreign" FIELDS="postid" REFTABLE="forumng_posts" REFFIELDS="id" PREVIOUS="userid"/>
+      </KEYS>
+    </TABLE>
+  </TABLES>
+
+</XMLDB>
