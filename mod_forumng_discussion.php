@@ -932,6 +932,7 @@ WHERE
         }
         if (count((array)$update)==0) {
             // No change
+            $transaction->allow_commit();
             return;
         }
         $update->id = $this->discussionfields->id;
