@@ -55,6 +55,22 @@ M.mod_forumng = {
     },
 
     /**
+     * Simulates click on a link. YUI is supposed to be able to do this but
+     * it blatantly doesn't work in IE (YUI ticket #2530063).
+     * @param link Thing you want to click on (YUI node)
+     */
+    simulate_click : function(link) {
+        var node = this.Y.Node.getDOMNode(link);
+        if (node.click) {
+            // IE has this function, it is also in DOM for some things
+            node.click();
+        } else {
+            // For other browsers, hopefully YUI will work
+            link.simulate('click');
+        }
+    },
+
+    /**
      * Main initialisation done on DOM ready.
      */
     dom_init : function() {
@@ -473,7 +489,7 @@ M.mod_forumng = {
 
         // When we create the reply link that a draft post uses, make it click itself
         if (window.forumng_draft && window.forumng_draft.parentpostid==replytoid) {
-            setTimeout( function() { link.simulate('click'); }, 0);
+            setTimeout( function() { M.mod_forumng.simulate_click(link); }, 0);
         }
     },
 
@@ -1163,7 +1179,7 @@ M.mod_forumng = {
         // Automatically expand message listed in URL (if any)
         if (expandnow) {
             link.delay = false;
-            link.simulate('click');
+            M.mod_forumng.simulate_click(link);
         }
     },
 
@@ -1307,7 +1323,7 @@ M.mod_forumng = {
             // Get link target and expand it if required
             var targetpost2 = this.Y.one('#' + id).get('parentNode');
             if (targetpost2.expandlink) {
-                targetpost2.expandlink.simulate('click');
+                M.mod_forumng.simulate_click(targetpost2.expandlink);
                 targetpost2.focushandler = focuser;
             }
 
@@ -1388,7 +1404,7 @@ M.mod_forumng = {
                         link.loader.style.position = 'absolute';
                         link.loader = M.mod_forumng.Y.one(link.loader);
                         link.get('parentNode').appendChild(link.loader);
-                        var linkregion = M.mod_forumng.Y.DOM.region(link);
+                        var linkregion = M.mod_forumng.Y.DOM.region(M.mod_forumng.Y.Node.getDOMNode(link));
                         link.loader.setXY([linkregion.right + 3, linkregion.top]);
                     });
         }, this);
@@ -1557,7 +1573,7 @@ M.mod_forumng = {
         yes.value = actiontext;
         yes = this.Y.one(yes);
         yes.on('click', function() {
-            cancel.simulate('click');
+            M.mod_forumng.simulate_click(cancel);
             action();
         }, this);
         if (focus) {
@@ -1819,10 +1835,7 @@ M.mod_forumng = {
         link = this.Y.one(link);
         link.on('click', function(e) {
             e.preventDefault();
-            // Note: I used to use button.simulate('click'), but this does
-            // not work in IE7 for this case. Calling the click function
-            // directly always works.
-            this.Y.Node.getDOMNode(button).click();
+            M.mod_forumng.simulate_click(button);
         }, this);
         span.appendChild(link);
         span.appendChild(document.createTextNode(') '));
@@ -1885,7 +1898,7 @@ M.mod_forumng = {
             all.on('click', function() {
                 for (var i=0; i<posts.size(); i++) {
                     if (!posts.item(i).check.get('checked')) {
-                        posts.item(i).check.simulate('click');
+                        M.mod_forumng.simulate_click(posts.item(i).check);
                     }
                 }
             }, this);
@@ -1896,7 +1909,7 @@ M.mod_forumng = {
             none.on('click', function() {
                 for (var i=0; i<posts.size(); i++) {
                     if (posts.item(i).check.get('checked')) {
-                        posts.item(i).check.simulate('click');
+                        M.mod_forumng.simulate_click(posts.item(i).check);
                     }
                 }
             }, this);
