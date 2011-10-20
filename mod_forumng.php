@@ -2861,7 +2861,7 @@ WHERE fd.forumngid = ?";
                     }
                 }
             }
-            if ($userid == $USER->id) {
+            if ($userid == $USER->id && isset($USER->groupmember)) {
                 if (array_key_exists($course->id, $USER->groupmember)) {
                     $groups = $USER->groupmember[$course->id];
                 } // Else do nothing - groups list should be empty
