@@ -158,16 +158,24 @@ class mod_forumng_utils {
     /**
      * Makes a list of fields with alias in front.
      * @param $fields Field
-     * @param $alias Table alias (also used as field prefix)
+     * @param $alias Table alias (also used as field prefix) - leave blank for
+     *   none
      * @return SQL SELECT list
      */
-    private static function select_fields($fields, $alias) {
+    private static function select_fields($fields, $alias = '') {
         $result = '';
+        if ($alias === '') {
+            $fieldprefix = '';
+            $nameprefix = '';
+        } else {
+            $fieldprefix = $alias . '.';
+            $nameprefix = $alias . '_';
+        }
         foreach ($fields as $field) {
             if ($result) {
                 $result .= ',';
             }
-            $result .= $alias . '.' . $field . ' as ' . $alias . '_' . $field;
+            $result .= $fieldprefix . $field . ' as ' . $nameprefix . $field;
         }
         return $result;
     }

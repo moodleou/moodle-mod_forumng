@@ -2054,9 +2054,9 @@ WHERE
         // limited to a group if specified.
         list($enrolsql, $enrolparams) = get_enrolled_sql($this->get_context(),
                 'mod/forumng:viewdiscussion', $groupid >= 0 ? $groupid : 0, true);
-        return $DB->get_records_sql("SELECT" .
-                mod_forumng_utils::select_username_fields('u', true) .
-                "FROM {user} u WHERE u.id IN ($enrolsql)", $enrolparams);
+        return $DB->get_records_sql("SELECT " .
+                mod_forumng_utils::select_username_fields('', true) .
+                " FROM {user} u WHERE u.id IN ($enrolsql)", $enrolparams);
     }
 
     /**
