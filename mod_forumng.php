@@ -1146,7 +1146,7 @@ WHERE
      * @return mod_forumng_discussion_list
      */
     public function get_discussion_list(
-        $groupid=self::ALL_GROUPS, $viewhidden=false, $viewdeleted=false,
+        $groupid=self::ALL_GROUPS, $viewhidden=false,
         $page=1, $sort=self::SORT_DATE, $sortreverse=false, $userid=0, $ignoreinvalidpage=true) {
         global $CFG, $DB, $USER;
         $userid = mod_forumng_utils::get_real_userid($userid);
@@ -1154,13 +1154,10 @@ WHERE
         // Build list of SQL conditions
         ///////////////////////////////
 
-        // Correct forum, not deleted.
+        // Correct forum
         $conditionparams = array();
         $conditions ="fd.forumngid = ?";
         $conditionparams[] = $this->forumfields->id;
-        if (!$viewdeleted) {
-            $conditions .= " AND fd.deleted = 0";
-        }
 
         // Group restriction
         if ($groupid) {
@@ -1171,6 +1168,7 @@ WHERE
         // View hidden posts
         if (!$viewhidden) {
             $now = time();
+            $conditions .= " AND fd.deleted = 0";
             $conditions .= " AND (fd.timestart = 0 OR fd.timestart <= ?)".
               " AND (fd.timeend = 0 OR fd.timeend > ?)";
             $conditionparams[] = $now;

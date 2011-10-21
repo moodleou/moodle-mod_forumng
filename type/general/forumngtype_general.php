@@ -84,7 +84,7 @@ class forumngtype_general extends forumngtype {
         $sort = mod_forumng::get_sort_code($sortchar);
 
         $list = $forum->get_discussion_list($groupid, $forum->can_view_hidden(),
-            $forum->can_manage_discussions(), $page, $sort, $sortreverse);
+                $page, $sort, $sortreverse);
         $sticky = $list->get_sticky_discussions();
         $normal = $list->get_normal_discussions();
 
