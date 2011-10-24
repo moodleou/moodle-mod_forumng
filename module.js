@@ -1303,7 +1303,7 @@ M.mod_forumng = {
             // Function to set up focus
             var focuser = function() {
                 var targetpost = M.mod_forumng.Y.one('#' + id).get('parentNode');
-                var jumpto = targetpost.one('li.forumng-jumpto');
+                var jumpto = targetpost.one('.forumng-jumpto');
                 if (M.mod_forumng.mouseuser && jumpto) {
                     // For mouse (~= visual) users, focus the next link so that after
                     // clicking the first time, they can then repeatedly press return
@@ -1311,7 +1311,13 @@ M.mod_forumng = {
                     if (equivalent) {
                         M.mod_forumng.focus(equivalent);
                     } else {
-                        M.mod_forumng.focus(jumpto.one('a'));
+                        var prev = jumpto.one('a.forumng-prev');
+                        var next = jumpto.one('a.forumng-next');
+                        if (prev || next) {
+                            M.mod_forumng.focus(prev ? prev : next);
+                        } else {
+                            M.mod_forumng.focus(jumpto.one('a'));
+                        }
                     }
                 } else {
                     // For keyboard-only users, go to the start of the post (makes more sense)

@@ -22,8 +22,9 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$module->version  = 2011012800;
+$module->version  = 2011102400;
 $module->requires = 2011022100; // 2.0.2
 $module->cron     = 60;
 
+// Note: we haven't really sorted out how/if to use this string yet...
 $module->displayversion = 'Unstable development version (use at own risk)';
