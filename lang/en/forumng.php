@@ -547,6 +547,7 @@ $string['error_cannotmarkread'] = 'You are not permitted to mark discussions as 
 forum.';
 $string['error_cannotviewdiscussion'] = 'You do not have permission to view this discussion.';
 $string['error_cannotmanagediscussion'] = 'You do not have permission to manage this discussion.';
+$string['error_draftnotfound'] = 'Unable to find draft message. The draft may have already been posted or deleted.';
 $string['jserr_load'] = 'There was an error obtaining the post.
 
 Reload this page and try again.';

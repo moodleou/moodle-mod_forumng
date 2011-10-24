@@ -67,7 +67,7 @@ ORDER BY
     public static function get_from_id($draftid) {
         $posts = self::query_drafts("fdr.id = ?", array($draftid));
         if (count($posts) == 0) {
-            throw new coding_exception("Draft post $draftid not found");
+            throw new moodle_exception('error_draftnotfound', 'forumng', '');
         }
         return reset($posts);
     }
