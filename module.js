@@ -446,7 +446,7 @@ M.mod_forumng = {
             this.init_editor_and_attachments(form, draft);
 
             if (draft) {
-                form.get('subject').set('value', draft.subject);
+                form.get('subject').set('value', draft.subject !== null ? draft.subject : '');
                 if (form.get('mailnow')) {
                     form.get('mailnow').set('checked', draft.mailnow ? true : false);
                 }
@@ -1612,7 +1612,7 @@ M.mod_forumng = {
         };
 
         this.init_editor_and_attachments(form, settings);
-        form.get('subject').set('value', postdata.subject);
+        form.get('subject').set('value', postdata.subject !== null ? postdata.subject : '');
         form.get('message[format]').set('value', postdata.format);
         if (form.get('setimportant')) {
             form.get('setimportant').set('checked', postdata.setimportant==1 ? true : false);
