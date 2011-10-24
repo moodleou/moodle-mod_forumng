@@ -361,6 +361,10 @@ M.mod_forumng = {
     init_edit: function(link, postid) {
         link.on('click', function(e) {
             e.preventDefault();
+            if (this.are_links_disabled(link)) {
+                return;
+            }
+
             // Root edit uses different form
             var isroot = link.ancestor('.forumng-replies')===null;
 
@@ -404,6 +408,9 @@ M.mod_forumng = {
     init_reply: function(link, replytoid) {
         link.on('click', function(e) {
             e.preventDefault();
+            if (this.are_links_disabled(link)) {
+                return;
+            }
 
             // Get form and post
             var form = this.Y.one('#mform1');
@@ -769,6 +776,16 @@ M.mod_forumng = {
                 links[j].className = links[j].className.replace(' forumng-disabled', '');
             }
         }
+    },
+
+    /**
+     * Checks if link are disabled including particular link
+     * @param link YUI element pointing to link
+     */
+    are_links_disabled: function(link) {
+        // True if links are disabled either at body or commands level
+        return document.body.linksdisabled ||
+                this.Y.Node.getDOMNode(link.ancestor('.forumng-commands')).linksdisabled;
     },
 
     /**
@@ -1385,6 +1402,9 @@ M.mod_forumng = {
         link.post = link.ancestor('.forumng-post');
         link.on('click', function(e) {
             e.preventDefault();
+            if (this.are_links_disabled(link)) {
+                return;
+            }
             this.confirm(
                     undelete ? M.str.forumng.confirmundelete : M.str.forumng.confirmdelete,
                     undelete ? M.str.forumng.undeletepostbutton : M.str.forumng.deletepostbutton,
