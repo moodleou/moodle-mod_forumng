@@ -653,6 +653,13 @@ WHERE
         }
     }
 
+    /**
+     * @return int FORMAT_xx constant for intro format
+     */
+    public function get_intro_format() {
+        return $this->forumfields->introformat;
+    }
+
     /** @return int GRADING_xx constant */
     public function get_grading() {
         return $this->forumfields->grading;

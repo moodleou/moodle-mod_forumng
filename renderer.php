@@ -470,13 +470,25 @@ class mod_forumng_renderer extends plugin_renderer_base {
      * @return string Intro HTML or '' if none
      */
     public function render_intro($forum) {
+        // Don't output anything if no text, so we don't get styling around
+        // something blank
         $text = $forum->get_intro();
         if (trim($text) === '') {
             return '';
         }
-        $options = (object)array('trusttext'=>true);
-        return '<div class="forumng-intro">' . format_text($text, FORMAT_HTML,
-            $options, $forum->get_course_id()) . '</div>';
+
+        // Make fake activity object in required format, and use to format
+        // intro for module with standard function (which handles images etc.)
+        $activity = (object)array('intro' => $forum->get_intro(),
+                'introformat' => $forum->get_intro_format());
+        $intro = format_module_intro(
+                'forumng', $activity, $forum->get_course_module_id(true));
+
+        // Box styling appears to be consistent with some other modules
+        $intro = html_writer::tag('div', $intro, array('class' => 'generalbox box',
+                'id' => 'intro'));
+
+        return $intro;
     }
 
     /**

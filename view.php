@@ -88,7 +88,7 @@ groups_print_activity_menu($cm, $forum->get_url(mod_forumng::PARAM_HTML));
 
 print $out->container_start('forumng-main');
 print $out->render_switch_link($forum);
-print skip_main_destination();
+print $out->skip_link_target();
 // Get forum type to display main part of page
 $forum->get_type()->print_view_page($forum, $groupid);
 
