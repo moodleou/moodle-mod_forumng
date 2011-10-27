@@ -1861,6 +1861,7 @@ WHERE
 
         // Header
         $text = '';
+        $html = '';
         if (!$discussionemail && !$digest) {
             // TODO Is this needed? It doesn't work; $CFG->stylesheets not there
 //            $html = '<head>';
