@@ -25,8 +25,8 @@ $string['merge'] = 'Merge';
 $string['beginmerge'] = 'Begin merge';
 $string['mergeinfo'] = 'To merge this discussion into another:<ol>
 <li>Click <strong>Begin merge</strong> to confirm this form.</li>
-<li>Go to the discussion that you want to merge it into. (This may be in the
-same forum or a different one.)</li>
+<li>Go to the discussion that you want to merge it into. (This must be in the
+same forum.)</li>
 <li>Click <strong>Merge here</strong> to finish the merge, or
 the <strong>Cancel</strong> button alongside if you change your mind.</li>
 </ol>';

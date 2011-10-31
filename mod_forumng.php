@@ -3226,7 +3226,7 @@ WHERE
             $transaction = $DB->start_delegated_transaction();
 
             // Wipe existing search data, if any
-            ousearch_document::delete_module_instance_data($cm);
+            local_ousearch_document::delete_module_instance_data($cm);
 
             // Get all discussions for this forum
             $discussions = $DB->get_records('forumng_discussions',

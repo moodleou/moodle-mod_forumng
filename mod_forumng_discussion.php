@@ -533,8 +533,8 @@ class mod_forumng_discussion {
         if ($this->full && ($this->foruserid == $foruserid || $foruserid==-1)) {
             return;
         }
-        $new = self::get_from_id($this->discussionfields->id, $foruserid,
-            $usecache, $storecache);
+        $new = self::get_from_id($this->discussionfields->id,
+                $this->get_forum()->get_course_module_id(), $foruserid, $usecache, $storecache);
         foreach (get_class_vars('mod_forumng_discussion') as $field=>$dontcare) {
             $this->{$field} = $new->{$field};
         }
@@ -837,7 +837,7 @@ WHERE
         }
 
         // Update search index (replies only)
-        if (mod_forumng::search_installed() && $parentpost) {
+        if ($parentpost) {
             $post->search_update();
         }
 
@@ -979,10 +979,20 @@ WHERE
             // No change
             return;
         }
+        //Delete search data for this discussion before moving
+        $this->ismakingsearchchange = true;
+        $root = $this->get_root_post();
+        $root->search_update();
+        $root->search_update_children();
+        $this->ismakingsearchchange = false;
+
         $update->id = $this->discussionfields->id;
 
         $transaction = $DB->start_delegated_transaction();
         $DB->update_record('forumng_discussions', $update);
+
+        $newdiscussion = self::get_from_id($this->get_id(),
+                $this->get_forum()->get_course_module_id(), -1);
 
         if ($targetforum->get_id() != $this->forum->get_id()) {
             // Moving to different forum, we need to move attachments if any...
@@ -1015,20 +1025,23 @@ WHERE
             // Performance optimise: only do this if completion is enabled
             if ($this->forum->is_auto_completion_enabled()) {
                 $this->update_completion(false);
-                $newdiscussion = mod_forumng_discussion::get_from_id($this->get_id(),
-                    $this->get_forum()->get_course_module_id(), -1);
                 $newdiscussion->update_completion(true);
             }
         }
+
+        //Update the search data after the move
+        $newroot = $newdiscussion->get_root_post();
+        $newroot->search_update();
+        $newroot->search_update_children();
 
         $this->uncache();
         $transaction->allow_commit();
     }
     /**
-     * Copy the discussion and its  posts to another forum and/or group.
+     * Copy the discussion and its posts to another forum and/or group.
      * @param mod_forumng $targetforum Forum to copy the discussion to
      * @param int $groupid If 'All participants' has been selected from the
-     *   Separate groups dropdown box, use default value 0
+     * separate groups dropdown box, use default value 0
      */
     function copy($targetforum, $groupid) {
         global $SESSION, $DB;
@@ -1101,6 +1114,12 @@ WHERE
                 }
             }
         }
+        // Update the search data after the copy
+        $newdiscussion = self::get_from_id($newdiscussionid,
+                $this->get_forum()->get_course_module_id(), -1);
+        $root = $newdiscussion->get_root_post();
+        $root->search_update();
+        $root->search_update_children();
         $transaction->allow_commit();
     }
 
@@ -1309,6 +1328,13 @@ WHERE
         global $DB;
         $transaction = $DB->start_delegated_transaction();
 
+        // Delete search data for the source discussion
+        $this->ismakingsearchchange = true;
+        $root = $this->get_root_post();
+        $root->search_update();
+        $root->search_update_children();
+        $this->ismakingsearchchange = false;
+
         // Update parent post id of root post
         $record = new stdClass;
         $record->id = $this->discussionfields->postid;
@@ -1333,6 +1359,11 @@ WHERE
         // (if there was a requirement for discussions and this is no longer
         // a discussion in its own right).
         $this->update_completion(false);
+
+        // Update the search data for the target discussion after the merge
+        $newroot = $targetdiscussion->get_root_post();
+        $newroot->search_update();
+        $newroot->search_update_children();
 
         if ($log) {
             $this->log('merge discussion d' . $targetdiscussion->get_id());
