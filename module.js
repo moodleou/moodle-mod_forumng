@@ -1112,11 +1112,17 @@ M.mod_forumng = {
 
         // Add item there
         var newDiv = document.createElement('div');
-        newDiv.innerHTML = o.responseText;
+        var scriptCommands = [];
+        newDiv.innerHTML = this.extract_js(o.responseText, scriptCommands);
         var newPost = newDiv.firstChild;
         newDiv.removeChild(newPost);
         newPost = this.Y.one(newPost);
         replies.appendChild(newPost);
+
+        // Run script commands
+        for (var i=0; i<scriptCommands.length; i++) {
+            eval(scriptCommands[i]);
+        }
 
         // Set up JavaScript behaviour in new post
         this.init_content(newPost);
@@ -1201,6 +1207,25 @@ M.mod_forumng = {
     },
 
     /**
+     * Some browsers cannot execute JavaScript just by inserting script tags.
+     * To avoid that problem, remove all script tags from the given content,
+     * and run them later.
+     * @param text HTML content
+     * @param scriptCommands Array of commands (the commands will be pushed
+     *   into this)
+     * @return New text with JS removed
+     */
+    extract_js: function(text, scriptCommands) {
+        var scriptRegexp = /<script[^>]*>([\s\S]*?)<\/script>/g;
+
+        while ((result = scriptRegexp.exec(text)) != null) {
+            scriptCommands.push(result[1]);
+        }
+
+        return text.replace(scriptRegexp, '');
+    },
+
+    /**
      * AJAX response: Expand completes successfully.
      * @param transactionid YUI transaction id
      * @param o YUI response object
@@ -1208,17 +1233,8 @@ M.mod_forumng = {
      */
     expand_ok: function(transactionid, o, link) {
         var newDiv = document.createElement('div');
-        var scriptRegexp = /<script[^>]*>([\s\S]*?)<\/script>/g;
-        var text = o.responseText;
-
-        // Some browsers execute script tags when you add them to DOM but others
-        // (IE7) do not, so I pull out the script tags here and execute later.
         var scriptCommands = [];
-        while ((result = scriptRegexp.exec(text)) != null) {
-            scriptCommands.push(result[1]);
-        }
-        text = text.replace(scriptRegexp, '');
-        newDiv.innerHTML = text;
+        newDiv.innerHTML = this.extract_js(o.responseText, scriptCommands);
         var newPost = newDiv.firstChild;
         newDiv.removeChild(newPost);
         newPost = this.Y.one(newPost);
@@ -1730,12 +1746,18 @@ M.mod_forumng = {
 
         // Add item just in front of existing post, then delete existing
         var newdiv = document.createElement('div');
-        newdiv.innerHTML = o.responseText;
+        var scriptCommands = [];
+        newdiv.innerHTML = this.extract_js(o.responseText, scriptCommands);
         var newpost = newdiv.firstChild;
         newdiv.removeChild(newpost);
         newpost = this.Y.one(newpost);
         form.post.get('parentNode').insertBefore(newpost, form.post);
         form.post.get('parentNode').removeChild(form.post);
+
+        // Run script commands
+        for (var i=0; i<scriptCommands.length; i++) {
+            eval(scriptCommands[i]);
+        }
 
         // For discussion, do special handling
         if (form.isroot) {
