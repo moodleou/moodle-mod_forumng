@@ -240,12 +240,12 @@ this forum via email to {$a}.';
 $string['subscribestate_subscribed'] = 'You receive messages from this forum via email to {$a}.';
 $string['subscribestate_subscribed_thisgroup'] = 'You receive messages from this group via email
 to {$a}.';
-$string['subscribestate_subscribed_notinallgroup'] = 'Click the Unsubscribe button to unsubscribe
+$string['subscribestate_subscribed_notinallgroup'] = 'Click &lsquo;Unsubscribe&rsquo; to unsubscribe
 from the forum.';
 $string['subscribestate_unsubscribed'] = 'You do not currently receive messages from this forum by
-email. If you would like to, please click Subscribe.';
+email. If you would like to, click &lsquo;Subscribe&rsquo;.';
 $string['subscribestate_unsubscribed_thisgroup'] = 'You do not currently receive messages from this
-group by email. If you would like to, please click Subscribe to this group.';
+group by email. If you would like to, click &lsquo;Subscribe to this group&rsquo;.';
 $string['subscribestate_not_permitted'] = 'This forum does not allow email subscription.';
 $string['subscribestate_forced'] = '(This forum does not allow you to unsubscribe.)';
 $string['subscribestate_no_access'] = 'You do not have access to subscribe to this forum by
@@ -253,7 +253,7 @@ email.';
 $string['subscribestate_discussionsubscribed'] = 'You receive messages from this discussion via
 email to {$a}.';
 $string['subscribestate_discussionunsubscribed'] = 'You do not currently receive messages from this
-discussion by email. If you would like to, please click <strong>Subscribe to discussion</strong>.';
+discussion by email. If you would like to, click &lsquo;Subscribe to discussion&rsquo;.';
 $string['replytopost'] = 'Reply to post: {$a}';
 $string['editpost'] = 'Edit post: {$a}';
 $string['editdiscussionoptions'] = 'Edit discussion options: {$a}';
@@ -379,8 +379,8 @@ $string['confirmdeletedraft'] = 'Are you sure you want to delete this draft post
 $string['draft'] = 'Draft';
 $string['collapseall'] = 'Collapse all posts';
 $string['selectlabel'] = 'Select post {$a}';
-$string['selectintro'] = 'Tick the box beside each post you want to include. When you\'re done,
-scroll to the bottom and click <strong>Confirm selection</strong>.';
+$string['selectintro'] = 'Tick the box beside each post you want to include. When you&rsquo;re done,
+scroll to the bottom and click &lsquo;Confirm selection&rsquo;.';
 $string['confirmselection'] = 'Confirm selection';
 $string['selectedposts'] = 'Selected posts';
 $string['selectorall'] = 'Do you want to include the entire discussion, or only selected posts?';
@@ -673,26 +673,22 @@ $string['error_nosharedforum'] = 'Forum <strong>{$a->name}</strong>: Could not r
 forum; ID number {$a->idnumber} not found. Restored forum is an independent forum.';
 
 $string['advancedsearch'] = 'Advanced search';
-$string['words'] = 'Words';
-$string['words_help'] = 'This free text search field works the same as the normal search box.
+$string['words'] = 'Search for';
+$string['words_help'] = 'Type your search term here.
 
-For example, you could match posts which contain the word frog, do not contain the word jump, and
-contain the phrase &lsquo;ribbit ribbit&rsquo; by typing <tt>frog -jump &quot;ribbit
-ribbit&quot;</tt> into this box.
+To search for exact phrases use quote marks.
 
-If you leave this box blank, then all posts which match the author and/or date criteria will be
-returned regardless of their content.';
+To exclude a word insert a hyphen immediately before the word.
+
+Example: the search term <tt>picasso -sculpture &quot;early works&quot;</tt> will return results for &lsquo;picasso&rsquo; or the phrase &lsquo;early works&rsquo; but will exclude items containing &lsquo;sculpture&rsquo;.
+
+If you leave this box blank, then all posts that match the author and/or date criteria will be returned, regardless of their content.';
 $string['authorname'] = 'Author name';
-$string['authorname_help'] = 'Use this box to find posts by a particular author.
+$string['authorname_help'] = 'You can type a first name (Jane), a surname (Brown), the whole name (jane brown), or the first part of any of these (Ja, bro, Jane B). Searches are not case sensitive.
 
-You can type a first name (Jane), a surname (Brown), the whole name (jane brown), or the first
-part of any of these (Ja, bro, Jane B). All matches are case-insensitive.
+You can also type a username (jb001).
 
-If you know it, you can also type a username <tt>jb001</tt>; this will match only people with that
-exact username.
-
-If you don&rsquo;t specify an author, then posts from all authors will be included in the
-results.';
+If you leave this blank, posts from all authors will be included.';
 $string['daterangefrom'] = 'Date range from';
 $string['daterangefrom_help'] = 'Use the dates to restrict your search to only include posts
 within the given time range.
@@ -735,10 +731,7 @@ NG stands for \'Next Generation\'.';
 
 $string['mailnow_help'] = 'Send your post to email subscribers more quickly.
 
-If you choose this option, the system doesn\'t wait to give you a chance to edit the post. Instead
-it is included in the next email processing batch.
-
-You can still edit the post, but subscribers may have already received the original version.';
+Unless you choose this option, the system waits for some time before sending the post so that any edits you might make can be included in the email.';
 $string['displayperiod_help'] = 'You can hide this discussion from students until, or after, a
 certain date.
 
@@ -766,44 +759,21 @@ $string['flaggedposts_help'] = 'Flagged posts appear in this list. To jump to a 
 click on it.
 
 To remove the flag from a post, click on the flag icon (here or in the post).';
-$string['searchthisforum_help'] = 'This search option allows you to search within the forum you are
-currently viewing.
+$string['searchthisforum_help'] = 'Type your search term and press Enter or click the button.
 
-To begin searching please enter a keyword within the search text box and press the arrow button.
+To search for exact phrases use quote marks.
 
-On the results page you will be presented with a list of search results where your keyword is
-featured.
+To exclude a word insert a hyphen immediately before the word.
 
-If you wish to change your keyword and search again you need to enter your new keyword in the
-search text box and click on the arrow key. Your new results will be displayed.
+Example: the search term <tt>picasso -sculpture &quot;early works&quot;</tt> will return results for &lsquo;picasso&rsquo; or the phrase &lsquo;early works&rsquo; but will exclude items containing &lsquo;sculpture&rsquo;.
 
-At the bottom of these results you will find an ‘Advanced search’ link. Click on this link and you
-will be taken to another page where you can search by using at least one search criterion (e.g.
-searching for all posts from a particular author) or a combination of criteria (e.g. searching for
-all posts which contain a certain word and/or expression and posted within a specific date).
+To search by author or date, click &lsquo;More options&rsquo;.';
+$string['searchthisforumlink_help'] = 'Type your search term and press Enter or click the button.
 
-If you wish to return to the home page of your website you can use the back button in your browser
-or the website code in the crumb trail in the top left-hand corner.';
-$string['searchthisforumlink_help'] = 'This search option allows you to search within the forum you are
-currently viewing.
+To search for exact phrases use quote marks.
 
-To begin searching please enter a keyword within the search text box and press the arrow button.
+To exclude a word insert a hyphen immediately before the word.
 
-On the results page you will be presented with a list of search results where your keyword is
-featured.
+Example: the search term <tt>picasso -sculpture &quot;early works&quot;</tt> will return results for &lsquo;picasso&rsquo; or the phrase &lsquo;early works&rsquo; but will exclude items containing &lsquo;sculpture&rsquo;.
 
-If you wish to change your keyword and search again you need to enter your new keyword in the
-search text box and click on the arrow key. Your new results will be displayed.
-
-At the bottom of these results you will find an ‘Advanced search’ link. Click on this link and you
-will be taken to another page where you can search by using at least one search criterion (e.g.
-searching for all posts from a particular author) or a combination of criteria (e.g. searching for
-all posts which contain a certain word and/or expression and posted within a specific date).
-
-You will also have the option to ‘Search the rest of this website’. Click on the link and you will
-be taken to a ‘Your search options’ page. Your keyword will be carried through but you will have
-the ability to change your keyword and search again. You will also be able to choose to search all
-of your forums or the OU Library.
-
-If you wish to return to the home page of your website you can use the back button in your browser
-or the website code in the crumb trail in the top left-hand corner.';
+To search by author or date, click &lsquo;More options&rsquo;.';

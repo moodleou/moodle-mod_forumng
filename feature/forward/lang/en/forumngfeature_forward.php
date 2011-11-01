@@ -29,6 +29,4 @@ $string['forward_preface'] = '<p>These forum posts were sent to you on behalf of
 $string['forward_done'] = 'The email has been sent.';
 $string['forward_info_selected'] = 'The selected posts (shown below this form) will be emailed to the address or addresses you enter here. The email will be sent under your name <strong>{$a->fullname}</strong> from your email address <strong>{$a->email}</strong>.';
 $string['forward_info_all'] = 'This discussion will be emailed to the address or addresses you enter here. The email will be sent under your name <strong>{$a->fullname}</strong> from your email address <strong>{$a->email}</strong>.';
-$string['forward_email_help'] = 'When forwarding messages by email, enter one or more email addresses to receive the mail.
-
-If you enter multiple email addresses, use a space or semicolon to separate the addresses. Don\'t use a comma.';
+$string['forward_email_help'] = 'Enter one or more email address(es) separated by spaces or semicolons.';

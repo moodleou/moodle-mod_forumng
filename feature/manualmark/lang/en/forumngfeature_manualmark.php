@@ -25,12 +25,8 @@ $string['manualmark_auto'] = 'Automatically marking discussions read';
 $string['manualmark_manual'] = 'Manually marking discussions read';
 $string['manualmark_change'] = 'Change';
 
-$string['manualmark_change_help'] = 'By default discussions are automatically marked as read.
-As soon as you view a discussion, it is marked read;
-if you view it again, there will be no unread posts.
+$string['manualmark_change_help'] = '&lsquo;Automatically marking discussions read&rsquo; marks all posts in a discussion as read when you view any post in that discussion.
 
-In manual mode, by contrast, messages continue to be displayed as unread until you click
-<strong>Mark discussion read</strong> in the discussion, or
-use equivalent options on the main forum page.
+&lsquo;Manually marking discussions read&rsquo; leaves posts marked as unread until you click &lsquo;Mark discussion read&rsquo;.
 
-The option works across all forums on the system.';
+This option applies to all forums on the system.';
