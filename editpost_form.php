@@ -161,16 +161,20 @@ class mod_forumng_editpost_form extends moodleform {
         // Additional options apply only to discussion
         if ($isdiscussion && $forum->can_manage_discussions()) {
 
-            // Restrict to specific time period
-            $mform->addElement('header', 'id_displayperiod',
-                get_string('displayperiod', 'forumng'));
+            // Restrict to specific time period (only if you are allowed to
+            // see hidden posts, otherwise stupid to let people hide it and
+            // then not see)
+            if ($forum->can_view_hidden()) {
+                $mform->addElement('header', 'id_displayperiod',
+                    get_string('displayperiod', 'forumng'));
 
-            $mform->addElement('date_selector', 'timestart',
-                get_string('timestart', 'forumng'), array('optional'=>true));
-            $mform->addHelpButton('timestart', 'displayperiod', 'forumng');
+                $mform->addElement('date_selector', 'timestart',
+                    get_string('timestart', 'forumng'), array('optional'=>true));
+                $mform->addHelpButton('timestart', 'displayperiod', 'forumng');
 
-            $mform->addElement('date_selector', 'timeend',
-                get_string('timeend', 'forumng'), array('optional'=>true));
+                $mform->addElement('date_selector', 'timeend',
+                    get_string('timeend', 'forumng'), array('optional'=>true));
+            }
 
             // Discussion options...
             $mform->addElement('header', 'id_stickyoptions',
