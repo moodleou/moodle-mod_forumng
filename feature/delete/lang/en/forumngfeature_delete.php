@@ -26,3 +26,4 @@ $string['deletediscussion'] = 'Delete discussion';
 $string['undeletediscussion'] = 'Undelete discussion';
 $string['confirmdeletediscussion'] = 'Are you sure you want to delete this discussion?';
 $string['confirmundeletediscussion'] = 'Are you sure you want to undelete this discussion?';
+$string['pluginname'] = 'Delete/undelete discussion';

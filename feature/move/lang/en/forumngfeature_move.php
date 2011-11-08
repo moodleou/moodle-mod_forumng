@@ -23,3 +23,4 @@
  */
 $string['movethisdiscussionto'] = 'Move this discussion to ...';
 $string['move_group_info'] = 'You are moving this discussion to the forum <strong>{$a}</strong>. That forum uses groups. Please select the group you would like to move the message into.';
+$string['pluginname'] = 'Move discussion';

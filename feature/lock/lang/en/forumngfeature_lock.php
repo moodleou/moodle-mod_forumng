@@ -27,3 +27,4 @@ $string['lockdiscussion'] = 'Lock discussion: {$a}';
 $string['lockdiscussionbutton'] = 'Lock discussion';
 $string['locksubject'] = 'This discussion is now closed';
 $string['confirmunlock'] = 'Are you sure you want to unlock this discussion?';
+$string['pluginname'] = 'Lock/unlock discussion';

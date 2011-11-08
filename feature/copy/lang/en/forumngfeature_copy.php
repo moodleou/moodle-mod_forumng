@@ -32,3 +32,4 @@ the <strong>Cancel</strong> button alongside if you change your mind.</li>
 </ol>';
 $string['copy_begin'] = 'Begin copy';
 $string['copy_title'] = 'Copy discussion';
+$string['pluginname'] = 'Copy discussion';

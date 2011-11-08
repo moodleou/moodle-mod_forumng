@@ -22,3 +22,4 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 $string['markdiscussionread'] = 'Mark discussion read';
+$string['pluginname'] = 'Mark discussion read';

@@ -22,3 +22,4 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 $string['markallread'] = 'Mark all posts read';
+$string['pluginname'] = 'Mark all posts read';

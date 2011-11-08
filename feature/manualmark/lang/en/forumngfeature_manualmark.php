@@ -30,3 +30,4 @@ $string['manualmark_change_help'] = '&lsquo;Automatically marking discussions re
 &lsquo;Manually marking discussions read&rsquo; leaves posts marked as unread until you click &lsquo;Mark discussion read&rsquo;.
 
 This option applies to all forums on the system.';
+$string['pluginname'] = 'Option to manually mark discussions read';

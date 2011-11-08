@@ -34,3 +34,4 @@ $string['mergehere'] = 'Merge here';
 $string['cancelmerge'] = 'Cancel merge';
 $string['cannotmergehere'] = '(Cannot merge here.)';
 $string['error_wrongforum'] = 'Cannot merge into different forum';
+$string['pluginname'] = 'Merge discussions';

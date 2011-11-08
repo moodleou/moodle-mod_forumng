@@ -25,3 +25,4 @@ $string['print'] = 'Print';
 $string['print_pagename'] = 'Printable version';
 $string['printedat'] = 'Formatted for printing at {$a}';
 $string['back'] = 'When printing finishes, <a href=\'{$a}\'>return to the discussion</a>. (This box will not appear on the printout.)';
+$string['pluginname'] = 'Print posts';
