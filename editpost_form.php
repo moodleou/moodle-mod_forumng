@@ -121,15 +121,30 @@ class mod_forumng_editpost_form extends moodleform {
                     'context'=>$forum->get_context(true));
                 $mform->addElement('editor', 'message', get_string('message', 'forumng'),
                         $editorattributes, $editoroptions);
+                $gotmessage = true;
             } else {
                 // AJAX version has a placeholder, to be installed by live JavaScript
-                $mform->addElement('text', 'message', get_string('message', 'forumng'),
-                        $editorattributes);
+                if (can_use_html_editor()) {
+                    $mform->addElement('text', 'message', get_string('message', 'forumng'),
+                            $editorattributes);
+                    $gotmessage = true;
+                } else {
+                    $mform->addElement('textarea', 'message[text]', get_string('message', 'forumng'),
+                            $editorattributes);
+                    $mform->addElement('hidden', 'message[format]', FORMAT_MOODLE);
+                    $gotmessage = false;
+                }
             }
 
-            $mform->setType('message', PARAM_RAW);
-            $mform->addRule('message', get_string('required'),
-                'required', null, 'client');
+            if ($gotmessage) {
+                $mform->setType('message', PARAM_CLEANHTML);
+                $mform->addRule('message', get_string('required'),
+                        'required', null, 'client');
+            } else {
+                $mform->setType('message[text]', PARAM_RAW);
+                $mform->addRule('message[text]', get_string('required'),
+                        'required', null, 'client');
+            }
 
             // If you can create attachments...
             if ($forum->can_create_attachments()) {
@@ -285,13 +300,6 @@ class mod_forumng_editpost_form extends moodleform {
             $errors['timeend'] = get_string('timestartenderror', 'forumng');
         }
         return $errors;
-    }
-    function definition_after_data() {
-        parent::definition_after_data();
-        $mform =& $this->_form;
-        if ($mform->elementExists('format')) {
-            $mform->getElement('format')->setValue(FORMAT_MOODLE);
-        }
     }
 
     /**

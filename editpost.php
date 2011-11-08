@@ -425,11 +425,13 @@ if ($mform->is_cancelled()) {
             // Save attachments
             file_save_draft_area_files($fromform->attachments, $filecontext->id, 'mod_forumng',
                     'attachment', $postid, $fileoptions);
-            $newtext = file_save_draft_area_files($fromform->message['itemid'],
-                    $filecontext->id, 'mod_forumng', 'message', $postid, $fileoptions,
-                    $fromform->message['text']);
-            if ($newtext !== $fromform->message['text']) {
-                mod_forumng_post::update_message_for_files($postid, $newtext);
+            if (!empty($fromform->message['itemid'])) {
+                $newtext = file_save_draft_area_files($fromform->message['itemid'],
+                        $filecontext->id, 'mod_forumng', 'message', $postid, $fileoptions,
+                        $fromform->message['text']);
+                if ($newtext !== $fromform->message['text']) {
+                    mod_forumng_post::update_message_for_files($postid, $newtext);
+                }
             }
 
             // If there's a draft, get rid of it
@@ -456,9 +458,12 @@ if ($mform->is_cancelled()) {
 
             file_save_draft_area_files($fromform->attachments, $filecontext->id, 'mod_forumng',
                     'attachment', $post->get_id(), $fileoptions);
-            $fromform->message['text'] = file_save_draft_area_files($fromform->message['itemid'],
-                    $filecontext->id, 'mod_forumng', 'message', $postid, $fileoptions,
-                    $fromform->message['text']);
+            // itemid is not present when using text-only editor
+            if (!empty($fromform->message['itemid'])) {
+                $fromform->message['text'] = file_save_draft_area_files($fromform->message['itemid'],
+                        $filecontext->id, 'mod_forumng', 'message', $postid, $fileoptions,
+                        $fromform->message['text']);
+            }
 
             $post->edit_finish($fromform->message['text'], $fromform->message['format'],
                     $gotsubject);

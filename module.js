@@ -350,7 +350,7 @@ M.mod_forumng = {
      */
     init_form: function(f) {
         f.expectingeditor = f.get('tryinghtmleditor').get('value')=='1';
-        f.usingeditor = f.expectingeditor && window.tinyMCE ;
+        f.usingeditor = f.expectingeditor && window.tinyMCE;
     },
 
     /**
@@ -591,7 +591,7 @@ M.mod_forumng = {
         // Pick max indent level
         var region = this.Y.DOM.region(document.getElementById('forumng-main'));
         var width = region.right - region.left;
-        var minwidth = 360;
+        var minwidth = 515; // Min size at which the stupid editor doesn't get cut off
         var maxindentpixels = width - minwidth;
         var stopIndent;
 
@@ -697,7 +697,13 @@ M.mod_forumng = {
             }
             clearInterval(submitenableinterval);
             if (form.usingeditor) {
-                tinyMCE.execCommand('mceRemoveControl', false, form.get('message[text]').get('id'));
+                var id = form.get('message[text]').get('id');
+                tinyMCE.execCommand('mceRemoveControl', false, id);
+
+                // TinyMCE remembers sizes, doesn't work on this page, so
+                // delete cookie pre-emptively
+                var cookieName = 'TinyMCE_' + id + '_size';
+                document.cookie = cookieName + '=; expires=Thu, 01-Jan-70 00:00:01 GMT;';
             }
 
             form.setStyle('display', 'none');
@@ -845,6 +851,7 @@ M.mod_forumng = {
                 form.oldinput = input;
                 input.remove();
 
+                var Y = this.Y;
                 if (form.usingeditor) {
                     // Set up options
                     var options = {};
@@ -856,9 +863,6 @@ M.mod_forumng = {
                     }
                     options[1].elements = options[1].elements.replace('QQidQQ', fieldId);
 
-                    // Call the JS init function
-                    this.Y.use('editor_tinymce', function(Y) { M.editor_tinymce.init_editor(Y, options[0], options[1]); });
-
                     // Initialise attachments if provided
                     if (fileoptions) {
                         // Update the options template
@@ -866,15 +870,25 @@ M.mod_forumng = {
                         allfileoptions[0] = this.editorfileoptions[0].replace('QQidQQ', fieldId);
                         allfileoptions[1] = this.deep_clone_change_itemid(this.editorfileoptions[1],
                                 fileoptions.itemid);
-
-                        this.Y.use('editor_tinymce', function(Y) { M.editor_tinymce.init_filepicker(Y, allfileoptions[0], allfileoptions[1]); });
                     }
+
+                    setTimeout(function() {
+                        // Call the JS init function
+                        Y.use('editor_tinymce', function(Y) { M.editor_tinymce.init_editor(Y, options[0], options[1]); });
+
+                        // Initialise attachments if provided
+                        if (fileoptions) {
+                            Y.use('editor_tinymce', function(Y) { M.editor_tinymce.init_filepicker(Y, allfileoptions[0], allfileoptions[1]); });
+                        }
+                    }, 0);
                 }
 
                 form.donetextarea = true;
             }
         }
-        form.get('message[text]').set('value', value);
+        var textbox = form.get('message[text]');
+        textbox.set('value', value);
+        textbox.ancestor('div.fitem').addClass('forumng-editarea');
         form.get('subject').set('value', '');
         if (form.get('setimportant')) {
             form.get('setimportant').set('checked', false);
@@ -889,33 +903,34 @@ M.mod_forumng = {
             setTimeout(function() {
                 var id = form.get('message[text]').get('id');
 
-                // Function to focus the editor
-                var focusFunction = function() {
+                var fixFunction = function() {
+                    var iframe = form.one('iframe');
+                    if(!iframe) {
+                        setTimeout(fixFunction, 250);
+                        return;
+                    }
+
                     if (navigator.product == 'Gecko') {
                         form.get('subject').focus();
                         setTimeout(function() {
                             tinyMCE.execCommand('mceFocus', false, id);
                         }, 0);
                     } else {
-                      // Make sure the editor actually exists, otherwise wait
-                        if (M.mod_forumng.Y.one('#' + id + '_parent')) {
-                            tinyMCE.execCommand('mceFocus', false, id);
-                        } else {
-                            setTimeout(focusFunction, 250);
-                        }
+                        tinyMCE.execCommand('mceFocus', false, id);
                     }
-                };
+                }
+                setTimeout(fixFunction, 250);
 
                 // There is a Firefox bug with disappearing cursor
                 if (navigator.product != 'Gecko') {
                     // In other browsers, the focus command only needs a simple setTimeout
-                    setTimeout(focusFunction, 0);
+                    setTimeout(fixFunction, 0);
                 } else {
                     // In Gecko, we need to focus a normal (non-richtext) field first, then
                     // focus the editor. Need to wait a bit first; repeating the
                     // set_timeout 20 times recursively seems to do the job...
                     setTimeout(function() {
-                        M.mod_forumng.set_timeout_multi(focusFunction, 20);
+                        M.mod_forumng.set_timeout_multi(fixFunction, 20);
                     }, 0);
                 }
             }, 0);

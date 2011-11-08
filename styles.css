@@ -519,11 +519,14 @@ ul.forumng-commands li.forumng-replylink {
 */
 
 #page-mod-forumng-discuss .mform {
-    width: 100%;
     padding: 0;
     display: none;
     margin-bottom: 1em;
 }
+#page-mod-forumng-discuss .mform textarea {
+    width: 99%;
+}
+
 .ie#page-mod-forumng-discuss .mform {
     margin-top: 0.5em;
 }
