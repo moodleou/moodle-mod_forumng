@@ -2304,12 +2304,12 @@ WHERE
      *   automatically log user in as guest
      */
     public function require_view($groupid, $userid=0, $autologinasguest=false) {
-        global $CFG, $USER;
+        global $CFG, $USER, $PAGE;
 
         $cm = $this->get_course_module();
         $course = $this->get_course();
         $context = $this->get_context();
-        if (!$userid || !(empty($USER->id) && $userid == $USER->id)) {
+        if (!$userid || (!empty($USER->id) && $userid == $USER->id)) {
             // User must be logged in and able to access the activity. (This
             // call sets up the global course and checks various other access
             // restrictions that apply at course-module level, such as visibility.)
@@ -2319,6 +2319,10 @@ WHERE
                 require_login($course, $autologinasguest, $cm);
             }
         } else {
+            // Since require_login is not being called, we need to set up $PAGE->context
+            // or it gives an annoying warning
+            $PAGE->set_context($context);
+
             // This is a check for another user who is not logged in.  We need to check
             // basic course enrolment and a couple of the 'hidden' flags
             if (!is_enrolled($context, $userid, '', true)) {
