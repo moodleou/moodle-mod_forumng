@@ -58,7 +58,8 @@ $out = $forum->init_page($thisurl, get_string('userposts', 'forumngfeature_userp
 print $out->header();
 
 // Display group selector if required
-groups_print_activity_menu($cm, $forum->get_url(mod_forumng::PARAM_HTML));
+groups_print_activity_menu($cm, $CFG->wwwroot . '/mod/forumng/feature/userposts/list.php?' .
+        $forum->get_link_params(mod_forumng::PARAM_PLAIN));
 
 print '<div class="clearer"></div>';
 
