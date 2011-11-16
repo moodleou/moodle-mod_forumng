@@ -323,8 +323,19 @@ WHERE
     public function get_formatted_message() {
         global $CFG;
         require_once($CFG->dirroot . '/lib/filelib.php');
-        $text = file_rewrite_pluginfile_urls($this->postfields->message, 'pluginfile.php',
-            $this->get_forum()->get_context(true)->id, 'mod_forumng', 'message',
+        $text = $this->postfields->message;
+        $forum = $this->get_forum();
+        // Add clone param to end of pluginfile requests
+        if ($forum->is_shared()) {
+            // "@@PLUGINFILE@@/cheese.gif?download=1"
+            $text = preg_replace('~([\'"]@@PLUGINFILE@@[^\'"?]+)\?~',
+                    '$1?clone=' . $forum->get_course_module_id() . '&amp;', $text);
+            // "@@PLUGINFILE@@/cheese.gif"
+            $text = preg_replace('~([\'"]@@PLUGINFILE@@[^\'"?]+)([\'"])~',
+                    '$1?clone=' . $forum->get_course_module_id() . '$2', $text);
+        }
+        $text = file_rewrite_pluginfile_urls($text, 'pluginfile.php',
+            $forum->get_context(true)->id, 'mod_forumng', 'message',
             $this->postfields->id);
         $textoptions = new stdClass();
         // Don't put a <p> tag round post
@@ -333,7 +344,7 @@ WHERE
         // TRUSTTEXT marker would be supported. At present though it isn't (hm)
         $textoptions->trusttext = false;
         return format_text($text, $this->postfields->messageformat, $textoptions,
-                $this->get_forum()->get_course_id());
+                $forum->get_course_id());
     }
 
     /**
