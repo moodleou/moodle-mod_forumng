@@ -443,8 +443,8 @@ WHERE
      * @param array $inparams Parameters for the $inids query
      */
     public static function update_with_subquery_grrr_mysql($update, $inids, $inparams) {
-        global $CFG, $DB;
-        if (preg_match('~^mysql~', $CFG->dbtype)) {
+        global $DB;
+        if ($DB->get_dbfamily() === 'mysql') {
             // MySQL is a PoS so the update can't directly run (you can't update
             // a table based on a subquery that refers to the table). Instead,
             // we do the same thing but with a separate update using an IN clause.

@@ -2906,9 +2906,9 @@ WHERE
             // Mess about with binary setting to ensure result is same, whatever
             // the database
             if ($unread == self::UNREAD_BINARY
-                && isset($rec->f_numunreaddiscussions)) {
+                    && isset($rec->f_numunreaddiscussions)) {
                 $rec->f_hasunreaddiscussions =
-                    $rec->f_numunreaddiscussions>0 ? 1 : 0;
+                        $rec->f_numunreaddiscussions>0 ? 1 : 0;
                 unset($rec->f_numunreaddiscussions);
             }
 
@@ -2974,7 +2974,7 @@ WHERE
      * @return array Array of row objects
      */
     private static function query_forums($cmids=array(), $course=null,
-        $userid, $unread, $groups, $aagforums, $viewhiddenforums) {
+            $userid, $unread, $groups, $aagforums, $viewhiddenforums) {
         global $DB, $CFG, $USER;
         if ((!count($cmids) && !$course)) {
             throw new coding_exception("mod_forumng::query_forums requires course id or cmids");
@@ -3106,7 +3106,7 @@ WHERE
             // their reply. Since this should be an infrequent occurrence I
             // believe this behaviour is acceptable.
             if ($unread==self::UNREAD_BINARY &&
-                ($CFG->dbtype=='postgres7' || $CFG->dbtype=='mysql')) {
+                    ($DB->get_dbfamily() === 'postgres' || $DB->get_dbfamily() === 'mysql')) {
                 // Query to get 0/1 unread discussions count
                 $readtracking = "
 (SELECT
@@ -4791,14 +4791,17 @@ WHERE
         if (count($rows) != 1) {
             throw new coding_exception('Unexpected data extracting base forum');
         }
+        $row = reset($rows);
         switch ($unread) {
             case self::UNREAD_BINARY:
-                $this->forumfields->hasunreaddiscussions =
-                        reset($rows)->f_hasunreaddiscussions;
+                if (isset($row->f_hasunreaddiscussions)) {
+                    $this->forumfields->hasunreaddiscussions = $row->f_hasunreaddiscussions;
+                } else {
+                    $this->forumfields->hasunreaddiscussions = $row->f_numunreaddiscussions ? 1 : 0;
+                }
                 break;
             case self::UNREAD_DISCUSSIONS:
-                $this->forumfields->numunreaddiscussions =
-                        reset($rows)->f_numunreaddiscussions;
+                $this->forumfields->numunreaddiscussions = $row->f_numunreaddiscussions;
                 break;
         }
     }
