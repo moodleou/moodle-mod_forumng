@@ -178,7 +178,7 @@ abstract class forumngfeature_post_selector {
                 print html_writer::empty_tag('input', array('type' => 'hidden',
                         'name' => 'fromselect', 'value' => '1'));
 
-                print $forum->get_type()->display_discussion($discussion, array(
+                print $out->render_discussion($discussion, array(
                         mod_forumng_post::OPTION_NO_COMMANDS => true,
                         mod_forumng_post::OPTION_CHILDREN_EXPANDED => true,
                         mod_forumng_post::OPTION_SELECTABLE => true));
