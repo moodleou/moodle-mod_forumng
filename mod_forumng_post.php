@@ -2308,8 +2308,8 @@ WHERE
         }
         $course = $this->get_forum()->get_course();
         $cm = $this->get_forum()->get_course_module();
-        completion_update_state($course, $cm,
-            $positive ? COMPLETION_COMPLETE : COMPLETION_INCOMPLETE,
-            $this->postfields->userid);
+        $completion = new completion_info($course);
+        $completion->update_state($cm, $positive ? COMPLETION_COMPLETE : COMPLETION_INCOMPLETE,
+                $this->postfields->userid);
     }
 }

@@ -2224,9 +2224,9 @@ WHERE
         foreach ($users as $userid => $junk) {
             $course = $this->get_course();
             $cm = $this->get_course_module();
-            completion_update_state($course, $cm,
-                $positive ? COMPLETION_COMPLETE : COMPLETION_INCOMPLETE,
-                $userid);
+            $completion = new completion_info($course);
+            $completion->update_state($cm, $positive ? COMPLETION_COMPLETE : COMPLETION_INCOMPLETE,
+                    $userid);
         }
     }
 }
