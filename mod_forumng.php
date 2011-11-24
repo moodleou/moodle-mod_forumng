@@ -815,7 +815,7 @@ WHERE
      * Adds the clone parameter to an array of parameters, if it is necessary.
      * @param array $result Array that may have key 'clone' set
      */
-    public function add_clone_param_array($result) {
+    public function add_clone_param_array(&$result) {
         if ($this->is_shared()) {
             $result['clone'] = $this->get_course_module_id();
         }

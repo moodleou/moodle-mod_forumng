@@ -35,8 +35,6 @@ if ($cloneid) {
 // Get post
 $post = mod_forumng_post::get_from_id($postid, $cloneid, true);
 
-print_object($post->get_forum()->get_course_module_id());
-
 // Get convenience variables
 $discussion = $post->get_discussion();
 $forum = $post->get_forum();
