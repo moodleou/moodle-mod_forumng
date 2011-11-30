@@ -314,7 +314,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
         return $result;
     }
 
-    private static function get_post_summary($subject, $message) {
+    protected static function get_post_summary($subject, $message) {
         $summary = '<strong>' . format_string($subject) . '</strong> ' . strip_tags($message);
         $summary = str_replace('<strong></strong>', '', $summary);
         $summary = self::nice_shorten_text($summary);
