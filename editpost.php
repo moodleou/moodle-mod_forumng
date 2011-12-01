@@ -298,9 +298,11 @@ if ($mform->is_cancelled()) {
             // Save any changes to files
             file_save_draft_area_files($fromform->attachments, $filecontext->id, 'mod_forumng',
                     'draft', $draft->get_id(), $fileoptions);
-            $fromform->message['text'] = file_save_draft_area_files($fromform->message['itemid'],
-                    $filecontext->id, 'mod_forumng', 'draftmessage',
-                    $draft->get_id(), $fileoptions, $fromform->message['text']);
+            if (!empty($fromform->message['itemid'])) {
+                $fromform->message['text'] = file_save_draft_area_files($fromform->message['itemid'],
+                        $filecontext->id, 'mod_forumng', 'draftmessage',
+                        $draft->get_id(), $fileoptions, $fromform->message['text']);
+            }
 
             // Update the draft itself
             $draft->update(
@@ -329,11 +331,13 @@ if ($mform->is_cancelled()) {
             // Save any attachments
             file_save_draft_area_files($fromform->attachments, $filecontext->id, 'mod_forumng',
                     'draft', $newdraftid, $fileoptions);
-            $newtext = file_save_draft_area_files($fromform->message['itemid'],
-                    $filecontext->id, 'mod_forumng', 'draftmessage', $newdraftid, $fileoptions,
-                    $fromform->message['text']);
-            if ($newtext !== $fromform->message['text']) {
-                mod_forumng_draft::update_message_for_files($newdraftid, $newtext);
+            if (!empty($fromform->message['itemid'])) {
+                $newtext = file_save_draft_area_files($fromform->message['itemid'],
+                        $filecontext->id, 'mod_forumng', 'draftmessage', $newdraftid, $fileoptions,
+                        $fromform->message['text']);
+                if ($newtext !== $fromform->message['text']) {
+                    mod_forumng_draft::update_message_for_files($newdraftid, $newtext);
+                }
             }
 
             // Redirect to edit it again
