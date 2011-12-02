@@ -991,8 +991,8 @@ WHERE
         $transaction = $DB->start_delegated_transaction();
         $DB->update_record('forumng_discussions', $update);
 
-        $newdiscussion = self::get_from_id($this->get_id(),
-                $this->get_forum()->get_course_module_id(), -1);
+        $targetcloneid = $targetforum->is_shared() ? $targetforum->get_course_module_id() : 0;
+        $newdiscussion = self::get_from_id($this->get_id(), $targetcloneid, -1);
 
         if ($targetforum->get_id() != $this->forum->get_id()) {
             // Moving to different forum, we need to move attachments if any...
