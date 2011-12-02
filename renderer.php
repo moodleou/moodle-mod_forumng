@@ -506,7 +506,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
                     : '') .
                 '<input type="submit" value="' .
                 get_string('addanewdiscussion', 'forumng') . '" /></div></form>' .
-                $this->render_paste_button($groupid) . '</div>';
+                $this->render_paste_button($forum, $groupid) . '</div>';
     }
 
     /**
@@ -515,20 +515,20 @@ class mod_forumng_renderer extends plugin_renderer_base {
      * @param int $groupid Group
      * @return string Paste discussion button
      */
-    public function render_paste_button($groupid) {
+    public function render_paste_button($forum, $groupid) {
         global $SESSION;
         if (isset($SESSION->forumng_copyfrom)) {
             $cmid = required_param('id', PARAM_INT);
             return '<form action="feature/copy/paste.php" method="get" '.
                     'class="forumng-paste-buttons">' .
-                '<div><input type="submit" name="paste" value="' .
-                get_string('pastediscussion', 'forumng') . '" />' .
-                '<input type="submit" name="cancel" value="' . get_string('cancel') . '" />' .
-                '<input type="hidden" name="cmid" value="' . $cmid . '" />' .
-                '<input type="hidden" name="clone" value="' .
-                $SESSION->forumng_copyfromclone . '" />' . ($groupid != mod_forumng::NO_GROUPS
-                ? '<input type="hidden" name="group" value="' . (int)$groupid . '" />'
-                : '') . '</div></form>';
+                    '<div><input type="submit" name="paste" value="' .
+                    get_string('pastediscussion', 'forumng') . '" />' .
+                    '<input type="submit" name="cancel" value="' . get_string('cancel') . '" />' .
+                    '<input type="hidden" name="cmid" value="' . $cmid . '" />' .
+                    $forum->get_clone_param(mod_forumng::PARAM_FORM) .
+                    ($groupid != mod_forumng::NO_GROUPS
+                    ? '<input type="hidden" name="group" value="' . (int)$groupid . '" />'
+                    : '') . '</div></form>';
         } else {
             return '';
         }
