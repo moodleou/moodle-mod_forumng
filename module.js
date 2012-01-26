@@ -517,7 +517,7 @@ M.mod_forumng = {
     init_flag_div: function(div) {
         // Get on state from image icon
         div.icon = div.one('input[type=image]');
-        div.on = div.icon.get('src').match(/flag\.on$/);
+        div.on = div.icon.get('src').match(/flag\.on/);
         // Get id from p value
         div.postid = div.icon.get('name').replace(/^.*p_([^.]*)\..*$/, '$1');
         div.icon.on('click', function(e) {
