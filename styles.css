@@ -258,6 +258,15 @@ form.forumng-flag div {
     margin: 2em 0 2em;
 }
 
+.forumng-flagged-link {
+    padding-bottom: 2px;
+    border-bottom: 2px solid #CCCCCC;
+}
+
+.forumng-flagged-link a {
+    text-decoration: none;
+}
+
 /*
 // Discussion page styles
 /////////////////////////

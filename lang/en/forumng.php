@@ -387,6 +387,7 @@ $string['selectorall'] = 'Do you want to include the entire discussion, or only 
 $string['setimportant'] = 'Mark posts as important';//used by moderators, highlight important posts
 $string['important'] = 'Important post'; // alt text for important icon
 $string['flaggedposts'] = 'Flagged posts';
+$string['flaggedpostslink'] = '{$a} flagged posts';
 $string['post'] = 'Post';
 $string['author'] = 'Author';
 $string['clearflag'] = 'Remove flag';
@@ -406,6 +407,7 @@ $string['jumpto'] = 'Jump to:';
 $string['jumpnext'] = 'Next unread';
 $string['jumpprevious'] = 'Previous unread';
 $string['jumppreviousboth'] = 'previous';
+$string['skiptofirstunread'] = 'Skip to first unread post';
 $string['enableadvanced'] = 'Enable advanced features';
 $string['configenableadvanced'] = 'This option enables advanced forum features which may be
 unnecessarily complex for many installations. Currently, this just enables forum sharing, but we might add more later.';

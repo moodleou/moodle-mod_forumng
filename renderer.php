@@ -377,6 +377,24 @@ class mod_forumng_renderer extends plugin_renderer_base {
     }
 
     /**
+     * Displays a skip link to the flagged posts box
+     * @param $flagged array of $flagged posts
+     * @return string HTML for link and wrapper or '' if no flagged posts
+     */
+    public function render_flagged_list_link($flagged) {
+        $numberflagged = count($flagged);
+        if ($numberflagged == 0) {
+            return '';
+        }
+
+        $flaggedtxt = get_string('flaggedpostslink', 'forumng', $numberflagged);
+
+        return '<div class="forumng-flagged-link"><a href="#forumng-flaggedposts">' .
+            '<img src="' . $this->pix_url('flag.on', 'mod_forumng'). '" alt="' .
+            get_string('flagon', 'forumng') . '"/> ' . $flaggedtxt. '</a></div>';
+    }
+
+    /**
      * Opens table tag and displays header row ready for calling.
      * render_flagged_list_item() a bunch of times.
      * @return string HTML code for start of table
@@ -384,7 +402,8 @@ class mod_forumng_renderer extends plugin_renderer_base {
     public function render_flagged_list_start() {
         global $CFG;
 
-        $result = '<div class="forumng-flagged"><div class="forumng-heading"><h3>' .
+        $result = '<div class="forumng-flagged" id="forumng-flaggedposts">
+            <div class="forumng-heading"><h3>' .
             get_string('flaggedposts', 'forumng') . '</h3>';
         $result .= $this->help_icon('flaggedposts', 'forumng') . '</div>';
 
@@ -1412,6 +1431,13 @@ class mod_forumng_renderer extends plugin_renderer_base {
             default:
                 throw new coding_exception("Unknown sort letter: $letter");
         }
+    }
+
+    public function render_unread_skip_link() {
+        $out = '<div id="forumng-unread-skip"><a href="#firstunread" class="skip">';
+        $out .= get_string('skiptofirstunread', 'forumng');
+        $out .= '</a></div>';
+        return $out;
     }
 
     public function render_feed_links($atomurl, $rssurl) {

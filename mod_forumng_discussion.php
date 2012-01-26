@@ -2150,6 +2150,18 @@ WHERE
     }
 
     /**
+     * @return string HTML skip link to unread posts
+     */
+    public function display_unread_skip_link() {
+        if ($this->get_num_unread_posts() == 0 || $this->get_num_unread_posts() == '') {
+            return '';
+        }
+
+        $out = mod_forumng_utils::get_renderer();
+        return $out->render_unread_skip_link();
+    }
+
+    /**
      * @return string HTML links for RSS/Atom feeds to this discussion (if
      *   enabled etc)
      */

@@ -104,6 +104,10 @@ class forumngtype_general extends forumngtype {
         // Intro
         print $out->render_intro($forum);
 
+        //Flagged posts skip link
+        $flagged = $forum->get_flagged_posts();
+        print $out->render_flagged_list_link($flagged);
+
         // Draft posts
         $drafts = $forum->get_drafts();
         if (count($drafts) > 0) {
@@ -169,7 +173,6 @@ class forumngtype_general extends forumngtype {
         print $forum->display_forumngfeature_discussion_lists($groupid);
 
         // Flagged posts
-        $flagged = $forum->get_flagged_posts();
         if (count($flagged) > 0) {
             print $out->render_flagged_list_start($forum);
             foreach ($flagged as $post) {
@@ -215,6 +218,9 @@ class forumngtype_general extends forumngtype {
             || mod_forumng_utils::is_bad_browser();
         // 'Expand all' option (always chosen for non-JS browsers)
         $collapseall = optional_param('collapse', 0, PARAM_INT);
+
+        // Link back to first unread post if there is one
+        print $discussion->display_unread_skip_link();
 
         // Magic expand tracker (for use in JS only, never set server-side).
         // This tracks expanded posts, and makes the Back button 'work' in
