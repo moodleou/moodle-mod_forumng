@@ -554,12 +554,14 @@ class mod_forumng_renderer extends plugin_renderer_base {
     }
 
     /**
-     * Display 'Switch to simple/standard view' link
-     * @param string $simple is empty or unset if currently in standard view. Or
-     * it it is equal to 'y' if in simple view
+     * Display 'Switch to simple/standard view' link, except in cases where
+     * browser is not supported for 'standard' view anyhow.
      * @return string HTML for the switch link.
      */
     public function render_switch_link() {
+        if (mod_forumng_utils::is_bad_browser()) {
+            return '';
+        }
         $simple = get_user_preferences('forumng_simplemode', '');
         if ($simple) {
             return '<div class="forumng-switchlinkblock">' .

@@ -249,9 +249,10 @@ class forumngtype_general extends forumngtype {
         $showexpandall = preg_match(
             '~<a [^>]*href="discuss\.php\?d=[0-9]+[^"]*&amp;expand=1#p[0-9]+">~',
             $content);
+        // Note: On bad browsers we always expand all posts
         $showcollapseall = preg_match(
             '~<div class="forumng-post forumng-full.*<div class="forumng-post forumng-full~s',
-            $content);
+            $content) && !mod_forumng_utils::is_bad_browser();
         if ($showexpandall) {
             print '<a class="forumng-expandall-link" href="' .
                         $discussion->get_url(mod_forumng::PARAM_HTML) . '&amp;expand=1' .
