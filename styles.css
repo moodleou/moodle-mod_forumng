@@ -513,8 +513,10 @@ ul.forumng-commands li.forumng-replylink {
     background:white;
     padding-top: 1em;
 }
-
-
+.forumng-buttons input,
+.forumng-selectoutro input {
+    margin-right: 10px;
+}
 .forumng-selectmode .forumng-post {
     background-color:white;
 }
@@ -662,10 +664,6 @@ form.markread input {
 
 .forumng-confirmdialog .forumng-message {
     margin-bottom: 10px;
-}
-
-.forumng-confirmdialog input {
-    margin-right: 10px;
 }
 
 .forumng-confirmdialog h4 {
