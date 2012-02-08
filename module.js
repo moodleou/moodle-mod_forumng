@@ -1259,7 +1259,6 @@ M.mod_forumng = {
         var previousSelect = false;
         if (this.select.on) {
             previousSelect = this.Y.one('#checkp' + link.postid).get('checked');
-            console.log('previousSelect = ' + previousSelect);
         }
 
         var expander = new forumng_expander(link.post);
