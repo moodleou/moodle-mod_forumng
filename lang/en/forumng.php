@@ -718,7 +718,7 @@ $string['newdiscussion'] = 'New discussion';
 $string['nothingtodisplay'] = '<h3>Nothing to display</h3>';
 $string['re'] = 'Re: {$a}';
 
-
+$string['error_feedlogin'] = 'Error completing user login';
 
 $string['error_makebig'] = 'The course only has {$a->users} users, but you\'ve asked for
 {$a->readusers} to read each discussion. Create some more users.';

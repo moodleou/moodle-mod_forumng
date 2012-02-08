@@ -40,6 +40,16 @@ $cloneid = optional_param('clone', 0, PARAM_INT);
 $userid = required_param('user', PARAM_INT);
 $key = required_param('key', PARAM_ALPHANUM);
 
+// Get user entry and set hack flag necessary for it to work with the OU's SSO system
+$user = $DB->get_record('user', array('id' => $userid), '*', MUST_EXIST);
+$user->samspretendlogin = true;
+
+// Get Moodle to log them in
+$user = complete_user_login($user);
+if (!$user) {
+    throw new moodle_exception('', 'forumng');
+}
+
 // Feed format
 $format = required_param('format', PARAM_ALPHA);
 $rss = $format == 'rss';
