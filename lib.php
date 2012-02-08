@@ -205,6 +205,61 @@ function forumng_get_coursemodule_info($coursemodule) {
 }
 
 /**
+ * File browsing support for forumng module.
+ * @param object $browser
+ * @param object $areas
+ * @param object $course
+ * @param object $cm
+ * @param object $context
+ * @param string $filearea
+ * @param int $itemid
+ * @param string $filepath
+ * @param string $filename
+ * @return file_info instance Representing an actual file or folder (null if not found
+ * or cannot access)
+ */
+function forumng_get_file_info($browser, $areas, $course, $cm, $context, $filearea,
+        $itemid, $filepath, $filename) {
+    global $CFG;
+    require_once ($CFG->dirroot . '/mod/forumng/mod_forumng.php');
+    if ($context->contextlevel != CONTEXT_MODULE) {
+        return null;
+    }
+    $fileareas = array('attachment', 'post');
+    if (!in_array($filearea, $fileareas)) {
+        return null;
+    }
+    try {
+        // This will not work for users who can only access the clone forum but cannot access
+        // the origin forumng. The ideal way is to pass in the real cloneid instead of using
+        // CLONE_DIRECT which means always get the origin forum.
+        // But we cannot get the cloneid in here without doing expensive querys such as get all
+        // the clone forums and check them one by one.
+        $post = mod_forumng_post::get_from_id($itemid, mod_forumng::CLONE_DIRECT);
+
+    } catch (mod_forumng_exception $e) {
+        return null;
+    }
+
+    $discussion = $post->get_discussion();
+    if (!$discussion->can_view()) {
+        return null;
+    }
+
+    $fs = get_file_storage();
+    $filepath = is_null($filepath) ? '/' : $filepath;
+    $filename = is_null($filename) ? '.' : $filename;
+    if (!($storedfile = $fs->get_file($context->id, 'mod_forumng', $filearea, $itemid,
+            $filepath, $filename))) {
+        return null;
+    }
+
+    $urlbase = $CFG->wwwroot . '/pluginfile.php';
+    return new file_info_stored($browser, $context, $storedfile, $urlbase, $filearea,
+            $itemid, true, true, false);
+}
+
+/**
  * Create html fragment for display on myMoodle page, forums changed since
  * user last visited
  *
