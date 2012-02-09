@@ -1,0 +1,130 @@
+This file contains a sequence of test cases for the ForumNG Export feature.
+
+Initial setup
+=============
+
+See testcase.txt for a description of the format of these tests and the initial
+site and ForumNG setup. Only one forum is required. Two discussion will need to
+be setup, as follows:
+
+D1 - a discussion containing two or more posts and they contain only text.
+D2 - a discussion containing two posts. One post has an embedded image and the
+other post has an attachement.
+
+
+ETD Discussion - Text posts only
+================================
+
+ETD01
+  Open discussion D1 and scroll to the end of the list of posts. You will see
+  an Export button.
+
+ETD02
+  Press the Export button. A popup appears asking what you want to export, choose
+  Discussion. A page is shown asking you to select your export type.
+
+ETD03
+  Choose 'File download' in the drop-down box and click 'Next'. If this is the
+  first export from this discussion you will be taken straight to the save file
+  dialogue box, otherwise you will see the page that lists previous exports and
+  asks you to confirm you want to export, choose Continue to be taken to the save
+  file dialogue box.
+
+ETD04
+  Confirm that the file you have downloaded is a HTML file and when opened in
+  a browser you will see all the posts in the discussion.
+
+** PASSED 2012-01-25
+
+
+ETS Selected - Text posts only
+==============================
+
+ETS01
+  Open discussion D1 and scroll to the end of the list of posts. You will see
+  an Export button.
+
+ETS02
+  Press the Export button. A popup appears asking what you want to export, choose
+  Selected posts. Select one of the two posts in D1 and then click on
+  Confirm selection at the bottom of the list of posts. A page is shown asking
+  you to select your export type.
+
+ETS03
+  Choose 'File download' in the drop-down box and click 'Next'. If this is the
+  first export from this discussion you will be taken straight to the save file
+  dialogue box, otherwise you will see the page that lists previous exports and
+  asks you to confirm you want to export, choose Continue to be taken to the save
+  file dialogue box.
+
+ETS04
+  Confirm that the file you have downloaded is a HTML file and when opened in
+  a browser you will see the posts you selected.
+
+** PASSED 2012-01-25
+
+
+EAD Discussion - Embedded image
+===============================
+
+EAD01
+  Open discussion D2 and scroll to the end of the list of posts. You will see
+  an Export button.
+
+EAD02
+  Press the Export button. A popup appears asking what you want to export, choose
+  Discussion. A page is shown asking you to select your export type.
+
+EAD03
+  Choose 'File download' in the drop-down box and click 'Next'. If this is the
+  first export from this discussion you will be taken straight to the save file
+  dialogue box, otherwise you will see the page that lists previous exports and
+  asks you to confirm you want to export, choose Continue to be taken to the save
+  file dialogue box.
+
+EAD04
+  Confirm that the file you have downloaded is a zip file and that it contains a
+  HTML file along with the embedded images and attachements that are in the posts
+  of this discussion.
+
+EAD05
+  Extract the contents of the downloaded zip file to a temporary location and open
+  the HTML file in your browser. You should see all the posts in the discussion
+  and the embedded image should be visible. If you click the link to the attached
+  file it will open up.
+
+** PASSED 2012-01-25
+
+
+EAS Selected - Embedded image
+=============================
+
+EAS01
+  Open discussion D2 and scroll to the end of the list of posts. You will see
+  an Export button.
+
+EAS02
+  Press the Export button. A popup appears asking what you want to export, choose
+  Selected posts. Select one of the two posts in D2 and then click on
+  Confirm selection at the bottom of the list of posts. A page is shown asking
+  you to select your export type.
+
+EAS03
+  Choose 'File download' in the drop-down box and click 'Next'. If this is the
+  first export from this discussion you will be taken straight to the save file
+  dialogue box, otherwise you will see the page that lists previous exports and
+  asks you to confirm you want to export, choose Continue to be taken to the save
+  file dialogue box.
+
+EAS04
+  Confirm that the file you have downloaded is a zip file and that it contains a
+  HTML file along with the embedded images or attachements that are in the posts
+  you selected.
+
+EAD05
+  Extract the contents of the downloaded zip file to a temporary location and open
+  the HTML file in your browser. You should see all the posts you selected and the
+  embedded image should be visible. If you click the link to the attached file it
+  will open up.
+
+** PASSED 2012-01-25
