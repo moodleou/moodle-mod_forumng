@@ -1093,11 +1093,31 @@ M.mod_forumng = {
             context: M.mod_forumng,
             arguments: form,
             on: {
-                success: ok,
+                success: this.possible_success_handler(ok, error),
                 failure: error
             }
         };
         this.Y.io('editpost.php', cfg);
+    },
+
+    /**
+     * Handles an AJAX response that is a 'success' by checking if it looks like
+     * a Moodle error response and, if so, treating it as error instead.
+     */
+    possible_success_handler : function(ok, error) {
+        return function(transactionid, o, form) {
+            // 'Success' status still applies if we get a Moodle AJAX failure
+            // exception, or if we get redirected to some other page such as
+            // an SSO login page that produces actual HTML and not the data
+            // we were expecting (which is either an HTML fragment or JSON
+            // format depending on the request).
+            if (/^{"error":/.test(o.responseText) ||
+                    o.responseText.indexOf('</html>') != -1) {
+                error.apply(M.mod_forumng, [transactionid, o, form]);
+            } else {
+                ok.apply(M.mod_forumng, [transactionid, o, form]);
+            }
+        };
     },
 
     /**

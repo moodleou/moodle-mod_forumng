@@ -555,8 +555,7 @@ $string['jserr_load'] = 'There was an error obtaining the post.
 Reload this page and try again.';
 $string['jserr_save'] = 'There was an error saving the post.
 
-Copy the text into another program to make sure you don\'t lose it, then reload this page and try
-again.';
+Copy the text into another program to make sure you don\'t lose it, then reload this page and try again.';
 $string['jserr_alter'] = 'There was an error altering the post.
 
 Reload this page and try again.';

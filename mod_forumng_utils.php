@@ -54,6 +54,103 @@ class mod_forumng_utils {
         return array($value . ' ' . $sql, $params);
     }
 
+    // Exception handling
+    /////////////////////
+
+    /**
+     * Adds exception information to Moodle log.
+     * @param Exception $e Exception
+     */
+    public static function log_exception(Exception $e) {
+        global $DB;
+
+        $info = '';
+
+        // Default courseid (may override later on)
+        global $COURSE;
+        $courseid = isset($COURSE->id) ? $COURSE->id  : 0;
+        $cmid = 0;
+
+        // These are numeric params so OK to include; I made this list from
+        // all the params in editpost.php where this is initially implemented
+        foreach(array('clone', 'id', 'd', 'p', 'ajax', 'draft', 'group', 'replyto', 'lock')
+                as $param) {
+            if ($val = optional_param($param, 0, PARAM_INT)) {
+                $info .= $param . '=' . $val . ',';
+
+                // Guess courseid from param
+                if (!$cmid) {
+                    if ($param === 'clone' || $param === 'id') {
+                        $cmid = $val;
+                    } else if ($param === 'd') {
+                        $cmid = $DB->get_field_sql(
+                                'SELECT cm.id FROM {forumng_discussions} fd ' .
+                                'JOIN {forumng} f ON f.id = fd.forumngid ' .
+                                'JOIN {modules} m ON m.name = ? ' .
+                                'JOIN {course_modules} cm ON cm.instance = f.id ' .
+                                    'AND cm.module = m.id ' .
+                                'WHERE fd.id = ?',
+                                array('forumng', $val), IGNORE_MISSING);
+                    } else if ($param === 'p' || $param === 'replyto') {
+                        $cmid = $DB->get_field_sql(
+                                'SELECT cm.id FROM {forumng_posts} fp ' .
+                                'JOIN {forumng_discussions} fd ON fd.id = fp.discussionid ' .
+                                'JOIN {forumng} f ON f.id = fd.forumngid ' .
+                                'JOIN {modules} m ON m.name = ? ' .
+                                'JOIN {course_modules} cm ON cm.instance = f.id ' .
+                                    'AND cm.module = m.id ' .
+                                'WHERE fp.id = ?',
+                                array('forumng', $val), IGNORE_MISSING);
+                    }
+                }
+            }
+        }
+
+        if ($cmid) {
+            $courseid = $DB->get_field('course_modules', 'course', array('id' => $cmid),
+                IGNORE_MISSING);
+        }
+
+        // Remove final ,
+        $info = preg_replace('~\,$~', '', $info);
+
+        // Trace begins with | sign
+        $info .= '|';
+        global $CFG;
+
+        // Annoyingly the trace array does not include the 'first' location
+        $firsttrace = array('file' => $e->getFile(), 'line' => $e->getLine());
+        $trace = array_merge(array($firsttrace), $e->getTrace());
+
+        $file = '';
+        foreach ($trace as $line) {
+            // To reduce the number of required characters, remove the location
+            // prefix and .php, and remove mod/forumng/ too.
+            $file = str_replace($CFG->dirroot . '/', '', $line['file']);
+            $file = str_replace('mod/forumng/', '', $file);
+            $file = str_replace('.php', '', $file);
+            $info .= $file . ':' . $line['line'] . ',';
+        }
+
+        // Remove final ,
+        $info = preg_replace('~\,$~', '', $info);
+
+        // Finally let's add the exception message
+        $info .= '|' . $e->getMessage();
+
+        // Cut off (using textlib in case message contains UTF-8)
+        $tl = textlib_get_instance();
+        if ($tl->strlen($info) > 255) {
+            // Use first part + ellipsis
+            $info = $tl->substr($info, 0, 254) . html_entity_decode('&#x2026;', ENT_QUOTES, 'UTF-8');
+        }
+
+        // Add entry to Moodle log (using root file in action)
+        $cmid = $cmid ? $cmid : 0;
+        $courseid = $courseid ? $courseid : 0;
+        add_to_log($courseid, 'forumng', 'error ' . $file, '', $info, $cmid);
+    }
+
     // Renderer
     ///////////
 
