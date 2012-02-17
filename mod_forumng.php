@@ -1416,70 +1416,56 @@ WHERE $conditions AND m.name = 'forumng' AND $restrictionsql",
         }
         $transaction = $DB->start_delegated_transaction();
 
-        // Work out group condition
-        switch ($groupid) {
-            case self::ALL_GROUPS :
-                $groupcondition = '';
-                $groupparams = array();
-                break;
-            case self::NO_GROUPS :
-                $groupcondition = 'AND fd.groupid IS NULL';
-                $groupparams = array();
-                break;
-            default:
-                $groupcondition = 'AND (fd.groupid IS NULL OR fd.groupid = ?)';
-                $groupparams = array($groupid);
-                break;
+        $conditionparams = array();
+        $conditions = "fd.forumngid = ?";
+        $conditionparams[] = $this->forumfields->id;
+
+        // Group restriction
+        if ($groupid) {
+            if ($groupid == self::NO_GROUPS) {
+                $conditions .= " AND fd.groupid IS NULL";
+            } else {
+                // Separate group
+                $conditions .= " AND (fd.groupid = ? OR fd.groupid IS NULL)";
+                $conditionparams[] = $groupid;
+            }
         }
 
-        // Get all discussions that are within read-tracking deadline
-        global $DB;
-        $forumngid = $this->get_id();
-        $deadline = self::get_read_tracking_deadline();
-        if ($this->get_type()->has_unread_restriction()) {
-            $typejoin = " INNER JOIN {forumng_posts} fpfirst ON fd.postid = fpfirst.id";
-            list($typecondition, $typeparams) =
-                    $this->get_type()->get_unread_restriction_sql($this, $userid);
-            if ($typecondition) {
-                $typecondition = ' AND ' . $typecondition;
-            } else {
-                $typecondition = '';
-            }
-        } else {
-            $typejoin = '';
-            $typecondition = '';
-            $typeparams = array();
-        }
-        $rs = $DB->get_recordset_sql("
-SELECT
-    fd.id
-FROM
-    {forumng_discussions} fd
-    INNER JOIN {forumng_posts} lp ON fd.lastpostid = lp.id
-    $typejoin
-WHERE
-    fd.forumngid = ?
-    AND lp.modified >= ?
-    $groupcondition
-    $typecondition", array_merge(array($forumngid, $deadline), $groupparams, $typeparams));
+        $conditions .= " AND fplast.modified >= ?";
+        $conditionparams[] = self::get_read_tracking_deadline();
+        $rs = mod_forumng_discussion::query_discussions($conditions, $conditionparams, -1,
+                '', '', '', $this);
         $discussions = array();
+        $discussionids = array();
+        $forumtype = $this->get_type();
         foreach ($rs as $rec) {
-            $discussions[] = $rec->id;
+            // Create a new discussion from the database details
+            $discussion = new mod_forumng_discussion($this, $rec, true, -1);
+            // Let forum type check permission too
+            if ($forumtype->can_view_discussion($discussion, $userid)) {
+                // Check time limits / delete
+                if ($discussion->is_currently_visible() ||
+                        has_capability('mod/forumng:viewallposts',
+                        $this->get_context(), $userid)) {
+                    $discussions[] = $discussion;
+                    $discussionids[] = $discussion->get_id();
+                }
+            }
         }
         $rs->close();
 
         if (count($discussions) > 0) {
             // Delete any existing records for those discussions
             list($inorequals, $inparams) =
-                    mod_forumng_utils::get_in_array_sql('discussionid', $discussions);
+                    mod_forumng_utils::get_in_array_sql('discussionid', $discussionids);
             $DB->execute("DELETE FROM {forumng_read} WHERE userid = ? AND $inorequals",
                     array_merge(array($userid), $inparams));
 
             // Add new record for each discussion
-            foreach ($discussions as $discussionid) {
+            foreach ($discussions as $discussion) {
                 $readrecord = new StdClass;
                 $readrecord->userid = $userid;
-                $readrecord->discussionid = $discussionid;
+                $readrecord->discussionid = $discussion->get_id();
                 $readrecord->time = $time;
                 $DB->insert_record('forumng_read', $readrecord);
             }
