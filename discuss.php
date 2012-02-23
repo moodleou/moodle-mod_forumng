@@ -105,7 +105,7 @@ $type->print_discussion_page($discussion);
 
 print '</div>';
 
-if ($bad = mod_forumng_utils::is_bad_browser()) {
+if ($bad = $PAGE->devicetypeinuse == 'legacy') {
     print '<div class="forumng-bad-browser">'.
         get_string('badbrowser', 'forumng', $bad) . '</div>';
 }

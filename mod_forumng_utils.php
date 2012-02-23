@@ -476,23 +476,6 @@ class mod_forumng_utils {
     /////
 
     /**
-     * We disable JavaScript for 'bad' browsers.
-     * @return string Name of bad browser, or false if using a good browser
-     */
-    public static function is_bad_browser() {
-        if (!array_key_exists('HTTP_USER_AGENT', $_SERVER)) {
-            // Don't know what browser it is, let's assume it's a good one
-            return false;
-        }
-        $agent = $_SERVER['HTTP_USER_AGENT'];
-
-        if (strpos($agent, 'MSIE 6')!==false) {
-            return 'Internet Explorer 6';
-        }
-        return false;
-    }
-
-    /**
      * Wraps nice way to display reasonable date format in Moodle for use
      * in all forum locations.
      * @param int $date Date (seconds since epoch)

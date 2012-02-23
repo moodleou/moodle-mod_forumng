@@ -559,7 +559,8 @@ class mod_forumng_renderer extends plugin_renderer_base {
      * @return string HTML for the switch link.
      */
     public function render_switch_link() {
-        if (mod_forumng_utils::is_bad_browser()) {
+        global $PAGE;
+        if ($PAGE->devicetypeinuse == 'legacy') {
             return '';
         }
         $simple = get_user_preferences('forumng_simplemode', '');

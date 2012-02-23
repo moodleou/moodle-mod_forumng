@@ -3625,12 +3625,12 @@ WHERE
      * @param bool $ajaxattachments If true, includes data needed to init file managers
      */
     public function print_js($cmid=0, $ajaxattachments=false) {
+        global $CFG, $PAGE;
         $simple = get_user_preferences('forumng_simplemode', '');
-        if (mod_forumng_utils::is_bad_browser() || $simple) {
+        if ($PAGE->devicetypeinuse == 'legacy' || $simple) {
             return;
         }
 
-        global $CFG, $PAGE;
         if (ajaxenabled()) {
             // Prepare strings
             $mainstrings = array(
