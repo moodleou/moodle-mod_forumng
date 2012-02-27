@@ -2891,11 +2891,15 @@ WHERE
 
             // Mess about with binary setting to ensure result is same, whatever
             // the database
-            if ($unread == self::UNREAD_BINARY
-                    && isset($rec->f_numunreaddiscussions)) {
-                $rec->f_hasunreaddiscussions =
-                        $rec->f_numunreaddiscussions>0 ? 1 : 0;
-                unset($rec->f_numunreaddiscussions);
+            if ($unread == self::UNREAD_BINARY) {
+                // Set binary to 0/1 even if database returns 't'/'f'
+                if ($rec->f_hasunreaddiscussions === 'f') {
+                    $rec->f_hasunreaddiscussions = 0;
+                } else if ($rec->f_hasunreaddiscussions) {
+                    $rec->f_hasunreaddiscussions = 1;
+                } else {
+                    $rec->f_hasunreaddiscussions = 0;
+                }
             }
 
             // Create a new forum object from the database details
@@ -3091,17 +3095,14 @@ WHERE
             // after this user viewed the forum last, but before they posted
             // their reply. Since this should be an infrequent occurrence I
             // believe this behaviour is acceptable.
-            if ($unread==self::UNREAD_BINARY &&
-                    ($DB->get_dbfamily() === 'postgres' || $DB->get_dbfamily() === 'mysql')) {
+            if ($unread==self::UNREAD_BINARY) {
                 // Query to get 0/1 unread discussions count
                 $readtracking = "
-(SELECT
-    COUNT(1)
-FROM (
+(EXISTS (
     SELECT
         1
     $sharedquerypart
-    LIMIT 1) innerquery
+    )
 ) AS f_hasunreaddiscussions";
                 $readtrackingparams = $sharedqueryparams;
             } else {
