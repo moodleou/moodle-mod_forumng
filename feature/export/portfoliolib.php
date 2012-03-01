@@ -79,8 +79,11 @@ abstract class forumng_portfolio_caller_base extends portfolio_module_caller_bas
             $allposts = array();
             $rootpost->build_linear_children($allposts);
             $selected = array();
+            $forum = $discussion->get_forum();
             foreach ($allposts as $post) {
-                $selected[] = $post->get_id();
+                if (!$post->get_deleted() || has_capability('mod/forumng:viewallposts', $forum->get_context())) {
+                    $selected[] = $post->get_id();
+                }
             }
         }
 
@@ -214,17 +217,14 @@ class forumng_all_portfolio_caller extends forumng_portfolio_caller_base {
         }
 
         // build the html for the export
-        $alltext = '';
-        $allhtml = "<body id='forumng-email'>\n";
-
+        $allhtml = "<html><body id='forumng-email'>\n";
         $allhtml .= '<hr size="1" noshade="noshade" />';
         $poststext = '';
         $postshtml = '';
         // we need a discussion object
         $discussion = mod_forumng_discussion::get_from_id($this->discussionid, $this->cloneid);
         $discussion->build_selected_posts_email($selected, $poststext, $postshtml);
-        $alltext .= $poststext;
-        $allhtml .= $postshtml . '</body>';
+        $allhtml .= $postshtml . '</body></html>';
 
         // Remove embedded img and attachment paths.
         $plugin = $this->get('exporter')->get('instance')->get('plugin');
