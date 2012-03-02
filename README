@@ -3,12 +3,22 @@ ForumNG
 
 Copyright 2011 The Open University
 
-
 This is an alternative forum that you can install into standard Moodle.
 
 It does not replace the standard forum, and operates alongside it.
 You can copy forums from the standard forum into ForumNG format if you like
 (...and if it works; this hasn't been tested lately).
+
+Branch:
+
+This is the MOODLE_21_STABLE branch. This branch is configured to match the latest
+stable branch at the Open University that uses Moodle 2.1. Once we stop using
+Moodle 2.1, there will be no more fixes in this branch (but of course anyone can
+fork the reposistory and make a fixed version).
+
+** THIS BRANCH DOES NOT WORK WITH MySQL **
+
+For MySQL support, use a newer branch or the 'master' development branch.
 
 Support:
 
@@ -32,8 +42,8 @@ community for testing on other systems.
 
 Requires:
 
-Moodle 2.1+
-Postgres / MySQL
+Moodle 2.1+ (untested but may work on 2.0.2)
+Postgres (untested but may work on SQL Server/Oracle; does NOT work on MySQL)
 
 Install:
 
