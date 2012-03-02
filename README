@@ -1,7 +1,7 @@
 ForumNG
 =======
 
-Copyright 2011 The Open University
+Copyright 2012 The Open University
 
 This is an alternative forum that you can install into standard Moodle.
 
@@ -12,9 +12,7 @@ You can copy forums from the standard forum into ForumNG format if you like
 Branch:
 
 This is the MOODLE_21_STABLE branch. This branch is configured to match the latest
-stable branch at the Open University that uses Moodle 2.1. Once we stop using
-Moodle 2.1, there will be no more fixes in this branch (but of course anyone can
-fork the reposistory and make a fixed version).
+stable branch at the Open University that uses Moodle 2.1.
 
 ** THIS BRANCH DOES NOT WORK WITH MySQL **
 
@@ -30,15 +28,23 @@ Bug reports:
 
 Please report bugs to the Moodle tracker using the 'contributed code' project
 and 'Module: ForumNG' component. Under Version, please select your Moodle
-version e.g. 2.1, 2.2.
+version e.g. 2.1.
 
 Status:
 
-Beta quality code. We intend to switch this project to include live quality
-code at some point after our mid-October update.
+This code runs on our live server, beginning from the March 6th OU VLE
+release.
 
 Please note that this code is tested on OU systems but we rely on the
-community for testing on other systems.
+community for testing on other systems. For example there may be issues with
+other databases (as noted, MySQL does not work with this version) or with
+features that the OU does not commonly use.
+
+Once we stop using Moodle 2.1, there will be no more fixes in this branch
+(but of course anyone can fork the reposistory and do fixes themselves). We
+currently plan to stop using Moodle 2.1 on April 6th 2012. After that date,
+this branch will be unsupported and we recommend moving to our Moodle 2.2
+branch.
 
 Requires:
 
