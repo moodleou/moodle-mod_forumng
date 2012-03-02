@@ -48,7 +48,7 @@ $strfeeds = get_string('feeds', 'forumng');
 $strweek = get_string('week');
 $strsection = get_string('section');
 
-$coursecontext = get_context_instance(CONTEXT_COURSE, $id);
+$coursecontext = context_course::instance($id);
 $canmaybesubscribe = (!isguestuser()
     && has_capability('moodle/course:view', $coursecontext));
 

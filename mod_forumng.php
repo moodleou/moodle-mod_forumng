@@ -604,13 +604,12 @@ WHERE
      * original forum.
      * @param bool $forcereal If set, always returns the context of the
      *   original forum and not of any clone
-     * @return object Context object
+     * @return context Context object
      */
     public function get_context($forcereal = false) {
         if ($this->is_shared() && !$forcereal) {
             if (!$this->clonecontext) {
-                $this->clonecontext = get_context_instance(CONTEXT_MODULE,
-                    $this->get_course_module_id());
+                $this->clonecontext = context_module::instance($this->get_course_module_id());
             }
             return $this->clonecontext;
         }
@@ -927,7 +926,7 @@ WHERE
         // Get context
         $context = null;
         if ($cm) {
-            $context = get_context_instance(CONTEXT_MODULE, $cm->id);
+            $context = context_module::instance($cm->id);
         }
 
         // Construct forum
@@ -991,7 +990,7 @@ WHERE
         $forumfields = $DB->get_record('forumng', array('id' => $cm->instance));
 
         // Get context
-        $context = get_context_instance(CONTEXT_MODULE, $cm->id);
+        $context = context_module::instance($cm->id);
 
         // Construct forum
         $result = new mod_forumng($course, $cm, $context, $forumfields);
@@ -2844,7 +2843,7 @@ WHERE fd.forumngid = ?";
                 if (count($specificids) && !in_array($cmid, $specificids)) {
                     continue;
                 }
-                $context = get_context_instance(CONTEXT_MODULE, $cmid);
+                $context = context_module::instance($cmid);
                 if ($cm->modname == 'forumng') {
                     if (has_capability(
                         'moodle/site:accessallgroups', $context, $userid)) {
@@ -2905,7 +2904,7 @@ WHERE
             // Create a new forum object from the database details
             $forumfields = mod_forumng_utils::extract_subobject($rec, 'f_');
             $forum = new mod_forumng($course, $cm,
-                get_context_instance(CONTEXT_MODULE, $cm->id), $forumfields);
+                context_module::instance($cm->id), $forumfields);
             $result[$forumfields->id] = $forum;
             if ($forum->is_shared()) {
                 $forum->set_clone_reference(self::CLONE_DIRECT);
@@ -4499,8 +4498,8 @@ GROUP BY
         }
 
         // Transfer role assignments
-        $oldcontext = get_context_instance(CONTEXT_MODULE, $cm->id);
-        $newcontext = get_context_instance(CONTEXT_MODULE, $newcm->id);
+        $oldcontext = context_module::instance($cm->id);
+        $newcontext = context_module::instance($newcm->id);
         $roles = $DB->get_records('role_assignments', array('contextid' => $oldcontext->id));
         if ($roles) {
             if ($progress) {
@@ -4895,7 +4894,7 @@ ORDER BY
                     print "Updating the subscriptions $forumcount/$totalforumcount
                             (current cmid:$rec->cmid) <br />";
                 }
-                $context = get_context_instance(CONTEXT_MODULE, $rec->cmid);
+                $context = context_module::instance($rec->cmid);
                 $aagusers = get_users_by_capability($context,
                     'moodle/site:accessallgroups', 'u.id');
                 $aagusers = $aagusers ? $aagusers : array();

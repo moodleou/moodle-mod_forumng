@@ -58,7 +58,7 @@ class forumngfeature_move extends forumngfeature_discussion {
                 $other->id == $discussion->get_forum()->get_course_module_id()) {
                 continue;
             }
-            $othercontext = get_context_instance(CONTEXT_MODULE, $other->id);
+            $othercontext = context_module::instance($other->id);
             if (has_capability('mod/forumng:movediscussions', $othercontext)) {
                 $results[$other->id] = $other->name;
             }

@@ -23,7 +23,7 @@
  */
 
 $module->version  = 2012021700;
-$module->requires = 2011022100; // 2.0.2
+$module->requires = 2011120500; // 2.2.0
 $module->cron     = 60;
 
 // Note: we haven't really sorted out how/if to use this string yet...

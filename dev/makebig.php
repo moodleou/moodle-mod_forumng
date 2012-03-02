@@ -29,7 +29,7 @@ require_once($CFG->dirroot.'/mod/forumng/lib.php');
 require_once($CFG->dirroot.'/mod/forumng/mod_forumng.php');
 require_once($CFG->dirroot.'/mod/forumng/mod_forumng_exception.php');
 require_login();
-require_capability('moodle/site:config', get_context_instance(CONTEXT_SYSTEM));
+require_capability('moodle/site:config', context_system::instance());
 if (!debugging('', DEBUG_DEVELOPER)) {
     error('Available only in debug mode');
 }
@@ -222,7 +222,7 @@ function make_forums($courseid, $count, $discussions, $posts,
     $DB->get_record('course', array('id'=>$courseid), '*', MUST_EXIST);
 
     // Get all course users
-    $context = get_context_instance(CONTEXT_COURSE, $courseid);
+    $context = context_course::instance($courseid);
     $rs = $DB->get_recordset_sql("
 SELECT
     DISTINCT userid
@@ -304,7 +304,7 @@ function make_student($courseid, $username) {
     $user->id = $DB->insert_record('user', $user);
 
     // Assign to course
-    $context = get_context_instance(CONTEXT_COURSE, $courseid);
+    $context = context_course::instance($courseid);
     static $roleid;
     if (!$roleid) {
         $roleid = $DB->get_field('role', 'id', array('shortname' => 'student'));

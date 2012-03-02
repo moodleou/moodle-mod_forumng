@@ -443,7 +443,7 @@ function mod_forumng_cm_info_view(cm_info $cm) {
  */
 function mod_forumng_cm_info_dynamic(cm_info $cm) {
     if (!has_capability('mod/forumng:view',
-            get_context_instance(CONTEXT_MODULE,$cm->id))) {
+            context_module::instance($cm->id))) {
         $cm->uservisible = false;
         $cm->set_available(false);
     }

@@ -248,7 +248,9 @@ ORDER BY
         $this->storedrecord = clone($record);
         $cm = mod_forumng_utils::extract_subobject($record, 'cm_');
         $course = mod_forumng_utils::extract_subobject($record, 'c_');
-        $context = mod_forumng_utils::extract_subobject($record, 'x_');
+        context_helper::preload_from_record(
+                mod_forumng_utils::extract_subobject($record, 'x_'));
+        $context = context_module::instance($cm->id);
         $forum = new mod_forumng($course, $cm, $context,
             mod_forumng_utils::extract_subobject($record, 'f_'));
         if ($forum->is_shared()) {

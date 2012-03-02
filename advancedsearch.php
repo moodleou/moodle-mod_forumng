@@ -172,7 +172,7 @@ if ($cmid) {
 if ($courseid) {
     $course = $DB->get_record('course', array('id' => $courseid), '*', MUST_EXIST);
     require_login($course);
-    $coursecontext = get_context_instance(CONTEXT_COURSE, $courseid);
+    $coursecontext = context_course::instance($courseid);
     mod_forumng::search_installed();
     $allforums = true;
 }

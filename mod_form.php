@@ -32,7 +32,7 @@ class mod_forumng_mod_form extends moodleform_mod {
 
         global $CFG, $COURSE, $DB;
         $mform    =& $this->_form;
-        $coursecontext = get_context_instance(CONTEXT_COURSE, $COURSE->id);
+        $coursecontext = context_course::instance($COURSE->id);
         $forumng = $this->_instance
                 ? $DB->get_record('forumng', array('id' => $this->_instance)) : null;
         $this->clone = $forumng ? $forumng->originalcmid : 0;

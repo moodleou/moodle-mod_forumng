@@ -173,7 +173,7 @@ if ($cmid) {
         $forum->require_view($groupid);
     } else {
         // If it is a separate groups forum and current user does not have access all groups
-        $context = get_context_instance(CONTEXT_MODULE, $cmid);
+        $context = context_module::instance($cmid);
         $aaguser = has_capability('moodle/site:accessallgroups', $context);
         if ($forum->get_group_mode() == SEPARATEGROUPS && !$aaguser) {
             $grouplist = get_group_list($userid, $forumngid);
@@ -400,7 +400,7 @@ if ($cmid || $discussionid) {
 } else {
     $backurl = $CFG->wwwroot . '/course/view.php?id=' . $courseid;
     $PAGE->set_url($pageurl);
-    $PAGE->set_context(get_context_instance(CONTEXT_COURSE, $courseid));
+    $PAGE->set_context(context_course::instance($courseid));
     $PAGE->set_heading($COURSE->fullname);
     $PAGE->set_title($COURSE->shortname);
     $out = forum_utils::get_renderer();

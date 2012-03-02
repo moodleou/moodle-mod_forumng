@@ -63,7 +63,7 @@ $courseid = required_param('course', PARAM_INT);
 $course = $DB->get_record('course', array('id' => $courseid), '*', MUST_EXIST);
 require_login($course);
 require_capability('moodle/course:manageactivities',
-    get_context_instance(CONTEXT_COURSE, $courseid));
+    context_course::instance($courseid));
 
 $pagename = get_string('convert_title', 'forumng');
 $navigation = array();

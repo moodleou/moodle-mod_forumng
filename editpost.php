@@ -273,7 +273,7 @@ try {
 
         $hasattachments = false;
         if (isset($fromform->attachments)) {
-            $usercontext = get_context_instance(CONTEXT_USER, $USER->id);
+            $usercontext = context_user::instance($USER->id);
             $fs = get_file_storage();
             $hasattachments = count($fs->get_area_files($usercontext->id, 'user', 'draft',
                     $fromform->attachments, 'id'));

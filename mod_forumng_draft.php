@@ -387,7 +387,7 @@ ORDER BY
 
         // Get list of files for main attachment area
         $options = file_get_drafarea_files($draftitemid, '/');
-        $usercontext = get_context_instance(CONTEXT_USER, $USER->id);
+        $usercontext = context_user::instance($USER->id);
         $fs = get_file_storage();
         $files = $fs->get_area_files($usercontext->id, 'user', 'draft',
                 $options->itemid, 'id', false);

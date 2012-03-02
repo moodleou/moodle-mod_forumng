@@ -57,7 +57,7 @@ abstract class forumng_portfolio_caller_base extends portfolio_module_caller_bas
             throw new portfolio_caller_exception('error_export', 'forumng');
         }
         $this->cm = $instances[$this->forumng->id];
-        $this->modcontext = get_context_instance(CONTEXT_MODULE, $this->cm->id);
+        $this->modcontext = context_module::instance($this->cm->id);
     }
 
     /**
@@ -139,7 +139,7 @@ abstract class forumng_portfolio_caller_base extends portfolio_module_caller_bas
     }
 
     public function check_permissions() {
-        $context = get_context_instance(CONTEXT_MODULE, $this->cm->id);
+        $context = context_module::instance($this->cm->id);
         return (has_capability('mod/forumng:view', $context));
     }
 
