@@ -133,6 +133,7 @@ Otherwise it&rsquo;s a dropdown.
 The capabilities system controls who can rate posts and see ratings. By default, only teachers can
 rate posts, and students can only see ratings on their own posts.';
 $string['markdiscussionread'] = 'Mark all posts in this discussion read.';
+$string['forumng:addinstance'] = 'Add a new ForumNG';
 $string['forumng:createattachment'] = 'Create attachments';
 $string['forumng:deleteanypost'] = 'Delete any post';
 $string['forumng:editanypost'] = 'Edit any post';
