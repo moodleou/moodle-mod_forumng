@@ -125,10 +125,10 @@ abstract class forumng_portfolio_caller_base extends portfolio_module_caller_bas
     public function get_navigation() {
         global $CFG;
 
-        $navlinks = array();
+        $discussion = mod_forumng_discussion::get_from_id($this->discussionid, $this->cloneid);
         $navlinks[] = array(
-            'name' => format_string($this->forumng->name),
-            'link' => $CFG->wwwroot . '/mod/forumng/view.php?id=' . $this->cm->id,
+            'name' => $discussion->get_subject(),
+            'link' => $CFG->wwwroot . '/mod/forumng/discuss.php?d='. $discussion->get_id(),
             'type' => 'title'
         );
         return array($navlinks, $this->cm);
