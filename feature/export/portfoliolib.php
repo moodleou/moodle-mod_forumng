@@ -147,6 +147,12 @@ abstract class forumng_portfolio_caller_base extends portfolio_module_caller_bas
         return get_string('modulename', 'forumng');
     }
 
+    public function heading_summary() {
+        $discussion = mod_forumng_discussion::get_from_id($this->discussionid, $this->cloneid);
+        return get_string('exportingcontentfrom', 'portfolio', strtolower(get_string('discussion', 'forumng')).
+                ': '.$discussion->get_subject());
+    }
+
     public static function base_supported_formats() {
         return array(PORTFOLIO_FORMAT_RICHHTML, PORTFOLIO_FORMAT_PLAINHTML);
     }
