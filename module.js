@@ -2051,12 +2051,15 @@ M.mod_forumng = {
         if (on) {
             var info = post.one('div.forumng-info');
             var span = this.Y.Node.create('<span/>');
+            var spanseparator = this.Y.Node.create('<span/>');
             info.appendChild(span);
             post.extraSpan = span;
             post.addClass('forumng-deselected');
             var postid = post.one('>a').get('id');
 
-            span.appendChild(document.createTextNode(' \u2022 '));
+            spanseparator.addClass('forumng-separator');
+            spanseparator.appendChild(document.createTextNode(' \u2022 '));
+            span.appendChild(spanseparator);
             var check = this.Y.Node.create('<input type="checkbox"/>');
             check.set('id', 'check' + postid);
             post.check = check;

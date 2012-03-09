@@ -908,11 +908,12 @@ class mod_forumng_renderer extends plugin_renderer_base {
                 $out .= '</span>';
             }
             if ($options[mod_forumng_post::OPTION_SELECTABLE]) {
-                $out .= ' &#x2022; <input type="checkbox" name="selectp' .
-                    $post->get_id() . '" id="id_selectp' . $post->get_id() .
-                    '" /><label class="accesshide" for="id_selectp' .
-                    $post->get_id() . '">' .
-                    get_string('selectlabel', 'forumng', $postnumber) . '</label>';
+                $out .= '<span class="forumng-separator"> &#x2022; </span>' .
+                        '<input type="checkbox" name="selectp' .
+                        $post->get_id() . '" id="id_selectp' . $post->get_id() .
+                        '" /><label class="accesshide" for="id_selectp' .
+                        $post->get_id() . '">' .
+                        get_string('selectlabel', 'forumng', $postnumber) . '</label>';
             }
             if ($options[mod_forumng_post::OPTION_FLAG_CONTROL]) {
                 $out .= '<div class="forumng-flag">' .
