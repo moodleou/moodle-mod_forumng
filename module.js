@@ -2068,7 +2068,7 @@ M.mod_forumng = {
             label.setAttribute('for', check.get('id'));
             span.appendChild(label);
             label.appendChild(document.createTextNode(M.str.forumng.selectlabel));
-            this.links_disable(post);
+            this.links_disable(document.body);
 
             var hidden = this.Y.Node.create('<input type="hidden" value="0"/>');
             post.forumng_hidden = hidden;
@@ -2088,7 +2088,7 @@ M.mod_forumng = {
         } else {
             post.extraSpan.remove();
             post.removeClass('forumng-deselected');
-            this.links_enable(post);
+            this.links_enable(document.body);
         }
     },
 

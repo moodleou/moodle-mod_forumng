@@ -503,7 +503,9 @@ ul.forumng-commands li.forumng-replylink {
     padding: 0.5em 0 0;
 }
 .forumng-selectmode .forumng-feedlinks,
-.forumng-selectmode #forumng-arrowback {
+.forumng-selectmode #forumng-arrowback,
+.forumng-selectmode .forumng-info .forumng-flag,
+.forumng-selectmode .forumng-edit {
     display:none;
 }
 
@@ -580,10 +582,10 @@ ul.forumng-commands li.forumng-replylink {
     display: none;
 }
 
-a:link.forumng-disabled,
-a:visited.forumng-disabled,
-a:hover.forumng-disabled,
-a:active.forumng-disabled {
+#page-mod-forumng-discuss a:link.forumng-disabled,
+#page-mod-forumng-discuss a:visited.forumng-disabled,
+#page-mod-forumng-discuss a:hover.forumng-disabled,
+#page-mod-forumng-discuss a:active.forumng-disabled {
     color: #888;
     text-decoration: none;
 }
