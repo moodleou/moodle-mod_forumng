@@ -1998,6 +1998,8 @@ M.mod_forumng = {
             selectButtons.appendChild(all);
             all.set('value', M.str.moodle.selectall);
             all.on('click', function() {
+                // update the posts oject so it works after expanding a post
+                var posts = this.Y.all('div.forumng-post');
                 for (var i=0; i<posts.size(); i++) {
                     if (!posts.item(i).check.get('checked')) {
                         M.mod_forumng.simulate_click(posts.item(i).check);
@@ -2009,6 +2011,8 @@ M.mod_forumng = {
             selectButtons.appendChild(none);
             none.set('value', M.str.moodle.deselectall);
             none.on('click', function() {
+                // update the posts oject so it works after expanding a post
+                var posts = this.Y.all('div.forumng-post');
                 for (var i=0; i<posts.size(); i++) {
                     if (posts.item(i).check.get('checked')) {
                         M.mod_forumng.simulate_click(posts.item(i).check);
@@ -2045,6 +2049,8 @@ M.mod_forumng = {
         }
 
         window.forumng_select_changed = function() {
+            // update the posts oject so it works after expanding a post
+            var posts = M.mod_forumng.Y.all('div.forumng-post');
             var ok = false;
             for (var i=0; i<posts.size(); i++) {
                 if (posts.item(i).check.get('checked')) {
@@ -2090,10 +2096,13 @@ M.mod_forumng = {
             label.appendChild(document.createTextNode(M.str.forumng.selectlabel));
             this.links_disable(document.body);
 
-            var hidden = this.Y.Node.create('<input type="hidden" value="0"/>');
+            var hidden = this.Y.one("input[name='select" + postid + "']");
+            if (!hidden) {
+                hidden = this.Y.Node.create('<input type="hidden" value="0"/>');
+                hidden.set('name', 'select' + postid);
+                this.select.form.appendChild(hidden);
+            }
             post.forumng_hidden = hidden;
-            hidden.set('name', 'select' + postid);
-            this.select.form.appendChild(hidden);
 
             check.on('click', function() {
                 if (check.get('checked')) {
