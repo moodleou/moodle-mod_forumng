@@ -252,7 +252,7 @@ class forumngtype_general extends forumngtype {
         // Note: On bad browsers we always expand all posts
         $showcollapseall = preg_match(
             '~<div class="forumng-post forumng-full.*<div class="forumng-post forumng-full~s',
-            $content) && !$PAGE->devicetypeinuse == 'legacy';
+            $content) && $PAGE->devicetypeinuse != 'legacy';
         if ($showexpandall) {
             print '<a class="forumng-expandall-link" href="' .
                         $discussion->get_url(mod_forumng::PARAM_HTML) . '&amp;expand=1' .
