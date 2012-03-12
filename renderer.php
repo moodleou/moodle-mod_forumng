@@ -1483,4 +1483,66 @@ class mod_forumng_renderer extends plugin_renderer_base {
         $out .= html_writer::end_tag('form');
         return $out;
     }
+
+    /**
+     * Print a message along with three buttons buttoneone/buttontwo/Cancel
+     *
+     * If a string or moodle_url is given instead of a single_button, method defaults to post.
+     *
+     * @param string $message The question to ask the user.
+     * @param single_button $buttonone The single_button component representing the buttontwo response.
+     * @param single_button $buttontwo The single_button component representing the buttontwo response.
+     * @param single_button $cancel The single_button component representing the Cancel response.
+     * @return string HTML fragment
+     */
+    public function confirm_three_button($message, $buttonone, $buttontwo, $cancel) {
+        if (!($buttonone instanceof single_button)) {
+            throw new coding_exception('The buttonone param must be an instance of a single_button.');
+        }
+
+        if (!($buttontwo instanceof single_button)) {
+            throw new coding_exception('The buttontwo param must be an instance of a single_button.');
+        }
+
+        if (!($cancel instanceof single_button)) {
+            throw new coding_exception('The cancel param must be an instance of a single_button.');
+        }
+
+        $output = $this->box_start('generalbox', 'notice');
+        $output .= html_writer::tag('p', $message);
+        $buttons = $this->render($buttonone) . $this->render($buttontwo) . $this->render($cancel);
+        $output .= html_writer::tag('div', $buttons, array('class' => 'buttons'));
+        $output .= $this->box_end();
+        return $output;
+    }
+
+    /**
+     * Compiles the html message content for the rejection email.
+     *
+     * @param object $group The details of one group
+     * @param string $coursename
+     * @return string HTML
+     */
+    public function deletion_email($messagetext) {
+        $out = '';
+        $out .= html_writer::start_tag('html');
+        $out .= html_writer::start_tag('body');
+        $out .= $messagetext;
+        $out .= html_writer::end_tag('body');
+        $out .= html_writer::end_tag('html');
+
+        return $out;
+    }
+
+    /**
+     * Compiles the html message content for the rejection email.
+     *
+     * @param object $group The details of one group
+     * @param string $coursename
+     * @return string HTML
+     */
+    public function delete_form_html($messagehtml) {
+        return html_writer::tag('div', htmlentities($messagehtml, ENT_QUOTES),
+                array('id' => 'delete-form-html'));
+    }
 }

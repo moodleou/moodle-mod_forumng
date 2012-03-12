@@ -105,6 +105,10 @@ M.mod_forumng = {
             this.print_page();
             return;
         }
+        if (document.getElementById('page-mod-forumng-deletepost')) {
+            this.init_deletepost();
+            return;
+        }
     },
 
     /**
@@ -195,6 +199,16 @@ M.mod_forumng = {
                 M.mod_forumng.apply_stop_indents();
             }
         }, 250);
+    },
+
+    /**
+     * Initialises all JavaScript for the deletepost page.
+     */
+    init_deletepost : function() {
+        // if JS is enabled then we can copy the html version of the text to
+        // the textarea used by tinymce, otherwise plain text is used by default.
+        var messagehtml = this.Y.one('#delete-form-html').getContent();
+        this.Y.one('#id_forumng_delete_msg').set('innerHTML', messagehtml);
     },
 
     /**
@@ -1455,12 +1469,12 @@ M.mod_forumng = {
             if (this.are_links_disabled(link)) {
                 return;
             }
-            this.confirm(
-                    undelete ? M.str.forumng.confirmundelete : M.str.forumng.confirmdelete,
-                    undelete ? M.str.forumng.undeletepostbutton : M.str.forumng.deletepostbutton,
-                    M.str.moodle.cancel, link.post,
-                    function() {
-                        var cfg = {
+            var deleteandemail = function() {
+                    window.location = 'deletepost.php' + '?p=' + link.postid + M.mod_forumng.cloneparam +
+                    '&delete=1' + '&ajax=1' + '&email=1'
+                    };
+            var deleteonly = function() {
+                    var cfg = {
                             method: 'POST',
                             data: 'p=' + link.postid + M.mod_forumng.cloneparam +
                                     '&delete=' + (undelete ? 0 : 1) + '&ajax=1',
@@ -1482,7 +1496,13 @@ M.mod_forumng = {
                         link.get('parentNode').appendChild(link.loader);
                         var linkregion = M.mod_forumng.Y.DOM.region(M.mod_forumng.Y.Node.getDOMNode(link));
                         link.loader.setXY([linkregion.right + 3, linkregion.top]);
-                    });
+                    };
+            this.confirm(
+                    undelete ? M.str.forumng.confirmundelete : M.str.forumng.confirmdelete,
+                    undelete ? M.str.forumng.undeletepostbutton : new Array(M.str.forumng.deleteemailpostbutton,M.str.forumng.deletepostbutton),
+                    M.str.moodle.cancel, link.post,
+                    undelete ? deleteonly : new Array(deleteandemail, deleteonly)
+                    );
         }, this);
     },
 

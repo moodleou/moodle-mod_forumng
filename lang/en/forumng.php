@@ -308,7 +308,32 @@ $string['history'] = 'History';
 $string['historypage'] = 'History: {$a}';
 $string['currentpost'] = 'Current version of post';
 $string['olderversions'] = 'Older versions (most recent first)';
-$string['deletepostbutton'] = 'Delete post';
+$string['deleteemailpostbutton'] = 'Delete and email';
+$string['deleteandemail'] = 'Delete and email author';
+$string['emailmessage'] = 'Message';
+$string['emailcontentplain'] = 'This is a notification to advise you that your forum post with the '.
+'following details has been deleted by \'{$a->firstname} {$a->lastname}\':
+
+Subject: {$a->subject}
+Forum: {$a->forum}
+Module: {$a->course}';
+$string['emailcontenthtml'] = 'This is a notification to advise you that your forum post with the '.
+'following details has been deleted by \'{$a->firstname} {$a->lastname}\':<br />
+<br />
+Subject: {$a->subject}<br />
+Forum: {$a->forum}<br />
+Module: {$a->course}';
+$string['emailcontentnonjs'] = 'This is a notification to advise you that your forum post with the '.
+'following details has been deleted by \'{$a->firstname} {$a->lastname}\':
+
+Subject: {$a->subject}
+Forum: {$a->forum}
+Module: {$a->course}';
+$string['copytoself'] = 'Send a copy to yourself';
+$string['deletedforumpost'] = 'Your post has been deleted';
+$string['emailerror'] = 'There was an error sending the email';
+$string['sendanddelete'] = 'Send and delete';
+$string['deletepostbutton'] = 'Delete';
 $string['undeletepostbutton'] = 'Undelete post';
 $string['averagerating'] = 'Average rating: {$a->avg} (from {$a->num})';
 $string['yourrating'] = 'Your rating:';
