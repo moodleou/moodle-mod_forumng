@@ -25,11 +25,10 @@
 require_once('../../config.php');
 require_once($CFG->libdir . '/formslib.php');
 require_once('mod_forumng.php');
-
-define('FORUMNG_SEARCH_RESULTSPERPAGE', 10); // Number of results to display per page
+require_once('advancedsearchlib.php');
 
 class advancedsearch_form extends moodleform {
-    function definition() {
+    public function definition() {
         global $CFG;
         $mform =& $this->_form;
 
@@ -48,36 +47,36 @@ class advancedsearch_form extends moodleform {
         $mform->addElement('text', 'author', get_string('authorname', 'forumng'), 'size="40"');
 
         // Date range_from to be filtered
-        $mform->addElement('date_time_selector', 'daterangefrom',
+        $mform->addElement('date_time_selector', 'datefrom',
                 get_string('daterangefrom', 'forumng'),
                 array('optional'=>true, 'step'=>1));
 
         // Date range_to to be filtered
-        $mform->addElement('date_time_selector', 'daterangeto',
+        $mform->addElement('date_time_selector', 'dateto',
                 get_string('daterangeto', 'forumng'),
                 array('optional'=>true, 'step'=>1));
 
         // Add help buttons
         $mform->addHelpButton('query', 'words', 'forumng');
         $mform->addHelpButton('author', 'authorname', 'forumng');
-        $mform->addHelpButton('daterangefrom', 'daterangefrom', 'forumng');
+        $mform->addHelpButton('datefrom', 'daterangefrom', 'forumng');
 
         //Set default hour and minute for "Date ranfe from" and "date range to"
         $mform->addElement('static', 'sethourandminute', '',
         '<script type="text/javascript">
 //<![CDATA[
         //check whether "Date range from" and/or "Date range to" are disabled
-        var datefrom = false;
-        var dateto = false;
+        var datefromenabled = false;
+        var datetoenabled = false;
         var inputs = document.getElementsByTagName("input");
         for (var i = 0; i < inputs.length; i++) {
             if (inputs[i].type == "checkbox") {
                 if (inputs[i].checked == true) {
-                    if (inputs[i].name == "daterangefrom[off]") {
-                        datefrom = true;
+                    if (inputs[i].name == "datefrom[off]") {
+                        datefromenabled = true;
                     }
-                    if (inputs[i].name == "daterangeto[off]") {
-                        dateto = true;
+                    if (inputs[i].name == "dateto[off]") {
+                        datetoenabled = true;
                     }
                 }
             }
@@ -85,19 +84,19 @@ class advancedsearch_form extends moodleform {
         //Set hour and minute of "Date range from" and "Date range to"
         var sel = document.getElementsByTagName("select");
         for (var i = 0; i < sel.length; i++) {
-            if (datefrom == true) {
-                if (sel[i].name == "daterangefrom[hour]") {
+            if (datefromenabled == true) {
+                if (sel[i].name == "datefrom[hour]") {
                     sel[i].options[0].selected = true;
                 }
-                if (sel[i].name == "daterangefrom[minute]") {
+                if (sel[i].name == "datefrom[minute]") {
                     sel[i].options[0].selected = true;
                 }
             }
-            if (dateto == true) {
-                if (sel[i].name == "daterangeto[hour]") {
+            if (datetoenabled == true) {
+                if (sel[i].name == "dateto[hour]") {
                     sel[i].options[23].selected = true;
                 }
-                if (sel[i].name == "daterangeto[minute]") {
+                if (sel[i].name == "dateto[minute]") {
                     sel[i].options[59].selected = true;
                 }
             }
@@ -115,14 +114,14 @@ class advancedsearch_form extends moodleform {
 
     public function validation($data, $files) {
         $errors = parent::validation($data, $files);
-        if ($data['daterangefrom'] > time()) {
-            $errors['daterangefrom'] = get_string('inappropriatedateortime', 'forumng');
+        if ($data['datefrom'] > time()) {
+            $errors['datefrom'] = get_string('inappropriatedateortime', 'forumng');
         }
-        if (($data['daterangefrom'] > $data['daterangeto']) && $data['daterangeto'] != 0) {
-            $errors['daterangeto'] = get_string('daterangemismatch', 'forumng');
+        if (($data['datefrom'] > $data['dateto']) && $data['dateto'] != 0) {
+            $errors['dateto'] = get_string('daterangemismatch', 'forumng');
         }
         if (($data['query'] === '') && ($data['author'] === '') &&
-            !$data['daterangefrom'] && !$data['daterangeto']) {
+            !$data['datefrom'] && !$data['dateto']) {
             $errors['sethourandminute'] = get_string('nosearchcriteria', 'forumng');
         }
         return $errors;
@@ -130,34 +129,39 @@ class advancedsearch_form extends moodleform {
 }
 ///////////////////////////////////////////////////////////////////////////////
 
-$pageparams = array();
+$url = new Moodle_url('/mod/forumng/advancedsearch.php');
 $courseid = optional_param('course', 0,  PARAM_INT);
 if ($courseid) {
-    $pageparams['course'] = $courseid;
+    $url->param('course', $courseid);
     $cmid = 0;
 } else {
     $cmid = required_param('id', PARAM_INT);
-    $pageparams['id'] = $cmid;
+    $url->param('id', $cmid);
 }
 $query = trim(optional_param('query', '', PARAM_RAW));
 if ($query !== '') {
-    $pageparams['query'] = $query;
+    $url->param('query', rawurlencode($query));
 }
 $author = trim(optional_param('author', '', PARAM_RAW));
 if ($author !== '') {
-    $pageparams['author'] = $author;
-}
-$daterangefrom = optional_param('datefrom', 0, PARAM_INT);
-if ($daterangefrom) {
-    $pageparams['datefrom'] = $daterangefrom;
-}
-$daterangeto = optional_param('dateto', 0, PARAM_INT);
-if ($daterangeto) {
-    $pageparams['dateto'] = $daterangeto;
+    $url->param('author', rawurlencode($author));
 }
 $cloneid = optional_param('clone', 0, PARAM_INT);
 if ($cloneid) {
-    $pageparams['clone'] = $cloneid;
+    // clone is used to mark shared forums
+    $url->param('clone', $cloneid);
+}
+$datefrom = optional_param_array('datefrom', 0, PARAM_INT);
+if (!empty($datefrom)) {
+    foreach ($datefrom as $key => $value) {
+        $url->param('datefrom[' . $key . ']', $value);
+    }
+}
+$dateto = optional_param_array('dateto', 0, PARAM_INT);
+if (!empty($dateto)) {
+    foreach ($dateto as $key => $value) {
+        $url->param('dateto[' . $key . ']', $value);
+    }
 }
 
 // Search in a single forum
@@ -178,14 +182,15 @@ if ($courseid) {
 }
 
 // Set up page
-$PAGE->set_url(new moodle_url('/mod/forumng/advancedsearch.php', $pageparams));
+$PAGE->set_url($url);
 $PAGE->set_heading($course->fullname);
-$PAGE->set_title($course->shortname . ': ' . format_string($forum->get_name()));
 if ($allforums) {
     $PAGE->set_context($coursecontext);
+    $PAGE->set_title($course->shortname . ': ' . get_string('searchallforums', 'forumng'));
 } else {
     $PAGE->set_context($forum->get_context());
     $PAGE->set_cm($cm, $course);
+    $PAGE->set_title($course->shortname . ': ' . format_string($forum->get_name()));
 }
 $PAGE->set_pagelayout('base');
 $PAGE->navbar->add(get_string('advancedsearch', 'forumng'));
@@ -201,8 +206,8 @@ if ($allforums) {
 $inputdata = new stdClass;
 $inputdata->query = $query;
 $inputdata->author = $author;
-$inputdata->daterangefrom = $daterangefrom;
-$inputdata->daterangeto = $daterangeto;
+$inputdata->datefrom = $datefrom;
+$inputdata->dateto = $dateto;
 $editform->set_data($inputdata);
 
 $data = $editform->get_data();
@@ -216,32 +221,20 @@ if ($editform->is_cancelled()) {
     redirect($returnurl, '', 0);
 }
 
-if ($data) {
-    $query = trim($data->query);
-    $author = trim($data->author);
-    $daterangefrom = $data->daterangefrom;
-    $daterangeto = $data->daterangeto;
-}
-$action = $query !== '' || $author !== '' || $daterangefrom || $daterangeto;
+$datefromint = isset($data->datefrom) ? $data->datefrom : 0;
+$datetoint = isset($data->dateto) ? $data->dateto : 0;
+$action = $query !== '' || $author !== '' || $datefromint || $datetoint ||
+        !empty($datefrom) || !empty($dateto);
 
 // Display header
 $out = mod_forumng_utils::get_renderer();
 print $out->header();
 
-// Set the search results title, URL and URL options
-$urlrequired = $allforums ? "course=$courseid" : $forum->get_link_params(mod_forumng::PARAM_PLAIN);
-$url = $CFG->wwwroot. "/mod/forumng/advancedsearch.php?" . $urlrequired;
-
-$searchtitle = forumng_get_search_results_title($query, $author, $daterangefrom, $daterangeto);
-
-$urloptions = ($query) ? '&query=' . rawurlencode($query) : '';
-$urloptions = ($author) ? '&author=' . rawurlencode($author) : '';
-$urloptions .= ($daterangefrom) ? '&datefrom=' . $daterangefrom : '';
-$urloptions .= ($daterangeto) ? '&dateto=' . $daterangeto : '';
+$searchtitle = forumng_get_search_results_title($query, $author, $datefromint, $datetoint);
 
 if (!$allforums) {
     // Display group selector if required
-    groups_print_activity_menu($cm, $url . $urloptions);
+    groups_print_activity_menu($cm, $url);
     $groupid = mod_forumng::get_activity_group($cm, true);
     $forum->require_view($groupid, 0, true);
     print '<br/><br/>';
@@ -267,17 +260,17 @@ if ($query) {
         $result->set_group_exceptions(local_ousearch_search::get_group_exceptions($courseid));
 
         $result->set_user_id($USER->id);
-    }else {// Search this forum
+    } else {// Search this forum
         $result->set_coursemodule($forum->get_course_module(true));
         if ($groupid && $groupid!=mod_forumng::NO_GROUPS) {
             $result->set_group_id($groupid);
         }
     }
     $result->set_filter('forumng_exclude_words_filter');
-    print $result->display_results($url . $urloptions, $searchtitle);
+    print $result->display_results($url, $searchtitle);
 
 // Searching without free text using author and/or date range
-} elseif ($action) {
+} else if ($action) {
     $page = optional_param('page', 0, PARAM_INT);
     $prevpage = $page-FORUMNG_SEARCH_RESULTSPERPAGE;
     $prevrange = ($page-FORUMNG_SEARCH_RESULTSPERPAGE+1) . ' - ' . $page;
@@ -285,10 +278,10 @@ if ($query) {
     //Get result from db
     if ($allforums) {
         $results = forumng_get_results_for_all_forums($course, $author,
-                $daterangefrom, $daterangeto, $page);
+                $datefromint, $datetoint, $page);
     } else {
         $results = forumng_get_results_for_this_forum($forum, $groupid, $author,
-                $daterangefrom, $daterangeto, $page);
+                $datefromint, $datetoint, $page);
     }
     $nextpage = $page + FORUMNG_SEARCH_RESULTSPERPAGE;
 
@@ -297,15 +290,21 @@ if ($query) {
 
     if ($results->success) {
         if (($page-FORUMNG_SEARCH_RESULTSPERPAGE+1)>0) {
-            $linkprev = $url."&action=1&page=$prevpage".$urloptions;
+            $url->param('page', $prevpage);
+            // we cannot pass the moodle_url straight through to format_results yet because
+            // these links will be re-encoded by the call to s(). If SC, ouwiki and local/ousearch
+            // is converted to use moodle_url then we can get rid of the str_replace here.
+            $linkprev = str_replace('&amp;', '&', $url->out());
         }
         if ($results->numberofentries == FORUMNG_SEARCH_RESULTSPERPAGE) {
-            $linknext = $url."&action=1&page=$nextpage".$urloptions;
+            $url->param('page', $nextpage);
+            $linknext = str_replace('&amp;', '&', $url->out());
         }
     }
     if ($results->done ===1) {
         if (($page-FORUMNG_SEARCH_RESULTSPERPAGE+1)>0) {
-            $linkprev = $url."&action=1&page=$prevpage".$urloptions;
+            $url->param('page', $prevpage);
+            $linkprev = str_replace('&amp;', '&', $url->out());
         }
     }
     print local_ousearch_search::format_results($results, $searchtitle, $page+1, $linkprev,
@@ -313,345 +312,3 @@ if ($query) {
 }
 
 print $out->footer();
-
-////////////////////////////////////////////////////////////////////////////////
-/**
- * Filter search result.
- * @param object $result
- * @return boolean
- */
-function forumng_exclude_words_filter($result) {
-    $author     = trim(optional_param('author', null, PARAM_RAW));
-    $drfa  = optional_param('daterangefrom', 0, PARAM_INT);
-    $drta  = optional_param('daterangeto', 0, PARAM_INT);
-
-    // Filter the output based on the input string for "Author name" field
-    if (!forumng_find_this_user($result->intref1, $author)) {
-        return false;
-    }
-
-    // Filter the output based on input date for "Date range from" field
-    if (count($drfa) > 1 ) {
-        $daterangefrom = make_timestamp($drfa['year'], $drfa['month'], $drfa['day'],
-                                    $drfa['hour'], $drfa['minute'], 0);
-        if ($daterangefrom && $daterangefrom > $result->timemodified) {
-            return false;
-        }
-    }
-
-    // Filter the output based on input date for "Date range to" field
-    if (count($drta) > 1 ) {
-        $daterangeto = make_timestamp($drta['year'], $drta['month'], $drta['day'],
-                                    $drta['hour'], $drta['minute'], 0);
-        if ($daterangeto && $daterangeto < $result->timemodified) {
-            return false;
-        }
-    }
-    return true;
-}
-
-
-/**
- * Get search results.
- * @param object $forum
- * @param int $groupid
- * @param string $author
- * @param int $daterangefrom
- * @param int $daterangeto
- * @param int $page
- * @param int $resultsperpage (FORUMNG_SEARCH_RESULTSPERPAGE used as constant)
- * @return object
- */
-function forumng_get_results_for_this_forum($forum, $groupid, $author=null, $daterangefrom=0,
-        $daterangeto=0, $page, $resultsperpage=FORUMNG_SEARCH_RESULTSPERPAGE) {
-
-    $before = microtime(true);
-
-    global $CFG, $DB, $USER;
-    $forumngid = $forum->get_id();
-    $context = $forum->get_context();
-    $params = array();
-
-    $where = "WHERE d.forumngid = ?";
-    $params[] = $forumngid;
-
-    //exclude deleted discussion/post
-    $where .= " AND d.deleted = 0 AND p.deleted = 0 AND p.oldversion = 0 ";
-
-    if ($author) {
-        list($morewhere, $moreparams) = forumng_get_author_sql($author);
-        $where .= $morewhere;
-        $params = array_merge($params, $moreparams);
-    }
-    if ($daterangefrom && !is_array($daterangefrom)) {
-        $where .= " AND p.modified>=?";
-        $params[] = $daterangefrom;
-    }
-    if ($daterangeto && !is_array($daterangeto)) {
-        $where .= " AND p.modified<=?";
-        $params[] = $daterangeto;
-    }
-
-    $sql = "SELECT p.modified, p.id, p.discussionid, p.userid, p.parentpostid,
-            p.subject AS title, p.message AS summary, u.username, u.firstname,
-            u.lastname, p2.subject
-            FROM {forumng_posts} p
-            INNER JOIN {forumng_discussions} d ON d.id = p.discussionid
-            INNER JOIN {user} u ON p.userid = u.id
-            INNER JOIN {forumng_posts} p2 ON p2.id = d.postid
-            $where
-            ORDER BY p.modified DESC, p.id ASC";
-
-    $results = new stdClass;
-    $results->success = 1;
-    $results->numberofentries = 0;
-    $results->done = 0;
-    $posts = $DB->get_records_sql($sql, $params, $page, $resultsperpage);
-    $groupposts = array();
-    foreach ($posts as $post) {
-        if (!$post->title) {
-            //Add Re: if the post doesn't have a subject
-            $post->title = get_string('re', 'forumng', $post->subject);
-        }
-        $post->title = s(strip_tags($post->title));
-        $post->summary = s(strip_tags(shorten_text($post->summary, 250)));
-        $post->url = $CFG->wwwroot ."/mod/forumng/discuss.php?d=$post->discussionid" .
-                $forum->get_clone_param(mod_forumng::PARAM_PLAIN) . "#p$post->id";
-
-        // Check group
-        if ($groupid && $groupid!=mod_forumng::NO_GROUPS) {
-            if (groups_is_member($groupid, $post->userid)) {
-                $groupposts[] = $post;
-            }
-        }
-    }
-    $results->results = $groupposts ? $groupposts : $posts;
-    $results->searchtime = microtime(true) - $before;
-    $results->numberofentries = count($results->results);
-
-    if (count($results->results) < $resultsperpage) {
-        $results->done = 1;
-    } else if (!$extrapost = $DB->get_records_sql($sql, $params, $page+$resultsperpage, 1)) {
-        $results->done = 1;
-    }
-    return $results;
-}
-
-
-/**
- * Get search results.
- * @param object $course
- * @param string $author
- * @param int $daterangefrom
- * @param int $daterangeto
- * @param int $page
- * @param int $resultsperpage (FORUMNG_SEARCH_RESULTSPERPAGE used as constant)
- * @return object
- */
-function forumng_get_results_for_all_forums($course, $author=null, $daterangefrom=0,
-        $daterangeto=0, $page, $resultsperpage=FORUMNG_SEARCH_RESULTSPERPAGE) {
-
-    $before = microtime(true);
-
-    global $CFG, $DB, $USER;
-
-    // Get all forums
-    $modinfo = get_fast_modinfo($course);
-    $visibleforums = array();
-    $accessallgroups = array();
-    foreach ($modinfo->cms as $cmid=>$cm) {
-        if ($cm->modname === 'forumng' && $cm->uservisible) {
-            $visibleforums[$cm->instance] = $cm->groupmode;
-
-            // Check access all groups for this forum, if they have it, add to list
-            //$forum = mod_forumng::get_from_cmid($cm->id, 0);
-            $forum = mod_forumng::get_from_id($cm->instance, mod_forumng::CLONE_DIRECT);
-            if ($forum->get_group_mode() == SEPARATEGROUPS) {
-                if (has_capability('moodle/site:accessallgroups', $forum->get_context())) {
-                    $accessallgroups[] = $cm->instance;
-                }
-            }
-        }
-    }
-    $forumngids = array_keys($visibleforums);
-    $separategroupsforumngids = array_keys($visibleforums, SEPARATEGROUPS);
-
-    $params = array();
-
-    list ($inforumngids, $moreparams) = mod_forumng_utils::get_in_array_sql(
-            'd.forumngid' , $forumngids);
-    $where = "WHERE $inforumngids";
-    $params = array_merge($params, $moreparams);
-
-    list ($inseparategroups, $moreparams) = mod_forumng_utils::get_in_array_sql(
-            'd.forumngid', $separategroupsforumngids);
-    $where .= " AND (NOT ($inseparategroups))";
-    $params = array_merge($params, $moreparams);
-
-    list ($inaccessallgroups, $moreparams) = mod_forumng_utils::get_in_array_sql(
-            'd.forumngid', $accessallgroups);
-    $where .= " OR $inaccessallgroups";
-    $params = array_merge($params, $moreparams);
-
-    $where .= " OR gm.id IS NOT NULL";
-    $where .= " OR d.groupid IS NULL)";
-
-    // Note: Even if you have capability to view the deleted or timed posts,
-    // we don't show them for consistency with the full-text search.
-    $currenttime = time();
-    $where .= " AND (? >= d.timestart OR d.timestart = 0)";
-    $params[] = $currenttime;
-    $where .= " AND (? < d.timeend OR d.timeend = 0)";
-    $params[] = $currenttime;
-
-    //exclude older post versions
-    $where .= " AND p.oldversion = 0 ";
-    $where .= " AND d.deleted = 0 AND p.deleted = 0 ";
-
-    if ($author) {
-        list($morewhere, $moreparams) = forumng_get_author_sql($author);
-        $where .= $morewhere;
-        $params = array_merge($params, $moreparams);
-    }
-    if ($daterangefrom && !is_array($daterangefrom)) {
-        $where .= " AND p.modified>=?";
-        $params[] = $daterangefrom;
-    }
-    if ($daterangeto && !is_array($daterangeto)) {
-        $where .= " AND p.modified<=?";
-        $params[] = $daterangeto;
-    }
-
-    $sql = "SELECT p.modified, p.id, p.discussionid, gm.id AS useringroup,
-            p.userid, p.parentpostid, p.subject AS title, p.message AS summary, u.username,
-            u.firstname, u.lastname, d.forumngid, d.groupid, p2.subject AS discussionsubject
-            FROM {forumng_posts} p
-            INNER JOIN {forumng_discussions} d ON d.id = p.discussionid
-            INNER JOIN {forumng_posts} p2 ON p2.id = d.postid
-            INNER JOIN {user} u ON p.userid = u.id
-            LEFT JOIN {groups_members} gm ON gm.groupid = d.groupid AND gm.userid = $USER->id
-            $where
-            ORDER BY p.modified DESC, p.id ASC";
-
-    $results = new stdClass;
-    $results->success = 1;
-    $results->numberofentries = 0;
-    $results->done = 0;
-    $posts = $DB->get_records_sql($sql, $params, $page, $resultsperpage);
-    foreach ($posts as $post) {
-        if (!$post->title) {
-            // Ideally we would get the parent post that has a subject, but
-            // this could involve a while loop that might make numeroous
-            // queries, so instead, let's just use the discussion subject
-            $post->title = get_string('re', 'forumng', $post->discussionsubject);
-        }
-        $post->title = s(strip_tags($post->title));
-        $post->summary = s(strip_tags(shorten_text($post->summary, 250)));
-        $post->url = $CFG->wwwroot . "/mod/forumng/discuss.php?d=$post->discussionid" .
-                $forum->get_clone_param(mod_forumng::PARAM_PLAIN) . "#p$post->id";
-    }
-    $results->results = $posts;
-    $results->searchtime = microtime(true) - $before;
-    $results->numberofentries = count($results->results);
-    if (count($results->results) < $resultsperpage) {
-        $results->done = 1;
-    } elseif (!$extrapost = $DB->get_records_sql($sql, $params, $page+$resultsperpage, 1)) {
-        $results->done = 1;
-    }
-    return $results;
-}
-
-
-/**
- * Find this usr.
- * @param int $groupid
- * @param string $author
- * @return boolean
- */
-function forumng_find_this_user($postid, $author=null) {
-    global $CFG, $DB;
-    require_once($CFG->libdir . '/dmllib.php');
-    if (!$author) {
-        return true;
-    }
-    $where = "WHERE p.id = ? ";
-    $params = array($postid);
-    list($morewhere, $moreparams) = forumng_get_author_sql($author);
-    $where .= $morewhere;
-    $params = array_merge($params, $moreparams);
-    $sql = "SELECT p.id, u.username, u.firstname, u.lastname
-            FROM {forumng_posts} p
-            INNER JOIN {user} u ON p.userid = u.id
-            $where";
-    return $DB->record_exists_sql($sql, $params);
-}
-
-
-/**
- * Get author sql
- * @param string $author
- * @param string $t
- * @return array with two elements containing the where sql string and the params array
- */
-function forumng_get_author_sql($author, $t='u') {
-    $where = " AND ";
-    $params = array();
-    $author = trim($author);
-    $pos = strpos($author, ' ');
-    if ($pos) {
-        $fname = trim(substr($author, 0, $pos));
-        $lname = trim(substr($author, ($pos+1)));
-        // Searching for complete first name and last name fully or partially ignoring case.
-        // Finds "Mahmoud Kassaei" by typing "Mahmoud k", "Mahmoud kas", "Mahmoud Kassaei", etc.
-        $where .= " (UPPER($t.firstname) LIKE UPPER(?) AND UPPER($t.lastname) LIKE UPPER(?))";
-        $params[] = $fname;
-        $params[] = $lname;
-    } else {
-        // Searching for user name fully ignoring case
-        // Finds "mk4359",  "Mk4359""MK4359", etc.
-        $where .= "((UPPER($t.username)=UPPER(?)) ";
-        $params[] = $author;
-
-        //search for first name only
-        // Finds "Mah",  "Mahmo", "mahmoud", etc.
-        $where .= " OR (UPPER($t.firstname) LIKE UPPER(?)) ";
-        $params[] = $author . '%';
-
-        //search for surname only
-        // Finds "Kass",  "kassa", "Kassaei", etc.
-        $where .= " OR (UPPER($t.lastname) LIKE UPPER(?))) ";
-        $params[] = $author . '%';
-    }
-    return array($where, $params);
-}
-
-
-/**
- * Get search results title
- * @param string $query
- * @param string $author
- * @param int $daterangefrom
- * @param int $daterangeto
- * @return string
- */
-function forumng_get_search_results_title($query='', $author='',
-        $daterangefrom=0, $daterangeto=0) {
-    // Set the search results title
-    if ($query) {
-        if (!($author || $daterangefrom || $daterangeto)) {
-            return get_string('searchresultsfor', 'local_ousearch', $query);
-        }
-    }
-    $searchoptions = $query ? $query . ' (' : ' (';
-    $searchoptions .= $author ? get_string('author', 'forumng', $author): '';
-    $searchoptions .= ($author && ($daterangefrom || $daterangeto)) ? ', ' : '';
-    $searchoptions .= $daterangefrom ? get_string('from', 'forumng',
-            userdate($daterangefrom)) : '';
-    $searchoptions .= ($daterangefrom && $daterangeto) ? ', ' : '';
-    $searchoptions .= $daterangeto ? get_string('to', 'forumng', userdate($daterangeto)) : '';
-    $searchoptions .= ' )';
-    if ($query) {
-        return get_string('searchresultsfor', 'local_ousearch', $searchoptions);
-    }
-    return get_string('searchresults', 'forumng', $searchoptions);
-}
