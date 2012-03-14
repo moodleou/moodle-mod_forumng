@@ -291,20 +291,17 @@ if ($query) {
     if ($results->success) {
         if (($page-FORUMNG_SEARCH_RESULTSPERPAGE+1)>0) {
             $url->param('page', $prevpage);
-            // we cannot pass the moodle_url straight through to format_results yet because
-            // these links will be re-encoded by the call to s(). If SC, ouwiki and local/ousearch
-            // is converted to use moodle_url then we can get rid of the str_replace here.
-            $linkprev = str_replace('&amp;', '&', $url->out());
+            $linkprev = $url->out(false);
         }
         if ($results->numberofentries == FORUMNG_SEARCH_RESULTSPERPAGE) {
             $url->param('page', $nextpage);
-            $linknext = str_replace('&amp;', '&', $url->out());
+            $linknext = $url->out(false);
         }
     }
     if ($results->done ===1) {
         if (($page-FORUMNG_SEARCH_RESULTSPERPAGE+1)>0) {
             $url->param('page', $prevpage);
-            $linkprev = str_replace('&amp;', '&', $url->out());
+            $linkprev = $url->out(false);
         }
     }
     print local_ousearch_search::format_results($results, $searchtitle, $page+1, $linkprev,
