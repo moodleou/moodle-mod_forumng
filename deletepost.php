@@ -131,7 +131,7 @@ if ($email) {
         $messagetext = $submitted->message['text'];
         $copyself = (isset($submitted->copyself))? true : false;
         $user = $post->get_user();
-        $from = $USER;
+        $from = $SITE->fullname;
         $subject = get_string('deletedforumpost', 'forumng');
 
         // Always send HTML version
