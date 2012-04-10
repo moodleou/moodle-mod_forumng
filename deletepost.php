@@ -193,19 +193,26 @@ if ($email) {
             $confirmstring .= ' ' . get_string('confirmdelete_nodiscussion', 'forumng');
         }
 
+        $deletebutton = new single_button(new moodle_url('/mod/forumng/deletepost.php',
+                        array('p'=>$post->get_id(), 'delete'=>$delete,
+                        'clone'=>$cloneid, 'expand'=>$expand)),
+                        $delete ? get_string('delete') : get_string('undelete', 'forumng'),
+                        'post');
+        $cancelbutton = new single_button(new moodle_url('/mod/forumng/discuss.php',
+                        array('d'=>$discussion->get_id(), 'clone'=>$cloneid, 'expand'=>$expand)),
+                        get_string('cancel'), 'get');
+        if ($USER->id == $post->get_user()->id) {
+            print $out->confirm($confirmstring, $deletebutton, $cancelbutton);
+        } else {
         print $out->confirm_three_button($confirmstring,
                 new single_button(new moodle_url('/mod/forumng/deletepost.php',
                     array('p'=>$post->get_id(), 'delete'=>$delete,
                     'clone'=>$cloneid, 'email' => 1, 'expand'=>$expand)),
                     $delete ? get_string('deleteemailpostbutton', 'forumng') :
                     get_string('undelete', 'forumng'), 'post'),
-                new single_button(new moodle_url('/mod/forumng/deletepost.php',
-                    array('p'=>$post->get_id(), 'delete'=>$delete,
-                    'clone'=>$cloneid, 'expand'=>$expand)),
-                    $delete ? get_string('delete') : get_string('undelete', 'forumng'), 'post'),
-                new single_button(new moodle_url('/mod/forumng/discuss.php',
-                    array('d'=>$discussion->get_id(), 'clone'=>$cloneid, 'expand'=>$expand)),
-                    get_string('cancel'), 'get'));
+                $deletebutton,
+                $cancelbutton);
+        }
     } else {
         $confirmstring = get_string('confirmundelete', 'forumng');
         print $out->confirm($confirmstring,

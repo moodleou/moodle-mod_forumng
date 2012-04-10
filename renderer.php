@@ -1164,7 +1164,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
                 if ($options[mod_forumng_post::OPTION_COMMAND_DELETE]) {
                     $commandsarray ['forumng-delete'] = '<a' . $mobileclass . ' href="' . $linkprefix .
                             'deletepost.php?' .
-                            $post->get_link_params(mod_forumng::PARAM_HTML) .
+                            $post->get_link_params(mod_forumng::PARAM_HTML, true) .
                             $expires . '">' .
                             get_string('delete', 'forumng', $postnumber) .
                             '</a>';

@@ -110,9 +110,20 @@ class mod_forumng_post {
      * Use to obtain link parameters when linking to any page that has anything
      * to do with posts.
      */
-    public function get_link_params($type) {
-        return 'p=' . $this->postfields->id .
+    public function get_link_params($type, $currentuser = false) {
+        global $USER;
+        $params = 'p=' . $this->postfields->id .
                 $this->get_forum()->get_clone_param($type);
+
+        if ($currentuser) {
+            $author = $this->get_user();
+
+            if ($author->id == $USER->id) {
+                $params .= '&currentuser=1';
+            }
+        }
+
+        return $params;
     }
 
     /**
