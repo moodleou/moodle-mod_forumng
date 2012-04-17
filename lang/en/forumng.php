@@ -316,19 +316,17 @@ $string['emailcontentplain'] = 'This is a notification to advise you that your f
 
 Subject: {$a->subject}
 Forum: {$a->forum}
-Module: {$a->course}';
+Module: {$a->course}
+
+To view the discussion visit {$a->deleteurl}';
 $string['emailcontenthtml'] = 'This is a notification to advise you that your forum post with the '.
 'following details has been deleted by \'{$a->firstname} {$a->lastname}\':<br />
 <br />
 Subject: {$a->subject}<br />
 Forum: {$a->forum}<br />
-Module: {$a->course}';
-$string['emailcontentnonjs'] = 'This is a notification to advise you that your forum post with the '.
-'following details has been deleted by \'{$a->firstname} {$a->lastname}\':
-
-Subject: {$a->subject}
-Forum: {$a->forum}
-Module: {$a->course}';
+Module: {$a->course}<br/>
+<br/>
+<a href="{$a->deleteurl}" title="view deleted post">View the discussion</a>';
 $string['copytoself'] = 'Send a copy to yourself';
 $string['deletedforumpost'] = 'Your post has been deleted';
 $string['emailerror'] = 'There was an error sending the email';

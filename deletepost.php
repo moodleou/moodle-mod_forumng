@@ -172,7 +172,8 @@ if ($email) {
     $emailmessage->lastname = $USER->lastname;
     $emailmessage->course = $COURSE->fullname;
     $emailmessage->forum = $post->get_forum()->get_name();
-
+    $emailmessage->deleteurl = $CFG->wwwroot . '/mod/forumng/discuss.php?d=' .
+                                $discussion->get_id();
     $formdata = new stdClass;
 
     // Use the plain
