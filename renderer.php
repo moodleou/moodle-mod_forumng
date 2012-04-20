@@ -1117,6 +1117,8 @@ class mod_forumng_renderer extends plugin_renderer_base {
                 $commandsarray = array();
                 $expires = $post->can_ignore_edit_time_limit() ? '' :
                     '&amp;expires=' . ($post->get_edit_time_limit()-time());
+                $expandparam = !empty($options[mod_forumng_post::OPTION_CHILDREN_EXPANDED]) ?
+                        '&amp;expand=1' : '';
 
                 // Jump box
                 if ($options[mod_forumng_post::OPTION_JUMP_PREVIOUS] ||
@@ -1146,7 +1148,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
                 if ($options[mod_forumng_post::OPTION_COMMAND_REPORT]) {
                     $commandsarray['forumng-alert'] = '<a href="' . $linkprefix . 'alert.php?' .
                             $post->get_link_params(mod_forumng::PARAM_HTML) .
-                            '" title="'.get_string('alert_linktitle', 'forumng').'">' .
+                            $expandparam . '" title="'.get_string('alert_linktitle', 'forumng').'">' .
                             get_string('alert_link', 'forumng', $postnumber) .
                             '</a>';
                 }
@@ -1155,7 +1157,8 @@ class mod_forumng_renderer extends plugin_renderer_base {
                 if ($options[mod_forumng_post::OPTION_COMMAND_SPLIT]) {
                     $commandsarray['forumng-split'] = '<a href="' . $linkprefix .
                             'splitpost.php?' .
-                            $post->get_link_params(mod_forumng::PARAM_HTML) . '">' .
+                            $post->get_link_params(mod_forumng::PARAM_HTML) .
+                            $expandparam . '">' .
                             get_string('split', 'forumng', $postnumber) .
                             '</a>';
                 }
@@ -1165,7 +1168,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
                     $commandsarray ['forumng-delete'] = '<a' . $mobileclass . ' href="' . $linkprefix .
                             'deletepost.php?' .
                             $post->get_link_params(mod_forumng::PARAM_HTML, true) .
-                            $expires . '">' .
+                            $expandparam . $expires . '">' .
                             get_string('delete', 'forumng', $postnumber) .
                             '</a>';
                 }
@@ -1175,7 +1178,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
                     $commandsarray['forumng-undelete'] = '<a href="' . $linkprefix .
                             'deletepost.php?' .
                             $post->get_link_params(mod_forumng::PARAM_HTML) .
-                            '&amp;delete=0">' .
+                            $expandparam . '&amp;delete=0">' .
                             get_string('undelete', 'forumng', $postnumber) .
                             '</a>';
                 }
@@ -1185,7 +1188,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
                     $commandsarray['forumng-edit'] = '<a' . $mobileclass . ' href="' . $linkprefix .
                             'editpost.php?' .
                             $post->get_link_params(mod_forumng::PARAM_HTML) .
-                            $expires. '">' .
+                            $expandparam . $expires. '">' .
                             get_string('edit', 'forumng', $postnumber) .
                             '</a>';
                 }
@@ -1194,7 +1197,8 @@ class mod_forumng_renderer extends plugin_renderer_base {
                 if ($options[mod_forumng_post::OPTION_COMMAND_REPLY]) {
                     $commandsarray['forumng-replylink'] = '<a' . $mobileclass . ' href="' .
                             $linkprefix . 'editpost.php?replyto=' . $post->get_id() .
-                            $post->get_forum()->get_clone_param(mod_forumng::PARAM_HTML) . '">' .
+                            $post->get_forum()->get_clone_param(mod_forumng::PARAM_HTML) .
+                            $expandparam . '">' .
                             get_string('reply', 'forumng', $postnumber) . '</a>';
                 }
 
