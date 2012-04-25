@@ -64,6 +64,7 @@ class mod_forumng_post {
     const OPTION_JUMP_PARENT = 'jump_parent';
     const OPTION_FIRST_UNREAD = 'first_unread';
     const OPTION_UNREAD_NOT_HIGHLIGHTED = 'unread_not_highlighted';
+    const OPTION_SINGLE_POST = 'single_post';
 
     /** Constant indicating that post is not rated by user */
     const NO_RATING = 999;
@@ -2005,6 +2006,9 @@ WHERE
         if (!array_key_exists(self::OPTION_DIGEST, $options)) {
             $options[self::OPTION_DIGEST] = false;
         }
+        if (!array_key_exists(self::OPTION_SINGLE_POST, $options)) {
+            $options[self::OPTION_SINGLE_POST] = false;
+        }
         if (!array_key_exists(self::OPTION_NO_COMMANDS, $options)) {
             $options[self::OPTION_NO_COMMANDS] = $options[self::OPTION_EXPORT];
         }
@@ -2102,27 +2106,26 @@ WHERE
                     $options[self::OPTION_PRINTABLE_VERSION]) &&
                     $this->can_view_ratings();
         }
+        $dojumps = !$options[self::OPTION_NO_COMMANDS] && !$options[self::OPTION_EMAIL] &&
+                !$options[self::OPTION_SINGLE_POST];
         if (!array_key_exists(self::OPTION_JUMP_NEXT, $options)) {
             $options[self::OPTION_JUMP_NEXT] =
-                (!$options[self::OPTION_NO_COMMANDS] && !$options[self::OPTION_EMAIL] &&
-                    $this->is_unread() && ($next=$this->get_next_unread()))
-                ? $next->get_id() : null;
+                    ($dojumps && $this->is_unread() && ($next=$this->get_next_unread()))
+                    ? $next->get_id() : null;
         }
         if (!array_key_exists(self::OPTION_JUMP_PREVIOUS, $options)) {
             $options[self::OPTION_JUMP_PREVIOUS] =
-                (!$options[self::OPTION_NO_COMMANDS] && !$options[self::OPTION_EMAIL] &&
-                    $this->is_unread() && $this->get_previous_unread())
-                ? $this->get_previous_unread()->get_id() : null;
+                    ($dojumps && $this->is_unread() && $this->get_previous_unread())
+                    ? $this->get_previous_unread()->get_id() : null;
         }
         if (!array_key_exists(self::OPTION_JUMP_PARENT, $options)) {
             $options[self::OPTION_JUMP_PARENT] =
-                (!$options[self::OPTION_NO_COMMANDS] && !$options[self::OPTION_EMAIL] &&
-                    !$this->is_root_post())
-                ? $this->get_parent()->get_id() : null;
+                    ($dojumps && !$this->is_root_post()) ? $this->get_parent()->get_id() : null;
         }
         if (!array_key_exists(self::OPTION_FIRST_UNREAD, $options)) {
             $options[self::OPTION_FIRST_UNREAD] = !$options[self::OPTION_EMAIL] &&
-                $this->is_unread() && !$this->get_previous_unread();
+                    !$options[self::OPTION_SINGLE_POST] && $this->is_unread() &&
+                    !$this->get_previous_unread();
         }
         if (!array_key_exists(self::OPTION_UNREAD_NOT_HIGHLIGHTED, $options)) {
             $options[self::OPTION_UNREAD_NOT_HIGHLIGHTED] = false;

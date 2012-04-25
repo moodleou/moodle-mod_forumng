@@ -55,8 +55,7 @@ if ($expand) {
     $pageparams['expand'] = $expand;
 }
 
-// Get post - include whole discussion if doing the 'delete and email' form
-$post = mod_forumng_post::get_from_id($postid, $cloneid, $email);
+$post = mod_forumng_post::get_from_id($postid, $cloneid);
 
 // Get convenience variables
 $discussion = $post->get_discussion();
@@ -227,8 +226,8 @@ if ($email) {
 }
 
 // Print post
-print $post->display(true,
-        array(mod_forumng_post::OPTION_NO_COMMANDS=>true));
+print $post->display(true, array(mod_forumng_post::OPTION_NO_COMMANDS => true,
+        mod_forumng_post::OPTION_SINGLE_POST => true));
 
 // Display footer
 print $out->footer();
