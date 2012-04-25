@@ -55,8 +55,8 @@ if ($expand) {
     $pageparams['expand'] = $expand;
 }
 
-// Get post
-$post = mod_forumng_post::get_from_id($postid, $cloneid);
+// Get post - include whole discussion if doing the 'delete and email' form
+$post = mod_forumng_post::get_from_id($postid, $cloneid, $email);
 
 // Get convenience variables
 $discussion = $post->get_discussion();
