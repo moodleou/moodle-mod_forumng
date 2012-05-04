@@ -1861,10 +1861,12 @@ WHERE
      *   message or surrounding links).
      * @param bool $discussionemail True if digest is of a single disussion;
      *   includes 'post 1' information
+     * @param array $extraoptions Set values here to add or override post
+     *   display options
      */
     function build_email($inreplyto, &$subject, &$text, &$html,
-        $ishtml, $canreply, $viewfullnames, $lang, $timezone, $digest=false,
-        $discussionemail=false, $showuserimage=true, $printableversion=false) {
+            $ishtml, $canreply, $viewfullnames, $lang, $timezone, $digest=false,
+            $discussionemail=false, $extraoptions = array()) {
         global $CFG, $USER;
 
         $oldlang = $USER->lang;
@@ -1886,12 +1888,6 @@ WHERE
         $text = '';
         $html = '';
         if (!$discussionemail && !$digest) {
-            // TODO Is this needed? It doesn't work; $CFG->stylesheets not there
-//            $html = '<head>';
-//            foreach ($CFG->stylesheets as $stylesheet) {
-//                $html .= '<link rel="stylesheet" type="text/css" href="'.$stylesheet.'" />'."\n";
-//            }
-//            $html .= '</head>';
             $html .= "\n<body id='forumng-email'>\n\n";
         }
 
@@ -1919,7 +1915,6 @@ WHERE
 
             $html .= '</div>';
         }
-        $text .= "\n" . mod_forumng_cron::EMAIL_DIVIDER;
 
         // Main part of email
         $options = array(
@@ -1929,10 +1924,17 @@ WHERE
             self::OPTION_VIEW_FULL_NAMES => $viewfullnames ? true : false,
             self::OPTION_TIME_ZONE => $timezone,
             self::OPTION_VISIBLE_POST_NUMBERS => $discussionemail,
-            self::OPTION_USER_IMAGE => $showuserimage,
-            self::OPTION_PRINTABLE_VERSION => $printableversion);
+            self::OPTION_USER_IMAGE => true);
+        foreach ($extraoptions as $key => $value) {
+            $options[$key] = $value;
+        }
         $html .= $this->display(true, $options);
-        $text .= $this->display(false, $options);
+        $displaytext = $this->display(false, $options);
+        // In digest, don't display mail divider if mail is blank (== deleted).t
+        if ($displaytext !== '' || !$digest) {
+            $text .= "\n" . mod_forumng_cron::EMAIL_DIVIDER;
+        }
+        $text .= $displaytext;
 
         // Now we need to display the parent post (if any, and if not in digest)
         if ($this->postfields->parentpostid && !$digest) {
@@ -1951,6 +1953,9 @@ WHERE
                 self::OPTION_EMAIL => true,
                 self::OPTION_NO_COMMANDS => true,
                 self::OPTION_TIME_ZONE => $timezone);
+            foreach ($extraoptions as $key => $value) {
+                $options[$key] = $value;
+            }
             $html .= $parent->display(true, $options);
             $text .= $parent->display(false, $options);
         }

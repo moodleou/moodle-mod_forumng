@@ -229,7 +229,8 @@ class forumng_all_portfolio_caller extends forumng_portfolio_caller_base {
         $postshtml = '';
         // we need a discussion object
         $discussion = mod_forumng_discussion::get_from_id($this->discussionid, $this->cloneid);
-        $discussion->build_selected_posts_email($selected, $poststext, $postshtml);
+        $discussion->build_selected_posts_email($selected, $poststext, $postshtml,
+                array(mod_forumng_post::OPTION_EXPORT => true));
         $allhtml .= $postshtml . '</body></html>';
 
         // Remove embedded img and attachment paths.

@@ -729,7 +729,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
         $deletedhide = $post->get_deleted()
             && !$options[mod_forumng_post::OPTION_VIEW_DELETED_INFO];
         // Hide deleted messages if they have no replies
-        if ($deletedhide && !$email && !$post->has_children()) {
+        if ($deletedhide && ($export || !$email) && !$post->has_children()) {
             // note: !email check is to deal with posts that are deleted
             // between when the mail list finds them, and when it sends out
             // mail. It would be confusing to send out a blank email so let's

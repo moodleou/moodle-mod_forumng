@@ -1971,12 +1971,10 @@ WHERE
      *   appended (text format)
      * @param string $allhtml Output variable; text of all posts will be
      *   appended (HTML format)
-     * @param bool $showuserimage True (default) to include user pictures
-     * @param bool $printableversion True to use the printable-version flag to
-     *   display posts.
+     * @param array $extraoptions Set or override options when displaying posts
      */
     function build_selected_posts_email($postids, &$alltext, &$allhtml,
-        $showuserimage=true, $printableversion=false) {
+            $extraoptions = array()) {
         global $USER;
         $list = array();
         $rootpost = $this->get_root_post();
@@ -1991,14 +1989,18 @@ WHERE
             $post->build_email(null, $subject, $text, $html, true,
                 false, has_capability('moodle/site:viewfullnames',
                     $this->get_forum()->get_context()), current_language(),
-                $USER->timezone, true, true, $showuserimage, $printableversion);
+                $USER->timezone, true, true, $extraoptions);
 
-            if ($alltext != '') {
+            // Don't put <hr> after the first post or after one which we didn't
+            // actually print (deleted posts)
+            if ($alltext != '' && $text !== '') {
                 $alltext .= "\n" . mod_forumng_cron::EMAIL_DIVIDER . "\n";
                 $allhtml .= '<hr size="1" noshade="noshade" />';
             }
-            $alltext .= $text;
-            $allhtml .= $html;
+            if ($text !== '') {
+                $alltext .= $text;
+                $allhtml .= $html;
+            }
         }
 
         // Remove crosslinks to posts that do not exist
