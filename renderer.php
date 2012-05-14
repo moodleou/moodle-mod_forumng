@@ -828,8 +828,11 @@ class mod_forumng_renderer extends plugin_renderer_base {
         }
 
         // Pictures (HTML version only)
+        if ($html) {
+            $out .= $lf . html_writer::start_tag('div', array('class' => 'forumng-pic-info'));
+        }
         if ($html && !$export && $options[mod_forumng_post::OPTION_USER_IMAGE]) {
-            $out .= $lf . '<div class="forumng-pic-info"><div class="forumng-pic">';
+            $out .= $lf . html_writer::start_tag('div', array('class' => 'forumng-pic'));
 
             // User picture
             $out .= $deletedhide ? '' : $post->display_user_picture();
@@ -843,7 +846,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
                 }
             }
 
-            $out .=  '</div>';
+            $out .=  html_writer::end_tag('div');
         }
 
         // Link used to expand post
@@ -877,8 +880,8 @@ class mod_forumng_renderer extends plugin_renderer_base {
             }
             if ($postnumber) {
                 if ($options[mod_forumng_post::OPTION_VISIBLE_POST_NUMBERS]) {
-                    $out .= '<span class="accesshide" style="position:static">' .
-                            $info . '</span>';
+                    $out .= html_writer::tag('small', ' ' . $info,
+                            array('class' => 'accesshide', 'style' => 'position:static'));
                 } else {
                     $out .= '<span class="accesshide"> ' . $info . ' </span>';
                 }
@@ -928,15 +931,21 @@ class mod_forumng_renderer extends plugin_renderer_base {
                         ($post->is_flagged() ? 0 : 1) .
                     '"/></div>';
             }
-            $out .= '</div></div>';
+            // End: forumng-info.
+            $out .= html_writer::end_tag('div');
+            // End: forumng-pic-info.
+            $out .=  html_writer::end_tag('div');
         } else {
             $out .= $by->name . ' - ' . $by->date . $lf;
 
             $out .= mod_forumng_cron::EMAIL_DIVIDER;
         }
+
         // Add a outer div to main contents
-        $out .= '<div class="forumng-post-outerbox">';
-        if ($post->get_deleted()) {
+        if ($html) {
+            $out .= '<div class="forumng-post-outerbox">';
+        }
+        if ($html && $post->get_deleted()) {
             $out .= '<p class="forumng-deleted-info"><strong>' .
                 get_string('deletedpost', 'forumng') . '</strong> ';
             if ($deletedhide) {
@@ -1223,21 +1232,29 @@ class mod_forumng_renderer extends plugin_renderer_base {
                 // Only the reply command is available in text mode
             }
 
-            // End of post footer and main section
+            // End: forumng-postfooter and forumng-postmain.
             if ($html) {
-                $out .= '</div></div>';
+                $out .= html_writer::end_tag('div') . html_writer::end_tag('div');
             }
         }
 
         // End of post div
         if ($html) {
-            $out .= '<div class="forumng-endpost"></div></div>';
+            // Useful empty div at end of post.
+            $out .= html_writer::tag('div', '', array('class' => 'forumng-endpost'));
+
+            // End: forumng-post-outerbox.
+            $out .= html_writer::end_tag('div');
+
+            // Export has a couple blank lines after post (but within div, for validity).
             if ($export) {
                 $out .= '<br /><br />';
             }
+
+            // End: forumng-post.
+            $out .= html_writer::end_tag('div');
         }
-        //End of the forum-post-outerbox div
-        $out .= '</div>';
+
         return $out;
     }
 
