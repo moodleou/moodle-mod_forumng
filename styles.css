@@ -452,6 +452,8 @@ ul.forumng-commands li.forumng-replylink {
     display:inline;
     list-style-type:none;
     margin:0 0 0 2em;
+}
+.forumng-attachments li a {
     white-space: nowrap;
 }
 .forumng-attachments a:link,

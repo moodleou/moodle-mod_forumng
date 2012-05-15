@@ -122,10 +122,10 @@ abstract class forumng_portfolio_caller_base extends portfolio_module_caller_bas
     public function get_navigation() {
         global $CFG;
 
-        $navlinks = array();
+        $discussion = mod_forumng_discussion::get_from_id($this->discussionid, $this->cloneid);
         $navlinks[] = array(
-            'name' => format_string($this->forumng->name),
-            'link' => $CFG->wwwroot . '/mod/forumng/view.php?id=' . $this->cm->id,
+            'name' => $discussion->get_subject(),
+            'link' => $CFG->wwwroot . '/mod/forumng/discuss.php?d='. $discussion->get_id(),
             'type' => 'title'
         );
         return array($navlinks, $this->cm);
@@ -142,6 +142,12 @@ abstract class forumng_portfolio_caller_base extends portfolio_module_caller_bas
 
     public static function display_name() {
         return get_string('modulename', 'forumng');
+    }
+
+    public function heading_summary() {
+        $discussion = mod_forumng_discussion::get_from_id($this->discussionid, $this->cloneid);
+        return get_string('exportingcontentfrom', 'portfolio', strtolower(get_string('discussion', 'forumng')).
+                ': '.$discussion->get_subject());
     }
 
     public static function base_supported_formats() {
@@ -228,15 +234,47 @@ class forumng_all_portfolio_caller extends forumng_portfolio_caller_base {
 
         // Remove embedded img and attachment paths.
         $plugin = $this->get('exporter')->get('instance')->get('plugin');
+        $portfolioformat = $this->get('exporter')->get('format');
         foreach ($this->files as $file) {
             $filename = $file->get_filename();
-            $pattern = '/\"http:\/\/.*?'.$filename.'.*?\"/';
-            if ($plugin == 'rtf') {
-                $replace = '"site_files/'.$filename.'"';
-            } else {
-                $replace = '"'.$filename.'"';
+            $urlencfilename = rawurlencode($filename);
+            $portfoliofiledir = $portfolioformat->get_file_directory();
+
+            if ($plugin == 'download') {
+                // non-encoded embedded image filenames
+                $pattern = '/src=.*?'.preg_quote($filename).'\"/';
+                $replace = 'src="'.$portfoliofiledir.$filename.'"';
+                $allhtml = preg_replace($pattern, $replace, $allhtml);
+
+                // urlencoded embedded image filenames
+                $pattern = '/src=.*?'.preg_quote($urlencfilename).'\"/';
+                $replace = 'src="'.$portfoliofiledir.$urlencfilename.'"';
+                $allhtml = preg_replace($pattern, $replace, $allhtml);
+
+                // non-encoded attached filenames
+                $pattern = '/href=.*?'.preg_quote($filename).'\"/';
+                $replace = 'href="'.$portfoliofiledir.$filename.'"';
+                $allhtml = preg_replace($pattern, $replace, $allhtml);
+
+                // urlencoded attached filenames
+                $pattern = '/href=.*?'.preg_quote($urlencfilename).'\"/';
+                $replace = 'href="'.$portfoliofiledir.$urlencfilename.'"';
+                $allhtml = preg_replace($pattern, $replace, $allhtml);
             }
-            $allhtml = preg_replace($pattern, $replace, $allhtml);
+
+            if ($plugin == 'rtf') {
+                $pattern = '/src=.*?'.$filename.'\"/';
+                $replace = 'src="'.$portfoliofiledir.$filename.'"';
+                $allhtml = preg_replace($pattern, $replace, $allhtml);
+
+                $pattern = '/src=\"http:\/\/.*?'.preg_quote($filename).'.*?\"/';
+                $replace = 'src="'.$portfoliofiledir.$filename.'"';
+                $allhtml = preg_replace($pattern, $replace, $allhtml);
+
+                $pattern = '/src=\"http:\/\/.*?'.preg_quote($urlencfilename).'.*?\"/';
+                $replace = 'src="'.$portfoliofiledir.$filename.'"';
+                $allhtml = preg_replace($pattern, $replace, $allhtml);
+            }
         }
 
         $content = $allhtml;

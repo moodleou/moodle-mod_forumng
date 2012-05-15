@@ -1019,14 +1019,15 @@ class mod_forumng_renderer extends plugin_renderer_base {
             $attachments = $post->get_attachment_names();
             if (count($attachments)) {
                 if ($html) {
-                    $out .= $lf . '<ul class="forumng-attachments">';
+                    $out .= $lf;
+                    if (count($attachments) == 1) {
+                        $attachmentlabel = get_string('attachment', 'forumng');
+                    } else {
+                        $attachmentlabel = get_string('attachments', 'forumng');
+                    }
+                    $out .= '<span class="accesshide">' . $attachmentlabel .
+                            '</span><ul class="forumng-attachments">';
                 }
-                if (count($attachments) == 1) {
-                    $attachmentlabel = get_string('attachment', 'forumng');
-                } else {
-                    $attachmentlabel = get_string('attachments', 'forumng');
-                }
-                $out .= '<span class="accesshide">'.$attachmentlabel.'</span>';
                 foreach ($attachments as $attachment) {
                     if ($html) {
                         require_once($CFG->libdir . '/filelib.php');
@@ -1036,7 +1037,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
 
                         $out .= '<li><a href="' . $post->get_attachment_url($attachment) . '">' .
                                 '<img src="' . $iconsrc . '" alt="' . $alt . '" /> <span>' .
-                                htmlspecialchars($attachment) . '</span></a></li>';
+                                htmlspecialchars($attachment) . '</span></a> </li>';
                     } else {
                         // Right-align the entry to 70 characters
                         $padding = 70 - strlen($attachment);
