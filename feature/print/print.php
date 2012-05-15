@@ -64,8 +64,7 @@ class print_post_selector extends forumngfeature_post_selector {
         } else {
             $allhtml = '';
             $alltext = '';
-            $discussion->build_selected_posts_email($selected, $alltext, $allhtml,
-                    array(mod_forumng_post::OPTION_PRINTABLE_VERSION));
+            $discussion->build_selected_posts_email($selected, $alltext, $allhtml, true, true);
             print $allhtml;
         }
 

@@ -286,9 +286,9 @@ M.mod_forumng = {
             }
 
             // Magicalise 'Delete' / 'Undelete' links
-            match = href.match(/\/deletepost\.php\?p=([0-9]+)(?:&clone=[0-9]+)?(?:&delete=([0-9]+))?(?:&currentuser=([0-9]))?$/);
+            match = href.match(/\/deletepost\.php\?p=([0-9]+)(?:&clone=[0-9]+)?(?:&delete=([0-9]+))?$/);
             if (match) {
-                this.init_delete(link, parseInt(match[1]), match[2] && match[2]==0, match[3]);
+                this.init_delete(link, parseInt(match[1]), match[2] && match[2]==0);
             }
 
             // Magicalise the hidden parent-post links
@@ -690,11 +690,6 @@ M.mod_forumng = {
                 /&(nbsp|#160|#xa0);/g, '') . replace(
                     new RegExp(String.fromCharCode(160), 'g'), ' ') .
                 replace(/\s+/, ' ') . trim();
-
-            // Allow an image even if no text
-            if (sourceText.indexOf('<img ') != -1) {
-                mungevalue = 'gotimage';
-            }
 
             // When editing discussion first post, subject must also be not blank
             if (mungevalue != '' && form.editpostid && form.isroot) {
@@ -1466,7 +1461,7 @@ M.mod_forumng = {
      * @param postid Post ID
      * @param undeleted True if it's actually undelete
      */
-    init_delete : function(link, postid, undelete, currentuser) {
+    init_delete : function(link, postid, undelete) {
         link.postid = postid;
         link.post = link.ancestor('.forumng-post');
         link.on('click', function(e) {
@@ -1502,18 +1497,11 @@ M.mod_forumng = {
                         var linkregion = M.mod_forumng.Y.DOM.region(M.mod_forumng.Y.Node.getDOMNode(link));
                         link.loader.setXY([linkregion.right + 3, linkregion.top]);
                     };
-            if (currentuser) {
-                var deletebuttons = new Array(M.str.forumng.deletepostbutton);
-                var deleteoptions = new Array(deleteonly, '');
-            } else {
-                var deletebuttons = new Array(M.str.forumng.deleteemailpostbutton,M.str.forumng.deletepostbutton);
-                var deleteoptions = new Array(deleteandemail, deleteonly, '');
-            }
             this.confirm(
                     undelete ? M.str.forumng.confirmundelete : M.str.forumng.confirmdelete,
-                    undelete ? M.str.forumng.undeletepostbutton : deletebuttons,
+                    undelete ? M.str.forumng.undeletepostbutton : new Array(M.str.forumng.deleteemailpostbutton,M.str.forumng.deletepostbutton),
                     M.str.moodle.cancel, link.post,
-                    undelete ? deleteonly : deleteoptions
+                    undelete ? deleteonly : new Array(deleteandemail, deleteonly)
                     );
         }, this);
     },

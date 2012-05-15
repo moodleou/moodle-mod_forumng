@@ -71,10 +71,6 @@ try {
         $pageparams['clone'] = $cloneid;
     }
 
-    // Were all posts expanded?
-    $expand = optional_param('expand', 0, PARAM_INT);
-    $expandparam = $expand ? '&expand=1' : '';
-
     // See if this is a draft post
     $draft = null;
     $replytoid = 0;
@@ -224,8 +220,6 @@ try {
         // Clone parameter is required for all actions
         $params['clone'] = $cloneid;
     }
-    // Expand parameter always available
-    $params['expand'] = $expand;
     $mform = new mod_forumng_editpost_form('editpost.php',
         array('params'=>$params, 'isdiscussion'=>$isdiscussion,
             'forum'=>$forum, 'edit'=>$edit, 'ispost'=>$ispost, 'islock'=>$islock,
@@ -238,11 +232,9 @@ try {
     if ($mform->is_cancelled()) {
         if ($edit) {
             redirect('discuss.php?' .
-                    $post->get_discussion()->get_link_params(mod_forumng::PARAM_PLAIN) .
-                    $expandparam);
-        } else if ($islock || $replytoid) {
-            redirect('discuss.php?' . $discussion->get_link_params(mod_forumng::PARAM_PLAIN) .
-                    $expandparam);
+                    $post->get_discussion()->get_link_params(mod_forumng::PARAM_PLAIN));
+        } else if ($islock) {
+            redirect('discuss.php?' . $discussion->get_link_params(mod_forumng::PARAM_PLAIN));
         } else {
             redirect('view.php?' . $forum->get_link_params(mod_forumng::PARAM_PLAIN));
         }
@@ -329,8 +321,8 @@ try {
                 // Redirect to edit it again
                 $transaction->allow_commit();
                 finish(0, $cloneid, 'editpost.php?draft=' . $draft->get_id() .
-                        $forum->get_clone_param(mod_forumng::PARAM_PLAIN) .
-                        $expandparam, $fromform, $draft->get_id() . ':' . $date);
+                        $forum->get_clone_param(mod_forumng::PARAM_PLAIN), $fromform,
+                        $draft->get_id() . ':' . $date);
             } else {
                 // This is a new draft
                 $transaction = $DB->start_delegated_transaction();
@@ -359,8 +351,8 @@ try {
                 // Redirect to edit it again
                 $transaction->allow_commit();
                 finish(0, $cloneid, 'editpost.php?draft=' . $newdraftid .
-                        $forum->get_clone_param(mod_forumng::PARAM_PLAIN) .
-                        $expandparam, $fromform, $newdraftid . ':' . $date);
+                        $forum->get_clone_param(mod_forumng::PARAM_PLAIN), $fromform,
+                        $newdraftid . ':' . $date);
             }
         } else if (!$edit) {
             // Check the random number is unique in session
@@ -412,8 +404,7 @@ try {
                 // Redirect to view discussion
                 $transaction->allow_commit();
                 finish($postid, $cloneid, 'discuss.php?d=' . $discussionid .
-                        $forum->get_clone_param(mod_forumng::PARAM_PLAIN) .
-                        $expandparam, $fromform);
+                        $forum->get_clone_param(mod_forumng::PARAM_PLAIN), $fromform);
             } else if ($islock) {
                 // Create a new lock post
                 $transaction = $DB->start_delegated_transaction();
@@ -433,8 +424,8 @@ try {
                 // Redirect to view discussion
                 $transaction->allow_commit();
                 finish($postid, $cloneid, 'discuss.php?' .
-                        $replyto->get_discussion()->get_link_params(mod_forumng::PARAM_PLAIN) .
-                        $expandparam, $fromform);
+                        $replyto->get_discussion()->get_link_params(mod_forumng::PARAM_PLAIN),
+                        $fromform);
             } else {
                 // Create a new reply
                 $transaction = $DB->start_delegated_transaction();
@@ -464,7 +455,7 @@ try {
                 $transaction->allow_commit();
                 finish($postid, $cloneid, 'discuss.php?' .
                         $replyto->get_discussion()->get_link_params(mod_forumng::PARAM_PLAIN) .
-                        $expandparam . '#p' . $postid, $fromform);
+                        '#p' . $postid, $fromform);
             }
         } else {
             // Editing
@@ -504,7 +495,7 @@ try {
             $transaction->allow_commit();
             finish($post->get_id(), $cloneid, 'discuss.php?' .
                 $post->get_discussion()->get_link_params(mod_forumng::PARAM_PLAIN) .
-                $expandparam . '#p' . $post->get_id(),
+                '#p' . $post->get_id(),
                 $fromform);
         }
 

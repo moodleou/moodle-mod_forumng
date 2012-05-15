@@ -729,7 +729,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
         $deletedhide = $post->get_deleted()
             && !$options[mod_forumng_post::OPTION_VIEW_DELETED_INFO];
         // Hide deleted messages if they have no replies
-        if ($deletedhide && ($export || !$email) && !$post->has_children()) {
+        if ($deletedhide && !$email && !$post->has_children()) {
             // note: !email check is to deal with posts that are deleted
             // between when the mail list finds them, and when it sends out
             // mail. It would be confusing to send out a blank email so let's
@@ -828,11 +828,8 @@ class mod_forumng_renderer extends plugin_renderer_base {
         }
 
         // Pictures (HTML version only)
-        if ($html) {
-            $out .= $lf . html_writer::start_tag('div', array('class' => 'forumng-pic-info'));
-        }
         if ($html && !$export && $options[mod_forumng_post::OPTION_USER_IMAGE]) {
-            $out .= $lf . html_writer::start_tag('div', array('class' => 'forumng-pic'));
+            $out .= $lf . '<div class="forumng-pic-info"><div class="forumng-pic">';
 
             // User picture
             $out .= $deletedhide ? '' : $post->display_user_picture();
@@ -846,7 +843,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
                 }
             }
 
-            $out .=  html_writer::end_tag('div');
+            $out .=  '</div>';
         }
 
         // Link used to expand post
@@ -880,8 +877,8 @@ class mod_forumng_renderer extends plugin_renderer_base {
             }
             if ($postnumber) {
                 if ($options[mod_forumng_post::OPTION_VISIBLE_POST_NUMBERS]) {
-                    $out .= html_writer::tag('small', ' ' . $info,
-                            array('class' => 'accesshide', 'style' => 'position:static'));
+                    $out .= '<span class="accesshide" style="position:static">' .
+                            $info . '</span>';
                 } else {
                     $out .= '<span class="accesshide"> ' . $info . ' </span>';
                 }
@@ -931,21 +928,15 @@ class mod_forumng_renderer extends plugin_renderer_base {
                         ($post->is_flagged() ? 0 : 1) .
                     '"/></div>';
             }
-            // End: forumng-info.
-            $out .= html_writer::end_tag('div');
-            // End: forumng-pic-info.
-            $out .=  html_writer::end_tag('div');
+            $out .= '</div></div>';
         } else {
             $out .= $by->name . ' - ' . $by->date . $lf;
 
             $out .= mod_forumng_cron::EMAIL_DIVIDER;
         }
-
         // Add a outer div to main contents
-        if ($html) {
-            $out .= '<div class="forumng-post-outerbox">';
-        }
-        if ($html && $post->get_deleted()) {
+        $out .= '<div class="forumng-post-outerbox">';
+        if ($post->get_deleted()) {
             $out .= '<p class="forumng-deleted-info"><strong>' .
                 get_string('deletedpost', 'forumng') . '</strong> ';
             if ($deletedhide) {
@@ -1126,8 +1117,6 @@ class mod_forumng_renderer extends plugin_renderer_base {
                 $commandsarray = array();
                 $expires = $post->can_ignore_edit_time_limit() ? '' :
                     '&amp;expires=' . ($post->get_edit_time_limit()-time());
-                $expandparam = !empty($options[mod_forumng_post::OPTION_CHILDREN_EXPANDED]) ?
-                        '&amp;expand=1' : '';
 
                 // Jump box
                 if ($options[mod_forumng_post::OPTION_JUMP_PREVIOUS] ||
@@ -1157,7 +1146,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
                 if ($options[mod_forumng_post::OPTION_COMMAND_REPORT]) {
                     $commandsarray['forumng-alert'] = '<a href="' . $linkprefix . 'alert.php?' .
                             $post->get_link_params(mod_forumng::PARAM_HTML) .
-                            $expandparam . '" title="'.get_string('alert_linktitle', 'forumng').'">' .
+                            '" title="'.get_string('alert_linktitle', 'forumng').'">' .
                             get_string('alert_link', 'forumng', $postnumber) .
                             '</a>';
                 }
@@ -1166,8 +1155,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
                 if ($options[mod_forumng_post::OPTION_COMMAND_SPLIT]) {
                     $commandsarray['forumng-split'] = '<a href="' . $linkprefix .
                             'splitpost.php?' .
-                            $post->get_link_params(mod_forumng::PARAM_HTML) .
-                            $expandparam . '">' .
+                            $post->get_link_params(mod_forumng::PARAM_HTML) . '">' .
                             get_string('split', 'forumng', $postnumber) .
                             '</a>';
                 }
@@ -1176,8 +1164,8 @@ class mod_forumng_renderer extends plugin_renderer_base {
                 if ($options[mod_forumng_post::OPTION_COMMAND_DELETE]) {
                     $commandsarray ['forumng-delete'] = '<a' . $mobileclass . ' href="' . $linkprefix .
                             'deletepost.php?' .
-                            $post->get_link_params(mod_forumng::PARAM_HTML, true) .
-                            $expandparam . $expires . '">' .
+                            $post->get_link_params(mod_forumng::PARAM_HTML) .
+                            $expires . '">' .
                             get_string('delete', 'forumng', $postnumber) .
                             '</a>';
                 }
@@ -1187,7 +1175,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
                     $commandsarray['forumng-undelete'] = '<a href="' . $linkprefix .
                             'deletepost.php?' .
                             $post->get_link_params(mod_forumng::PARAM_HTML) .
-                            $expandparam . '&amp;delete=0">' .
+                            '&amp;delete=0">' .
                             get_string('undelete', 'forumng', $postnumber) .
                             '</a>';
                 }
@@ -1197,7 +1185,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
                     $commandsarray['forumng-edit'] = '<a' . $mobileclass . ' href="' . $linkprefix .
                             'editpost.php?' .
                             $post->get_link_params(mod_forumng::PARAM_HTML) .
-                            $expandparam . $expires. '">' .
+                            $expires. '">' .
                             get_string('edit', 'forumng', $postnumber) .
                             '</a>';
                 }
@@ -1206,8 +1194,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
                 if ($options[mod_forumng_post::OPTION_COMMAND_REPLY]) {
                     $commandsarray['forumng-replylink'] = '<a' . $mobileclass . ' href="' .
                             $linkprefix . 'editpost.php?replyto=' . $post->get_id() .
-                            $post->get_forum()->get_clone_param(mod_forumng::PARAM_HTML) .
-                            $expandparam . '">' .
+                            $post->get_forum()->get_clone_param(mod_forumng::PARAM_HTML) . '">' .
                             get_string('reply', 'forumng', $postnumber) . '</a>';
                 }
 
@@ -1232,29 +1219,21 @@ class mod_forumng_renderer extends plugin_renderer_base {
                 // Only the reply command is available in text mode
             }
 
-            // End: forumng-postfooter and forumng-postmain.
+            // End of post footer and main section
             if ($html) {
-                $out .= html_writer::end_tag('div') . html_writer::end_tag('div');
+                $out .= '</div></div>';
             }
         }
 
         // End of post div
         if ($html) {
-            // Useful empty div at end of post.
-            $out .= html_writer::tag('div', '', array('class' => 'forumng-endpost'));
-
-            // End: forumng-post-outerbox.
-            $out .= html_writer::end_tag('div');
-
-            // Export has a couple blank lines after post (but within div, for validity).
+            $out .= '<div class="forumng-endpost"></div></div>';
             if ($export) {
                 $out .= '<br /><br />';
             }
-
-            // End: forumng-post.
-            $out .= html_writer::end_tag('div');
         }
-
+        //End of the forum-post-outerbox div
+        $out .= '</div>';
         return $out;
     }
 

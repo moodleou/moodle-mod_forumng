@@ -1282,7 +1282,7 @@ WHERE
 
         // Log
         if ($log) {
-            $this->log('lock discussion', 'p' . $postid . ' d' . $this->get_id());
+            $this->log('lock discussion p' . $postid);
         }
 
         $transaction->allow_commit();
@@ -1312,7 +1312,7 @@ WHERE
 
         // Log
         if ($log) {
-            $this->log('unlock discussion', 'p' . $lockpost->get_id() . ' d' . $this->get_id());
+            $this->log('unlock discussion p' . $lockpost->get_id());
         }
 
         $transaction->allow_commit();
@@ -1366,8 +1366,7 @@ WHERE
         $newroot->search_update_children();
 
         if ($log) {
-            $this->log('merge discussion', 'd' . $this->get_id() . ' into d' .
-                    $targetdiscussion->get_id());
+            $this->log('merge discussion d' . $targetdiscussion->get_id());
         }
 
         $transaction->allow_commit();
@@ -1529,7 +1528,7 @@ ORDER BY
      *   is just the discussion id again)
      */
     function log($action, $replaceinfo = '') {
-        $info = 'd' . $this->discussionfields->id;
+        $info = $this->discussionfields->id;
         if ($replaceinfo !== '') {
             $info = $replaceinfo;
         }
@@ -1972,10 +1971,12 @@ WHERE
      *   appended (text format)
      * @param string $allhtml Output variable; text of all posts will be
      *   appended (HTML format)
-     * @param array $extraoptions Set or override options when displaying posts
+     * @param bool $showuserimage True (default) to include user pictures
+     * @param bool $printableversion True to use the printable-version flag to
+     *   display posts.
      */
     function build_selected_posts_email($postids, &$alltext, &$allhtml,
-            $extraoptions = array()) {
+        $showuserimage=true, $printableversion=false) {
         global $USER;
         $list = array();
         $rootpost = $this->get_root_post();
@@ -1990,18 +1991,14 @@ WHERE
             $post->build_email(null, $subject, $text, $html, true,
                 false, has_capability('moodle/site:viewfullnames',
                     $this->get_forum()->get_context()), current_language(),
-                $USER->timezone, true, true, $extraoptions);
+                $USER->timezone, true, true, $showuserimage, $printableversion);
 
-            // Don't put <hr> after the first post or after one which we didn't
-            // actually print (deleted posts)
-            if ($alltext != '' && $text !== '') {
+            if ($alltext != '') {
                 $alltext .= "\n" . mod_forumng_cron::EMAIL_DIVIDER . "\n";
                 $allhtml .= '<hr size="1" noshade="noshade" />';
             }
-            if ($text !== '') {
-                $alltext .= $text;
-                $allhtml .= $html;
-            }
+            $alltext .= $text;
+            $allhtml .= $html;
         }
 
         // Remove crosslinks to posts that do not exist

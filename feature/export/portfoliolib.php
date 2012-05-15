@@ -222,26 +222,15 @@ class forumng_all_portfolio_caller extends forumng_portfolio_caller_base {
             $selected = false;
         }
 
-        // Set up the start of the XHTML file.
-        $allhtml = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" ' .
-                '"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">' .
-                html_writer::start_tag('html', array('xmlns' => 'http://www.w3.org/1999/xhtml'));
-        $allhtml .= html_writer::tag('head',
-                html_writer::empty_tag('meta',
-                    array('http-equiv' => 'Content-Type', 'content' => 'text/html; charset=utf-8')) .
-                html_writer::tag('title', get_string('export', 'forumngfeature_export')));
-        $allhtml .= html_writer::start_tag('body') . "\n";
+        // build the html for the export
+        $allhtml = "<html><body id='forumng-email'>\n";
+        $allhtml .= '<hr size="1" noshade="noshade" />';
         $poststext = '';
         $postshtml = '';
-
         // we need a discussion object
         $discussion = mod_forumng_discussion::get_from_id($this->discussionid, $this->cloneid);
-        $discussion->build_selected_posts_email($selected, $poststext, $postshtml,
-                array(mod_forumng_post::OPTION_EXPORT => true));
-        $allhtml .= $postshtml;
-
-        // Finish the file.
-        $allhtml .= html_writer::end_tag('body') . html_writer::end_tag('html');
+        $discussion->build_selected_posts_email($selected, $poststext, $postshtml);
+        $allhtml .= $postshtml . '</body></html>';
 
         // Remove embedded img and attachment paths.
         $plugin = $this->get('exporter')->get('instance')->get('plugin');

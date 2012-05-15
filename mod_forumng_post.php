@@ -64,7 +64,6 @@ class mod_forumng_post {
     const OPTION_JUMP_PARENT = 'jump_parent';
     const OPTION_FIRST_UNREAD = 'first_unread';
     const OPTION_UNREAD_NOT_HIGHLIGHTED = 'unread_not_highlighted';
-    const OPTION_SINGLE_POST = 'single_post';
 
     /** Constant indicating that post is not rated by user */
     const NO_RATING = 999;
@@ -111,20 +110,9 @@ class mod_forumng_post {
      * Use to obtain link parameters when linking to any page that has anything
      * to do with posts.
      */
-    public function get_link_params($type, $currentuser = false) {
-        global $USER;
-        $params = 'p=' . $this->postfields->id .
+    public function get_link_params($type) {
+        return 'p=' . $this->postfields->id .
                 $this->get_forum()->get_clone_param($type);
-
-        if ($currentuser) {
-            $author = $this->get_user();
-
-            if ($author->id == $USER->id) {
-                $params .= '&currentuser=1';
-            }
-        }
-
-        return $params;
     }
 
     /**
@@ -1861,12 +1849,10 @@ WHERE
      *   message or surrounding links).
      * @param bool $discussionemail True if digest is of a single disussion;
      *   includes 'post 1' information
-     * @param array $extraoptions Set values here to add or override post
-     *   display options
      */
     function build_email($inreplyto, &$subject, &$text, &$html,
-            $ishtml, $canreply, $viewfullnames, $lang, $timezone, $digest=false,
-            $discussionemail=false, $extraoptions = array()) {
+        $ishtml, $canreply, $viewfullnames, $lang, $timezone, $digest=false,
+        $discussionemail=false, $showuserimage=true, $printableversion=false) {
         global $CFG, $USER;
 
         $oldlang = $USER->lang;
@@ -1888,6 +1874,12 @@ WHERE
         $text = '';
         $html = '';
         if (!$discussionemail && !$digest) {
+            // TODO Is this needed? It doesn't work; $CFG->stylesheets not there
+//            $html = '<head>';
+//            foreach ($CFG->stylesheets as $stylesheet) {
+//                $html .= '<link rel="stylesheet" type="text/css" href="'.$stylesheet.'" />'."\n";
+//            }
+//            $html .= '</head>';
             $html .= "\n<body id='forumng-email'>\n\n";
         }
 
@@ -1915,6 +1907,7 @@ WHERE
 
             $html .= '</div>';
         }
+        $text .= "\n" . mod_forumng_cron::EMAIL_DIVIDER;
 
         // Main part of email
         $options = array(
@@ -1924,17 +1917,10 @@ WHERE
             self::OPTION_VIEW_FULL_NAMES => $viewfullnames ? true : false,
             self::OPTION_TIME_ZONE => $timezone,
             self::OPTION_VISIBLE_POST_NUMBERS => $discussionemail,
-            self::OPTION_USER_IMAGE => true);
-        foreach ($extraoptions as $key => $value) {
-            $options[$key] = $value;
-        }
+            self::OPTION_USER_IMAGE => $showuserimage,
+            self::OPTION_PRINTABLE_VERSION => $printableversion);
         $html .= $this->display(true, $options);
-        $displaytext = $this->display(false, $options);
-        // In digest, don't display mail divider if mail is blank (== deleted).t
-        if ($displaytext !== '' || !$digest) {
-            $text .= "\n" . mod_forumng_cron::EMAIL_DIVIDER;
-        }
-        $text .= $displaytext;
+        $text .= $this->display(false, $options);
 
         // Now we need to display the parent post (if any, and if not in digest)
         if ($this->postfields->parentpostid && !$digest) {
@@ -1953,9 +1939,6 @@ WHERE
                 self::OPTION_EMAIL => true,
                 self::OPTION_NO_COMMANDS => true,
                 self::OPTION_TIME_ZONE => $timezone);
-            foreach ($extraoptions as $key => $value) {
-                $options[$key] = $value;
-            }
             $html .= $parent->display(true, $options);
             $text .= $parent->display(false, $options);
         }
@@ -2010,9 +1993,6 @@ WHERE
         }
         if (!array_key_exists(self::OPTION_DIGEST, $options)) {
             $options[self::OPTION_DIGEST] = false;
-        }
-        if (!array_key_exists(self::OPTION_SINGLE_POST, $options)) {
-            $options[self::OPTION_SINGLE_POST] = false;
         }
         if (!array_key_exists(self::OPTION_NO_COMMANDS, $options)) {
             $options[self::OPTION_NO_COMMANDS] = $options[self::OPTION_EXPORT];
@@ -2111,26 +2091,27 @@ WHERE
                     $options[self::OPTION_PRINTABLE_VERSION]) &&
                     $this->can_view_ratings();
         }
-        $dojumps = !$options[self::OPTION_NO_COMMANDS] && !$options[self::OPTION_EMAIL] &&
-                !$options[self::OPTION_SINGLE_POST];
         if (!array_key_exists(self::OPTION_JUMP_NEXT, $options)) {
             $options[self::OPTION_JUMP_NEXT] =
-                    ($dojumps && $this->is_unread() && ($next=$this->get_next_unread()))
-                    ? $next->get_id() : null;
+                (!$options[self::OPTION_NO_COMMANDS] && !$options[self::OPTION_EMAIL] &&
+                    $this->is_unread() && ($next=$this->get_next_unread()))
+                ? $next->get_id() : null;
         }
         if (!array_key_exists(self::OPTION_JUMP_PREVIOUS, $options)) {
             $options[self::OPTION_JUMP_PREVIOUS] =
-                    ($dojumps && $this->is_unread() && $this->get_previous_unread())
-                    ? $this->get_previous_unread()->get_id() : null;
+                (!$options[self::OPTION_NO_COMMANDS] && !$options[self::OPTION_EMAIL] &&
+                    $this->is_unread() && $this->get_previous_unread())
+                ? $this->get_previous_unread()->get_id() : null;
         }
         if (!array_key_exists(self::OPTION_JUMP_PARENT, $options)) {
             $options[self::OPTION_JUMP_PARENT] =
-                    ($dojumps && !$this->is_root_post()) ? $this->get_parent()->get_id() : null;
+                (!$options[self::OPTION_NO_COMMANDS] && !$options[self::OPTION_EMAIL] &&
+                    !$this->is_root_post())
+                ? $this->get_parent()->get_id() : null;
         }
         if (!array_key_exists(self::OPTION_FIRST_UNREAD, $options)) {
             $options[self::OPTION_FIRST_UNREAD] = !$options[self::OPTION_EMAIL] &&
-                    !$options[self::OPTION_SINGLE_POST] && $this->is_unread() &&
-                    !$this->get_previous_unread();
+                $this->is_unread() && !$this->get_previous_unread();
         }
         if (!array_key_exists(self::OPTION_UNREAD_NOT_HIGHLIGHTED, $options)) {
             $options[self::OPTION_UNREAD_NOT_HIGHLIGHTED] = false;

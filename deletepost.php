@@ -37,9 +37,8 @@ $delete = optional_param('delete', 1, PARAM_INT);
 // Email author
 $email = optional_param('email', 0, PARAM_INT);
 
-// Were the posts expanded?
+// Were the posts expanded in non js display
 $expand = optional_param('expand', 0, PARAM_INT);
-$expandparam = $expand ? '&expand=1' : '';
 
 $pageparams = array('p'=>$postid);
 if ($cloneid) {
@@ -55,6 +54,7 @@ if ($expand) {
     $pageparams['expand'] = $expand;
 }
 
+// Get post
 $post = mod_forumng_post::get_from_id($postid, $cloneid);
 
 // Get convenience variables
@@ -101,7 +101,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $email != 1) {
         $postid = '#p' . $post->get_id();
     }
 
-    redirect('discuss.php?' . $discussion->get_link_params(mod_forumng::PARAM_PLAIN) . $expandparam . $postid);
+    redirect('discuss.php?' . $discussion->get_link_params(mod_forumng::PARAM_PLAIN) . $postid);
 }
 
 if ($email) {
@@ -114,6 +114,9 @@ if ($email) {
 
     $url = new moodle_url("{$CFG->wwwroot}/mod/forumng/deletepost.php", $urlparams);
     $mform = new mod_forumng_deletepost_form($url);
+
+    // set up the expand url param so it gets added to the redirects
+    $expandparam = ($expand)? $expandparam = '&expand='.$expand : '';
 
     if ($mform->is_cancelled()) {
         //form is cancelled, redirect back to the discussion
@@ -169,8 +172,7 @@ if ($email) {
     $emailmessage->lastname = $USER->lastname;
     $emailmessage->course = $COURSE->fullname;
     $emailmessage->forum = $post->get_forum()->get_name();
-    $emailmessage->deleteurl = $CFG->wwwroot . '/mod/forumng/discuss.php?d=' .
-                                $discussion->get_id();
+
     $formdata = new stdClass;
 
     // Use the plain
@@ -191,26 +193,19 @@ if ($email) {
             $confirmstring .= ' ' . get_string('confirmdelete_nodiscussion', 'forumng');
         }
 
-        $deletebutton = new single_button(new moodle_url('/mod/forumng/deletepost.php',
-                        array('p'=>$post->get_id(), 'delete'=>$delete,
-                        'clone'=>$cloneid, 'expand'=>$expand)),
-                        $delete ? get_string('delete') : get_string('undelete', 'forumng'),
-                        'post');
-        $cancelbutton = new single_button(new moodle_url('/mod/forumng/discuss.php',
-                        array('d'=>$discussion->get_id(), 'clone'=>$cloneid, 'expand'=>$expand)),
-                        get_string('cancel'), 'get');
-        if ($USER->id == $post->get_user()->id) {
-            print $out->confirm($confirmstring, $deletebutton, $cancelbutton);
-        } else {
-            print $out->confirm_three_button($confirmstring,
-                    new single_button(new moodle_url('/mod/forumng/deletepost.php',
-                        array('p'=>$post->get_id(), 'delete'=>$delete,
-                        'clone'=>$cloneid, 'email' => 1, 'expand'=>$expand)),
-                        $delete ? get_string('deleteemailpostbutton', 'forumng') :
-                        get_string('undelete', 'forumng'), 'post'),
-                    $deletebutton,
-                    $cancelbutton);
-        }
+        print $out->confirm_three_button($confirmstring,
+                new single_button(new moodle_url('/mod/forumng/deletepost.php',
+                    array('p'=>$post->get_id(), 'delete'=>$delete,
+                    'clone'=>$cloneid, 'email' => 1, 'expand'=>$expand)),
+                    $delete ? get_string('deleteemailpostbutton', 'forumng') :
+                    get_string('undelete', 'forumng'), 'post'),
+                new single_button(new moodle_url('/mod/forumng/deletepost.php',
+                    array('p'=>$post->get_id(), 'delete'=>$delete,
+                    'clone'=>$cloneid, 'expand'=>$expand)),
+                    $delete ? get_string('delete') : get_string('undelete', 'forumng'), 'post'),
+                new single_button(new moodle_url('/mod/forumng/discuss.php',
+                    array('d'=>$discussion->get_id(), 'clone'=>$cloneid, 'expand'=>$expand)),
+                    get_string('cancel'), 'get'));
     } else {
         $confirmstring = get_string('confirmundelete', 'forumng');
         print $out->confirm($confirmstring,
@@ -226,8 +221,8 @@ if ($email) {
 }
 
 // Print post
-print $post->display(true, array(mod_forumng_post::OPTION_NO_COMMANDS => true,
-        mod_forumng_post::OPTION_SINGLE_POST => true));
+print $post->display(true,
+        array(mod_forumng_post::OPTION_NO_COMMANDS=>true));
 
 // Display footer
 print $out->footer();
