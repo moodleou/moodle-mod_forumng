@@ -1282,7 +1282,7 @@ WHERE
 
         // Log
         if ($log) {
-            $this->log('lock discussion p' . $postid);
+            $this->log('lock discussion', 'p' . $postid . ' d' . $this->get_id());
         }
 
         $transaction->allow_commit();
@@ -1312,7 +1312,7 @@ WHERE
 
         // Log
         if ($log) {
-            $this->log('unlock discussion p' . $lockpost->get_id());
+            $this->log('unlock discussion', 'p' . $lockpost->get_id() . ' d' . $this->get_id());
         }
 
         $transaction->allow_commit();
@@ -1366,7 +1366,8 @@ WHERE
         $newroot->search_update_children();
 
         if ($log) {
-            $this->log('merge discussion d' . $targetdiscussion->get_id());
+            $this->log('merge discussion', 'd' . $this->get_id() . ' into d' .
+                    $targetdiscussion->get_id());
         }
 
         $transaction->allow_commit();
@@ -1528,7 +1529,7 @@ ORDER BY
      *   is just the discussion id again)
      */
     function log($action, $replaceinfo = '') {
-        $info = $this->discussionfields->id;
+        $info = 'd' . $this->discussionfields->id;
         if ($replaceinfo !== '') {
             $info = $replaceinfo;
         }
