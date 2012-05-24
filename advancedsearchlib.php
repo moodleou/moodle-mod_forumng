@@ -30,9 +30,10 @@ define('FORUMNG_SEARCH_RESULTSPERPAGE', 10); // Number of results to display per
  * @return boolean
  */
 function forumng_exclude_words_filter($result) {
-    $author = trim(optional_param('author', null, PARAM_RAW));
-    $drfa = optional_param_array('datefrom', 0, PARAM_INT);
-    $drta = optional_param_array('dateto', 0, PARAM_INT);
+    global $forumngfilteroptions;
+    $author = $forumngfilteroptions->author;
+    $daterangefrom = $forumngfilteroptions->datefrom;
+    $daterangeto = $forumngfilteroptions->dateto;
 
     // Filter the output based on the input string for "Author name" field
     if (!forumng_find_this_user($result->intref1, $author)) {
@@ -40,21 +41,13 @@ function forumng_exclude_words_filter($result) {
     }
 
     // Filter the output based on input date for "Date range from" field
-    if (count($drfa) > 1 ) {
-        $daterangefrom = make_timestamp($drfa['year'], $drfa['month'], $drfa['day'],
-                                    $drfa['hour'], $drfa['minute'], 0);
-        if ($daterangefrom && $daterangefrom > $result->timemodified) {
-            return false;
-        }
+    if ($daterangefrom && $daterangefrom > $result->timemodified) {
+        return false;
     }
 
     // Filter the output based on input date for "Date range to" field
-    if (count($drta) > 1 ) {
-        $daterangeto = make_timestamp($drta['year'], $drta['month'], $drta['day'],
-                                    $drta['hour'], $drta['minute'], 0);
-        if ($daterangeto && $daterangeto < $result->timemodified) {
-            return false;
-        }
+    if ($daterangeto && $daterangeto < $result->timemodified) {
+        return false;
     }
     return true;
 }
@@ -99,6 +92,10 @@ function forumng_get_results_for_this_forum($forum, $groupid, $author=null, $dat
         $where .= " AND p.modified<=?";
         $params[] = $daterangeto;
     }
+    if ($groupid) {
+        $where .= " AND (d.groupid = ? OR d.groupid IS NULL)";
+        $params[] = $groupid;
+    }
 
     $sql = "SELECT p.modified, p.id, p.discussionid, p.userid, p.parentpostid,
             p.subject AS title, p.message AS summary, u.username, u.firstname,
@@ -125,13 +122,6 @@ function forumng_get_results_for_this_forum($forum, $groupid, $author=null, $dat
         $post->summary = s(strip_tags(shorten_text($post->summary, 250)));
         $post->url = $CFG->wwwroot ."/mod/forumng/discuss.php?d=$post->discussionid" .
                 $forum->get_clone_param(mod_forumng::PARAM_PLAIN) . "#p$post->id";
-
-        // Check group
-        if ($groupid && $groupid!=mod_forumng::NO_GROUPS) {
-            if (groups_is_member($groupid, $post->userid)) {
-                $groupposts[] = $post;
-            }
-        }
     }
     $results->results = $groupposts ? $groupposts : $posts;
     $results->searchtime = microtime(true) - $before;
@@ -171,7 +161,6 @@ function forumng_get_results_for_all_forums($course, $author=null, $daterangefro
             $visibleforums[$cm->instance] = $cm->groupmode;
 
             // Check access all groups for this forum, if they have it, add to list
-            //$forum = mod_forumng::get_from_cmid($cm->id, 0);
             $forum = mod_forumng::get_from_id($cm->instance, mod_forumng::CLONE_DIRECT);
             if ($forum->get_group_mode() == SEPARATEGROUPS) {
                 if (has_capability('moodle/site:accessallgroups', $forum->get_context())) {

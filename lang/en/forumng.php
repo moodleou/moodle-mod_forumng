@@ -728,12 +728,9 @@ $string['nextresults'] = 'Find more results';
 $string['author'] = ' author: \"{$a}\"';
 $string['from'] = ' from: {$a}';
 $string['to'] = ' to: {$a}';
-$string['inappropriatedateortime'] = '<strong>Date range from</strong> is after current date/time.
-Please check and try again!';
-$string['daterangemismatch'] = 'Date range mismatch: <strong>Date range from</strong> is after
-<strong>Date range to</strong>. Please check and try again!';
-$string['nosearchcriteria'] = 'No search criteria: Please use one or more of the criteria below
-and try again!';
+$string['inappropriatedateortime'] = 'From date cannot be after present.';
+$string['daterangemismatch'] = 'To date is before From date.';
+$string['nosearchcriteria'] = 'No search criteria. Please use one or more of the criteria below.';
 $string['searchallforums'] = 'Search all forums';
 
 $string['replies'] = 'Replies';
