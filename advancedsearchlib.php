@@ -69,6 +69,8 @@ function forumng_get_results_for_this_forum($forum, $groupid, $author=null, $dat
     $before = microtime(true);
 
     global $CFG, $DB, $USER;
+    require_once($CFG->dirroot . '/mod/forumng/mod_forumng.php');
+
     $forumngid = $forum->get_id();
     $context = $forum->get_context();
     $params = array();
@@ -151,6 +153,7 @@ function forumng_get_results_for_all_forums($course, $author=null, $daterangefro
     $before = microtime(true);
 
     global $CFG, $DB, $USER;
+    require_once($CFG->dirroot . '/mod/forumng/mod_forumng.php');
 
     // Get all forums
     $modinfo = get_fast_modinfo($course);
