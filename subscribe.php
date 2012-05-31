@@ -55,10 +55,10 @@ if ($cloneid) {
 }
 $pageurl = new moodle_url('/mod/forumng/subscribe.php', $pageparams);
 
-$requestingsubscribe = optional_param('submitsubscribe', '', PARAM_ALPHA);
-$requestingunsubscribe = optional_param('submitunsubscribe', '', PARAM_ALPHA);
-$requestingsubscribegroup = optional_param('submitsubscribe_thisgroup', '', PARAM_ALPHA);
-$requestingunsubscribegroup = optional_param('submitunsubscribe_thisgroup', '', PARAM_ALPHA);
+$requestingsubscribe = optional_param('submitsubscribe', '', PARAM_RAW);
+$requestingunsubscribe = optional_param('submitunsubscribe', '', PARAM_RAW);
+$requestingsubscribegroup = optional_param('submitsubscribe_thisgroup', '', PARAM_RAW);
+$requestingunsubscribegroup = optional_param('submitunsubscribe_thisgroup', '', PARAM_RAW);
 if ($_SERVER['REQUEST_METHOD'] == 'GET') {
     // Get request always does unsubscribe
     $requestingunsubscribe = 'y';
