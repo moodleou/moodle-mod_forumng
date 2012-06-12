@@ -734,7 +734,7 @@ $string['inappropriatedateortime'] = '<strong>Date range from</strong> is after 
 Please check and try again!';
 $string['daterangemismatch'] = 'Date range mismatch: <strong>Date range from</strong> is after
 <strong>Date range to</strong>. Please check and try again!';
-$string['nosearchcriteria'] = 'No search criteria: Please use one or more of the above criteria
+$string['nosearchcriteria'] = 'No search criteria: Please use one or more of the criteria below
 and try again!';
 $string['searchallforums'] = 'Search all forums';
 

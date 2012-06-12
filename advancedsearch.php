@@ -50,59 +50,20 @@ class advancedsearch_form extends moodleform {
         $mform->addElement('date_time_selector', 'datefrom',
                 get_string('daterangefrom', 'forumng'),
                 array('optional'=>true, 'step'=>1));
+        // setConstant is used rather than setDefault as this allows the unchecking of the
+        // the 'enable' checkbox, otherwise no difference in operation
+        $mform->setConstant('datefrom', $this->_customdata['datefrom']);
 
         // Date range_to to be filtered
         $mform->addElement('date_time_selector', 'dateto',
                 get_string('daterangeto', 'forumng'),
                 array('optional'=>true, 'step'=>1));
+        $mform->setConstant('dateto', $this->_customdata['dateto']);
 
         // Add help buttons
         $mform->addHelpButton('query', 'words', 'forumng');
         $mform->addHelpButton('author', 'authorname', 'forumng');
         $mform->addHelpButton('datefrom', 'daterangefrom', 'forumng');
-
-        //Set default hour and minute for "Date ranfe from" and "date range to"
-        $mform->addElement('static', 'sethourandminute', '',
-        '<script type="text/javascript">
-//<![CDATA[
-        //check whether "Date range from" and/or "Date range to" are disabled
-        var datefromenabled = false;
-        var datetoenabled = false;
-        var inputs = document.getElementsByTagName("input");
-        for (var i = 0; i < inputs.length; i++) {
-            if (inputs[i].type == "checkbox") {
-                if (inputs[i].checked == true) {
-                    if (inputs[i].name == "datefrom[off]") {
-                        datefromenabled = true;
-                    }
-                    if (inputs[i].name == "dateto[off]") {
-                        datetoenabled = true;
-                    }
-                }
-            }
-        }
-        //Set hour and minute of "Date range from" and "Date range to"
-        var sel = document.getElementsByTagName("select");
-        for (var i = 0; i < sel.length; i++) {
-            if (datefromenabled == true) {
-                if (sel[i].name == "datefrom[hour]") {
-                    sel[i].options[0].selected = true;
-                }
-                if (sel[i].name == "datefrom[minute]") {
-                    sel[i].options[0].selected = true;
-                }
-            }
-            if (datetoenabled == true) {
-                if (sel[i].name == "dateto[hour]") {
-                    sel[i].options[23].selected = true;
-                }
-                if (sel[i].name == "dateto[minute]") {
-                    sel[i].options[59].selected = true;
-                }
-            }
-        }
-//]]>
-        </script>');
 
         // Add "Search all forums"/"Search this forum" and "Cancel" buttons
         if ($this->_customdata['course']) {
@@ -114,15 +75,21 @@ class advancedsearch_form extends moodleform {
 
     public function validation($data, $files) {
         $errors = parent::validation($data, $files);
-        if ($data['datefrom'] > time()) {
+        $df = $data['datefrom'];
+        $dt = $data['dateto'];
+        $datefrom = make_timestamp($df['year'], $df['month'], $df['day'], $df['hour'],
+                $df['minute']);
+        $dateto = make_timestamp($dt['year'], $dt['month'], $dt['day'], $dt['hour'],
+                $dt['minute']);
+        if ($datefrom > time() && !empty($data['datefrom']['enabled'])) {
             $errors['datefrom'] = get_string('inappropriatedateortime', 'forumng');
         }
-        if (($data['datefrom'] > $data['dateto']) && $data['dateto'] != 0) {
+        if (($datefrom > $dateto) && !empty($data['dateto']['enabled'])) {
             $errors['dateto'] = get_string('daterangemismatch', 'forumng');
         }
-        if (($data['query'] === '') && ($data['author'] === '') &&
-            !$data['datefrom'] && !$data['dateto']) {
-            $errors['sethourandminute'] = get_string('nosearchcriteria', 'forumng');
+        if (($data['query'] == '') && ($data['author'] == '') &&
+                empty($data['datefrom']['enabled']) && empty($data['dateto']['enabled'])) {
+            $errors['query'] = get_string('nosearchcriteria', 'forumng');
         }
         return $errors;
     }
@@ -195,22 +162,25 @@ if ($allforums) {
 $PAGE->set_pagelayout('base');
 $PAGE->navbar->add(get_string('advancedsearch', 'forumng'));
 
-//display the form
+//set up the form
+$now = date('Y-m-d');
+$defaultdatefrom = empty($datefrom) ? date_parse($now . ' 0:0') : $datefrom;
+$defaultdateto = empty($dateto) ? date_parse($now . ' 23:59') : $dateto;
 if ($allforums) {
     $editform = new advancedsearch_form('advancedsearch.php',
-                array('course'=> $courseid, 'id'=> $cmid), 'get');
+            array('course'=> $courseid, 'id'=> $cmid, 'datefrom' => $defaultdatefrom,
+            'dateto' => $defaultdateto), 'get');
 } else {
     $editform = new advancedsearch_form('advancedsearch.php',
-        array('course'=> $courseid, 'id'=> $cmid, 'cloneid' => $cloneid), 'get');
+            array('course'=> $courseid, 'id'=> $cmid, 'cloneid' => $cloneid,
+            'datefrom' => $defaultdatefrom, 'dateto' => $defaultdateto), 'get');
 }
 $inputdata = new stdClass;
 $inputdata->query = $query;
 $inputdata->author = $author;
-$inputdata->datefrom = $datefrom;
-$inputdata->dateto = $dateto;
 $editform->set_data($inputdata);
 
-$data = $editform->get_data();
+$datefromint = $datetoint = 0;
 
 if ($editform->is_cancelled()) {
     if (isset($forum) ) {
@@ -219,10 +189,15 @@ if ($editform->is_cancelled()) {
         $returnurl = $CFG->wwwroot . '/course/view.php?id=' . $course->id;
     }
     redirect($returnurl, '', 0);
+} else if ($data = $editform->get_data()) {
+    $df = $data->datefrom;
+    $dt = $data->dateto;
+    $datefromint = make_timestamp($df['year'], $df['month'], $df['day'], $df['hour'],
+                $df['minute']);
+    $datetoint = make_timestamp($dt['year'], $dt['month'], $dt['day'], $dt['hour'],
+                $dt['minute']);
 }
 
-$datefromint = isset($data->datefrom) ? $data->datefrom : 0;
-$datetoint = isset($data->dateto) ? $data->dateto : 0;
 $action = $query !== '' || $author !== '' || $datefromint || $datetoint ||
         !empty($datefrom) || !empty($dateto);
 
@@ -291,20 +266,17 @@ if ($query) {
     if ($results->success) {
         if (($page-FORUMNG_SEARCH_RESULTSPERPAGE+1)>0) {
             $url->param('page', $prevpage);
-            // we cannot pass the moodle_url straight through to format_results yet because
-            // these links will be re-encoded by the call to s(). If SC, ouwiki and local/ousearch
-            // is converted to use moodle_url then we can get rid of the str_replace here.
-            $linkprev = str_replace('&amp;', '&', $url->out());
+            $linkprev = $url->out(false);
         }
         if ($results->numberofentries == FORUMNG_SEARCH_RESULTSPERPAGE) {
             $url->param('page', $nextpage);
-            $linknext = str_replace('&amp;', '&', $url->out());
+            $linknext = $url->out(false);
         }
     }
     if ($results->done ===1) {
         if (($page-FORUMNG_SEARCH_RESULTSPERPAGE+1)>0) {
             $url->param('page', $prevpage);
-            $linkprev = str_replace('&amp;', '&', $url->out());
+            $linkprev = $url->out(false);
         }
     }
     print local_ousearch_search::format_results($results, $searchtitle, $page+1, $linkprev,
