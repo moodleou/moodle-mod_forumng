@@ -93,24 +93,24 @@ function forumng_delete_instance($id) {
     }
 
     if ($forum->is_shared()) {
-        //Find all the clone instances
-        $contexts = $forum->get_clone_contexts();
+        // Find all the clone instances.
+        $clones = $forum->get_clone_details();
         $transaction = $DB->start_delegated_transaction();
-        foreach ($contexts as $context) {
-            if (!forumng_delete_instance($context->cloneforumngid)) {
-                notify("Could not delete the Clone forumng (id) $context->cloneforumngid ");
+        foreach ($clones as $clone) {
+            if (!forumng_delete_instance($clone->cloneforumngid)) {
+                notify("Could not delete the Clone forumng (id) $clone->cloneforumngid ");
                 return false;
             }
-            if (!delete_course_module($context->instanceid)) {
+            if (!delete_course_module($clone->context->instanceid)) {
                 notify("Could not delete the Clone
-                        forumng (coursemoduleid) $context->instanceid ");
+                        forumng (coursemoduleid) $clone->context->instanceid ");
                 return false;
             }
-            if (!delete_mod_from_section($context->instanceid, $context->sectionid)) {
-                notify("Could not delete the sectionid $context->sectionid from that section");
+            if (!delete_mod_from_section($clone->context->instanceid, $clone->sectionid)) {
+                notify("Could not delete the sectionid $clone->sectionid from that section");
                 return false;
             }
-            rebuild_course_cache($context->courseid, true);
+            rebuild_course_cache($clone->courseid, true);
         }
         $transaction->allow_commit();
     }

@@ -475,13 +475,14 @@ class mod_forumng {
     }
 
     /**
-     * Retrieves contexts for all the clones of this forum. (If any.)
-     * @return array Array of context objects (each one has an extra ->courseid,
-     *   ->courseshortname, and ->forumname) for clones of this forum
+     * Retrieves basic details for all the clones of this forum. (If any.)
+     * @return array Array of objects (each one has ->context, ->courseid,
+     *   ->courseshortname, ->forumname, and ->sectionid) for clones of this
+     *   forum
      */
-    public function get_clone_contexts() {
+    public function get_clone_details() {
         global $DB;
-        $contexts = $DB->get_records_sql("
+        $recs = $DB->get_records_sql("
 SELECT
     x.*, c.id AS courseid, c.shortname AS courseshortname, f.name AS forumname,
     f.id AS cloneforumngid, cm.section AS sectionid
@@ -497,6 +498,14 @@ WHERE
     AND x.contextlevel = 70
 ORDER BY
     c.shortname, f.name", array($this->cm->id));
+        $contexts = array();
+        foreach ($recs as $id => $rec) {
+            $context = (object)array('courseid' => $rec->courseid,
+                    'courseshortname' => $rec->courseshortname, 'forumname' => $rec->forumname,
+                    'cloneforumngid' => $rec->cloneforumngid, 'sectionid' => $rec->sectionid);
+            $context->context = mod_forumng_context_access::create_instance_from_record_public($rec);
+            $contexts[$id] = $context;
+        }
         return $contexts;
     }
 
@@ -537,20 +546,22 @@ ORDER BY
             }
 
             // See if they can write to any context
-            $contexts = $this->get_clone_contexts();
-            foreach ($contexts as $context) {
-                if (has_capability('mod/forumng:replypost', $context)) {
+            $clones = $this->get_clone_details();
+            foreach ($clones as $clone) {
+                if (has_capability('mod/forumng:replypost', $clone->context)) {
                     $this->clonecm = self::get_modinfo_cm(
-                            $context->instanceid);
+                            $clone->context->instanceid);
                     break;
                 }
             }
 
             // No? Well see if they can read to one
             if (!$this->clonecm) {
-                if (has_capability('moodle/course:view', $context)) {
-                    $this->clonecm = self::get_modinfo_cm($context->instanceid);
-                    break;
+                foreach ($clones as $clone) {
+                    if (has_capability('moodle/course:view', $clone->context)) {
+                        $this->clonecm = self::get_modinfo_cm($clone->context->instanceid);
+                        break;
+                    }
                 }
             }
 
@@ -3561,23 +3572,23 @@ WHERE
 
             // Show links to each clone, if you
             // can see them.
-            $contexts = $this->get_clone_contexts();
-            if (count($contexts) == 0) {
+            $clones = $this->get_clone_details();
+            if (count($clones) == 0) {
                 $out .= get_string('sharedviewinfonone', 'forumng');
             } else {
                 $list = '';
-                foreach ($contexts as $context) {
+                foreach ($clones as $clone) {
                     if ($list) {
                         $list .= ', ';
                     }
 
                     // Make it a link if you have access
-                    if ($link = has_capability('moodle/course:view', $context)) {
+                    if ($link = has_capability('moodle/course:view', $clone->context)) {
                         $list .= '<a href="' . $CFG->wwwroot .
                                 '/mod/forumng/view.php?id=' .
-                                $context->instanceid . '">';
+                                $clone->context->instanceid . '">';
                     }
-                    $list .= s($context->courseshortname);
+                    $list .= s($clone->courseshortname);
                     if ($link) {
                         $list .= '</a>';
                     }
@@ -4997,5 +5008,20 @@ class mod_forumng_filemanager_evilhack_requires {
 
     public function js($url, $inhead=false) {
         $this->evilhack->realpage->requires->js($url, $inhead);
+    }
+}
+
+/**
+ * Override of context just so that we can access the protected
+ * construct function (wtf).
+ */
+abstract class mod_forumng_context_access extends context {
+    /**
+     * Calls parent create_instance_from_record function.
+     * @param object $record DB record
+     * @return context Context object
+     */
+    public function create_instance_from_record_public($record) {
+        return self::create_instance_from_record($record);
     }
 }
