@@ -97,7 +97,8 @@ class forward_post_selector extends forumngfeature_post_selector {
             $from->maildisplay = 999; // Nasty hack required for OU moodle
 
             if (!email_to_user($fakeuser, $from, $subject, $alltext, $allhtml)) {
-                print_error('error_forwardemail', 'forumng', $formdata->email);
+                print_error('error_forwardemail', 'forumng',
+                        $discussion->get_moodle_url(), $formdata->email);
             }
         }
 
@@ -105,7 +106,8 @@ class forward_post_selector extends forumngfeature_post_selector {
         $discussion->log('forward discussion', $formdata->email);
         if (!empty($formdata->ccme)) {
             if (!email_to_user($USER, $from, $subject, $alltext, $allhtml)) {
-                print_error('error_forwardemail', 'forumng', $USER->email);
+                print_error('error_forwardemail', 'forumng',
+                        $discussion->get_moodle_url(), $USER->email);
             }
         }
 
