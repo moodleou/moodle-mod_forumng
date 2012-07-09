@@ -4724,7 +4724,7 @@ WHERE
         if (isset($modinfo->instances['forumng'][$targetforumngid])) {
             $targetcm = $modinfo->instances['forumng'][$targetforumngid];
             $targetgroupmode = groups_get_activity_groupmode($targetcm, $this->get_course());
-            $targetgroupingid = $CFG->enablegroupings ? $targetcm->groupingid : 0;
+            $targetgroupingid = $targetcm->groupingid;
             if (!$targetgroupmode) {
                 return true;
             } else {
