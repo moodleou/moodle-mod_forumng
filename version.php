@@ -16,13 +16,13 @@
 
 /**
  * Version.
- * @package mod
- * @subpackage forumng
- * @copyright 2011 The Open University
+ *
+ * @package mod_forumng
+ * @copyright 2012 The Open University
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$module->version  = 2012062701;
+$module->version  = 2012070900;
 $module->requires = 2011120100;
 $module->cron     = 60;
 
