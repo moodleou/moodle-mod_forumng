@@ -316,19 +316,17 @@ $string['emailcontentplain'] = 'This is a notification to advise you that your f
 
 Subject: {$a->subject}
 Forum: {$a->forum}
-Module: {$a->course}';
+Module: {$a->course}
+
+To view the discussion visit {$a->deleteurl}';
 $string['emailcontenthtml'] = 'This is a notification to advise you that your forum post with the '.
 'following details has been deleted by \'{$a->firstname} {$a->lastname}\':<br />
 <br />
 Subject: {$a->subject}<br />
 Forum: {$a->forum}<br />
-Module: {$a->course}';
-$string['emailcontentnonjs'] = 'This is a notification to advise you that your forum post with the '.
-'following details has been deleted by \'{$a->firstname} {$a->lastname}\':
-
-Subject: {$a->subject}
-Forum: {$a->forum}
-Module: {$a->course}';
+Module: {$a->course}<br/>
+<br/>
+<a href="{$a->deleteurl}" title="view deleted post">View the discussion</a>';
 $string['copytoself'] = 'Send a copy to yourself';
 $string['deletedforumpost'] = 'Your post has been deleted';
 $string['emailerror'] = 'There was an error sending the email';
@@ -730,12 +728,9 @@ $string['nextresults'] = 'Find more results';
 $string['author'] = ' author: \"{$a}\"';
 $string['from'] = ' from: {$a}';
 $string['to'] = ' to: {$a}';
-$string['inappropriatedateortime'] = '<strong>Date range from</strong> is after current date/time.
-Please check and try again!';
-$string['daterangemismatch'] = 'Date range mismatch: <strong>Date range from</strong> is after
-<strong>Date range to</strong>. Please check and try again!';
-$string['nosearchcriteria'] = 'No search criteria: Please use one or more of the criteria below
-and try again!';
+$string['inappropriatedateortime'] = 'From date cannot be after present.';
+$string['daterangemismatch'] = 'To date is before From date.';
+$string['nosearchcriteria'] = 'No search criteria. Please use one or more of the criteria below.';
 $string['searchallforums'] = 'Search all forums';
 
 $string['replies'] = 'Replies';

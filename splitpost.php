@@ -31,6 +31,9 @@ $cloneid = optional_param('clone', 0, PARAM_INT);
 if ($cloneid) {
     $pageparams['clone'] = $cloneid;
 }
+// Were all posts expanded?
+$expand = optional_param('expand', 0, PARAM_INT);
+$expandparam = $expand ? '&expand=1' : '';
 
 // Get post
 $post = mod_forumng_post::get_from_id($postid, $cloneid, true);
@@ -54,10 +57,11 @@ if (!$post->can_split($whynot)) {
 
 require_once('splitpost_form.php');
 $mform = new mod_forumng_splitpost_form('splitpost.php',
-    array('p'=>$postid, 'clone'=>$cloneid));
+    array('p'=>$postid, 'clone'=>$cloneid, 'expand' => $expand));
 
 if ($mform->is_cancelled()) {
-    redirect('discuss.php?' . $discussion->get_link_params(mod_forumng::PARAM_PLAIN));
+    redirect('discuss.php?' . $discussion->get_link_params(mod_forumng::PARAM_PLAIN) .
+            $expandparam);
 } else if ($fromform = $mform->get_data(false)) {
     // Split post
     $newdiscussionid = $post->split($fromform->subject);

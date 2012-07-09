@@ -691,6 +691,11 @@ M.mod_forumng = {
                     new RegExp(String.fromCharCode(160), 'g'), ' ') .
                 replace(/\s+/, ' ') . trim();
 
+            // Allow an image even if no text
+            if (sourceText.indexOf('<img ') != -1) {
+                mungevalue = 'gotimage';
+            }
+
             // When editing discussion first post, subject must also be not blank
             if (mungevalue != '' && form.editpostid && form.isroot) {
                 mungevalue = form.get('subject').get('value').trim();

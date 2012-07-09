@@ -1282,7 +1282,7 @@ WHERE
 
         // Log
         if ($log) {
-            $this->log('lock discussion p' . $postid);
+            $this->log('lock discussion', 'p' . $postid . ' d' . $this->get_id());
         }
 
         $transaction->allow_commit();
@@ -1312,7 +1312,7 @@ WHERE
 
         // Log
         if ($log) {
-            $this->log('unlock discussion p' . $lockpost->get_id());
+            $this->log('unlock discussion', 'p' . $lockpost->get_id() . ' d' . $this->get_id());
         }
 
         $transaction->allow_commit();
@@ -1366,7 +1366,8 @@ WHERE
         $newroot->search_update_children();
 
         if ($log) {
-            $this->log('merge discussion d' . $targetdiscussion->get_id());
+            $this->log('merge discussion', 'd' . $this->get_id() . ' into d' .
+                    $targetdiscussion->get_id());
         }
 
         $transaction->allow_commit();
@@ -1528,7 +1529,7 @@ ORDER BY
      *   is just the discussion id again)
      */
     function log($action, $replaceinfo = '') {
-        $info = $this->discussionfields->id;
+        $info = 'd' . $this->discussionfields->id;
         if ($replaceinfo !== '') {
             $info = $replaceinfo;
         }
@@ -1777,7 +1778,12 @@ WHERE
         // If there is cached data, use it
         if ($this->groupscache) {
             if (!array_key_exists($userid, $this->groupscache)) {
-                throw new invalid_argument_exception("Unknown discussion user");
+                // This can happen in rare cases when sending out email. If there
+                // is only one post from user X in a discussion, and that post is
+                // deleted/moved to another discussion between when it gets the
+                // list of all posts and when it tries to cache this list of groups
+                // for the individual discussion, then you will get this exception.
+                throw new coding_exception("Unknown discussion user");
             }
             return $this->groupscache[$userid];
         }
@@ -1971,12 +1977,10 @@ WHERE
      *   appended (text format)
      * @param string $allhtml Output variable; text of all posts will be
      *   appended (HTML format)
-     * @param bool $showuserimage True (default) to include user pictures
-     * @param bool $printableversion True to use the printable-version flag to
-     *   display posts.
+     * @param array $extraoptions Set or override options when displaying posts
      */
     function build_selected_posts_email($postids, &$alltext, &$allhtml,
-        $showuserimage=true, $printableversion=false) {
+            $extraoptions = array()) {
         global $USER;
         $list = array();
         $rootpost = $this->get_root_post();
@@ -1991,14 +1995,18 @@ WHERE
             $post->build_email(null, $subject, $text, $html, true,
                 false, has_capability('moodle/site:viewfullnames',
                     $this->get_forum()->get_context()), current_language(),
-                $USER->timezone, true, true, $showuserimage, $printableversion);
+                $USER->timezone, true, true, $extraoptions);
 
-            if ($alltext != '') {
+            // Don't put <hr> after the first post or after one which we didn't
+            // actually print (deleted posts)
+            if ($alltext != '' && $text !== '') {
                 $alltext .= "\n" . mod_forumng_cron::EMAIL_DIVIDER . "\n";
                 $allhtml .= '<hr size="1" noshade="noshade" />';
             }
-            $alltext .= $text;
-            $allhtml .= $html;
+            if ($text !== '') {
+                $alltext .= $text;
+                $allhtml .= $html;
+            }
         }
 
         // Remove crosslinks to posts that do not exist

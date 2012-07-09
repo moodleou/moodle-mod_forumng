@@ -49,16 +49,14 @@ class advancedsearch_form extends moodleform {
         // Date range_from to be filtered
         $mform->addElement('date_time_selector', 'datefrom',
                 get_string('daterangefrom', 'forumng'),
-                array('optional'=>true, 'step'=>1));
-        // setConstant is used rather than setDefault as this allows the unchecking of the
-        // the 'enable' checkbox, otherwise no difference in operation
-        $mform->setConstant('datefrom', $this->_customdata['datefrom']);
+                array('optional' => true, 'startyear' => 2011, 'step' => 1,
+                'defaulttime' => $this->_customdata['datefrom']));
 
         // Date range_to to be filtered
         $mform->addElement('date_time_selector', 'dateto',
                 get_string('daterangeto', 'forumng'),
-                array('optional'=>true, 'step'=>1));
-        $mform->setConstant('dateto', $this->_customdata['dateto']);
+                array('optional'=>true, 'startyear' => 2011, 'step' => 1,
+                'defaulttime' => $this->_customdata['dateto']));
 
         // Add help buttons
         $mform->addHelpButton('query', 'words', 'forumng');
@@ -75,20 +73,15 @@ class advancedsearch_form extends moodleform {
 
     public function validation($data, $files) {
         $errors = parent::validation($data, $files);
-        $df = $data['datefrom'];
-        $dt = $data['dateto'];
-        $datefrom = make_timestamp($df['year'], $df['month'], $df['day'], $df['hour'],
-                $df['minute']);
-        $dateto = make_timestamp($dt['year'], $dt['month'], $dt['day'], $dt['hour'],
-                $dt['minute']);
-        if ($datefrom > time() && !empty($data['datefrom']['enabled'])) {
+        $datefrom = $data['datefrom'];
+        $dateto = $data['dateto'];
+        if ($datefrom > time()) {
             $errors['datefrom'] = get_string('inappropriatedateortime', 'forumng');
         }
-        if (($datefrom > $dateto) && !empty($data['dateto']['enabled'])) {
+        if (($datefrom > $dateto) && $dateto) {
             $errors['dateto'] = get_string('daterangemismatch', 'forumng');
         }
-        if (($data['query'] == '') && ($data['author'] == '') &&
-                empty($data['datefrom']['enabled']) && empty($data['dateto']['enabled'])) {
+        if (($data['query'] == '') && ($data['author'] == '') && !$datefrom && !$dateto) {
             $errors['query'] = get_string('nosearchcriteria', 'forumng');
         }
         return $errors;
@@ -107,11 +100,11 @@ if ($courseid) {
 }
 $query = trim(optional_param('query', '', PARAM_RAW));
 if ($query !== '') {
-    $url->param('query', rawurlencode($query));
+    $url->param('query', $query);
 }
 $author = trim(optional_param('author', '', PARAM_RAW));
 if ($author !== '') {
-    $url->param('author', rawurlencode($author));
+    $url->param('author', $author);
 }
 $cloneid = optional_param('clone', 0, PARAM_INT);
 if ($cloneid) {
@@ -130,6 +123,23 @@ if (!empty($dateto)) {
         $url->param('dateto[' . $key . ']', $value);
     }
 }
+// The below are necessary to fool the form into thinking it was submitted again
+// when further requests are made for multiple pages / changing group. This is
+// kind of a horrible way to make the page but it means we can use get_data
+// instead of manually interpreting date dropdowns (incorrectly).
+$submitbutton = optional_param('submitbutton', '', PARAM_RAW);
+if ($submitbutton) {
+    $url->param('submitbutton', $submitbutton);
+}
+$sesskey = optional_param('sesskey', '', PARAM_RAW);
+if ($sesskey) {
+    $url->param('sesskey', $sesskey);
+}
+$form = optional_param('_qf__advancedsearch_form', 0, PARAM_INT);
+if ($form) {
+    $url->param('_qf__advancedsearch_form', $form);
+}
+
 
 // Search in a single forum
 if ($cmid) {
@@ -180,8 +190,6 @@ $inputdata->query = $query;
 $inputdata->author = $author;
 $editform->set_data($inputdata);
 
-$datefromint = $datetoint = 0;
-
 if ($editform->is_cancelled()) {
     if (isset($forum) ) {
         $returnurl = $forum->get_url(mod_forumng::PARAM_PLAIN);
@@ -189,23 +197,17 @@ if ($editform->is_cancelled()) {
         $returnurl = $CFG->wwwroot . '/course/view.php?id=' . $course->id;
     }
     redirect($returnurl, '', 0);
-} else if ($data = $editform->get_data()) {
-    $df = $data->datefrom;
-    $dt = $data->dateto;
-    $datefromint = make_timestamp($df['year'], $df['month'], $df['day'], $df['hour'],
-                $df['minute']);
-    $datetoint = make_timestamp($dt['year'], $dt['month'], $dt['day'], $dt['hour'],
-                $dt['minute']);
 }
 
-$action = $query !== '' || $author !== '' || $datefromint || $datetoint ||
-        !empty($datefrom) || !empty($dateto);
+// Process form data.
+$data = $editform->get_data();
 
 // Display header
 $out = mod_forumng_utils::get_renderer();
 print $out->header();
 
-$searchtitle = forumng_get_search_results_title($query, $author, $datefromint, $datetoint);
+$searchtitle = forumng_get_search_results_title($query, $data ? $data->author : '',
+        $data ? $data->datefrom : 0, $data ? $data->dateto : 0);
 
 if (!$allforums) {
     // Display group selector if required
@@ -216,71 +218,80 @@ if (!$allforums) {
 }
 $editform->display();
 
-// Searching for free text with or without filtering author and date range
-if ($query) {
-    $result = new local_ousearch_search($query);
-    // Search all forums
-    if ($allforums) {
-        $result->set_plugin('mod/forumng');
-        $result->set_course_id($courseid);
-        $result->set_visible_modules_in_course($COURSE);
+if ($data) {
+    // Searching for free text with or without filtering author and date range.
+    if ($query) {
+        $result = new local_ousearch_search($query);
+        if ($allforums) {
+            // Search all forums.
+            // NOTE: I think this code branch is no longer used as we removed
+            // the 'all forums' facility to the resources_search block, but
+            // perhaps it may be used in standard Moodle installs somehow.
+            $result->set_plugin('mod/forumng');
+            $result->set_course_id($courseid);
+            $result->set_visible_modules_in_course($COURSE);
 
-        // Restrict them to the groups they belong to
-        if (!isset($USER->groupmember[$courseid])) {
-            $result->set_group_ids(array());
+            // Restrict them to the groups they belong to.
+            if (!isset($USER->groupmember[$courseid])) {
+                $result->set_group_ids(array());
+            } else {
+                $result->set_group_ids($USER->groupmember[$courseid]);
+            }
+            // Add exceptions where they can see other groups.
+            $result->set_group_exceptions(local_ousearch_search::get_group_exceptions($courseid));
+
+            $result->set_user_id($USER->id);
         } else {
-            $result->set_group_ids($USER->groupmember[$courseid]);
+            // Search this forum.
+            $result->set_coursemodule($forum->get_course_module(true));
+            if ($groupid && $groupid!=mod_forumng::NO_GROUPS) {
+                $result->set_group_id($groupid);
+            }
         }
-        // Add exceptions where they can see other groups
-        $result->set_group_exceptions(local_ousearch_search::get_group_exceptions($courseid));
-
-        $result->set_user_id($USER->id);
-    } else {// Search this forum
-        $result->set_coursemodule($forum->get_course_module(true));
-        if ($groupid && $groupid!=mod_forumng::NO_GROUPS) {
-            $result->set_group_id($groupid);
-        }
-    }
-    $result->set_filter('forumng_exclude_words_filter');
-    print $result->display_results($url, $searchtitle);
-
-// Searching without free text using author and/or date range
-} else if ($action) {
-    $page = optional_param('page', 0, PARAM_INT);
-    $prevpage = $page-FORUMNG_SEARCH_RESULTSPERPAGE;
-    $prevrange = ($page-FORUMNG_SEARCH_RESULTSPERPAGE+1) . ' - ' . $page;
-
-    //Get result from db
-    if ($allforums) {
-        $results = forumng_get_results_for_all_forums($course, $author,
-                $datefromint, $datetoint, $page);
+        // Pass necessary data to filter function using ugly global.
+        global $forumngfilteroptions;
+        $forumngfilteroptions = (object)array('author' => trim($data->author),
+                'datefrom' => $data->datefrom, 'dateto' => $data->dateto);
+        $result->set_filter('forumng_exclude_words_filter');
+        print $result->display_results($url, $searchtitle);
     } else {
-        $results = forumng_get_results_for_this_forum($forum, $groupid, $author,
-                $datefromint, $datetoint, $page);
-    }
-    $nextpage = $page + FORUMNG_SEARCH_RESULTSPERPAGE;
+        // Searching without free text using author and/or date range.
+        $page = optional_param('page', 0, PARAM_INT);
+        $prevpage = $page-FORUMNG_SEARCH_RESULTSPERPAGE;
+        $prevrange = ($page-FORUMNG_SEARCH_RESULTSPERPAGE+1) . ' - ' . $page;
 
-    $linknext = null;
-    $linkprev = null;
+        // Get result from database query.
+        if ($allforums) {
+            $results = forumng_get_results_for_all_forums($course, trim($data->author),
+                    $data->datefrom, $data->dateto, $page);
+        } else {
+            $results = forumng_get_results_for_this_forum($forum, $groupid, trim($data->author),
+                    $data->datefrom, $data->dateto, $page);
+        }
+        $nextpage = $page + FORUMNG_SEARCH_RESULTSPERPAGE;
 
-    if ($results->success) {
-        if (($page-FORUMNG_SEARCH_RESULTSPERPAGE+1)>0) {
-            $url->param('page', $prevpage);
-            $linkprev = $url->out(false);
+        $linknext = null;
+        $linkprev = null;
+
+        if ($results->success) {
+            if (($page-FORUMNG_SEARCH_RESULTSPERPAGE+1)>0) {
+                $url->param('page', $prevpage);
+                $linkprev = $url->out(false);
+            }
+            if ($results->numberofentries == FORUMNG_SEARCH_RESULTSPERPAGE) {
+                $url->param('page', $nextpage);
+                $linknext = $url->out(false);
+            }
         }
-        if ($results->numberofentries == FORUMNG_SEARCH_RESULTSPERPAGE) {
-            $url->param('page', $nextpage);
-            $linknext = $url->out(false);
+        if ($results->done ===1) {
+            if (($page-FORUMNG_SEARCH_RESULTSPERPAGE+1)>0) {
+                $url->param('page', $prevpage);
+                $linkprev = $url->out(false);
+            }
         }
+        print local_ousearch_search::format_results($results, $searchtitle, $page+1, $linkprev,
+                        $prevrange, $linknext, $results->searchtime);
     }
-    if ($results->done ===1) {
-        if (($page-FORUMNG_SEARCH_RESULTSPERPAGE+1)>0) {
-            $url->param('page', $prevpage);
-            $linkprev = $url->out(false);
-        }
-    }
-    print local_ousearch_search::format_results($results, $searchtitle, $page+1, $linkprev,
-                    $prevrange, $linknext, $results->searchtime);
 }
 
 print $out->footer();
