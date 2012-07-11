@@ -2409,12 +2409,12 @@ M.mod_forumng = {
         buttonsDiv.appendChild(document.createTextNode(' '));
         buttonsDiv.appendChild(selectAll);
         var deselectAll = this.Y.Node.create('<input type="button"/>');
-        deselectAll.set('value', M.str.forumng.core_deselectall);
+        deselectAll.set('value', M.str.moodle.deselectall);
         buttonsDiv.appendChild(document.createTextNode(' '));
         buttonsDiv.appendChild(deselectAll);
 
         var unsubscribe;
-        var inputs = selectAll.get('form').all('input');
+        var inputs = this.Y.one('#forumng-subscription-list').all('input');
         var all = [];
         for (var i=0; i<inputs.size(); i++) {
             var input = inputs.item(i);

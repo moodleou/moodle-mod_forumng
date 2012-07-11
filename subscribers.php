@@ -175,7 +175,7 @@ if (count($subscribers) == 0) {
     if ($canmanage) {
         // Note: This form has to be a post because if there are a lot of
         // subscribers, the list will be too long to fit in a GET
-        print '<form action="subscribers.php" method="post"><div>' .
+        print '<form action="subscribers.php" method="post"><div id="forumng-subscription-list">' .
             $forum->get_link_params(mod_forumng::PARAM_FORM);
     }
 
