@@ -2161,7 +2161,8 @@ WHERE
      * @return string HTML skip link to unread posts
      */
     public function display_unread_skip_link() {
-        if ($this->get_num_unread_posts() == 0 || $this->get_num_unread_posts() == '') {
+        if ($this->get_num_unread_posts() == 0 || $this->get_num_unread_posts() == ''
+                || $this->get_root_post()->is_unread()) {
             return '';
         }
 
