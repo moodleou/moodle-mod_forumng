@@ -50,7 +50,8 @@ class forumngfeature_move extends forumngfeature_discussion {
     public function display($discussion) {
         // Obtain list of other forums in this course where the user has the
         // 'move discussion' feature
-        $modinfo = get_fast_modinfo($discussion->get_forum()->get_course());
+        $course = $discussion->get_forum()->get_course();
+        $modinfo = get_fast_modinfo($course);
         $results = array();
         foreach ($modinfo->instances['forumng'] as $other) {
             // Don't let user move discussion to its current forum
