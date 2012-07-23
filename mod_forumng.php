@@ -3707,7 +3707,7 @@ WHERE
             if ($ajaxattachments) {
                 // Work out filemanager options. These are the same options that I observed when
                 // calling the below function from the standard 'start discussion' form.
-                $options = (object)array(
+                $filemanageroptions = (object)array(
                     'mainfile' => null,
                     'maxbytes' => $this->get_max_bytes(),
                     'maxfiles' => -1,
@@ -3722,15 +3722,18 @@ WHERE
                 // Include filemanager JS. This is a very, very, very nasty hack to stop it
                 // actually trying to initialise a filemanager that doesn't exist, while
                 // avoiding code duplication.
-                new mod_forumng_filemanager_evilhack();
+                // new mod_forumng_filemanager_evilhack();
                 require_once($CFG->dirroot . '/lib/form/filemanager.php');
-                $filemanagertemplate = form_filemanager_render($options);
+                //$filemanagertemplate = form_filemanager_render($options);
                 // To make it bit shorter, let's remove the noscript part as it will never be used.
-                $filemanagertemplate = preg_replace('~<noscript>.*?</noscript>~', '',
-                        $filemanagertemplate);
+                //$filemanagertemplate = preg_replace('~<noscript>.*?</noscript>~', '',
+                //        $filemanagertemplate);
 
-                $filemanageroptions = reset($PAGE->extraarguments);
-                $PAGE->return_to_goodness();
+                //$filemanageroptions = reset($PAGE->extraarguments);
+                $filemanagertemplate = new form_filemanager($filemanageroptions);
+                $output = $PAGE->get_renderer('core', 'files');
+                $filemanagertemplate = $output->render($filemanagertemplate);
+                // $PAGE->return_to_goodness();
             } else {
                 $filemanagertemplate = null;
                 $filemanageroptions = null;
@@ -3740,10 +3743,8 @@ WHERE
             require_once($CFG->dirroot . '/lib/form/editor.php');
             $editor = new MoodleQuickForm_editor('QQeditorQQ', 'QQlabelQQ',
                     array('id' => 'QQidQQ'),
-                    array('maxbytes' => $this->get_max_bytes(),
-                        'maxfiles' => $this->can_create_attachments() ? EDITOR_UNLIMITED_FILES : 0,
-                        'context' => $this->get_context(true)));
-            $editor->setValue(array('itemid' => 99942));
+                    array('context' => $this->get_context(true)));
+            $editor->setValue(array('itemid' => 99942, 'format' => FORMAT_HTML));
 
             // Render using same evil hack and extract form template, options
             new mod_forumng_filemanager_evilhack();
@@ -3764,9 +3765,8 @@ WHERE
                         $this->is_shared() ? $this->get_course_module_id() : 0,
                         $ratingstars, $this->get_remaining_post_quota(),
                         $out->pix_url('i/ajaxloader')->out(false), $starurls,
-                        $filemanagertemplate, $filemanageroptions,
-                        $editortemplate, $editoroptions, $editorfileoptions),
-                    false, $module);
+                        $filemanagertemplate, $filemanageroptions),
+                    $editortemplate, $module);
         }
     }
 
@@ -4955,6 +4955,10 @@ class mod_forumng_filemanager_evilhack {
         $this->requires = new mod_forumng_filemanager_evilhack_requires($this);
     }
 
+    public function get_renderer($component, $subtype = null, $target = null) {
+        return $this->realpage->get_renderer($component, $subtype, $target);
+    }
+
     public function return_to_goodness() {
         global $PAGE;
         $PAGE = $this->realpage;
@@ -4974,11 +4978,16 @@ class mod_forumng_filemanager_evilhack_requires {
     public function js_init_call($function, array $extraarguments = null,
             $ondomready = false, array $module = null) {
         if (!$module) {
-            if (!preg_match('~^M\.editor_tinymce\.~', $function)) {
+            if (preg_match('~^M\.editor_tinymce\.~', $function)) {
+              $module = array('name'=>'editor_tinymce', 'fullpath'=>'/lib/editor/tinymce/module.js',
+                    'requires'=>array());
+            } else if (preg_match('~^M\.core_filepicker\.~', $function)) {
+              $module = array('name'=>'core_filepicker', 'fullpath'=>'/repository/filepicker.js',
+                    'requires'=>array());
+            } else {
                 throw new coding_exception('This needs changing, unsupported function');
             }
-            $module = array('name'=>'editor_tinymce', 'fullpath'=>'/lib/editor/tinymce/module.js',
-                    'requires'=>array());
+
         }
         $this->js_module($module);
         if ($this->evilhack->extraarguments) {
