@@ -2017,6 +2017,8 @@ M.mod_forumng = {
                         M.mod_forumng.simulate_click(posts.item(i).check);
                     }
                 }
+                all.set('disabled', true);
+                none.set('disabled', false);
             }, this);
             selectButtons.appendChild(document.createTextNode(' '));
             var none = this.Y.Node.create('<input type="button"/>');
@@ -2030,6 +2032,8 @@ M.mod_forumng = {
                         M.mod_forumng.simulate_click(posts.item(i).check);
                     }
                 }
+                all.set('disabled', false);
+                none.set('disabled', true);
             }, this);
 
             main.appendChild(form);
@@ -2064,13 +2068,16 @@ M.mod_forumng = {
             // update the posts oject so it works after expanding a post
             var posts = M.mod_forumng.Y.all('div.forumng-post');
             var ok = false;
+            var checkcount = 0;
             for (var i=0; i<posts.size(); i++) {
                 if (posts.item(i).check.get('checked')) {
                     ok = true;
-                    break;
+                    checkcount++;
                 }
             }
+            none.set('disabled', !ok);
             confirm.set('disabled', !ok);
+            all.set('disabled', checkcount == posts.size());
         };
         for (var i=0; i<posts.size(); i++) {
             this.select_init_post(posts.item(i), this.select.on);
