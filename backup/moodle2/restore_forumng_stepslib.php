@@ -34,6 +34,7 @@ class restore_forumng_activity_structure_step extends restore_activity_structure
     private $forumngid;
 
     protected function define_structure() {
+        $this->potential_dot();
 
         $paths = array();
         $userinfo = $this->get_setting_value('userinfo');
@@ -60,8 +61,25 @@ class restore_forumng_activity_structure_step extends restore_activity_structure
         return $this->prepare_activity_structure($paths);
     }
 
+    /**
+     * In case of long-running restores, we support the optional
+     * potential_dot method in the restore logger, anywhere in the chain
+     * (this is for OU custom use).
+     */
+    private function potential_dot() {
+        $logger = $this->get_logger();
+        while ($logger) {
+            if (method_exists($logger, 'potential_dot')) {
+                $logger->potential_dot();
+            }
+            $logger = $logger->get_next();
+        }
+    }
+
     protected function process_forumng($data) {
         global $DB;
+
+        $this->potential_dot();
 
         $data = (object)$data;
         $oldid = $data->id;
