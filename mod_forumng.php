@@ -3725,7 +3725,7 @@ WHERE
                     'client_id' => 666666, // For replace - random unique id
                     'itemid' => 999999, // For replace - draft file area id, attachments field
                     'subdirs' => false,
-                        'accepted_types' => '*',
+                    'accepted_types' => array('*'),
                     'return_types' => 2,
                     'context' => $this->get_context(true) // Real context used for files
                 );
