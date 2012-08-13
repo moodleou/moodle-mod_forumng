@@ -16,9 +16,9 @@
 
 /**
  * Serve Atom/RSS feed.
- * @package mod
- * @subpackage forumng
- * @copyright 2011 The Open University
+ *
+ * @package mod_forumng
+ * @copyright 2012 The Open University
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -108,6 +108,12 @@ if ($since && strtotime($since) >= $latest) {
     exit;
 }
 header('Last-Modified: ' .gmdate('D, d M Y H:i:s', $latest) . ' GMT');
+
+// This variable is used by the MathML filter so that we can make it do
+// different things with RSS feed output (basically it turns off everything
+// clever and uses an image).
+global $ou_feed_output;
+$ou_feed_output = true;
 
 // Check they still have permission to the forum.
 // Note that making these checks is a bit expensive so we might have
