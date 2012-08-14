@@ -332,30 +332,6 @@ ORDER BY
         return $this->draftfields->attachments ? true : false;
     }
 
-    /**
-     * Gets the names of all attachments (if any)
-     * @return array Array of attachment names (may be empty). Names only,
-     *   not including path to attachment folder
-     */
-    public function get_attachment_names() {
-        $result = array();
-        if (!$this->has_attachments()) {
-            return $result;
-        }
-        $folder = $this->get_attachment_folder();
-        $handle = mod_forumng_utils::opendir($folder);
-        while (false !== ($name = readdir($handle))) {
-            if ($name != '.' && $name != '..') {
-                if (!is_dir("$folder/$name")) {
-                    $result[] = $name;
-                }
-            }
-        }
-        closedir($handle);
-        sort($result);
-        return $result;
-    }
-
     // UI
     /////
 

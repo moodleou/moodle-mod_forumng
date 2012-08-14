@@ -23,10 +23,13 @@
  */
 
 function xmldb_forumng_upgrade($oldversion=0) {
-    global $CFG, $THEME, $db;
-    require_once($CFG->dirroot.'/mod/forumng/mod_forumng.php');
+    global $CFG, $THEME, $DB;
 
-    $result = true;
+    if ($oldversion < 2012070900) {
+        // Changed format of modinfo cache, so need to rebuild all courses.
+        rebuild_course_cache(0, true);
+        upgrade_mod_savepoint(true, 2012070900, 'forumng');
+    }
 
-    return $result;
+    return true;
 }

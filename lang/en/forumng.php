@@ -635,7 +635,8 @@ $string['alert_reporterdetail'] = '{$a->fullname} ({$a->username}; {$a->email}; 
 $string['invalidalert'] = 'You need to specify the reason for reporting this post.';
 $string['invalidalertcheckbox'] = 'You need to tick at least one of the boxes.';
 $string['alert_submit'] = "Send alert";
-$string['error_sendalert'] = 'There was an error sending your report. Report could not be sent.';
+$string['error_sendalert'] = 'There was an error sending your report to {$a}.
+Report could not be sent.';
 $string['error_portfoliosave'] = 'An error occurred while saving this data to MyStuff.';
 $string['alert_pagename'] = 'Report a post as unacceptable';
 $string['alert_emailsubject'] = 'Alert F{$a->postid}: {$a->coursename} {$a->forumname}';
@@ -799,3 +800,5 @@ To exclude a word insert a hyphen immediately before the word.
 Example: the search term <tt>picasso -sculpture &quot;early works&quot;</tt> will return results for &lsquo;picasso&rsquo; or the phrase &lsquo;early works&rsquo; but will exclude items containing &lsquo;sculpture&rsquo;.
 
 To search by author or date, click &lsquo;More options&rsquo;.';
+
+$string['notext'] = '(no text)';

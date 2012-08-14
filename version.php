@@ -16,15 +16,15 @@
 
 /**
  * Version.
- * @package mod
- * @subpackage forumng
- * @copyright 2011 The Open University
+ *
+ * @package mod_forumng
+ * @copyright 2012 The Open University
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$module->version  = 2012052200;
-$module->requires = 2011120500; // 2.2.0
+$module->version  = 2012080100;
+$module->requires = 2011120100;
 $module->cron     = 60;
 
-// Note: we haven't really sorted out how/if to use this string yet...
+// Note: This should be replaced with standard ->maturity and other options.
 $module->displayversion = 'Unstable development version (use at own risk)';

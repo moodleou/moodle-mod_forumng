@@ -334,6 +334,9 @@ class mod_forumng_renderer extends plugin_renderer_base {
 
         $summary = self::get_post_summary($draft->get_subject(),
                 $draft->get_formatted_message($forum));
+        if (trim($summary) === '') {
+            $summary = get_string('notext', 'forumng');
+        }
 
         $result = '<tr class="' . $classes . '">';
         $link = '<a href="editpost.php?draft=' . $draft->get_id() .

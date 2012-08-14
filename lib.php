@@ -198,8 +198,8 @@ function forumng_get_coursemodule_info($coursemodule) {
     global $DB;
     if ($forumng = $DB->get_record('forumng',
             array('id' => $coursemodule->instance), 'id, name, type')) {
-        $info = new object();
-        $info->extra = 'class="forumng-type-' . $forumng->type . '"';
+        $info = new cached_cm_info();
+        $info->customdata = (object)array('type' => $forumng->type);
         return $info;
     }
 }

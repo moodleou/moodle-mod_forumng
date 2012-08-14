@@ -1232,20 +1232,28 @@ WHERE
         //Deleting the relevant data in the forumng_flags table
         $DB->execute("DELETE FROM {forumng_flags} $query", $queryparams);
 
+        //Delete all the attachment files of this discussion.
+        $fs = get_file_storage();
+        $filecontext = $this->get_forum()->get_context(true);
+
+        // Get list of all affected post ids (includes edited, deleted) that have attachments.
+        $postids = $DB->get_records('forumng_posts', array(
+                'discussionid' => $this->get_id(), 'attachments' => 1), '', 'id');
+
+        // Loop through all posts and deleting the attachments for each post.
+        foreach ($postids as $postid=>$junk) {
+            foreach (array('attachment', 'message') as $filearea) {
+                $fs->delete_area_files($filecontext->id, 'mod_forumng', $filearea,
+                        $postid);
+            }
+        }
+
         //Deleting the relevant posts in this discussion in the forumng_posts table
         $DB->delete_records('forumng_posts', array('discussionid' => $this->get_id()));
 
         //Finally deleting this discussion in the forumng_discussions table
         $DB->delete_records('forumng_discussions', array('id' => $this->get_id()));
 
-        //Delete the entire attachment folder if any
-        $folder = $this->get_attachment_folder();
-        if (is_dir($folder)) {
-            if (!remove_dir($folder)) {
-                throw new mod_mod_forumng_file_exception(
-                        "Error deleting attachment folder: $folder");
-            }
-        }
         //Log delete
         if ($log) {
             $this->log('permdelete discussion');
@@ -2161,7 +2169,8 @@ WHERE
      * @return string HTML skip link to unread posts
      */
     public function display_unread_skip_link() {
-        if ($this->get_num_unread_posts() == 0 || $this->get_num_unread_posts() == '') {
+        if ($this->get_num_unread_posts() == 0 || $this->get_num_unread_posts() == ''
+                || $this->get_root_post()->is_unread()) {
             return '';
         }
 

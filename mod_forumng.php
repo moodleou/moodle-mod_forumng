@@ -365,23 +365,18 @@ class mod_forumng {
 
     /**
      * Obtains the forum type based on its 'info' object in modinfo (e.g. from
-     * $modinfo->instances['forumng'][1234]). Usually this comes from a CSS
-     * class inserted in the 'extra' field.
-     * <p>
-     * (To be honest the CSS class is not needed, it is mostly there as it's
-     * the only place we could safely throw in random information so that we
-     * can get this data without making extra queries!)
-     * @param object $info Info object
+     * $modinfo->instances['forumng'][1234]). Usually this comes from the
+     * custom data in the cm_info object.
+     *
+     * @param object $info Info object (either cm_info or something else)
      * @return string Forum type
      */
-    private static function get_type_from_modinfo_info($info) {#
+    private static function get_type_from_modinfo_info(cm_info $info) {
         if (isset($info->forumtype)) {
-            // Only set when using get_modinfo_special for shared activity
-            // modules
+            // Only set when using get_modinfo_special for shared activity modules.
             return $info->forumtype;
         }
-        return str_replace('"', '',
-                str_replace('class="forumng-type-', '', $info->extra));
+        return $info->get_custom_data()->type;
     }
 
     // Object variables and accessors
@@ -4729,7 +4724,7 @@ WHERE
         if (isset($modinfo->instances['forumng'][$targetforumngid])) {
             $targetcm = $modinfo->instances['forumng'][$targetforumngid];
             $targetgroupmode = groups_get_activity_groupmode($targetcm, $this->get_course());
-            $targetgroupingid = $CFG->enablegroupings ? $targetcm->groupingid : 0;
+            $targetgroupingid = $targetcm->groupingid;
             if (!$targetgroupmode) {
                 return true;
             } else {

@@ -64,7 +64,7 @@
 
         <KEY NAME="primary" TYPE="primary" FIELDS="id" NEXT="forumngid"/>
         <KEY NAME="forumngid" TYPE="foreign" FIELDS="forumngid" REFTABLE="forumng" REFFIELDS="id" PREVIOUS="primary" NEXT="groupid"/>
-        <KEY NAME="groupid" TYPE="foreign" FIELDS="groupid" REFTABLE="group" REFFIELDS="id" PREVIOUS="forumngid"/>
+        <KEY NAME="groupid" TYPE="foreign" FIELDS="groupid" REFTABLE="groups" REFFIELDS="id" PREVIOUS="forumngid"/>
       </KEYS>
     </TABLE>
     <TABLE NAME="forumng_posts" COMMENT="Holds actual forum post data" PREVIOUS="forumng_discussions" NEXT="forumng_ratings">
