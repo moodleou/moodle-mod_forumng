@@ -2307,13 +2307,51 @@ WHERE
      */
     public static function print_for_ajax_and_exit($postorid, $cloneid=null,
         $options=array()) {
+        header('Content-Type: text/plain');
+        echo self::get_post_html($postorid, $cloneid, $options);
+        exit;
+    }
+
+    /**
+     * Internal function that obtains HTML of a single post.
+     * @param mixed $postorid Post object or ID of post
+     * @param int $cloneid If $postorid is an id, a clone id may be necessary
+     *   to construct the post
+     * @param array $options Post options if any
+     * @return string HTML of post
+     */
+    private static function get_post_html($postorid, $cloneid=null,
+            $options=array()) {
         if (is_object($postorid)) {
             $post = $postorid;
         } else {
             $post = mod_forumng_post::get_from_id($postorid, $cloneid, true);
         }
-        header('Content-Type: text/plain');
-        print trim($post->display(true, $options));
+        return trim($post->display(true, $options));
+    }
+
+    /**
+     * Prints version of the post suitable for being read out of the iframe
+     * to output inside a hidden div with a script tag to inform the parent,
+     * then exits.
+     * @param mixed $postorid Post object or ID of post
+     * @param int $cloneid If $postorid is an id, a clone id may be necessary
+     *   to construct the post
+     * @param array $options Post options if any
+     * @param int $postid ID of post
+     */
+    public static function print_for_iframe_and_exit($postorid, $cloneid=null,
+            $options=array()) {
+        $posthtml = self::get_post_html($postorid, $cloneid, $options);
+        $script = html_writer::tag('script', 'window.parent.iframe_success(window);',
+                array('type' => 'text/javascript'));
+
+        echo '<!DOCTYPE html>';
+        echo html_writer::tag('html',
+                html_writer::tag('head', html_writer::tag('title', 'Result') .
+                html_writer::tag('body',
+                    html_writer::tag('div', $posthtml, array('style' => 'display:none')) .
+                    $script)));
         exit;
     }
 

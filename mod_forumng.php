@@ -1862,6 +1862,9 @@ WHERE
         global $DB, $FORUMNG_CACHE;
         $userid = mod_forumng_utils::get_real_userid($userid);
 
+        if (!isset($FORUMNG_CACHE)) {
+            $FORUMNG_CACHE = new stdClass;
+        }
         if (!isset($FORUMNG_CACHE->subscriptioninfo)) {
             $FORUMNG_CACHE->subscriptioninfo = array();
         }
@@ -3636,12 +3639,30 @@ WHERE
     }
 
     /**
+     * Prints form JavaScript (much smaller than normal JS).
+     */
+    public function print_form_js() {
+        global $CFG, $PAGE;
+        $simple = get_user_preferences('forumng_simplemode', '');
+        if ($PAGE->devicetypeinuse == 'legacy' || $simple) {
+            return;
+        }
+        $module = array(
+            'name'      => 'mod_forumng_form',
+            'fullpath'  => '/mod/forumng/form.js',
+            'requires'  => array('base', 'node'),
+            'strings'   => array(array('edit_timeout', 'forumng'))
+        );
+        $PAGE->requires->js_init_call('M.mod_forumng_form.init',
+                array(), false, $module);
+    }
+
+    /**
      * Prints out (immediately; must be after header) script tags and JS code
      * for the forum's JavaScript library, and required YUI libraries.
      * @param int $cmid If specified, passes this through to JS
-     * @param bool $ajaxattachments If true, includes data needed to init file managers
      */
-    public function print_js($cmid=0, $ajaxattachments=false) {
+    public function print_js($cmid=0) {
         global $CFG, $PAGE;
         $simple = get_user_preferences('forumng_simplemode', '');
         if ($PAGE->devicetypeinuse == 'legacy' || $simple) {
@@ -3672,7 +3693,6 @@ WHERE
                 'js_clicktosetrating' => null,
                 'js_clicktosetrating1' => null,
                 'js_clicktoclearrating' => null,
-                'edit_timeout' => null,
                 'selectlabel' => null,
                 'selectintro' => null,
                 'confirmselection' => null,
@@ -3715,54 +3735,6 @@ WHERE
                 }
             }
 
-            if ($ajaxattachments) {
-                // Work out filemanager options. These are the same options that I observed when
-                // calling the below function from the standard 'start discussion' form.
-                $options = (object)array(
-                    'mainfile' => null,
-                    'maxbytes' => $this->get_max_bytes(),
-                    'maxfiles' => -1,
-                    'client_id' => 666666, // For replace - random unique id
-                    'itemid' => 999999, // For replace - draft file area id, attachments field
-                    'subdirs' => false,
-                    'accepted_types' => array('*'),
-                    'return_types' => 2,
-                    'context' => $this->get_context(true) // Real context used for files
-                );
-
-                // Include filemanager JS. This is a very, very, very nasty hack to stop it
-                // actually trying to initialise a filemanager that doesn't exist, while
-                // avoiding code duplication.
-                new mod_forumng_filemanager_evilhack();
-                require_once($CFG->dirroot . '/lib/form/filemanager.php');
-                $filemanagertemplate = form_filemanager_render($options);
-                // To make it bit shorter, let's remove the noscript part as it will never be used.
-                $filemanagertemplate = preg_replace('~<noscript>.*?</noscript>~', '',
-                        $filemanagertemplate);
-
-                $filemanageroptions = reset($PAGE->extraarguments);
-                $PAGE->return_to_goodness();
-            } else {
-                $filemanagertemplate = null;
-                $filemanageroptions = null;
-            }
-
-            // For HTML editor template, create form element with replaceable names
-            require_once($CFG->dirroot . '/lib/form/editor.php');
-            $editor = new MoodleQuickForm_editor('QQeditorQQ', 'QQlabelQQ',
-                    array('id' => 'QQidQQ'),
-                    array('maxbytes' => $this->get_max_bytes(),
-                        'maxfiles' => $this->can_create_attachments() ? EDITOR_UNLIMITED_FILES : 0,
-                        'context' => $this->get_context(true)));
-            $editor->setValue(array('itemid' => 99942));
-
-            // Render using same evil hack and extract form template, options
-            new mod_forumng_filemanager_evilhack();
-            $editortemplate = $editor->toHtml();
-            $editoroptions = $PAGE->extraarguments;
-            $editorfileoptions = $PAGE->extraarguments2;
-            $PAGE->return_to_goodness();
-
             $module = array(
                 'name'      => 'mod_forumng',
                 'fullpath'  => '/mod/forumng/module.js',
@@ -3774,9 +3746,7 @@ WHERE
                     array($cmid ? $cmid : 0,
                         $this->is_shared() ? $this->get_course_module_id() : 0,
                         $ratingstars, $this->get_remaining_post_quota(),
-                        $out->pix_url('i/ajaxloader')->out(false), $starurls,
-                        $filemanagertemplate, $filemanageroptions,
-                        $editortemplate, $editoroptions, $editorfileoptions),
+                        $out->pix_url('i/ajaxloader')->out(false), $starurls),
                     false, $module);
         }
     }

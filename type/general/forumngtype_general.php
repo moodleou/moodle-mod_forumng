@@ -271,9 +271,6 @@ class forumngtype_general extends forumngtype {
         // Display content
         print $content;
 
-        // Print reply/edit forms for AJAX
-        print $out->render_ajax_forms($discussion->get_forum());
-
         // Link back to forum
         print $discussion->display_link_back_to_forum();
 

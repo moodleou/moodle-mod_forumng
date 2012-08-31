@@ -25,9 +25,8 @@ require_once('../../config.php');
 require_once('mod_forumng.php');
 
 function my_link_sort($a, $b) {
-    $tl = textlib_get_instance();
-    $a = $tl->strtolower(substr($a->link, strpos($a->link, '>')+1));
-    $b = $tl->strtolower(substr($b->link, strpos($b->link, '>')+1));
+    $a = textlib::strtolower(substr($a->link, strpos($a->link, '>')+1));
+    $b = textlib::strtolower(substr($b->link, strpos($b->link, '>')+1));
     return strcmp($a, $b);
 }
 

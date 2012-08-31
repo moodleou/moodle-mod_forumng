@@ -12,11 +12,7 @@ M.mod_forumng = {
     mouseuser: false,
     viewportwidth: -1,
     starpix: {},
-    filemanagertemplate : null,
-    filemanageroptions : null,
-    editortemplate : null,
-    editoroptions : null,
-    editorfileoptions : null,
+    nowediting: false,
 
     /**
      * Main init function called from HTML. Sets a few variables then listens for DOM ready.
@@ -27,15 +23,8 @@ M.mod_forumng = {
      * @param quotaleft If set, the number of posts left in post quota
      * @param loaderpix URL of AJAX loader icon
      * @param starpix Object containing multiple URLs of the various star icons
-     * @param filemanagertemplate Template HTML for file manager if used
-     * @param filemanageroptions Template options for file manager if used
-     * @param editortemplate Template HTML for editor
-     * @param editoroptions Template options for editor
-     * @param editorfileoptions Template options for file manager inside editor
      */
-    init : function(Y, cmid, cloneid, ratingstars, quotaleft, loaderpix, starpix,
-            filemanagertemplate, filemanageroptions,
-            editortemplate, editoroptions, editorfileoptions) {
+    init : function(Y, cmid, cloneid, ratingstars, quotaleft, loaderpix, starpix) {
         this.Y = Y;
         this.cmid = cmid;
         this.cloneid = cloneid;
@@ -44,11 +33,6 @@ M.mod_forumng = {
         this.quotaleft = quotaleft;
         this.loaderpix = loaderpix;
         this.starpix = starpix;
-        this.filemanagertemplate = filemanagertemplate;
-        this.filemanageroptions = filemanageroptions;
-        this.editortemplate = editortemplate;
-        this.editoroptions = editoroptions;
-        this.editorfileoptions = editorfileoptions;
 
         Y.on("domready", this.dom_init, M.mod_forumng);
         this.urgent_init();
@@ -172,11 +156,6 @@ M.mod_forumng = {
         // Set up magic links
         this.forumng_expirelinks = [];
         this.init_content(this.Y.one(document));
-
-        // If form(s) are included, do tidying up
-        this.Y.all('form.mform').each(function(node, index, list) {
-            this.init_form(node);
-        }, this);
 
         // Hide 'save ratings' button if present
         var saveall = document.getElementById('forumng-saveallratings');
@@ -359,12 +338,87 @@ M.mod_forumng = {
     },
 
     /**
-     * Initialises the form html editor variables.
-     * @param f Form node
+     * Removes iframe and marks it closed.
      */
-    init_form: function(f) {
-        f.expectingeditor = f.get('tryinghtmleditor').get('value')=='1';
-        f.usingeditor = f.expectingeditor && window.tinyMCE;
+    remove_iframe : function(iframe) {
+        iframe.get('parentNode').removeChild(iframe);
+        this.nowediting = false;
+        this.links_enable(document.body);
+    },
+
+    /**
+     * Initialises an iframe and adds it.
+     *
+     * @param src iframe URL (&iframe=1 automatically added)
+     * @param post Post node to add iframe
+     * @return Iframe YUI node or null if already editing (abort)
+     */
+    init_iframe : function(src, post) {
+        // Check we're not already editing
+        var t = this;
+        if (this.nowediting) {
+            return null;
+        }
+        this.nowediting = true;
+
+        // Add special style that marks links disabled
+        this.links_disable(document.body);
+
+        var iframe = this.Y.one(document.createElement('iframe'));
+        iframe.set('className', 'forumng-inlineform');
+        iframe.set('width', 500);
+        iframe.set('height', 500);
+        src += '&iframe=1';
+        iframe.set('src', src);
+        window.iframe_has_loaded = function(innerwin) {
+            // Note: I am avoiding using YUI because I think there are
+            // probably two YUI instances and I don't want it to get
+            // confused.
+            var doc = innerwin.document;
+
+            // Check size and enlarge iframe if required.
+            var fix_height = function() {
+                if(doc.body.offsetHeight != Number(iframe.get('height'))) {
+                    iframe.set('height', doc.body.offsetHeight);
+                }
+            };
+            fix_height();
+            innerwin.setInterval(fix_height, 200);
+
+            // Add cancel handler that just removes the iframe.
+            doc.getElementById('id_cancel').onclick = function(e) {
+                if (!e) {
+                    e = window.event;
+                }
+                if (e.stopPropagation) {
+                    e.stopPropagation();
+                } else {
+                    e.cancelBubble = true;
+                }
+                t.remove_iframe(iframe);
+            };
+
+            // Focus the editor.
+            var try_focus = function() {
+                if (innerwin.tinyMCE) {
+                    for(edId in innerwin.tinyMCE.editors) {
+                        if (edId === 'id_message') {
+                            innerwin.tinyMCE.execCommand('mceFocus', false, 'id_message');
+                            return;
+                        }
+                    }
+                }
+                setTimeout(try_focus, 100);
+            };
+            setTimeout(try_focus, 250);
+        };
+
+        // Put it in as last thing in post (except the 'end post' marker).
+        var ends = post.all('div.forumng-endpost');
+        var last = ends.pop();
+        last.get('parentNode').insertBefore(iframe, last);
+
+        return iframe;
     },
 
     /**
@@ -373,45 +427,83 @@ M.mod_forumng = {
      * @param postid Post ID to edit
      */
     init_edit: function(link, postid) {
+        var t = this;
         link.on('click', function(e) {
             e.preventDefault();
             if (this.are_links_disabled(link)) {
                 return;
             }
 
-            // Root edit uses different form
-            var isroot = link.ancestor('.forumng-replies')===null;
+            // Get post.
+            var post = link.ancestor('.forumng-post');
+            var rootpost = !post.ancestor('.forumng-replies');
 
-            // Get form and post
-            var form = this.Y.one(isroot ? '#mform3' : '#mform2');
-            form.isroot = isroot;
-            form.post = link.ancestor('.forumng-post');
-            form.editlimitnode = this.Y.one(isroot ? '#id_editlimit3' : '#id_editlimit2');
-            form.editlimitfield = form.editlimitnode.ancestor('.fitem');
-
-            // Cancel if an existing reply is in progress
-            if (!this.prepare_form(form)) {
+            // Make iframe.
+            var iframe = this.init_iframe('editpost.php?p=' + postid, post);
+            if (!iframe) {
                 return;
             }
 
-            // Remove form from where it is now (we'll insert it later)
-            form.remove();
+            // Function that gets called when the iframe has completed successfully.
+            window.iframe_success = function(innerwin) {
+                // Remove the iframe.
+                t.remove_iframe(iframe);
+                window.iframe_success = null;
 
-            // Set up form details for edit
-            form.editpostid = postid;
+                // Add item just in front of existing post, then delete existing
+                var scriptcommands = [];
+                var newpost = t.prepare_new_post(innerwin, scriptcommands);
+                post.get('parentNode').insertBefore(newpost, post);
+                post.get('parentNode').removeChild(post);
 
-            var cfg = {
-                method: 'GET',
-                timeout: 10000,
-                context: M.mod_forumng,
-                arguments: form,
-                on: {
-                    success: this.editstart_ok,
-                    failure: this.editstart_error
+                // Run script commands
+                for (var i=0; i<scriptcommands.length; i++) {
+                    eval(scriptcommands[i]);
                 }
+
+                // For discussion, do special handling
+                if (rootpost) {
+                    // Get subject and remove its node
+                    var subjectinput = newpost.one('input[name=discussion_subject]');
+                    var subject = subjectinput.get('value');
+                    subjectinput.remove();
+
+                    // Find breadcrumb that displays subject (last <li>)
+                    var navbaritems = t.Y.one('#page-header .navbar ul').all('li');
+                    var breadcrumb = navbaritems.item(navbaritems.size() - 1);
+
+                    // Find the span in this (last span)
+                    var list = breadcrumb.all('span');
+                    var lastspan = list.item(list.size() - 1);
+
+                    // Text is inside here, replace it
+                    if (lastspan) {
+                        lastspan.get('childNodes').each(function(node, index, list) { node.remove(); });
+                        lastspan.appendChild(document.createTextNode(' ' + subject));
+                    }
+                }
+
+                // Sort out links
+                t.init_content(newpost);
             };
-            this.Y.io('expandpost.php?raw=1&playspace=1&p=' + postid + this.cloneparam, cfg);
         }, this);
+    },
+
+    /**
+     * Extracts a new post from the result of a reply or edit script.
+     * @param innerwin Iframe window
+     * @param scriptcommands Script commands will be added to this array
+     * @return New post YUI node
+     */
+    prepare_new_post : function(innerwin, scriptcommands) {
+        var responsetext = innerwin.document.body.firstChild.innerHTML;
+        var newdiv = document.createElement('div');
+        var scriptcommands = [];
+        newdiv.innerHTML = this.extract_js(responsetext, scriptcommands);
+        var newpost = newdiv.firstChild;
+        newdiv.removeChild(newpost);
+        newpost = this.Y.one(newpost);
+        return newpost;
     },
 
     /**
@@ -420,33 +512,81 @@ M.mod_forumng = {
      * @param postid Post ID to reply to
      */
     init_reply: function(link, replytoid) {
+        var t = this;
         link.on('click', function(e) {
             e.preventDefault();
             if (this.are_links_disabled(link)) {
                 return;
             }
 
-            // Get form and post
-            var form = this.Y.one('#mform1');
-            form.post = link.ancestor('.forumng-post');
+            // This function is also used when setting up a reply that
+            // includs existing draft text.
+            var draft = window.forumng_draft ? window.forumng_draft : false;
+            window.forumng_draft = null;
 
-            // Cancel if an existing reply is in progress
-            if (!this.prepare_form(form)) {
+            // Get post.
+            var post = link.ancestor('.forumng-post');
+
+            // Make iframe.
+            var src = 'editpost.php?';
+            if (draft) {
+                src += 'draft=' + draft;
+            } else {
+                src += 'replyto=' + replytoid;
+            }
+            var iframe = this.init_iframe(src, post);
+            if (!iframe) {
                 return;
             }
 
-            // Put form as last thing in post (except the 'end post' marker)
-            form.remove();
+            // Function that gets called when the iframe has completed successfully.
+            window.iframe_success = function(innerwin) {
+                // Remove the iframe.
+                t.remove_iframe(iframe);
+                window.iframe_success = null;
 
-            var ends = form.post.all('div.forumng-endpost');
-            var last = ends[ends.length-1];
-            form.post.insertBefore(form,  this.Y.Node.getDOMNode(last));
+                // Get replies div
+                var replies;
+                if (post.get('nextSibling')
+                    && post.get('nextSibling').hasClass('forumng-replies')) {
+                    replies = post.get('nextSibling');
+                } else {
+                    replies = document.createElement('div');
+                    replies.className = 'forumng-replies';
+                    replies = t.Y.one(replies);
+                    post.get('parentNode').insertBefore(replies, post.get('nextSibling'));
+                    t.apply_stop_indents();
+                }
+
+                // Add item there
+                var scriptcommands = [];
+                var newpost = t.prepare_new_post(innerwin, scriptcommands);
+                replies.appendChild(newpost);
+
+                // Run script commands
+                for (var i=0; i<scriptcommands.length; i++) {
+                    eval(scriptcommands[i]);
+                }
+
+                // Set up JavaScript behaviour in new post
+                t.init_content(newpost);
+
+                // Scroll to it
+                t.scroll_page(newpost, null);
+
+                // Update quota left
+                if (t.quotaleft > 0) {
+                    t.quotaleft--;
+
+                    // If out of quota, kill all the reply links
+                    if (t.quotaleft == 0) {
+                        t.kill_reply_links(document);
+                    }
+                }
+            };
 
             // Mark that we've got a reply there
-            form.replytoid = replytoid;
-
-            var draft = window.forumng_draft ? window.forumng_draft : false;
-            window.forumng_draft = null;
+            iframe.replytoid = replytoid;
 
             var quotaDiv = this.Y.one('#id_postlimit1');
             if (quotaDiv) {
@@ -462,50 +602,6 @@ M.mod_forumng = {
                     quotaDiv.set('innerHTML', text);
                 }
             }
-
-            // Initialise form HTML editor & file manager
-            this.init_editor_and_attachments(form, draft);
-
-            if (draft) {
-                form.get('subject').set('value', draft.subject !== null ? draft.subject : '');
-                if (form.get('mailnow')) {
-                    form.get('mailnow').set('checked', draft.mailnow ? true : false);
-                }
-                if (form.get('setimportant')) {
-                    form.get('setimportant').set('checked', draft.setimportant ? true : false);
-                }
-                form.get('draft').set('value', draft.id);
-            } else {
-                form.get('draft').set('value', 0);
-            }
-
-            // Post button handling
-            form.eventhandles.push(form.get('submitbutton').on('click', function(e) {
-                e.preventDefault();
-                form.get('submitbutton').set('disabled', true);
-                form.get('cancel').set('disabled', true);
-                if (form.usingeditor) {
-                    tinyMCE.triggerSave();
-                    tinyMCE.get(form.get('message[text]').get('id')).setProgressState(1);
-                }
-                this.save(form, 'replyto=' + form.replytoid + this.cloneparam,
-                        this.save_ok_reply, this.save_error);
-            }, this));
-
-            form.eventhandles.push(form.get('savedraft').on('click', function(e) {
-                e.preventDefault();
-                form.get('savedraft').set('disabled', true);
-                form.get('cancel').set('disabled', true);
-                if (form.usingeditor) {
-                    tinyMCE.triggerSave();
-                    tinyMCE.get(form.get('message[text]').get('id')).setProgressState(1);
-                }
-                this.save(form, 'replyto=' + form.replytoid + this.cloneparam + '&savedraft=1',
-                        this.save_ok_draft, this.save_error);
-            }, this));
-
-            // Make form visible
-            form.setStyle('display', 'block');
         }, this);
 
         // When we create the reply link that a draft post uses, make it click itself
@@ -650,114 +746,6 @@ M.mod_forumng = {
     },
 
     /**
-     * Prepares a form, possibly with HTML editor, for use in a reply or edit.
-     * @param form Form node
-     */
-    prepare_form: function(form) {
-        // Cancel if already showing
-        if (form.nowshowing) {
-            return false;
-        }
-        form.nowshowing = true;
-        form.timers = [];
-        form.eventhandles = [];
-
-        form.editover = false;
-
-        // Add special style that marks links disabled
-        this.links_disable(document.body);
-
-        // Make sure the buttons aren't greyed out (they can be if somebody
-        // reloads a page from a position where they are)
-        form.get('cancel').set('disabled', false);
-        form.get('submitbutton').set('disabled', true);
-
-        // Enable/disable the submit button based on message emptiness
-        var submitenableinterval = setInterval(function()
-        {
-            // In very unlikely timing (or when debugging) this might not
-            // exist yet
-            if(!form.get('message[text]')) {
-                return;
-            }
-            var sourceText = form.get('message[text]').get('value');
-            if (form.usingeditor && form.get('message[text]').getStyle('display') == 'none' &&
-                tinyMCE.activeEditor) {
-                sourceText = tinyMCE.activeEditor.getBody().innerHTML;
-            }
-            // Get rid of tags and nbsp as literal or entity, then trim
-            var mungevalue = sourceText.replace(/<.*?>/g, '').replace(
-                /&(nbsp|#160|#xa0);/g, '') . replace(
-                    new RegExp(String.fromCharCode(160), 'g'), ' ') .
-                replace(/\s+/, ' ') . trim();
-
-            // Allow an image even if no text
-            if (sourceText.indexOf('<img ') != -1) {
-                mungevalue = 'gotimage';
-            }
-
-            // When editing discussion first post, subject must also be not blank
-            if (mungevalue != '' && form.editpostid && form.isroot) {
-                mungevalue = form.get('subject').get('value').trim();
-            }
-
-            form.get('submitbutton').set('disabled', (mungevalue == '') || form.editover);
-            if (form.get('savedraft')) {
-                form.get('savedraft').set('disabled', form.get('submitbutton').disabled);
-            }
-        }, 250);
-
-        // Cancel button handling
-        var outerThis = this;
-        form.cancelfunction = function() {
-            // Prevent multi-calls
-            if (!form.nowshowing) {
-                return;
-            }
-            clearInterval(submitenableinterval);
-            if (form.usingeditor) {
-                var id = form.get('message[text]').get('id');
-                tinyMCE.execCommand('mceRemoveControl', false, id);
-
-                // TinyMCE remembers sizes, doesn't work on this page, so
-                // delete cookie pre-emptively
-                var cookieName = 'TinyMCE_' + id + '_size';
-                document.cookie = cookieName + '=; expires=Thu, 01-Jan-70 00:00:01 GMT;';
-            }
-
-            form.setStyle('display', 'none');
-            if (form.draftNotice) {
-                form.draftNotice.remove();
-                form.draftNotice = null;
-            }
-            form.remove();
-            outerThis.Y.one('#forumng-formhome').appendChild(form);
-
-            // Remove editor
-            M.mod_forumng.remove_editor(form);
-
-            for (var i=0; i<form.timers.length; i++) {
-                clearTimeout(form.timers[i]);
-            }
-            form.timers = [];
-
-            for (var i=0; i<form.eventhandles.length; i++) {
-                form.eventhandles[i].detach();
-            }
-
-            outerThis.links_enable(document.body);
-            form.nowshowing = false;
-        };
-        form.get('cancel').removeAttribute('onclick');
-        form.eventhandles.push(form.get('cancel').on('click', function(e) {
-            e.preventDefault();
-            form.cancelfunction();
-        }, this));
-
-        return true;
-    },
-
-    /**
      * Disables links for a post or whole page. This is used to grey out other options while
      * you are replying to a post.
      *
@@ -846,121 +834,6 @@ M.mod_forumng = {
         }
     },
 
-    /**
-     * Starts the HTML editor in a form based on the provided options
-     * @param form Form node
-     * @param value Initial editor value (message)
-     * @param fileoptions File options for editor (item id, etc)
-     */
-    start_editor : function(form, value, fileoptions) {
-        if (form.expectingeditor) {
-            if (!form.donetextarea) {
-                // Add editor template fields
-                var input = form.get('message');
-                var fieldId = input.get('id');
-                var template = '<div>' + this.editortemplate.replace(
-                         'QQidQQ', fieldId).replace(/QQeditorQQ/g, input.get('name')) +
-                         '</div>';
-                if (fileoptions) {
-                    template = template.replace('99942', fileoptions.itemid);
-                }
-                form.newinput = this.Y.Node.create(template);
-
-                input.get('parentNode').insertBefore(form.newinput, input);
-                form.oldinput = input;
-                input.remove();
-
-                var Y = this.Y;
-                if (form.usingeditor) {
-                    // Set up options
-                    var options = {};
-                    options[0] = this.editoroptions[0].replace('QQidQQ', fieldId);
-                    options[1] = {};
-                    for (var key in this.editoroptions[1]) {
-                        // Shallow clone is all that's needed as we don't change anything but itemid
-                        options[1][key] = this.editoroptions[1][key];
-                    }
-                    options[1].elements = options[1].elements.replace('QQidQQ', fieldId);
-
-                    // Initialise attachments if provided
-                    if (fileoptions) {
-                        // Update the options template
-                        var allfileoptions = [];
-                        allfileoptions[0] = this.editorfileoptions[0].replace('QQidQQ', fieldId);
-                        allfileoptions[1] = this.deep_clone_change_itemid(this.editorfileoptions[1],
-                                fileoptions.itemid);
-                    }
-
-                    setTimeout(function() {
-                        // Call the JS init function
-                        Y.use('editor_tinymce', function(Y) { M.editor_tinymce.init_editor(Y, options[0], options[1]); });
-
-                        // Initialise attachments if provided
-                        if (fileoptions) {
-                            Y.use('editor_tinymce', function(Y) { M.editor_tinymce.init_filepicker(Y, allfileoptions[0], allfileoptions[1]); });
-                        }
-                    }, 0);
-                }
-
-                form.donetextarea = true;
-            }
-        }
-        var textbox = form.get('message[text]');
-        textbox.set('value', value);
-        textbox.ancestor('div.fitem').addClass('forumng-editarea');
-        form.get('subject').set('value', '');
-        if (form.get('setimportant')) {
-            form.get('setimportant').set('checked', false);
-        }
-        if (form.get('mailnow')) {
-            form.get('mailnow').set('checked', false);
-        }
-
-        // When using the richtext editor, do the code that turns this into a normal display
-        if (form.usingeditor) {
-            // This timeout required so that the editor has correct size
-            setTimeout(function() {
-                var id = form.get('message[text]').get('id');
-
-                var fixFunction = function() {
-                    var iframe = form.one('iframe');
-                    if(!iframe) {
-                        setTimeout(fixFunction, 250);
-                        return;
-                    }
-
-                    if (navigator.product == 'Gecko') {
-                        form.get('subject').focus();
-                        setTimeout(function() {
-                            tinyMCE.execCommand('mceFocus', false, id);
-                        }, 0);
-                    } else {
-                        tinyMCE.execCommand('mceFocus', false, id);
-                    }
-                }
-                setTimeout(fixFunction, 250);
-
-                // There is a Firefox bug with disappearing cursor
-                if (navigator.product != 'Gecko') {
-                    // In other browsers, the focus command only needs a simple setTimeout
-                    setTimeout(fixFunction, 0);
-                } else {
-                    // In Gecko, we need to focus a normal (non-richtext) field first, then
-                    // focus the editor. Need to wait a bit first; repeating the
-                    // set_timeout 20 times recursively seems to do the job...
-                    setTimeout(function() {
-                        M.mod_forumng.set_timeout_multi(fixFunction, 20);
-                    }, 0);
-                }
-            }, 0);
-
-            // Get the format option, fix it to HTML and hide it (as they are using the html editor)
-            var format = form.get('message[format]');
-            format.set('value', 1);
-            format.setStyle('display', 'none');
-        }
-    },
-
     deep_clone_change_itemid : function(obj, itemid) {
         if (obj instanceof Array) {
           var c = [];
@@ -988,138 +861,6 @@ M.mod_forumng = {
     },
 
     /**
-     * Removes the HTML editor fields from a form.
-     * @param form Form object
-     */
-    remove_editor : function(form) {
-        if (form.donetextarea) {
-            var silly = this.Y.Node.create('<span/>');
-            form.newinput.get('parentNode').insertBefore(silly, form.newinput);
-            form.newinput.remove();
-            silly.get('parentNode').insertBefore(form.oldinput, silly);
-            form.newinput = null;
-            form.oldinput = null;
-            form.donetextarea = false;
-        }
-    },
-
-    /**
-     * AJAX response: attachment data has been retrieved from the server.
-     * @param transactionid YUI transaction id
-     * @param o YUI response object
-     * @param form Form node
-     */
-    initattachments_ok : function(transactionid, o, form) {
-        // We now have itemids which can be used to initialise the file manager and editor
-        var initcombined = this.Y.JSON.parse(o.responseText);
-
-        this.start_file_manager(form, initcombined.options);
-        this.start_editor(form, '', initcombined.messageoptions);
-    },
-
-    /**
-     * Starts the file manager in form, given an options object that contains data necessary
-     * for the file manager.
-     * @param form Form node
-     * @param fileoptions File manager options, or false = don't bother
-     */
-    start_file_manager : function(form, fileoptions) {
-        if (!fileoptions) {
-            return;
-        }
-        // Update the options template
-        var options = {};
-        for (var key in this.filemanageroptions) {
-            // Shallow clone is all that's needed as we don't change anything but itemid
-            options[key] = this.filemanageroptions[key];
-        }
-        for (var key in fileoptions) {
-            options[key] = fileoptions[key];
-        }
-        var itemid = options.itemid;
-
-        // Use itemid to update the template (999999 is hardcoded in the php)...
-        var template = '<div>' + this.filemanagertemplate.replace('999999', itemid) + '</div>';
-
-        // Add the template data to the form just before mailnow
-        var item = form.get('attachments');
-        item.get('parentNode').insertBefore(this.Y.Node.create(template), item);
-        item.setStyle('display', 'none');
-        item.set('value', itemid);
-
-        // Call the JS init function
-        this.Y.use('form_filemanager', function(Y) { M.form_filemanager.init(Y, options); });
-    },
-
-    /**
-     * AJAX response: attachment data retrieval failed.
-     * @param transactionid YUI transaction id
-     * @param o YUI response object
-     * @param form Form node
-     */
-    initattachments_error : function(transactionid, o, form) {
-        alert(M.str.forumng.jserr_attachments);
-    },
-
-    /**
-     * Saves the form via AJAX to the editpost.php script.
-     * Note: There is built-in functionality in YUI3 to do some of this work, but I was hesitant
-     * to use it because there are special cases in the below code and I wasn't sure how to check
-     * them. Maybe it should be changed later.
-     * @param form Form node
-     * @param param Additional parameters to pass in the POST data
-     * @param ok Function to run on ok
-     * @param error Function to run on error
-     */
-    save : function(form, param, ok, error) {
-        var data = 'ajax=1&' + param;
-        form.all('input').each(function(input, index, list) {
-            if (input.get('disabled')) {
-                return;
-            }
-            if (input.get('name') == 'replyto') {
-                return;
-            }
-            switch (input.get('type')) {
-            case 'checkbox':
-                if (input.get('checked')) {
-                    data += '&' + input.get('name') + '=' + encodeURIComponent(input.get('value'));
-                }
-                break;
-            case 'text':
-            case 'hidden':
-                data += '&' + input.get('name') + '=' + encodeURIComponent(input.get('value'));
-                break;
-            }
-        }, this);
-        form.all('textarea').each(function(textarea, index, list) {
-            if (textarea.get('disabled')) {
-                return;
-            }
-            data += '&' + textarea.get('name') + '=' + encodeURIComponent(textarea.get('value'));
-        }, this);
-        form.all('select').each(function(select, index, list) {
-            if (select.get('disabled')) {
-                return;
-            }
-            data += '&' + select.get('name') + '=' + encodeURIComponent(select.get('value'));
-        }, this);
-
-        var cfg = {
-            method: 'POST',
-            data: data,
-            timeout: 10000,
-            context: M.mod_forumng,
-            arguments: form,
-            on: {
-                success: this.possible_success_handler(ok, error),
-                failure: error
-            }
-        };
-        this.Y.io('editpost.php', cfg);
-    },
-
-    /**
      * Handles an AJAX response that is a 'success' by checking if it looks like
      * a Moodle error response and, if so, treating it as error instead.
      */
@@ -1137,62 +878,6 @@ M.mod_forumng = {
                 ok.apply(M.mod_forumng, [transactionid, o, form]);
             }
         };
-    },
-
-    /**
-     * AJAX response: Reply is saved successfully.
-     * @param transactionid YUI transaction id
-     * @param o YUI response object
-     * @param form Form node
-     */
-    save_ok_reply: function(transactionid, o, form) {
-        // Behave like cancelling form
-        form.get('submitbutton').set('disabled', false);
-        form.get('cancel').set('disabled', false);
-        form.cancelfunction();
-
-        // Get replies div
-        var replies;
-        if (form.post.get('nextSibling')
-            && form.post.get('nextSibling').hasClass('forumng-replies')) {
-            replies = form.post.get('nextSibling');
-        } else {
-            replies = document.createElement('div');
-            replies.className = 'forumng-replies';
-            replies = this.Y.one(replies);
-            form.post.get('parentNode').insertBefore(replies, form.post.get('nextSibling'));
-            this.apply_stop_indents();
-        }
-
-        // Add item there
-        var newDiv = document.createElement('div');
-        var scriptCommands = [];
-        newDiv.innerHTML = this.extract_js(o.responseText, scriptCommands);
-        var newPost = newDiv.firstChild;
-        newDiv.removeChild(newPost);
-        newPost = this.Y.one(newPost);
-        replies.appendChild(newPost);
-
-        // Run script commands
-        for (var i=0; i<scriptCommands.length; i++) {
-            eval(scriptCommands[i]);
-        }
-
-        // Set up JavaScript behaviour in new post
-        this.init_content(newPost);
-
-        // Scroll to it
-        this.scroll_page(newPost, null);
-
-        // Update quota left
-        if (this.quotaleft > 0) {
-            this.quotaleft--;
-
-            // If out of quota, kill all the reply links
-            if (this.quotaleft == 0) {
-                this.kill_reply_links(document);
-            }
-        }
     },
 
     /**
@@ -1289,9 +974,9 @@ M.mod_forumng = {
         var newDiv = document.createElement('div');
         var scriptCommands = [];
         newDiv.innerHTML = this.extract_js(o.responseText, scriptCommands);
-        var newPost = newDiv.firstChild;
-        newDiv.removeChild(newPost);
-        newPost = this.Y.one(newPost);
+        var newpost = newDiv.firstChild;
+        newDiv.removeChild(newpost);
+        newpost = this.Y.one(newpost);
         var focushandler = link.post.focushandler;
 
         // If in select mode, note previous selection value
@@ -1301,7 +986,7 @@ M.mod_forumng = {
         }
 
         var expander = new forumng_expander(link.post);
-        link.post.get('parentNode').insertBefore(newPost, link.post);
+        link.post.get('parentNode').insertBefore(newpost, link.post);
         link.post.remove();
 
         // Run script commands
@@ -1309,16 +994,16 @@ M.mod_forumng = {
             eval(scriptCommands[i]);
         }
 
-        this.init_content(newPost);
+        this.init_content(newpost);
         if (previousSelect) {
             var checkbox = this.Y.one('#checkp' + link.postid);
             checkbox.set('checked', 'true');
         }
         if (document.body.linksdisabled) {
-            this.links_disable(newPost);
+            this.links_disable(newpost);
             // It is not individually disabled, only as part of the general disable, so remove
             // the individual marker
-            newPost.linksdisabled = false;
+            newpost.linksdisabled = false;
         }
 
         var tracker = this.Y.one('#expanded_posts');
@@ -1331,13 +1016,13 @@ M.mod_forumng = {
             return;
         }
 
-        expander.go(newPost);
+        expander.go(newpost);
 
         if (focushandler) {
             focushandler();
         } else {
             // Replace focus on expand element which got wiped.
-            var authorspan = newPost.all('span.forumng-author');
+            var authorspan = newpost.all('span.forumng-author');
             if (authorspan.length > 0) {
                 // By default, focus on author name link.
                 // The timeout here is because otherwise IE7 sometimes crashes
@@ -1345,7 +1030,7 @@ M.mod_forumng = {
             } else {
                 // If author name link is not present, focus on first link (which is usually
                 // the 'this is post 3, parent is post N' link).
-                var links = newPost.all('a[href]');
+                var links = newpost.all('a[href]');
                 if (links.length > 0) {
                     links[0].focus();
                 }
@@ -1528,15 +1213,15 @@ M.mod_forumng = {
     delete_ok : function(transactionid, o, link) {
         var newDiv = document.createElement('div');
         newDiv.innerHTML = o.responseText;
-        var newPost = newDiv.firstChild;
+        var newpost = newDiv.firstChild;
         // Post may be blank when deleting (if not admin)
-        if (newPost) {
-            newPost = this.Y.one(newPost);
-            link.post.get('parentNode').insertBefore(newPost, link.post);
+        if (newpost) {
+            newpost = this.Y.one(newpost);
+            link.post.get('parentNode').insertBefore(newpost, link.post);
         }
         link.post.remove();
-        if (newPost) {
-            this.init_content(newPost);
+        if (newpost) {
+            this.init_content(newpost);
         }
     },
 
@@ -1691,209 +1376,12 @@ M.mod_forumng = {
     },
 
     /**
-     * AJAX response: The 'start editing' request, which obtains post data, completed OK.
-     * @param transactionid YUI transaction id
-     * @param o YUI response object
-     * @param form Form node
-     */
-    editstart_ok : function(transactionid, o, form) {
-        // Get postdata variable
-        var postdata = this.Y.JSON.parse(o.responseText);
-
-        // Put form as last thing in post (except the 'end post' marker)
-
-        var ends = form.post.all('div.forumng-endpost');
-        var last = ends[ends.length-1];
-        form.post.insertBefore(form, this.Y.Node.getDOMNode(last));
-
-        // Initialise form HTML editor and data
-        var settings = {
-            message : postdata.message,
-            messageoptions : postdata.messageoptions,
-            attachmentoptions : postdata.options
-        };
-
-        this.init_editor_and_attachments(form, settings);
-        form.get('subject').set('value', postdata.subject !== null ? postdata.subject : '');
-        form.get('message[format]').set('value', postdata.format);
-        if (form.get('setimportant')) {
-            form.get('setimportant').set('checked', postdata.setimportant==1 ? true : false);
-        }
-
-        var seteditlimit = function(message, tag, classname) {
-            form.editlimitnode.get('childNodes').each(function(node, index, list) {
-              node.remove();
-            });
-            var parent = form.editlimitnode;
-            if (tag) {
-                parent = document.createElement(tag);
-                if (classname) {
-                    parent.className = classname;
-                }
-                form.editlimitnode.appendChild(parent);
-            }
-            parent.appendChild(document.createTextNode(message));
-        };
-
-        if (postdata.editlimit != 0) {
-            seteditlimit(postdata.editlimitmsg, null, null);
-            form.editlimitfield.setStyle('display', 'block');
-            var expiry = postdata.editlimit*1000;
-
-            // Warning when timeout is near
-            form.timers.push(setTimeout(function() {
-                seteditlimit(postdata.editlimitmsg, 'strong', null);
-            }, expiry-90000));
-
-            // Disable submit when timeout is done (we allow 30s for server processing)
-            form.timers.push(setTimeout(function() {
-                form.editover = true;
-                seteditlimit(M.str.forumng.edit_timeout, 'strong', 'forumng-timeoutover');
-            }, expiry-30000));
-        } else {
-            seteditlimit('', null, null);
-            form.editlimitfield.setStyle('display', 'none');
-        }
-
-        // Post button handling
-        form.eventhandles.push(form.get('submitbutton').on('click', function(e) {
-            e.preventDefault();
-            form.get('submitbutton').set('disabled', true);
-            form.get('cancel').set('disabled', true);
-            if (form.usingeditor) {
-                tinyMCE.triggerSave();
-                tinyMCE.get(form.get('message[text]').get('id')).setProgressState(1);
-            }
-            this.save(form, 'p=' + form.editpostid + this.cloneparam,
-                    this.save_ok_edit, this.save_error);
-        }, this));
-
-        // Make form visible
-        form.setStyle('display', 'block');
-    },
-
-    /**
-     * AJAX response: The first editing request failed.
-     * @param transactionid YUI transaction id
-     * @param o YUI response object
-     * @param form Form node
-     */
-    editstart_error : function(transactionid, o, form) {
-        form.cancelfunction();
-        alert(M.str.forumng.jserr_load);
-    },
-
-    /**
-     * AJAX response: The reply/save request failed.
-     * @param transactionid YUI transaction id
-     * @param o YUI response object
-     * @param form Form node
-     */
-    save_error : function(transactionid, o, form) {
-        form.get('submitbutton').set('disabled', false);
-        form.get('cancel').set('disabled', false);
-        if (form.usingeditor) {
-            tinyMCE.get(form.get('message[text]').get('id')).setProgressState(0);
-        }
-        alert(M.str.forumng.jserr_save);
-    },
-
-    /**
-     * AJAX response: The second editing request (to save data) succeeded.
-     * @param transactionid YUI transaction id
-     * @param o YUI response object
-     * @param form Form node
-     */
-    save_ok_edit : function (transactionid, o, form) {
-        // Behave like cancelling form
-        form.cancelfunction();
-        form.get('submitbutton').set('disabled', false);
-        form.get('cancel').set('disabled', false);
-
-        // Add item just in front of existing post, then delete existing
-        var newdiv = document.createElement('div');
-        var scriptCommands = [];
-        newdiv.innerHTML = this.extract_js(o.responseText, scriptCommands);
-        var newpost = newdiv.firstChild;
-        newdiv.removeChild(newpost);
-        newpost = this.Y.one(newpost);
-        form.post.get('parentNode').insertBefore(newpost, form.post);
-        form.post.get('parentNode').removeChild(form.post);
-
-        // Run script commands
-        for (var i=0; i<scriptCommands.length; i++) {
-            eval(scriptCommands[i]);
-        }
-
-        // For discussion, do special handling
-        if (form.isroot) {
-            // Get subject and remove its node
-            var subjectinput = newpost.one('input[name=discussion_subject]');
-            var subject = subjectinput.get('value');
-            subjectinput.remove();
-
-            // Find breadcrumb that displays subject (last <li>)
-            var navbaritems = this.Y.one('#page-header .navbar ul').all('li');
-            var breadcrumb = navbaritems.item(navbaritems.size() - 1);
-
-            // Find the span in this (last span)
-            var list = breadcrumb.all('span');
-            var lastspan = list.item(list.size() - 1);
-
-            // Text is inside here, replace it
-            if (lastspan) {
-                lastspan.get('childNodes').each(function(node, index, list) { node.remove(); });
-                lastspan.appendChild(document.createTextNode(' ' + subject));
-            }
-        }
-
-        // Sort out links
-        this.init_content(newpost);
-    },
-
-    /**
      * Logs data using Firebug if installed.
      * @param thing Thing to log
      */
     log : function(thing) {
         if (typeof(console) !== 'undefined') {
             console.debug(thing);
-        }
-    },
-
-    /**
-     * AJAX response: The 'save draft' request succeeded.
-     * @param transactionid YUI transaction id
-     * @param o YUI response object
-     * @param form Form node
-     */
-    save_ok_draft : function(transactionid, o, form) {
-        var colon = o.responseText.indexOf(':');
-
-        // Update draft id
-        form.get('draft').set('value', o.responseText.substr(0, colon));
-
-        // Show text
-        if (!form.draftNotice) {
-            form.draftNotice = document.createElement('div');
-            form.draftNotice.className = 'forumng-draftexists';
-            form.draftNotice = this.Y.one(form.draftNotice);
-            form.get('parentNode').insertBefore(form.draftNotice, form);
-        } else {
-            form.draftNotice.removeChild(form.draftNotice.get('firstChild'));
-        }
-
-        // Actual text is what's after the colon
-        form.draftNotice.appendChild(document.createTextNode(o.responseText.substr(colon+1)));
-
-        // Enable editor again
-        form.get('submitbutton').set('disabled', false);
-        form.get('cancel').set('disabled', false);
-        if (form.get('savedraft')) {
-            form.get('savedraft').set('disabled', false);
-        }
-        if (form.usingeditor) {
-            tinyMCE.get(form.get('message[text]').get('id')).setProgressState(0);
         }
     },
 

@@ -533,52 +533,38 @@ ul.forumng-commands li.forumng-replylink {
 ////////////////////////////////////
 */
 
-#page-mod-forumng-discuss .mform {
-    padding: 0;
-    display: none;
-    margin-bottom: 1em;
+#page-mod-forumng-discuss iframe.forumng-inlineform {
+    width: 100%;
+    border: none;
+    overflow: hidden;
 }
-#page-mod-forumng-discuss .mform textarea {
+.forumng-iframe#page-mod-forumng-editpost fieldset {
+    border: none;
+    padding: 0;
+    margin: 0;
+}
+.forumng-iframe#page-mod-forumng-editpost textarea {
     width: 99%;
 }
-
-.ie#page-mod-forumng-discuss .mform {
-    margin-top: 0.5em;
+.forumng-iframe#page-mod-forumng-editpost {
+    padding: 0;
 }
-
-#page-mod-forumng-discuss .mform fieldset {
-    padding-top: 5px;
-    margin-bottom: 0;
-}
-#page-mod-forumng-discuss .mform fieldset.hidden,
-#page-mod-forumng-discuss .mform fieldset.hidden fieldset.fgroup {
-    margin-top: 0;
-    padding-top: 0;
-}
-
-#page-mod-forumng-discuss .mform fieldset .advancedbutton,
-#page-mod-forumng-discuss .mform fieldset legend {
-    display: none;
-}
-
-#page-mod-forumng-discuss fieldset#id_importance {
-    margin-top: 0;
-    padding-top: 0;
-}
-#page-mod-forumng-discuss fieldset#id_attachments {
-    padding-bottom: 0;
-}
-
-#page-mod-forumng-discuss .mform .fhtmleditor {
-    margin: 0;
-    padding: 5px 14px 0 10px;
-    width: auto;
-}
-#page-mod-forumng-discuss .mform .fhtmleditor textarea {
-    width: 100%;
+.forumng-iframe#page-mod-forumng-editpost .advancedbutton {
     margin: 0;
 }
-#page-mod-forumng-discuss .mform .fdescription.required {
+.forumng-iframe#page-mod-forumng-editpost .fcontainer {
+    margin-right: 0;
+    margin-left: 0;
+}
+.forumng-iframe#page-mod-forumng-editpost .fm-empty-container,
+.forumng-iframe#page-mod-forumng-editpost .dndupload-target {
+    padding-top: 0;
+}
+.forumng-iframe#page-mod-forumng-editpost .filemanager-container {
+    min-height: 40px;
+}
+.forumng-iframe#page-mod-forumng-editpost .dndupload-arrow,
+.forumng-iframe#page-mod-forumng-editpost .fp-pathbar {
     display: none;
 }
 

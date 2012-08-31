@@ -40,9 +40,13 @@ $ajax = optional_param('ajax', 0, PARAM_INT);
 if ($ajax) {
     $pageparams['ajax'] = $ajax;
 }
+$iframe = optional_param('iframe', 0, PARAM_INT);
+if ($iframe) {
+    $pageparams['iframe'] = $iframe;
+}
 
-function finish($postid, $cloneid, $url, $fromform, $ajaxdata='') {
-    global $ajax;
+function finish($postid, $cloneid, $url, $fromform, $ajaxdata='', $iframeredirect=false) {
+    global $ajax, $iframe;
     if ($ajax) {
         if ($ajaxdata) {
             // Print AJAX data if specified
@@ -52,6 +56,16 @@ function finish($postid, $cloneid, $url, $fromform, $ajaxdata='') {
         } else {
             // Default otherwise is to print post
             mod_forumng_post::print_for_ajax_and_exit($postid, $cloneid,
+                array(mod_forumng_post::OPTION_DISCUSSION_SUBJECT => true));
+        }
+    }
+    if ($iframe) {
+        if ($iframeredirect) {
+            // Still redirect, even though it's in an iframe.
+            redirect($url . '&iframe=1');
+        } else {
+            // Do not redirect, just output new post.
+            mod_forumng_post::print_for_iframe_and_exit($postid, $cloneid,
                 array(mod_forumng_post::OPTION_DISCUSSION_SUBJECT => true));
         }
     }
@@ -216,7 +230,10 @@ try {
     $PAGE->set_context($forum->get_context());
     $PAGE->set_cm($cm, $course);
     $PAGE->set_url(new moodle_url('/mod/forumng/editpost.php', $pageparams));
-    $PAGE->set_pagelayout('base');
+    $PAGE->set_pagelayout($iframe ? 'embedded' : 'base');
+    if ($iframe) {
+        $PAGE->add_body_class('forumng-iframe');
+    }
 
     // See if this is a save action or a form view
     require_once('editpost_form.php');
@@ -224,13 +241,17 @@ try {
         // Clone parameter is required for all actions
         $params['clone'] = $cloneid;
     }
+    // Iframe parameter always available.
+    if ($iframe) {
+        $params['iframe'] = 1;
+    }
     // Expand parameter always available
     $params['expand'] = $expand;
     $mform = new mod_forumng_editpost_form('editpost.php',
         array('params'=>$params, 'isdiscussion'=>$isdiscussion,
             'forum'=>$forum, 'edit'=>$edit, 'ispost'=>$ispost, 'islock'=>$islock,
             'post'=>isset($post) ? $post : null, 'isroot'=>$isroot,
-            'ajaxversion'=>$ajax ? true : false,
+            'iframe' => $iframe ? true : false,
             'timelimit' => $ispost && $edit && !$post->can_ignore_edit_time_limit()
                 ? $post->get_edit_time_limit() : 0,
             'draft'=>$draft));
@@ -330,7 +351,7 @@ try {
                 $transaction->allow_commit();
                 finish(0, $cloneid, 'editpost.php?draft=' . $draft->get_id() .
                         $forum->get_clone_param(mod_forumng::PARAM_PLAIN) .
-                        $expandparam, $fromform, $draft->get_id() . ':' . $date);
+                        $expandparam, $fromform, $draft->get_id() . ':' . $date, true);
             } else {
                 // This is a new draft
                 $transaction = $DB->start_delegated_transaction();
@@ -360,7 +381,7 @@ try {
                 $transaction->allow_commit();
                 finish(0, $cloneid, 'editpost.php?draft=' . $newdraftid .
                         $forum->get_clone_param(mod_forumng::PARAM_PLAIN) .
-                        $expandparam, $fromform, $newdraftid . ':' . $date);
+                        $expandparam, $fromform, $newdraftid . ':' . $date, true);
             }
         } else if (!$edit) {
             // Check the random number is unique in session
@@ -533,12 +554,11 @@ try {
 
         $out = mod_forumng_utils::get_renderer();
         print $out->header();
-        $forum->print_js();
 
         print skip_main_destination();
 
         // If replying, print original post here
-        if (!$isdiscussion && !$edit && !$islock) {
+        if (!$isdiscussion && !$edit && !$islock && !$iframe) {
             print '<div class="forumng-replyto">' .
                 $replyto->display(true,
                     array(mod_forumng_post::OPTION_NO_COMMANDS=>true,
@@ -634,8 +654,17 @@ try {
             $mform->set_data($initialvalues);
         }
 
+        // Require JavaScript (form.js).
+        $forum->print_form_js();
+
         // Print form
         $mform->display();
+
+        // In iframe mode, inform parent that iframe has loaded.
+        if ($iframe) {
+            echo html_writer::tag('script', 'window.parent.iframe_has_loaded(window);',
+                    array('type' => 'text/javascript'));
+        }
 
         // Display footer
         print $out->footer();

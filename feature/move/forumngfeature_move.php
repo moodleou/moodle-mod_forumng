@@ -41,16 +41,16 @@ class forumngfeature_move extends forumngfeature_discussion {
     }
 
     private static function sort_ignore_case($a, $b) {
-        $tl = textlib_get_instance();
-        $alower = $tl->strtolower($a);
-        $blower = $tl->strtolower($b);
+        $alower = textlib::strtolower($a);
+        $blower = textlib::strtolower($b);
         return $alower > $blower ? 1 : $alower < $blower ? -1 : 0;
     }
 
     public function display($discussion) {
         // Obtain list of other forums in this course where the user has the
         // 'move discussion' feature
-        $modinfo = get_fast_modinfo($discussion->get_forum()->get_course());
+        $course = $discussion->get_forum()->get_course();
+        $modinfo = get_fast_modinfo($course);
         $results = array();
         foreach ($modinfo->instances['forumng'] as $other) {
             // Don't let user move discussion to its current forum
