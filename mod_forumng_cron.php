@@ -391,7 +391,7 @@ $mainquery", $mainparams);
         return $result;
     }
 
-    function email_digest() {
+    static function email_digest() {
         global $CFG, $PERF;
 
         // Do digest mails if required. Note this is based on server time not
