@@ -321,12 +321,13 @@ FROM
     INNER JOIN {forumng_posts} discussionpost ON fd.postid = discussionpost.id
     INNER JOIN {forumng} f ON fd.forumngid = f.id
     INNER JOIN {course_modules} cm ON f.id = cm.instance
+        AND cm.module = (SELECT id FROM mdl_modules WHERE name='forumng')
     INNER JOIN {context} x ON x.instanceid = cm.id
     INNER JOIN {course} c ON c.id = f.course
     INNER JOIN {forumng} clonef
         ON (clonef.originalcmid = cm.id OR (f.originalcmid IS NULL AND clonef.id = f.id))
     INNER JOIN {course_modules} clonecm ON clonef.id = clonecm.instance
-    INNER JOIN {modules} m ON m.id = cm.module AND m.id = clonecm.module ";
+        AND clonecm.module = (SELECT id FROM mdl_modules WHERE name='forumng')";
     }
 
     protected function get_query_where($time) {
@@ -368,8 +369,7 @@ WHERE
     AND fd.deleted = 0
     AND fp.oldversion = 0
 
-    -- Course-module and context limitations
-    AND m.name = 'forumng'
+    -- Context limitation
     AND x.contextlevel = 70";
         $params = array($time, $mailtime, $safetynet, $safetynet, $time, $time);
         return array($sql, $params);
