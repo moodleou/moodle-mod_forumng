@@ -48,7 +48,7 @@ if (!$post->can_alert($whynot)) {
 
 // Set up page
 $pagename = get_string('alert_pagename', 'forumng');
-$url = new moodle_url('mod/forumng/alert.php', $pageparams);
+$url = new moodle_url('/mod/forumng/alert.php', $pageparams);
 $out = $discussion->init_page($url, $pagename);
 
 // Create the alert form
@@ -167,7 +167,7 @@ if ($fromform = $mform->get_data()) {
     print $out->header();
 
     print $out->box(get_string('alert_feedback', 'forumng'));
-    print $out->continue('discuss.php?' .
+    print $out->continue_button('discuss.php?' .
             $discussion->get_link_params(mod_forumng::PARAM_HTML) . '#p' . $postid);
 
 } else {

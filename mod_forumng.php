@@ -3102,13 +3102,8 @@ WHERE
             // believe this behaviour is acceptable.
             if ($unread==self::UNREAD_BINARY) {
                 // Query to get 0/1 unread discussions count
-                $readtracking = "
-(EXISTS (
-    SELECT
-        1
-    $sharedquerypart
-    )
-) AS f_hasunreaddiscussions";
+                $readtracking = self::select_exists("SELECT 1 $sharedquerypart") .
+                        "AS f_hasunreaddiscussions";
                 $readtrackingparams = $sharedqueryparams;
             } else {
                 // Query to get full unread discussions count
@@ -3173,6 +3168,22 @@ ORDER BY
     public static function search_installed() {
         return @include_once(dirname(__FILE__) .
             '/../../local/ousearch/searchlib.php');
+    }
+
+    /**
+     * Returns the SQL code for an 'exists' to be used in the select list,
+     * surrounded in brackets. This function is used because 'EXISTS' works
+     * differently in MS SQL.
+     * @param string $sql Subquery to be called within exists, e.g. 'SELECT 1'
+     * @return string Exists check SQL e.g. '(EXISTS (SELECT 1))'
+     */
+    public static function select_exists($sql) {
+        global $DB;
+        if ($DB->get_dbfamily() === 'mssql') {
+            return '(SELECT 1 WHERE EXISTS(' . $sql . '))';
+        } else {
+            return '(EXISTS (' . $sql . '))';
+        }
     }
 
     /**
@@ -3714,7 +3725,7 @@ WHERE
                     'client_id' => 666666, // For replace - random unique id
                     'itemid' => 999999, // For replace - draft file area id, attachments field
                     'subdirs' => false,
-                        'accepted_types' => '*',
+                    'accepted_types' => array('*'),
                     'return_types' => 2,
                     'context' => $this->get_context(true) // Real context used for files
                 );

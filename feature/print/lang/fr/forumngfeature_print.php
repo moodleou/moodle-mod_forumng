@@ -15,16 +15,14 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version.
- *
- * @package mod_forumng
- * @copyright 2012 The Open University
+ * Lang strings.
+ * @package forumngfeature
+ * @subpackage print
+ * @copyright 2011 The Open University
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
-$module->version  = 2012081301;
-$module->requires = 2011120100;
-$module->cron     = 60;
-
-// Note: This should be replaced with standard ->maturity and other options.
-$module->displayversion = 'Unstable development version (use at own risk)';
+$string['print'] = 'Imprimer';
+$string['print_pagename'] = 'Version imprimable';
+$string['printedat'] = 'Format&eacute; pour l\'impression &agrave; {$a}';
+$string['back'] = 'A la fin de l\'impression, <a href=\'{$a}\'>retournez &agrave; la discussion</a>. (Cette zone n\'appara&icirc;t pas &agrave; l\'impression.)';
+$string['pluginname'] = 'Impression des messages';

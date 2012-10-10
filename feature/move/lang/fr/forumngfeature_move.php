@@ -15,16 +15,12 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version.
- *
- * @package mod_forumng
- * @copyright 2012 The Open University
+ * Lang strings.
+ * @package forumngfeature
+ * @subpackage move
+ * @copyright 2011 The Open University
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
-$module->version  = 2012081301;
-$module->requires = 2011120100;
-$module->cron     = 60;
-
-// Note: This should be replaced with standard ->maturity and other options.
-$module->displayversion = 'Unstable development version (use at own risk)';
+$string['movethisdiscussionto'] = 'D&eacute;placer cette discussion vers...';
+$string['move_group_info'] = 'Vous &ecirc;tes en train de d&eacute;placer cette discussion vers le forum <strong>{$a}</strong>. Ce forum utilise les groupes. Merci de s&eacute;lectionnez le groupe dans lequel vous souhaitez y d&eacute;placer le message.';
+$string['pluginname'] = 'D&eacute;placement de discussions';

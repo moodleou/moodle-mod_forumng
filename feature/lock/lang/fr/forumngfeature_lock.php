@@ -15,16 +15,16 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version.
- *
- * @package mod_forumng
- * @copyright 2012 The Open University
+ * Lang strings.
+ * @package forumngfeature
+ * @subpackage lock
+ * @copyright 2011 The Open University
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
-$module->version  = 2012081301;
-$module->requires = 2011120100;
-$module->cron     = 60;
-
-// Note: This should be replaced with standard ->maturity and other options.
-$module->displayversion = 'Unstable development version (use at own risk)';
+$string['lock'] = 'Bloquer';
+$string['unlock'] = 'D&eacute;bloquer';
+$string['lockdiscussion'] = 'Bloquer la discussion : {$a}';
+$string['lockdiscussionbutton'] = 'Bloquer la discussion';
+$string['locksubject'] = 'La discussion est maintenant bloqu&eacute;e';
+$string['confirmunlock'] = 'Etes-vous s&ucirc;r de vouloir d&eacute;bloquer la discussion ?';
+$string['pluginname'] = 'Blocage/D&eacute;blocage des discussions';

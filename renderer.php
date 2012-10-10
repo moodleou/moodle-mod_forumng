@@ -1491,7 +1491,6 @@ class mod_forumng_renderer extends plugin_renderer_base {
      */
     public function render_search_form($querytext, $linkfields, $help='') {
         $strsearchthisactivity = get_string('searchthisforum', 'forumng');
-        $queryhtml = htmlspecialchars($querytext);
         $out = html_writer::start_tag('form', array('action' => 'search.php', 'method' => 'get'));
         $out .= html_writer::start_tag('div');
         $out .= $linkfields;
@@ -1499,7 +1498,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
                 array('for' => 'forumng_searchquery'));
         $out .= $help;
         $out .= html_writer::empty_tag('input', array('type' => 'text', 'name' => 'query',
-                'id' => 'forumng_searchquery', 'value' => $queryhtml));
+                'id' => 'forumng_searchquery', 'value' => $querytext));
         $out .= html_writer::empty_tag('input', array('type' => 'submit',
                 'id' => 'ousearch_searchbutton', 'value' => '', 'alt' => get_string('search'),
                 'title' => get_string('search')));
