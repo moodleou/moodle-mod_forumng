@@ -1784,14 +1784,14 @@ WHERE
         }
 
         // If there is cached data, use it
-        if ($this->groupscache) {
+        if ($this->groupscache && $cacheall) {
             if (!array_key_exists($userid, $this->groupscache)) {
                 // This can happen in rare cases when sending out email. If there
                 // is only one post from user X in a discussion, and that post is
                 // deleted/moved to another discussion between when it gets the
                 // list of all posts and when it tries to cache this list of groups
-                // for the individual discussion, then you will get this exception.
-                throw new coding_exception("Unknown discussion user");
+                // for the individual discussion.
+                return $this->get_user_groups($userid, false);// Re-call to use code below.
             }
             return $this->groupscache[$userid];
         }
