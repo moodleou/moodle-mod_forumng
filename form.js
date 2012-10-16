@@ -90,5 +90,5 @@ M.mod_forumng_form = {
                 savedraft.set('disabled', disable);
             }
         }, 250);
-    },
-}
+    }
+};
