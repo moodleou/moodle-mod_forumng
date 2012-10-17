@@ -27,16 +27,18 @@
 
 require_once('../../config.php');
 require_once($CFG->dirroot . '/mod/forumng/mod_forumng.php');
-require_capability('moodle/site:config', context_system::instance());
+// require_capability('moodle/site:config', context_system::instance());
 
 $cmid = required_param('id', PARAM_INT);
 $cloneid = optional_param('clone', 0, PARAM_INT);
 
 $forum = mod_forumng::get_from_cmid($cmid, $cloneid);
 $cm = $forum->get_course_module();
+require_login($cm->course, false, $cm);
+require_capability('moodle/restore:restoreactivity', $cm->context);
 mod_forumng::search_installed();
-
+$PAGE->set_url('/mod/forumng/rebuildsearchindex.php', array('id' => $cmid, 'clone' => $cloneid));
 // This script is not very user friendly. Once it finishes, it's done...
-print_header();
+echo $OUTPUT->header();
 mod_forumng::search_update_all(true, $cm->course, $cm->id);
-print_footer();
+echo $OUTPUT->footer();

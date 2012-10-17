@@ -3197,7 +3197,7 @@ ORDER BY
      */
     public static function search_update_all($feedback=false, $courseid=0, $cmid=0) {
         global $DB;
-
+        raise_memory_limit(MEMORY_EXTRA);
         // If cmid is specified, only retrieve that one
         if ($cmid) {
             $cmrestrict = "cm.id = ? AND";
@@ -3225,11 +3225,8 @@ WHERE
                 '<strong>'.count($cms).'</strong>') . '</li>';
         }
 
-        // This can take a while, so let's be sure to reset the time limit.
-        // Store the existing limit; we will set this existing value again
-        // each time around the loop. Note: Despite the name, ini_get returns
-        // the most recently set time limit, not the one from php.ini.
-        $timelimitbefore = ini_get('max_execution_time');
+        // This can take a while, so let's be sure to have a long time limit.
+        $timelimitbefore = 300;
 
         // Loop around updating
         foreach ($cms as $cm) {
@@ -3260,6 +3257,7 @@ WHERE
                 $root = $discussion->get_root_post();
                 $root->search_update();
                 $root->search_update_children();
+                $root = null;
                 print '. ';
                 flush();
             }
