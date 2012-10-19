@@ -224,7 +224,7 @@ class restore_forumng_activity_structure_step extends restore_activity_structure
     }
 
     protected function after_execute() {
-        global $DB;
+        global $DB, $CFG;
 
         // Add forumng related files, no need to match by
         // itemname (just internally handled context)
@@ -248,5 +248,11 @@ UPDATE {forumng_discussions} SET lastpostid=(
         AND fp.oldversion=0
         AND fp.deleted=0
 ) WHERE forumngid = ?", array($this->forumngid));
+
+        require_once($CFG->dirroot . '/mod/forumng/mod_forumng.php');
+        // Create search index if user data restored.
+        if ($this->get_setting_value('userinfo') && mod_forumng::search_installed()) {
+            mod_forumng::search_update_all(false, $this->get_courseid(), $this->task->get_moduleid());
+        }
     }
 }
