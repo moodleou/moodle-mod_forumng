@@ -594,9 +594,11 @@ class mod_forumng_discussion {
                 $linear = array();
                 $this->rootpost->build_linear_children($linear);
                 $nextunread = array();
+                $dump = '';
                 foreach ($linear as $index=>$post) {
                     $nextunread[$index] = null;
-                    if ($post->is_unread()) {
+                    if ($post->is_unread() &&
+                            (!$post->get_deleted() || $post->can_undelete($dump))) {
                         for ($j = $index-1; $j>=0; $j--) {
                             if ($nextunread[$j]) {
                                 break;
@@ -608,7 +610,8 @@ class mod_forumng_discussion {
                 $previous = null;
                 foreach ($linear as $index=>$post) {
                     $post->set_unread_list($nextunread[$index], $previous);
-                    if ($post->is_unread()) {
+                    if ($post->is_unread() &&
+                            (!$post->get_deleted() || $post->can_undelete($dump))) {
                         $previous = $post;
                     }
                 }
