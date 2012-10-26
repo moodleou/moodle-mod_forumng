@@ -664,7 +664,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
             $submit = 'submitunsubscribe';
             $button = get_string('unsubscribediscussion', 'forumng');
         }
-        return '<div class="forumng-subscribe-options" id="forumng-subscribe-options">' .
+        return '<div class="clearfix"></div><div class="forumng-subscribe-options" id="forumng-subscribe-options">' .
             '<h3>' . get_string('subscription', 'forumng') . '</h3>' .
             '<p>' . $status .
             '</p>' . '&nbsp;<form action="subscribe.php" method="post"><div>' .
@@ -1083,7 +1083,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
             }
 
             if ($html) {
-                $out .= $lf . '<div class="forumng-postfooter">';
+                $out .= $lf . '<div class="clear forumng-postfooter">';
             }
 
             // Ratings

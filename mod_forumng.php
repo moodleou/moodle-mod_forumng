@@ -3667,86 +3667,84 @@ WHERE
             return;
         }
 
-        if (ajaxenabled()) {
-            // Prepare strings
-            $mainstrings = array(
-                'rate' => null,
-                'expand' => '#',
-                'jserr_load' => null,
-                'jserr_save' => null,
-                'jserr_alter' => null,
-                'jserr_attachments' => null,
-                'confirmdelete' => null,
-                'confirmundelete' => null,
-                'deleteemailpostbutton' => null,
-                'deletepostbutton' => null,
-                'undeletepostbutton' => null,
-                'js_nratings' => null,
-                'js_nratings1' => null,
-                'js_nopublicrating' => null,
-                'js_publicrating' => null,
-                'js_nouserrating' => null,
-                'js_userrating' => null,
-                'js_outof' => null,
-                'js_clicktosetrating' => null,
-                'js_clicktosetrating1' => null,
-                'js_clicktoclearrating' => null,
-                'selectlabel' => null,
-                'selectintro' => null,
-                'confirmselection' => null,
-                'selectedposts' => null,
-                'discussion' => null,
-                'selectorall' => null,
-                'flagon' => null,
-                'flagoff' => null,
-                'clearflag' => null,
-                'setflag' => null);
-            if ($this->has_post_quota()) {
-                $mainstrings['quotaleft_plural'] = (object)array(
-                    'posts'=>'#', 'period' => $this->get_max_posts_period(true, true));
-                $mainstrings['quotaleft_singular'] = (object)array(
-                    'posts'=>'#', 'period' => $this->get_max_posts_period(true, true));
-            }
-            $stringlist = array();
-            foreach ($mainstrings as $string => $value) {
-                $stringlist[] = array($string, 'forumng', $value);
-            }
-            foreach (array('cancel', 'delete', 'add', 'selectall', 'deselectall') as $string) {
-                $stringlist[] = array($string, 'moodle');
-            }
+        // Prepare strings
+        $mainstrings = array(
+            'rate' => null,
+            'expand' => '#',
+            'jserr_load' => null,
+            'jserr_save' => null,
+            'jserr_alter' => null,
+            'jserr_attachments' => null,
+            'confirmdelete' => null,
+            'confirmundelete' => null,
+            'deleteemailpostbutton' => null,
+            'deletepostbutton' => null,
+            'undeletepostbutton' => null,
+            'js_nratings' => null,
+            'js_nratings1' => null,
+            'js_nopublicrating' => null,
+            'js_publicrating' => null,
+            'js_nouserrating' => null,
+            'js_userrating' => null,
+            'js_outof' => null,
+            'js_clicktosetrating' => null,
+            'js_clicktosetrating1' => null,
+            'js_clicktoclearrating' => null,
+            'selectlabel' => null,
+            'selectintro' => null,
+            'confirmselection' => null,
+            'selectedposts' => null,
+            'discussion' => null,
+            'selectorall' => null,
+            'flagon' => null,
+            'flagoff' => null,
+            'clearflag' => null,
+            'setflag' => null);
+        if ($this->has_post_quota()) {
+            $mainstrings['quotaleft_plural'] = (object)array(
+                'posts'=>'#', 'period' => $this->get_max_posts_period(true, true));
+            $mainstrings['quotaleft_singular'] = (object)array(
+                'posts'=>'#', 'period' => $this->get_max_posts_period(true, true));
+        }
+        $stringlist = array();
+        foreach ($mainstrings as $string => $value) {
+            $stringlist[] = array($string, 'forumng', $value);
+        }
+        foreach (array('cancel', 'delete', 'add', 'selectall', 'deselectall') as $string) {
+            $stringlist[] = array($string, 'moodle');
+        }
 
-            // Use star ratings where the scale is between 2 and 5 (3 and 6 stars)
-            $out = mod_forumng_utils::get_renderer();
-            $scale = $this->get_rating_scale();
-            if ($scale > 1 && $scale < 6) {
-                $ratingstars = $scale;
-            } else {
-                $ratingstars = 0;
-            }
-            $starurls = array();
-            foreach (array('circle', 'star') as $base) {
-                foreach (array('y', 'n') as $user) {
-                    foreach (array('y', 'n') as $public) {
-                        $key = "$base-$user-$public";
-                        $starurls[$key] = $out->pix_url($key, 'forumng')->out(false);
-                    }
+        // Use star ratings where the scale is between 2 and 5 (3 and 6 stars)
+        $out = mod_forumng_utils::get_renderer();
+        $scale = $this->get_rating_scale();
+        if ($scale > 1 && $scale < 6) {
+            $ratingstars = $scale;
+        } else {
+            $ratingstars = 0;
+        }
+        $starurls = array();
+        foreach (array('circle', 'star') as $base) {
+            foreach (array('y', 'n') as $user) {
+                foreach (array('y', 'n') as $public) {
+                    $key = "$base-$user-$public";
+                    $starurls[$key] = $out->pix_url($key, 'forumng')->out(false);
                 }
             }
-
-            $module = array(
-                'name'      => 'mod_forumng',
-                'fullpath'  => '/mod/forumng/module.js',
-                'requires'  => array('base', 'node', 'node-event-simulate', 'dom', 'event', 'io',
-                    'anim', 'json-parse'),
-                'strings'   => $stringlist
-            );
-            $PAGE->requires->js_init_call('M.mod_forumng.init',
-                    array($cmid ? $cmid : 0,
-                        $this->is_shared() ? $this->get_course_module_id() : 0,
-                        $ratingstars, $this->get_remaining_post_quota(),
-                        $out->pix_url('i/ajaxloader')->out(false), $starurls),
-                    false, $module);
         }
+
+        $module = array(
+            'name'      => 'mod_forumng',
+            'fullpath'  => '/mod/forumng/module.js',
+            'requires'  => array('base', 'node', 'node-event-simulate', 'dom', 'event', 'io',
+                'anim', 'json-parse'),
+            'strings'   => $stringlist
+        );
+        $PAGE->requires->js_init_call('M.mod_forumng.init',
+                array($cmid ? $cmid : 0,
+                    $this->is_shared() ? $this->get_course_module_id() : 0,
+                    $ratingstars, $this->get_remaining_post_quota(),
+                    $out->pix_url('i/ajaxloader')->out(false), $starurls),
+                false, $module);
     }
 
     // Feeds

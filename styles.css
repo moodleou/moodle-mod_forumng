@@ -534,7 +534,6 @@ ul.forumng-commands li.forumng-replylink {
 */
 
 #page-mod-forumng-discuss iframe.forumng-inlineform {
-    width: 100%;
     border: none;
     overflow: hidden;
 }
@@ -897,7 +896,6 @@ padding-top: 1em;
     vertical-align: -3px;
 }
 
-
 #delete-form-html {
-	display: none;
+    display: none;
 }

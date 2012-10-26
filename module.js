@@ -148,10 +148,12 @@ M.mod_forumng = {
 
         // To avoid having nested forms (breaks IE), remove the non-JS action form
         var div = this.Y.one('#forumng-actionform > div');
-        var form = div.get('parentNode');
-        div.remove();
-        form.get('parentNode').insertBefore(div, form);
-        form.remove();
+        if (div) {
+            var form = div.get('parentNode');
+            div.remove();
+            form.get('parentNode').insertBefore(div, form);
+            form.remove();
+        }
 
         // Set up magic links
         this.forumng_expirelinks = [];
@@ -366,7 +368,6 @@ M.mod_forumng = {
 
         var iframe = this.Y.one(document.createElement('iframe'));
         iframe.set('className', 'forumng-inlineform');
-        iframe.set('width', 500);
         iframe.set('height', 500);
         src += '&iframe=1';
         iframe.set('src', src);
@@ -381,9 +382,29 @@ M.mod_forumng = {
                 if(doc.body.offsetHeight != Number(iframe.get('height'))) {
                     iframe.set('height', doc.body.offsetHeight);
                 }
+
+                // Check if the mobile view is activated, if so, then we align the
+                // iframe to the top left position and make it dominate the whole page,
+                // which basically make it behave like a pop-up overlay dialog.
+                //
+                // Create + set M.is_mobile in the mobile theme to activate.
+                if (M.is_mobile) {
+                    iframe.setStyle('position', 'fixed');
+                    iframe.setStyle('top', '0px');
+                    iframe.setStyle('left', '0px');
+                    iframe.setStyle('z-index', '999');
+                    iframe.setStyle('height', '100%');
+                    iframe.setStyle('width', '100%');
+                    iframe.focus();
+                    window.scrollTo(0, 0);
+                } else {
+					if (iframe.get('parentNode')) {
+						iframe.set('width', iframe.get('parentNode').getComputedStyle('width'));
+					}
+				}
             };
             fix_height();
-            innerwin.setInterval(fix_height, 200);
+            setTimeout(fix_height, 800);
 
             // Add cancel handler that just removes the iframe.
             doc.getElementById('id_cancel').onclick = function(e) {
@@ -446,45 +467,46 @@ M.mod_forumng = {
 
             // Function that gets called when the iframe has completed successfully.
             window.iframe_success = function(innerwin) {
-                // Remove the iframe.
-                t.remove_iframe(iframe);
-                window.iframe_success = null;
-
-                // Add item just in front of existing post, then delete existing
+                // Add item just in front of existing post, then delete existing.
                 var scriptcommands = [];
                 var newpost = t.prepare_new_post(innerwin, scriptcommands);
                 post.get('parentNode').insertBefore(newpost, post);
                 post.get('parentNode').removeChild(post);
 
-                // Run script commands
+                // Run script commands.
                 for (var i=0; i<scriptcommands.length; i++) {
                     eval(scriptcommands[i]);
                 }
 
-                // For discussion, do special handling
+                // For discussion, do special handling.
                 if (rootpost) {
-                    // Get subject and remove its node
+                    // Get subject and remove its node.
                     var subjectinput = newpost.one('input[name=discussion_subject]');
                     var subject = subjectinput.get('value');
                     subjectinput.remove();
 
-                    // Find breadcrumb that displays subject (last <li>)
+                    // Find breadcrumb that displays subject (last <li>).
                     var navbaritems = t.Y.one('#page-header .navbar ul').all('li');
                     var breadcrumb = navbaritems.item(navbaritems.size() - 1);
 
-                    // Find the span in this (last span)
+                    // Find the span in this (last span).
                     var list = breadcrumb.all('span');
                     var lastspan = list.item(list.size() - 1);
 
-                    // Text is inside here, replace it
+                    // Text is inside here, replace it.
                     if (lastspan) {
                         lastspan.get('childNodes').each(function(node, index, list) { node.remove(); });
                         lastspan.appendChild(document.createTextNode(' ' + subject));
                     }
                 }
 
-                // Sort out links
+                // Sort out links.
                 t.init_content(newpost);
+
+                // Remove the iframe.
+                // This needs to be palced here for mobile devices to work.
+                t.remove_iframe(iframe);
+                window.iframe_success = null;
             };
         }, this);
     },
@@ -541,11 +563,7 @@ M.mod_forumng = {
 
             // Function that gets called when the iframe has completed successfully.
             window.iframe_success = function(innerwin) {
-                // Remove the iframe.
-                t.remove_iframe(iframe);
-                window.iframe_success = null;
-
-                // Get replies div
+                // Get replies div.
                 var replies;
                 if (post.get('nextSibling')
                     && post.get('nextSibling').hasClass('forumng-replies')) {
@@ -558,23 +576,23 @@ M.mod_forumng = {
                     t.apply_stop_indents();
                 }
 
-                // Add item there
+                // Add item there.
                 var scriptcommands = [];
                 var newpost = t.prepare_new_post(innerwin, scriptcommands);
                 replies.appendChild(newpost);
 
-                // Run script commands
+                // Run script commands.
                 for (var i=0; i<scriptcommands.length; i++) {
                     eval(scriptcommands[i]);
                 }
 
-                // Set up JavaScript behaviour in new post
+                // Set up JavaScript behaviour in new post.
                 t.init_content(newpost);
 
-                // Scroll to it
+                // Scroll to it.
                 t.scroll_page(newpost, null);
 
-                // Update quota left
+                // Update quota left.
                 if (t.quotaleft > 0) {
                     t.quotaleft--;
 
@@ -583,9 +601,14 @@ M.mod_forumng = {
                         t.kill_reply_links(document);
                     }
                 }
+
+                // Remove the iframe.
+                // This needs to be palced here for mobile devices to work.
+                t.remove_iframe(iframe);
+                window.iframe_success = null;
             };
 
-            // Mark that we've got a reply there
+            // Mark that we've got a reply there.
             iframe.replytoid = replytoid;
 
             var quotaDiv = this.Y.one('#id_postlimit1');
@@ -986,7 +1009,10 @@ M.mod_forumng = {
         }
 
         var expander = new forumng_expander(link.post);
-        link.post.get('parentNode').insertBefore(newpost, link.post);
+        var linkpostparent = link.post.get('parentNode');
+        if (linkpostparent) {
+            linkpostparent.insertBefore(newpost, link.post);
+        }
         link.post.remove();
 
         // Run script commands
