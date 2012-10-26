@@ -156,12 +156,17 @@ class mod_forumng_mod_form extends moodleform_mod {
         $mform->addHelpButton('ratingthreshold', 'ratingthreshold', 'forumng');
         $mform->disabledIf('ratingthreshold', 'enableratings', 'notchecked');
 
-        // Grading
+        // Grading.
+        $mform->addElement('header', '', get_string('grading', 'forumng'));
+
         $mform->addElement('select', 'grading', get_string('grade'),
             mod_forumng::get_grading_options());
         $mform->setDefault('grading', mod_forumng::GRADING_NONE);
         $mform->addHelpButton('grading', 'grading', 'forumng');
-        $mform->disabledIf('grading', 'enableratings', 'notchecked');
+
+        $mform->addElement('modgrade', 'gradingscale', get_string('gradingscale', 'forumng'));
+        $mform->disabledIf('gradingscale', 'grading', 'ne', mod_forumng::GRADING_MANUAL);
+        $mform->setDefault('gradingscale', 5);
 
         // Blocking header
         //////////////////
@@ -327,6 +332,15 @@ class mod_forumng_mod_form extends moodleform_mod {
                 }
             }
         }
+
+        // If grading is set to ratings and ratings not enabled.
+        if (!empty($data['grading'])) {
+            if ( ($data['grading'] > 0 && $data['grading'] < 6) && (empty($data['enableratings'])) ) {
+                // If grading between 1 and 5 (not = 6 and not = 0) and enableratings is empty (not checked).
+                $errors['enableratings'] = get_string('error_ratingrequired', 'forumng');
+            }
+        }
+
         return $errors;
     }
 
@@ -401,6 +415,9 @@ class mod_forumng_mod_form extends moodleform_mod {
                 get_string('completionrepliesgroup', 'forumng'), array(' '), false);
         $mform->addHelpButton('completionrepliesgroup', 'completionrepliesgroup', 'forumng');
         $mform->disabledIf('completionreplies', 'completionrepliesenabled', 'notchecked');
+
+        // Restriction for grade completion
+        $mform->disabledIf('completionusegrade', 'grading', 'eq', 0);
 
         return array('completiondiscussionsgroup',
                 'completionrepliesgroup', 'completionpostsgroup');

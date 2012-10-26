@@ -1,0 +1,46 @@
+== OU ForumNG Grading Feature ==
+
+=== Description ===
+
+Display user participation within forumNG.
+
+Participation is defined as:
+
+* discussions created
+* posts replied to
+
+=== Capability requirements ===
+
+A user will be considered as participating in a forum if they have the capability to create a discussion and reply to a post within
+the context of the current forum instance and are not considered an adminstrator
+by standard Moodle legacy roles and capabilities.
+
+A user who has the capability '''mod/forumng:grade''' and has access to the current forum
+can view all user participation, subject to the groupmode settings and their membership of those groups.
+(A user who has the capability '''moodle/site:accessallgroups''' will be able to see all groups regardless of
+personal membership).
+
+=== Grading page display ===
+
+From the foum page the button to access the grading screens is 'view posts by user' which takes you to the user list screen.
+If you have the ability to '''mod/forumng:grade''' you will be presented with a Grade dropdown for each user. This screen will
+allow you to grade each user.
+
+To view an individual user's participation click on the link 'Show all posts by <name>'. This will take you to a screen containing
+that user's posts including replies and any discussion start posts if they started a discussion.
+If you have the ability to '''mod/forumng:grade''' you will see a Grade dropdown for that user.
+
+=== Grading ===
+
+A user with the capability ''mod/forumng:grade'' in relation to the current forum has the ability to add grade values.
+This can either be done as a bulk action on the '''View posts by user''' page or as a single update on the more detailed
+single user page.
+
+Grading will only be available if it has been set for the particular forum instance
+in the '''ForumNG administration''' '''Edit settings''' screen.
+
+To grade on the main 'User posts' list screen - you can change one or more grade dropdowns,
+then you must click the 'Save grades' button.
+
+To grade an individual named user's posts - you need to goto to the bottom of the page, choose a grade from the dropdown box,
+then you must click the 'Save grades' button.

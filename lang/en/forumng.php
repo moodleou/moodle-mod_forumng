@@ -76,7 +76,7 @@ $string['ratingtime'] = 'Restrict ratings to posts with dates in this range:';
 $string['ratings'] = 'Ratings';
 $string['grading'] = 'Grade';
 $string['grading_help'] = 'If you select this option, a grade for this forum will be added to the
-course gradebook and calcualted automatically. Leave this off for a non-assessed forum, or one you
+course gradebook and calculated automatically. Leave this off for a non-assessed forum, or one you
 plan to assess manually.
 
 The different ways to calculate grading are fairly self-explanatory; in each case, the grade for
@@ -114,6 +114,7 @@ $string['readafterdays'] = 'Read after days';
 $string['configreadafterdays'] = 'After this number of days, posts are considered to have been read
 by all users.';
 $string['trackreadposts'] = 'Track unread posts';
+$string['teacher_grades_students'] = 'Teacher grades students';
 $string['grading_average'] = 'Average of ratings';
 $string['grading_count'] = 'Count of ratings';
 $string['grading_max'] = 'Maximum rating';
@@ -140,6 +141,7 @@ $string['forumng:editanypost'] = 'Edit any post';
 $string['forumng:managesubscriptions'] = 'Manage subscriptions';
 $string['forumng:movediscussions'] = 'Move discussions';
 $string['forumng:rate'] = 'Rate posts';
+$string['forumng:grade'] = 'Grade posts';
 $string['forumng:replypost'] = 'Reply to posts';
 $string['forumng:splitdiscussions'] = 'Split discussions';
 $string['forumng:startdiscussion'] = 'Start new discussions';
@@ -515,11 +517,11 @@ $string['switchto_simple_link']='Switch to simple view.';
 $string['switchto_standard_link']='Switch to standard view.';
 $string['displayversion'] = 'ForumNG version: <strong>{$a}</strong>';
 
-// OU only
+// OU only.
 $string['externaldashboardadd'] = 'Add forum to dashboard';
 $string['externaldashboardremove'] = 'Remove forum from dashboard';
 
-// New error strings
+// New error strings.
 $string['error_fileexception'] = 'A file processing error occurred. This is likely to be caused by
 system problems. You may wish to try again later.';
 $string['error_subscribeparams'] = 'Parameters incorrect: requires either id or course or d.';
@@ -698,6 +700,7 @@ $string['error_sharinginuse'] = 'You cannot turn sharing off for this forum beca
 already forums that share it. If necessary, delete these other forums first.';
 $string['error_nosharedforum'] = 'Forum <strong>{$a->name}</strong>: Could not restore as shared
 forum; ID number {$a->idnumber} not found. Restored forum is an independent forum.';
+$string['error_ratingrequired'] = 'Grading chosen to be based on ratings, but ratings not enabled';
 
 $string['advancedsearch'] = 'Advanced search';
 $string['words'] = 'Search for';
@@ -803,3 +806,6 @@ Example: the search term <tt>picasso -sculpture &quot;early works&quot;</tt> wil
 To search by author or date, click &lsquo;More options&rsquo;.';
 
 $string['notext'] = '(no text)';
+
+$string['grade'] = 'Grade';
+$string['gradingscale'] = 'Grading scale';

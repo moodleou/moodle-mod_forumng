@@ -79,6 +79,8 @@ class mod_forumng {
     const GRADING_MIN = 4;
     /** Grading: Sum of ratings. */
     const GRADING_SUM = 5;
+    /** Grading: Teacher grades students */
+    const GRADING_MANUAL = 6;
 
     /** Feed type: No feeds provided. */
     const FEEDTYPE_NONE = 0;
@@ -247,6 +249,7 @@ class mod_forumng {
     public static function get_grading_options() {
         return array (
             self::GRADING_NONE => get_string('grading_none', 'forumng'),
+            self::GRADING_MANUAL => get_string('teacher_grades_students', 'forumng'),
             self::GRADING_AVERAGE => get_string('grading_average', 'forumng'),
             self::GRADING_COUNT => get_string('grading_count', 'forumng'),
             self::GRADING_MAX => get_string('grading_max', 'forumng'),
@@ -401,6 +404,14 @@ class mod_forumng {
             && ($created == 0 || $this->forumfields->ratinguntil==0
                 || $created<$this->forumfields->ratinguntil)
             && has_capability('mod/forumng:rate', $this->get_context());
+    }
+
+    /**
+     * @return bool True if current user can grade a user
+     */
+    public function can_grade() {
+        return $this->get_grading() == self::GRADING_MANUAL
+            && has_capability('mod/forumng:grade', $this->get_context());
     }
 
     /** @return int ID of course that contains this forum */
@@ -668,6 +679,14 @@ WHERE
     /** @return int GRADING_xx constant */
     public function get_grading() {
         return $this->forumfields->grading;
+    }
+
+    /**
+     * @return int Scale used for ratings; 0 = disable,
+     *   positive integer = 0..N scale, negative integer = defined scale
+     */
+    public function get_grading_scale() {
+        return $this->forumfields->gradingscale;
     }
 
     /**

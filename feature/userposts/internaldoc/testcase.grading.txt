@@ -1,0 +1,110 @@
+This script describes steps to test the participation facility from a user
+perspective. It is intended to cover most of the UI and features.
+
+NOTE: In this test case, the word 'forum' always refers to the OU ForumNG.
+
+The test steps in this script follow on from each other and aren't independent.
+
+Initial setup
+=============
+
+This test case requires:
+
+- a course which has at least two groups defined (G1 and G2).
+- two test student users (U.S1, who is in group G1, and U.S2, in group G2).
+- one editing teacher (U.ET)
+
+The test server must have debugging set to DEVELOPER level and to display
+errors; during all parts of the test script, there should be no debugging
+warnings.
+
+The completion system must be enabled for (a) the site, and (b) the test
+course.
+
+CRE Creating forums and data
+============================
+
+CRE01 / admin
+  In your test course, create a forum called CRE01
+  Edit forum settings so that:
+  Under 'Grade' settings
+  Choose 'Teacher grades student' from Grade dropdown
+  Set 'Grading scale' to 100
+
+  Under 'Common module' settings
+  Choose 'Seperate groups' from Group mode
+  Leave 'Grouping' set to 'None'
+  Leave 'Visible' to 'Show'
+
+  Click on Save and display submit button
+
+CRE02 / admin
+  Go into the forum you have just created and start a seperate discussion for each group
+  For each discussion create a post
+
+CRE03 / U.S1 [change]
+  Go to forum CRE01 (you should be in group G1).
+  Reply to start discussion post created by admin user
+
+CRE04 / U.S2 [change]
+  Go to forum CRE01 (you should be in group G2).
+  Reply to start discussion post created by admin user
+
+CRE04 / U.ET [change]
+  Go to forum CRE01.
+  Click against 'View posts by user'
+
+GRD Grading
+===========
+
+GRD01 / U.ET
+ This should bring up a screen entitled User posts
+ It should show the student user
+ The number of Discussions started by that user
+ The number of Replies to posts
+ Grades per user, this is a dropdown that anybody with 'mod/forumng:grade' can be used to grade a user
+ - currently the only people that can grade a user are admin, teacher, editing teacher, and manager.
+ Check the grade dropdown to see that it contains a 'No grade' option and grades between 0/100 - 100/100
+ Note: 100 should be the value you set the scale at when you edited the forum settings
+ Choose 77 as a grade/score
+ Note: All users if you can grade them will have grade dropdown box even if they have not yet taken part in the forum
+ which will be set to a score of 'No grade'.
+ Click on Save Grades which will save the grades.
+ Click on the link that says 'Show all posts by <name>'
+
+GRD02 / U.ET
+ This takes you to a screen showing all posts by that user (including replies and discussions stated)
+ At the end of the posts is a section entitled 'User grade'
+ The Grade dropdown should be showing a grade of 77/100, which is the grade you set for that user on the previous screen
+ Change the grade to 95/100
+ Click on the Save changes button
+
+ This takes you back to the 'User posts' screen
+ Check to see that the Grade dropdown is showing 95/100 as the score against that user
+
+ GRD03 / U.ET
+ Click against Course administration on the left hand side
+ Click on the Grades icon/link in the now opened Course administration menu
+ This should bring up Grader report which shows all student participants
+ Student 1 should have a score of 95 for them under the forum heading whilst student 2 will have a score of 0
+ Check that the average scores shown for the forum and course are correct
+
+RGD Retest with grading disabled
+================================
+
+ RGD01 / admin[change]
+ Edit forum CRE01 settings so that:
+Under 'Grade' settings
+Choose 'No Grades' from Grade dropdown
+- This should gray out and make the 'Grading scale' dropdown non-active
+
+ RGD02 / U.ET [change]
+ Go to forum CRE01.
+ Click against 'View posts by user'
+
+ RGD03 / U.ET
+ This should bring up a screen entitled User posts
+ It should show the student user
+ The number of Discussions started by that user
+ The number of Replies to posts
+ Under Grades no grading information or dropdown grading list should be shown

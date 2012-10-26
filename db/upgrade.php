@@ -25,10 +25,29 @@
 function xmldb_forumng_upgrade($oldversion=0) {
     global $CFG, $THEME, $DB;
 
+    $dbman = $DB->get_manager();
+
     if ($oldversion < 2012070900) {
         // Changed format of modinfo cache, so need to rebuild all courses.
         rebuild_course_cache(0, true);
         upgrade_mod_savepoint(true, 2012070900, 'forumng');
+    }
+
+    if ($oldversion < 2012102601) {
+        // Define field gradingscale to be added to forumng.
+        $table = new xmldb_table('forumng');
+        $field = new xmldb_field('gradingscale', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'grading');
+
+        // Launch add field gradingscale.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Changed format of modinfo cache, so need to rebuild all courses.
+        rebuild_course_cache(0, true);
+
+        // ForumNG savepoint reached.
+        upgrade_mod_savepoint(true, 2012102601, 'forumng');
     }
 
     return true;

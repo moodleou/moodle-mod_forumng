@@ -37,7 +37,7 @@ $capabilities = array(
         )
     ),
 
-    // Ability to add new forumng to a course
+    // Ability to add new forumng to a course.
     'mod/forumng:addinstance' => array(
         'riskbitmask' => RISK_XSS,
 
@@ -299,6 +299,17 @@ $capabilities = array(
     'mod/forumng:copydiscussion' => array(
 
         'captype' => 'read',
+        'contextlevel' => CONTEXT_MODULE,
+        'archetypes' => array(
+            'teacher' => CAP_ALLOW,
+            'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW
+        )
+    ),
+
+    'mod/forumng:grade'  => array(
+
+        'captype' => 'write',
         'contextlevel' => CONTEXT_MODULE,
         'archetypes' => array(
             'teacher' => CAP_ALLOW,

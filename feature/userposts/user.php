@@ -27,6 +27,7 @@
 
 require_once('../../../../config.php');
 require_once($CFG->dirroot . '/mod/forumng/mod_forumng.php');
+require_once($CFG->dirroot . '/mod/forumng/feature/userposts/locallib.php');
 
 $cmid = required_param('id', PARAM_INT);
 $userid = required_param('user', PARAM_INT);
@@ -56,13 +57,13 @@ if ($forum->is_shared() || $forum->is_clone()) {
     throw new invalid_parameter_exception("Not supported for shared forums.");
 }
 
-// Check access
+// Check access.
 $forum->require_view($groupid);
 require_capability('forumngfeature/userposts:view', $forum->get_context());
 
 $posts = $forum->get_all_posts_by_user($userid, $groupid);
 
-// Set pagename
+// Set pagename.
 if ($posts) {
     $post = reset($posts);
     $user = $post->get_user();
@@ -80,13 +81,13 @@ $pageurl = new moodle_url('/mod/forumng/feature/userposts/user.php', $pageparams
 $out = $forum->init_page($pageurl, $pagename, array($prevpage=>$prevurl));
 print $out->header();
 
-foreach ($posts as $postid=>$post) {
+foreach ($posts as $postid => $post) {
     print "<div class='forumng-userpostheading'>";
 
-    // Get URL to post
+    // Get URL to post.
     print '<a href="' . s($post->get_url()) . '">';
 
-    // If this post is a reply, then print a link to the discussion
+    // If this post is a reply, then print a link to the discussion.
     if (!$post->is_root_post()) {
         print get_string('replyin', 'forumngfeature_userposts',
                 $post->get_discussion()->get_subject());
@@ -95,15 +96,20 @@ foreach ($posts as $postid=>$post) {
     }
     print "</a></div>";
 
-    // Display this post
+    // Display this post.
     $options = array(
        mod_forumng_post::OPTION_NO_COMMANDS => true,
        mod_forumng_post::OPTION_FIRST_UNREAD => false,
        mod_forumng_post::OPTION_UNREAD_NOT_HIGHLIGHTED => true);
     print $post->display(true, $options);
 }
-// Display link to the discussion
+
+if ($forum->can_grade()) {
+    forumngfeature_userposts_display_user_grade( $cm->id, $forum, $user, $groupid);
+}
+
+// Display link to the discussion.
 print link_arrow_left($prevpage, 'list.php?id=' . $cmid);
 
-// Display footer
+// Display footer.
 print $out->footer();

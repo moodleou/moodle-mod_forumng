@@ -30,3 +30,8 @@ $string['replyin'] = 'Reply in discussion: {$a}';
 $string['userposts:view'] = 'View list of posts by user';
 $string['pluginname'] = 'View posts by user';
 $string['action'] = 'Action';
+
+// User participation.
+$string['savegrades'] = 'Save grades';
+$string['usergrade'] = 'User grade';
+$string['gradesupdated'] = 'Grades updated';

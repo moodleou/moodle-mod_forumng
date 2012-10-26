@@ -899,3 +899,13 @@ padding-top: 1em;
 #delete-form-html {
     display: none;
 }
+
+/*
+// forumfeature save grades
+///////////////////////////
+*/
+.savegradeform {
+    border-radius: 5px 5px 5px 5px;
+    max-width: 100%;
+    padding: 10px;
+}
