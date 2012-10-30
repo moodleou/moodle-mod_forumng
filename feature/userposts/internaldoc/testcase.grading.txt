@@ -82,12 +82,41 @@ GRD02 / U.ET
  This takes you back to the 'User posts' screen
  Check to see that the Grade dropdown is showing 95/100 as the score against that user
 
- GRD03 / U.ET
+GRD03 / U.ET
+ Select 'Download table data as'
+ This should result in a file save dialogue - save the file and then open in Excel (or another spreadsheet package)
+ The same data as in the web view should be shown, except hyperlinks to 'Show all posts by...' are removed
+ User grade 95 / 100 should shown as 95 // 100 to prevent Excel formatting as date
+
+GRD04 / U.ET
  Click against Course administration on the left hand side
  Click on the Grades icon/link in the now opened Course administration menu
  This should bring up Grader report which shows all student participants
  Student 1 should have a score of 95 for them under the forum heading whilst student 2 will have a score of 0
  Check that the average scores shown for the forum and course are correct
+
+RGRD Retest with ratings grading type
+================================
+
+RGRD01 / admin[change]
+ Edit forum CRE01 settings so that:
+Under 'Grade' settings
+ Choose 'Average of ratings' from Grade dropdown
+- This should gray out and make the 'Grading scale' dropdown non-active
+ Select 'Allow posts to be rated' checkbox
+ Select 'Scale' 100
+ Select 'Save and display' button.
+
+RGRD02 / U.ET [change]
+ Go to forum CRE01.
+ Click against 'View posts by user'
+
+RGRD03 / U.ET
+ This should bring up a screen entitled User posts
+ It should show the student user
+ The number of Discussions started by that user
+ The number of Replies to posts
+ Under Grade only grading information should be shown, not a dropdown to update the grades.
 
 RGD Retest with grading disabled
 ================================
@@ -107,4 +136,4 @@ Choose 'No Grades' from Grade dropdown
  It should show the student user
  The number of Discussions started by that user
  The number of Replies to posts
- Under Grades no grading information or dropdown grading list should be shown
+ No grading information should be shown.

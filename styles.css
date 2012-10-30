@@ -904,8 +904,16 @@ padding-top: 1em;
 // forumfeature save grades
 ///////////////////////////
 */
-.savegradeform {
-    border-radius: 5px 5px 5px 5px;
-    max-width: 100%;
-    padding: 10px;
+.savegradeform .savegradesbutton {
+    margin-bottom: 10px;
+}
+#page-mod-forumng-feature-userposts-list .generaltable {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+#page-mod-forumng-feature-userposts-list .generaltable td {
+    color: gray;
+}
+#page-mod-forumng-feature-userposts-list .generaltable td div.active {
+    color: black;
 }
