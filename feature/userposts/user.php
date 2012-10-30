@@ -113,3 +113,4 @@ print link_arrow_left($prevpage, 'list.php?id=' . $cmid);
 
 // Display footer.
 print $out->footer();
+add_to_log($course->id, 'forumng', 'view', 'user.php?' . $pageurl->get_query_string(false));

@@ -214,6 +214,8 @@ if (empty($download)) {
 
     // Display footer.
     print $out->footer();
+
+    add_to_log($course->id, 'forumng', 'view', 'list.php?' . $thisurl->get_query_string(false));
 }
 /**
  * Creates save grades form tag and relevant hidden id tags.
