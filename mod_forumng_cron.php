@@ -359,7 +359,7 @@ $mainquery", $mainparams);
      * @param mod_forumng_discussion $discussion Discussion
      * @param object $subscriber Subscriber
      */
-    function subscriber_receives_discussion($forum, $discussion, $subscriber) {
+    private static function subscriber_receives_discussion($forum, $discussion, $subscriber) {
         // Did they subscribe specifically to this discussion?
         $explicitsubscribed = array_key_exists(
                 $discussion->get_id(), $subscriber->discussionids);
@@ -576,12 +576,7 @@ $mainquery", $mainparams);
                 'forumng', $headerdata) . "\n\n";
 
             // Get header HTML
-            $html = "<head>";
-            foreach ($CFG->stylesheets as $stylesheet) {
-                $html .= '<link rel="stylesheet" type="text/css" href="' .
-                    $stylesheet . '" />' . "\n";
-            }
-            $html .= "</head>\n<body id='forumng-email'>\n";
+            $html = "<body id='forumng-email'>\n";
             $headerdata->userprefs = '<a target="_blank" href="' .
                 $headerdata->userprefs . '">' .
                 get_string('digestmailprefs', 'forumng') . '</a>';
@@ -733,7 +728,7 @@ $mainquery", $mainparams);
      * @param string $text Text of email
      * @param string $html HTML of email or '' if plaintext only
      */
-    function email_send($to, $from, $subject, $text, $html) {
+    private static function email_send($to, $from, $subject, $text, $html) {
         global $CFG;
         if (self::DEBUG_VIEW_EMAILS) {
             print "<div style='margin:4px; border:1px solid blue; padding:4px;'>";

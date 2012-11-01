@@ -70,8 +70,7 @@ WHERE
     AND fd.deleted = 0
     AND fp.oldversion = 0
 
-    -- Course-module and context limitations
-    AND m.name = 'forumng'
+    -- Context limitation
     AND x.contextlevel = 70";
         $params = array($safetynet, $safetynet);
         return array($sql, $params);
