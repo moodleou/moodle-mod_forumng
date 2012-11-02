@@ -52,6 +52,9 @@ class forumngtype_general extends forumngtype {
             }
         } else {
             if (optional_param('sortlink', '' , PARAM_ALPHA)) {
+                if (!isset($SESSION->forumng_discussionlist[$forumngid])) {
+                    $SESSION->forumng_discussionlist[$forumngid] = new stdClass();
+                }
                 $SESSION->forumng_discussionlist[$forumngid]->sort = $sortorder;
                 unset ($SESSION->forumng_discussionlist[$forumngid]->page);
             }
@@ -65,6 +68,9 @@ class forumngtype_general extends forumngtype {
                 $page = 1;
             }
         } else {
+            if (!isset($SESSION->forumng_discussionlist[$forumngid])) {
+                $SESSION->forumng_discussionlist[$forumngid] = new stdClass();
+            }
             $SESSION->forumng_discussionlist[$forumngid]->page = $page;
             $SESSION->forumng_discussionlist[$forumngid]->groupid = $groupid;
         }

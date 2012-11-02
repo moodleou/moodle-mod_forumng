@@ -5012,7 +5012,7 @@ abstract class mod_forumng_context_access extends context {
      * @param object $record DB record
      * @return context Context object
      */
-    public function create_instance_from_record_public($record) {
+    public static function create_instance_from_record_public($record) {
         return self::create_instance_from_record($record);
     }
 }
