@@ -653,6 +653,8 @@ M.mod_forumng = {
         div.on = div.icon.get('src').match(/flag\.on/);
         // Get id from p value
         div.postid = div.icon.get('name').replace(/^.*p_([^.]*)\..*$/, '$1');
+        // Remove all other event listeners just in case this func called multiple times.
+        this.Y.Event.purgeElement(div.icon, false, 'click');
         div.icon.on('click', function(e) {
             var cfg = {
                 method: 'POST',
