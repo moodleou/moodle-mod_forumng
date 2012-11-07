@@ -9,6 +9,11 @@ M.mod_forumng_form = {
     init : function(Y) {
         this.Y = Y;
         Y.on("domready", this.dom_init, this);
+        if (!String.prototype.trim) {
+            String.prototype.trim = function() {
+                return this.replace(/^\s+/, '') . replace(/\s+$/, '');
+            };
+        }
     },
 
     /**

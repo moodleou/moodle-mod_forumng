@@ -411,12 +411,15 @@ M.mod_forumng = {
                 if (!e) {
                     e = window.event;
                 }
-                if (e.stopPropagation) {
-                    e.stopPropagation();
-                } else {
-                    e.cancelBubble = true;
+                if (e) {
+                    if (e.stopPropagation) {
+                        e.stopPropagation();
+                    } else {
+                        e.cancelBubble = true;
+                    }
                 }
                 t.remove_iframe(iframe);
+                return false;
             };
 
             // Focus the editor.
