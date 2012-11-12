@@ -37,7 +37,7 @@
         <FIELD NAME="removeafter" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" COMMENT="Remove old discussions after certain period. 1 for one month, 2 for two months...12 for one year, 13 for two years and 14 for three years." PREVIOUS="completionposts" NEXT="removeto"/>
         <FIELD NAME="removeto" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" SEQUENCE="false" COMMENT="This field stores the mod instance id of the target forum. Null means delete old discussions permanently." PREVIOUS="removeafter" NEXT="shared"/>
         <FIELD NAME="shared" TYPE="int" LENGTH="1" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" COMMENT="If the forum is available for sharing on other courses, this flag will be set to 1." PREVIOUS="removeto" NEXT="originalcmid"/>
-        <FIELD NAME="originalcmid" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" SEQUENCE="false" COMMENT="If this forum is a reference to (clone of) a shared forum, this field is non-null and points to the original forum. (When this is set, other settings in this table are ignored.)" PREVIOUS="shared"/>
+        <FIELD NAME="originalcmid" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" SEQUENCE="false" COMMENT="If this forum is a reference to (clone of) a shared forum, this field is non-null and points to the original forum. (When this is set, other settings in this table are ignored.)" PREVIOUS="shared" NEXT="gradingscale" />
         <FIELD NAME="gradingscale" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="false" DEFAULT="0" SEQUENCE="false" COMMENT="grading scale" PREVIOUS="originalcmid"/>
       </FIELDS>
       <KEYS>
