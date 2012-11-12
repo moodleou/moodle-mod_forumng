@@ -810,8 +810,10 @@ M.mod_forumng = {
         for (var i=0; i<commandblocks.length; i++) {
             var links = commandblocks[i].getElementsByTagName('a');
             for (var j=0; j<links.length; j++) {
-                links[j].onclick = links[j].oldonclick;
-                links[j].oldonclick = false; // Wanted to do 'delete' but it crashes ie
+                if (links[j].oldonclick) {
+                    links[j].onclick = links[j].oldonclick;
+                    links[j].oldonclick = false; // Wanted to do 'delete' but it crashes ie
+                }
                 links[j].style.cursor = 'auto';
                 links[j].tabIndex = 0;
                 links[j].className = links[j].className.replace(' forumng-disabled', '');
