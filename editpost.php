@@ -662,8 +662,7 @@ try {
 
         // In iframe mode, inform parent that iframe has loaded.
         if ($iframe) {
-            echo html_writer::tag('script', 'window.parent.iframe_has_loaded(window);',
-                    array('type' => 'text/javascript'));
+            $PAGE->requires->js_init_code('window.parent.iframe_has_loaded(window);', true);
         }
 
         // Display footer

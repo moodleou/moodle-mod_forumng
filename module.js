@@ -376,11 +376,11 @@ M.mod_forumng = {
             // probably two YUI instances and I don't want it to get
             // confused.
             var doc = innerwin.document;
-
+            var counter = 0;
             // Check size and enlarge iframe if required.
             var fix_height = function() {
-                if(doc.body.offsetHeight != Number(iframe.get('height'))) {
-                    iframe.set('height', doc.body.offsetHeight);
+                if(doc.body.scrollHeight > Number(iframe.get('height')) + 19) {
+                    iframe.set('height', (doc.body.scrollHeight + 19));
                 }
 
                 // Check if the mobile view is activated, if so, then we align the
@@ -401,10 +401,14 @@ M.mod_forumng = {
 					if (iframe.get('parentNode')) {
 						iframe.set('width', iframe.get('parentNode').getComputedStyle('width'));
 					}
+					counter++;
+					if (counter < 20) {
+					    // Keep resizing iframe as filemanager takes a while to initialise.
+					    setTimeout(fix_height, 500);
+					}
 				}
             };
             fix_height();
-            setTimeout(fix_height, 800);
 
             // Add cancel handler that just removes the iframe.
             doc.getElementById('id_cancel').onclick = function(e) {
