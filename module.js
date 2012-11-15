@@ -559,7 +559,7 @@ M.mod_forumng = {
             // Make iframe.
             var src = 'editpost.php?';
             if (draft) {
-                src += 'draft=' + draft;
+                src += 'draft=' + draft.id;
             } else {
                 src += 'replyto=' + replytoid;
             }
@@ -817,6 +817,8 @@ M.mod_forumng = {
                 if (links[j].oldonclick) {
                     links[j].onclick = links[j].oldonclick;
                     links[j].oldonclick = false; // Wanted to do 'delete' but it crashes ie
+                } else {
+                    links[j].onclick = false;
                 }
                 links[j].style.cursor = 'auto';
                 links[j].tabIndex = 0;
