@@ -102,6 +102,8 @@ class restore_forumng_activity_structure_step extends restore_activity_structure
     protected function process_forumng_discussion($data) {
         global $DB;
 
+        $this->potential_dot();
+
         $data = (object)$data;
         $oldid = $data->id;
         $data->course = $this->get_courseid();
