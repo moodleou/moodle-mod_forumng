@@ -1070,7 +1070,8 @@ WHERE
         // the grade information
         $gradechanged = false;
         if ($previousfields->grading != $this->forumfields->grading ||
-            $previousfields->ratingscale != $this->forumfields->ratingscale) {
+            $previousfields->ratingscale != $this->forumfields->ratingscale ||
+            $previousfields->gradingscale != $this->forumfields->gradingscale) {
             $this->update_grades();
         }
 
@@ -2686,8 +2687,9 @@ WHERE
         $transaction = $DB->start_delegated_transaction();
 
         // Calculate grades for requested user(s)
-        if ($this->get_grading() == self::GRADING_NONE) {
-            // Except don't bother if grading is not enabled
+        if ($this->get_grading() == self::GRADING_NONE ||
+                $this->get_grading() == self::GRADING_MANUAL) {
+            // Except don't bother if grading is not enabled or manual.
             $grades = array();
         } else {
             $grades = $this->get_user_grades($userid);
@@ -2804,7 +2806,12 @@ WHERE fd.forumngid = ?";
             'itemname' => $this->get_name(),
             'idnumber' => $idnumber);
 
-        $scale = $this->get_rating_scale();
+        if ($this->get_grading() == self::GRADING_MANUAL) {
+            $scale = $this->get_grading_scale();
+            $grades = null;
+        } else {
+            $scale = $this->get_rating_scale();
+        }
         if (!$this->get_grading()) {
             $params['gradetype'] = GRADE_TYPE_NONE;
         } else if ($scale > 0) {
