@@ -224,7 +224,7 @@ class forumngtype_general extends forumngtype {
             || $PAGE->devicetypeinuse == 'legacy';
         // 'Expand all' option (always chosen for non-JS browsers)
         $collapseall = optional_param('collapse', 0, PARAM_INT);
-        if (!$collapseall && !$expandall) {
+        if (!$collapseall && !$expandall && $PAGE->devicetypeinuse == 'mobile') {
             $collapseall = 1;
         }
 
