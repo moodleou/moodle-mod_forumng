@@ -467,7 +467,11 @@ M.mod_forumng = {
             var rootpost = !post.ancestor('.forumng-replies');
 
             // Make iframe.
-            var iframe = this.init_iframe('editpost.php?p=' + postid, post);
+            var src = 'editpost.php?p=' + postid;
+            if (this.cloneid) {
+                src += '&clone=' + this.cloneid;
+            }
+            var iframe = this.init_iframe(src, post);
             if (!iframe) {
                 return;
             }
@@ -562,6 +566,9 @@ M.mod_forumng = {
                 src += 'draft=' + draft.id;
             } else {
                 src += 'replyto=' + replytoid;
+            }
+            if (this.cloneid) {
+                src += '&clone=' + this.cloneid;
             }
             var iframe = this.init_iframe(src, post);
             if (!iframe) {
