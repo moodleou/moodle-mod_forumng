@@ -1008,7 +1008,7 @@ WHERE
             // Get list of all affected post ids (includes edited, deleted)
             // that have attachments
             $postids = $DB->get_records('forumng_posts', array(
-                    'discussionid' => $this->get_id(), 'attachments' => 1), '', 'id');
+                    'discussionid' => $this->get_id()), '', 'id');
 
             // Loop through all posts copying attachments & deleting old one
             foreach ($postids as $postid=>$junk) {
