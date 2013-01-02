@@ -563,6 +563,7 @@ ul.forumng-commands li.forumng-replylink {
     min-height: 40px;
 }
 .forumng-iframe#page-mod-forumng-editpost .dndupload-arrow,
+#page-mod-forumng-editpost .fp-pathbar,
 .forumng-iframe#page-mod-forumng-editpost .fp-pathbar {
     display: none;
 }
