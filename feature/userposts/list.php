@@ -117,6 +117,9 @@ $grades = array();
 if ($viewgrade) {
     $grades = grade_get_grades($course->id, 'mod', 'forumng',
             $forum->get_id(), array_keys($users));
+    $maxgrade = $forum->get_grading() == mod_forumng::GRADING_MANUAL ?
+            $forum->get_grading_scale() : $forum->get_rating_scale();
+    $scaleopts = make_grades_menu($maxgrade);
 }
 
 $data = array();
@@ -166,7 +169,6 @@ foreach ($users as $id => $u) {
             $user->grade = $grades->items[0]->grades[$id]->grade;
             $user->grade = abs($user->grade);
         }
-        $scaleopts = make_grades_menu($forum->get_grading_scale());
         if (empty($download) && $cangrade) {
             $menu = html_writer::select($scaleopts,
                     'menu[' . $id . ']', $user->grade,
@@ -175,6 +177,11 @@ foreach ($users as $id => $u) {
         } else {
             if ($user->grade != -1 && isset($scaleopts[$user->grade])) {
                 $gradeitem = $scaleopts[$user->grade];
+                // Only whole numbers in scaleopts so check if dec point and manually add info.
+                if (floor($user->grade) != $user->grade &&
+                        !empty($grades->items[0]->grades[$id]->str_long_grade)) {
+                    $gradeitem = $grades->items[0]->grades[$id]->str_long_grade;
+                }
                 if (!empty($download)) {
                     $gradeitem = str_replace('/', '//', $gradeitem);// Fix in excel.
                 }
