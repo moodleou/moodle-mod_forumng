@@ -1923,11 +1923,13 @@ M.mod_forumng = {
     zero_disable : function(submit) {
         var select = submit.previous();
         if (!select || select.get('nodeName').toLowerCase() != 'select') {
-            this.log('Warning: Zero-disable feature incorrectly applied.');
+            M.mod_forumng.log('Warning: Zero-disable feature incorrectly applied.');
             return;
         }
         var update = function() {
-            submit.set('disabled', select.get('value') == 0);
+            if (submit.hasClass('forumng-zero-disable')) {
+                submit.set('disabled', select.get('value') == 0);
+            }
         };
         update();
         select.on('change', update, this);
