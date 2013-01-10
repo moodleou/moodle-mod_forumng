@@ -4791,7 +4791,14 @@ WHERE
         switch ($unread) {
             case self::UNREAD_BINARY:
                 if (isset($row->f_hasunreaddiscussions)) {
-                    $this->forumfields->hasunreaddiscussions = $row->f_hasunreaddiscussions;
+                    // Set binary to 0/1 even if database returns 't'/'f'.
+                    if ($row->f_hasunreaddiscussions === 'f') {
+                        $this->forumfields->hasunreaddiscussions = 0;
+                    } else if ($row->f_hasunreaddiscussions) {
+                        $this->forumfields->hasunreaddiscussions = 1;
+                    } else {
+                        $this->forumfields->hasunreaddiscussions = 0;
+                    }
                 } else {
                     $this->forumfields->hasunreaddiscussions = $row->f_numunreaddiscussions ? 1 : 0;
                 }
