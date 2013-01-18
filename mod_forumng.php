@@ -778,9 +778,15 @@ WHERE
      */
     public function get_max_bytes() {
         if ($this->forumfields->attachmentmaxbytes) {
-            return $this->forumfields->attachmentmaxbytes;
+            if ($this->forumfields->attachmentmaxbytes == -1) {
+                return -1;
+            } else {
+                return get_user_max_upload_file_size($this->get_context(),
+                        $this->forumfields->attachmentmaxbytes);
+            }
         } else {
-            return $this->get_course()->maxbytes;
+            return get_user_max_upload_file_size($this->get_context(),
+                    $this->get_course()->maxbytes);
         }
     }
 
