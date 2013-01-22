@@ -535,7 +535,7 @@ ul.forumng-commands li.forumng-replylink {
 
 #page-mod-forumng-discuss iframe.forumng-inlineform {
     border: none;
-    overflow-x: hidden;
+    overflow-x: auto;
 }
 .forumng-iframe#page-mod-forumng-editpost fieldset {
     border: none;
