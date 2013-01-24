@@ -50,15 +50,17 @@ abstract class forumngfeature_discussion_list extends forumngfeature {
      * @param string $script Name/path of .php script (relative to mod/forumng)
      * @param bool $post If true, makes the button send a POST request
      * @param array $options If included, passes these options as well as 'd'
+     * (Must send $_GET for discussion selector buttons)
      * @param string $afterhtml If specified, adds this HTML at end of (just
      *   inside) the form
-     * @param bool $highlight If true, adds a highlight class to the form
+     * @param string $class Adds a class to the form (set to 'forumng-dselectorbutton'
+     *  to activate discussion selector)
      * @param string $beforehtml If specified, adds this HTML at start of (just
      *   inside) the form
      * @param string $buttonclass If set, adds additional css class to the button
      * @return string HTML code for button
      */
-    protected static function get_button($forum, $name, $script,
+    public static function get_button($forum, $name, $script,
             $post=false, $options=array(), $afterhtml='', $class='',
             $beforehtml='', $buttonclass='') {
         $method = $post ? 'post' : 'get';
@@ -95,7 +97,9 @@ abstract class forumngfeature_discussion_list extends forumngfeature {
         $all = forumngfeature::get_all();
         $results = array();
         foreach ($all as $feature) {
-            if (is_a($feature, 'forumngfeature_discussion_list')) {
+            if (is_a($feature, 'forumngfeature_discussion_list') ||
+                    (is_a($feature, 'forumngfeature_discussion')
+                            && $feature->supports_discussion_list())) {
                 $results[] = $feature;
             }
         }

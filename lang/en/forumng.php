@@ -411,6 +411,12 @@ scroll to the bottom and click &lsquo;Confirm selection&rsquo;.';
 $string['confirmselection'] = 'Confirm selection';
 $string['selectedposts'] = 'Selected posts';
 $string['selectorall'] = 'Do you want to include the entire discussion, or only selected posts?';
+$string['selectoralldisc'] = 'All discussions shown';
+$string['selectorselecteddisc'] = 'Selected discussions';
+$string['selectorselectdisc'] = 'Select discussion';
+$string['selectordiscall'] = 'Do you want to include all discussions listed on this page, or only selected discussions?';
+$string['selectdiscintro'] = 'Tick the box beside each discussion you want to include. When you&rsquo;re done,
+scroll to the bottom and click &lsquo;Confirm selection&rsquo;.';
 $string['setimportant'] = 'Mark posts as important';//used by moderators, highlight important posts
 $string['important'] = 'Important post'; // alt text for important icon
 $string['flaggedposts'] = 'Flagged posts';

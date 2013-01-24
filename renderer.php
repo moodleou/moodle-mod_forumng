@@ -195,7 +195,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
             $classes = $unreadposts ? $classes . ' forumng-discussion-unread' : $classes;
         }
 
-        $result = "<tr class='forumng-discussion-short$classes'>";
+        $result = "<tr id='discrow_{$discussion->get_id()}' class='forumng-discussion-short$classes'>";
 
         // Subject, with icons
         $result .= "<td class='forumng-subject cell c0'>";

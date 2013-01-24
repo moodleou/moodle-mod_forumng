@@ -23,3 +23,4 @@
  */
 $string['export'] = 'Export';
 $string['pluginname'] = 'Export posts';
+$string['exportallnodisc'] = 'No discussions selected for export';

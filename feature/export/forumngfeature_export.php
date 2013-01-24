@@ -23,14 +23,25 @@
  */
 class forumngfeature_export extends forumngfeature_discussion {
     public function get_order() {
-        return 1000;
+        global $PAGE;
+        if ($PAGE->pagetype == 'mod-forumng-view') {
+            return 300;
+        } else {
+            return 1000;
+        }
     }
 
     public function display($discussion) {
-        return parent::get_button($discussion,
-                get_string('export', 'forumngfeature_export'),
-                'feature/export/export.php',
-                false, array(), '', false, true);
+        if (is_a($discussion, 'mod_forumng_discussion')) {
+            return parent::get_button($discussion,
+                    get_string('export', 'forumngfeature_export'),
+                    'feature/export/export.php',
+                    false, array(), '', false, true);
+        } else {
+            return forumngfeature_discussion_list::get_button($discussion,
+                    get_string('export', 'forumngfeature_export'), 'feature/export/exportall.php',
+                    false, $_GET, '', 'forumng-dselectorbutton', '', '');
+        }
     }
 
     // Always display the Export button
@@ -49,6 +60,10 @@ class forumngfeature_export extends forumngfeature_discussion {
             return false;
         }
 
+        return true;
+    }
+
+    public function supports_discussion_list() {
         return true;
     }
 }

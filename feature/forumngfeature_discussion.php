@@ -35,6 +35,16 @@ abstract class forumngfeature_discussion extends forumngfeature {
     }
 
     /**
+     * Can this discussion feature also show on discussion list page?
+     * Whether it should or not is check in should_display()
+     * Defaults to false.
+     * @return bool true if feature supports discussion list as well
+     */
+    public function supports_discussion_list() {
+        return false;
+    }
+
+    /**
      * @param mod_forumng_discussion $discussion
      * @return string HTML code for button
      */
