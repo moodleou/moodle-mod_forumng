@@ -438,7 +438,9 @@ M.mod_forumng = {
                 }
                 setTimeout(try_focus, 100);
             };
-            setTimeout(try_focus, 250);
+            if (!M.is_mobile) {
+                setTimeout(try_focus, 250);
+            }
         };
 
         // Put it in as last thing in post (except the 'end post' marker).
