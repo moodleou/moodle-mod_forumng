@@ -748,7 +748,12 @@ M.mod_forumng = {
                 }
                 // Pick up inputs needed from form.
                 var inputs = '';
-                submit.get('form').all('input[type=hidden]').each(
+                var inputnodes = submit.get('form').all('input[type=hidden]');
+                // Some browsers (IE7) don't pick inputs in div up.
+                if (inputnodes.size() == 0) {
+                    inputnodes = submit.get('form').get('children').item(0).all('input[type=hidden]');
+                }
+                inputnodes.each(
                         function (node) {inputs += '&' + node.get('name') + '=' + node.get('value');}
                 );
 
@@ -1760,10 +1765,12 @@ M.mod_forumng = {
                 field.set('value', this.cloneid);
                 form.inputs.appendChild(field);
             }
-            target.get('form').all('input[type=hidden]').each(
+            target.get('form').get('children').item(0).all('input').each(
                     function (node) {
-                        field = node.cloneNode(true);
-                        form.inputs.appendChild(field);
+                        if (node.get('type') == 'hidden') {
+                            field = node.cloneNode(true);
+                            form.inputs.appendChild(field);
+                        }
                     }
             );
 
