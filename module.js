@@ -170,10 +170,10 @@ M.mod_forumng = {
 
         // Apply stop indents
         this.apply_stop_indents();
-        var region = YAHOO.util.Dom.getRegion(document.getElementById('forumng-main'));
+        var region = this.Y.one('#forumng-main').get('region');
         this.viewportwidth = region.right - region.left;
         setInterval(function() {
-            var region = YAHOO.util.Dom.getRegion(document.getElementById('forumng-main'));
+            var region = this.Y.one('#forumng-main').get('region');
             var width = region.right - region.left;
             if (width != M.mod_forumng.viewportwidth) {
                 M.mod_forumng.viewportwidth = width;
@@ -849,19 +849,15 @@ M.mod_forumng = {
      */
     links_disable: function(root) {
         root.linksdisabled = true;
-        var commandblocks = YAHOO.util.Dom.getElementsByClassName(
-            'forumng-commands', 'ul', root);
-        for (var i=0; i<commandblocks.length; i++) {
-            var links = commandblocks[i].getElementsByTagName('a');
-            for (var j=0; j<links.length; j++) {
-                links[j].oldonclick = links[j].onclick;
-                links[j].onclick = function() {
-                    return false;
-                }
-                links[j].style.cursor = 'default';
-                links[j].tabIndex = -1;
-                links[j].className += ' forumng-disabled';
-            }
+        var links = M.mod_forumng.Y.all('ul.forumng-commands a').getDOMNodes();
+        for (var j = 0, len = links.length; j < len; j++) {
+            links[j].oldonclick = links[j].onclick;
+            links[j].onclick = function() {
+                return false;
+            };
+            links[j].style.cursor = 'default';
+            links[j].tabIndex = -1;
+            links[j].className += ' forumng-disabled';
         }
     },
 
@@ -871,21 +867,17 @@ M.mod_forumng = {
      */
     links_enable: function(root) {
         root.linksdisabled = false;
-        var commandblocks = YAHOO.util.Dom.getElementsByClassName(
-            'forumng-commands', 'ul', root);
-        for (var i=0; i<commandblocks.length; i++) {
-            var links = commandblocks[i].getElementsByTagName('a');
-            for (var j=0; j<links.length; j++) {
-                if (links[j].oldonclick) {
-                    links[j].onclick = links[j].oldonclick;
-                    links[j].oldonclick = false; // Wanted to do 'delete' but it crashes ie
-                } else {
-                    links[j].onclick = false;
-                }
-                links[j].style.cursor = 'auto';
-                links[j].tabIndex = 0;
-                links[j].className = links[j].className.replace(' forumng-disabled', '');
+        var links = M.mod_forumng.Y.all('ul.forumng-commands a').getDOMNodes();
+        for (var j=0, len = links.length; j < len; j++) {
+            if (links[j].oldonclick) {
+                links[j].onclick = links[j].oldonclick;
+                links[j].oldonclick = false; // Wanted to do 'delete' but it crashes ie
+            } else {
+                links[j].onclick = function(){};
             }
+            links[j].style.cursor = 'auto';
+            links[j].tabIndex = 0;
+            links[j].className = links[j].className.replace(' forumng-disabled', '');
         }
     },
 
