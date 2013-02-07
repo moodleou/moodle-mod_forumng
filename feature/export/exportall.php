@@ -70,7 +70,7 @@ class export_discussion_selector extends forumngfeature_discussion_selector {
                 array('forumngid' => $forumngid,
                 'cloneid' => $cloneid,
                 'discussionids' => $posts),
-                '/mod/forumng/feature/export/portfoliolib.php');
+                'mod_forumng');
         $button->set_formats(PORTFOLIO_FORMAT_PLAINHTML);
 
         // Redirect to the export page.

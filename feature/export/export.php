@@ -72,7 +72,7 @@ class export_post_selector extends forumngfeature_post_selector {
                 'cloneid' => $cloneid,
                 'posts' => $posts,
                 'discussionid' => $discussion->get_id()),
-                '/mod/forumng/feature/export/portfoliolib.php');
+                'mod_forumng');
         $button->set_formats(PORTFOLIO_FORMAT_PLAINHTML);
 
         // redirect to the export page
