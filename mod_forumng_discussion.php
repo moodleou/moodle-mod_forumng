@@ -1645,13 +1645,12 @@ ORDER BY
 
     /**
      * Checks that data about whether or not the user has read this discussion
-     * is available, throws exception otherwise.
+     * is available, sets to unread (null) if not.
      * @throws mod_forumng_exception If discussion does not contain unread data
      */
     private function check_unread_data() {
         if (!property_exists($this->discussionfields, 'timeread')) {
-            throw new coding_exception(
-              "Discussion does not contain unread data");
+            $this->discussionfields->timeread = null;
         }
     }
 
