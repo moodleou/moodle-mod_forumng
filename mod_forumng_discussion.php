@@ -668,7 +668,7 @@ class mod_forumng_discussion {
             $readtrackingparams = array($deadline, $userid, $userid, $deadline);
             $readtrackingjoinparams = array($userid);
         } else {
-            $readtracking = "";
+            $readtracking = ", 0 AS numreadposts, NULL AS timeread";
             $readtrackingjoin = "";
             $readtrackingparams = array();
             $readtrackingjoinparams = array();
