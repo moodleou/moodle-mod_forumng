@@ -1277,12 +1277,20 @@ WHERE $conditions AND m.name = 'forumng' AND $restrictionsql",
                 // This logic is based on code in fullname().
                 $override = has_capability('moodle/site:viewfullnames',
                     $this->get_context(), $userid);
-                if ($CFG->fullnamedisplay == 'firstname lastname' ||
-                    ($override && $CFG->fullnamedisplay == 'firstname')) {
+                $fullnamedisplay = $CFG->fullnamedisplay;
+                if ($CFG->fullnamedisplay == 'language') {
+                    // Controlled by lang pack - try and work out what it is doing.
+                    $fakeuser = new stdClass();
+                    $fakeuser->firstname = 'firstname';
+                    $fakeuser->lastname = 'lastname';
+                    $fullnamedisplay = get_string('fullnamedisplay', '', $fakeuser);
+                }
+                if ($fullnamedisplay == 'firstname lastname' ||
+                    ($override && $fullnamedisplay == 'firstname')) {
                     $orderby .= ', fu_firstname ASC, fu_lastname ASC';
-                } else if ($CFG->fullnamedisplay == 'lastname firstname') {
+                } else if ($fullnamedisplay == 'lastname firstname') {
                     $orderby .= ', fu_lastname ASC, fu_firstname ASC';
-                } else if ($CFG->fullnamedisplay == 'firstname') {
+                } else if ($fullnamedisplay == 'firstname') {
                     $orderby .= ', fu_firstname ASC';
                 }
                 if (!$override) {
