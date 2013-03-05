@@ -1541,6 +1541,15 @@ class mod_forumng_renderer extends plugin_renderer_base {
     }
 
     /**
+     * Print a message explaining why a user cannot start a discussion.
+     *
+     * @param string $message the identifier for the message to display.
+     */
+    public function cannot_start_discussion_error($message) {
+        return '<p class="forumng-cannotstartdiscussion">' . get_string($message, 'forumng') . '</p>';
+    }
+
+    /**
      * Compiles the html message content for the rejection email.
      *
      * @param object $group The details of one group

@@ -3340,8 +3340,7 @@ WHERE
             return $out->render_post_button($this, $groupid);
         } else {
             if ($whynot) {
-                return '<p class="forumng-cannotstartdiscussion">' .
-                    get_string($whynot, 'forumng') . '</p>';
+                return $out->cannot_start_discussion_error($whynot);
             } else {
                 return '';
             }
