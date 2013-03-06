@@ -264,29 +264,29 @@ class forumng_all_portfolio_caller extends forumng_portfolio_caller_base {
             $portfoliofiledir = $portfolioformat->get_file_directory();
 
             if ($plugin == 'download') {
-                // non-encoded embedded image filenames
-                $pattern = '/src=.*?'.preg_quote($filename).'\"/';
+                // non-encoded embedded image filenames.
+                $pattern = '/src="[^"]*'.preg_quote($filename).'\"/';
                 $replace = 'src="'.$portfoliofiledir.$filename.'"';
                 $allhtml = preg_replace($pattern, $replace, $allhtml);
 
-                // urlencoded embedded image filenames
-                $pattern = '/src=.*?'.preg_quote($urlencfilename).'\"/';
+                // urlencoded embedded image filenames.
+                $pattern = '/src="[^"]*'.preg_quote($urlencfilename).'\"/';
                 $replace = 'src="'.$portfoliofiledir.$urlencfilename.'"';
                 $allhtml = preg_replace($pattern, $replace, $allhtml);
 
-                // non-encoded attached filenames
-                $pattern = '/href=.*?'.preg_quote($filename).'\"/';
+                // non-encoded attached filenames.
+                $pattern = '/href="[^"]*'.preg_quote($filename).'\"/';
                 $replace = 'href="'.$portfoliofiledir.$filename.'"';
                 $allhtml = preg_replace($pattern, $replace, $allhtml);
 
-                // urlencoded attached filenames
-                $pattern = '/href=.*?'.preg_quote($urlencfilename).'\"/';
+                // urlencoded attached filenames.
+                $pattern = '/href="[^"]*'.preg_quote($urlencfilename).'\"/';
                 $replace = 'href="'.$portfoliofiledir.$urlencfilename.'"';
                 $allhtml = preg_replace($pattern, $replace, $allhtml);
             }
 
             if ($plugin == 'rtf') {
-                $pattern = '/src=.*?'.$filename.'\"/';
+                $pattern = '/src="[^"]*'.$filename.'\"/';
                 $replace = 'src="'.$portfoliofiledir.$filename.'"';
                 $allhtml = preg_replace($pattern, $replace, $allhtml);
 
