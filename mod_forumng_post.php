@@ -346,9 +346,14 @@ WHERE
             $text = preg_replace('~([\'"]@@PLUGINFILE@@[^\'"?]+)([\'"])~',
                     '$1?clone=' . $forum->get_course_module_id() . '$2', $text);
         }
+        $id = $this->get_id();
+        if ($this->is_old_version()) {
+            // If old version get id of parent post as images stored against this.
+            $id = $this->get_parent()->get_id();
+        }
         $context = $forum->get_context(true);
         $text = file_rewrite_pluginfile_urls($text, 'pluginfile.php',
-            $context->id, 'mod_forumng', 'message', $this->postfields->id);
+            $context->id, 'mod_forumng', 'message', $id);
         $textoptions = new stdClass();
         // Don't put a <p> tag round post
         $textoptions->para = false;
