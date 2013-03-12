@@ -778,9 +778,15 @@ WHERE
      */
     public function get_max_bytes() {
         if ($this->forumfields->attachmentmaxbytes) {
-            return $this->forumfields->attachmentmaxbytes;
+            if ($this->forumfields->attachmentmaxbytes == -1) {
+                return -1;
+            } else {
+                return get_user_max_upload_file_size($this->get_context(),
+                        $this->forumfields->attachmentmaxbytes);
+            }
         } else {
-            return $this->get_course()->maxbytes;
+            return get_user_max_upload_file_size($this->get_context(),
+                    $this->get_course()->maxbytes);
         }
     }
 
@@ -1271,12 +1277,20 @@ WHERE $conditions AND m.name = 'forumng' AND $restrictionsql",
                 // This logic is based on code in fullname().
                 $override = has_capability('moodle/site:viewfullnames',
                     $this->get_context(), $userid);
-                if ($CFG->fullnamedisplay == 'firstname lastname' ||
-                    ($override && $CFG->fullnamedisplay == 'firstname')) {
+                $fullnamedisplay = $CFG->fullnamedisplay;
+                if ($CFG->fullnamedisplay == 'language') {
+                    // Controlled by lang pack - try and work out what it is doing.
+                    $fakeuser = new stdClass();
+                    $fakeuser->firstname = 'firstname';
+                    $fakeuser->lastname = 'lastname';
+                    $fullnamedisplay = get_string('fullnamedisplay', '', $fakeuser);
+                }
+                if ($fullnamedisplay == 'firstname lastname' ||
+                    ($override && $fullnamedisplay == 'firstname')) {
                     $orderby .= ', fu_firstname ASC, fu_lastname ASC';
-                } else if ($CFG->fullnamedisplay == 'lastname firstname') {
+                } else if ($fullnamedisplay == 'lastname firstname') {
                     $orderby .= ', fu_lastname ASC, fu_firstname ASC';
-                } else if ($CFG->fullnamedisplay == 'firstname') {
+                } else if ($fullnamedisplay == 'firstname') {
                     $orderby .= ', fu_firstname ASC';
                 }
                 if (!$override) {
@@ -3722,6 +3736,10 @@ WHERE
             'selectedposts' => null,
             'discussion' => null,
             'selectorall' => null,
+            'selectoralldisc' => null,
+            'selectorselecteddisc' => null,
+            'selectordiscall' => null,
+            'selectdiscintro' => null,
             'flagon' => null,
             'flagoff' => null,
             'clearflag' => null,
@@ -4791,7 +4809,14 @@ WHERE
         switch ($unread) {
             case self::UNREAD_BINARY:
                 if (isset($row->f_hasunreaddiscussions)) {
-                    $this->forumfields->hasunreaddiscussions = $row->f_hasunreaddiscussions;
+                    // Set binary to 0/1 even if database returns 't'/'f'.
+                    if ($row->f_hasunreaddiscussions === 'f') {
+                        $this->forumfields->hasunreaddiscussions = 0;
+                    } else if ($row->f_hasunreaddiscussions) {
+                        $this->forumfields->hasunreaddiscussions = 1;
+                    } else {
+                        $this->forumfields->hasunreaddiscussions = 0;
+                    }
                 } else {
                     $this->forumfields->hasunreaddiscussions = $row->f_numunreaddiscussions ? 1 : 0;
                 }

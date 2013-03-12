@@ -195,7 +195,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
             $classes = $unreadposts ? $classes . ' forumng-discussion-unread' : $classes;
         }
 
-        $result = "<tr class='forumng-discussion-short$classes'>";
+        $result = "<tr id='discrow_{$discussion->get_id()}' class='forumng-discussion-short$classes'>";
 
         // Subject, with icons
         $result .= "<td class='forumng-subject cell c0'>";
@@ -1500,9 +1500,9 @@ class mod_forumng_renderer extends plugin_renderer_base {
         $out .= $help;
         $out .= html_writer::empty_tag('input', array('type' => 'text', 'name' => 'query',
                 'id' => 'forumng_searchquery', 'value' => $querytext));
-        $out .= html_writer::empty_tag('input', array('type' => 'submit',
-                'id' => 'ousearch_searchbutton', 'value' => '', 'alt' => get_string('search'),
-                'title' => get_string('search')));
+        $out .= html_writer::empty_tag('input', array('type' => 'image',
+                'id' => 'ousearch_searchbutton', 'alt' => get_string('search'),
+                'title' => get_string('search'), 'src' => $this->pix_url('i/search')));
         $out .= html_writer::end_tag('div');
         $out .= html_writer::end_tag('form');
         return $out;

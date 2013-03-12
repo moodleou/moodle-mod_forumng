@@ -346,17 +346,17 @@ WHERE
             $text = preg_replace('~([\'"]@@PLUGINFILE@@[^\'"?]+)([\'"])~',
                     '$1?clone=' . $forum->get_course_module_id() . '$2', $text);
         }
+        $context = $forum->get_context(true);
         $text = file_rewrite_pluginfile_urls($text, 'pluginfile.php',
-            $forum->get_context(true)->id, 'mod_forumng', 'message',
-            $this->postfields->id);
+            $context->id, 'mod_forumng', 'message', $this->postfields->id);
         $textoptions = new stdClass();
         // Don't put a <p> tag round post
         $textoptions->para = false;
         // Does not indicate that we trust the text, only that the
         // TRUSTTEXT marker would be supported. At present though it isn't (hm)
         $textoptions->trusttext = false;
-        return format_text($text, $this->postfields->messageformat, $textoptions,
-                $forum->get_course_id());
+        $textoptions->context = $context;
+        return format_text($text, $this->postfields->messageformat, $textoptions);
     }
 
     /**

@@ -563,6 +563,7 @@ ul.forumng-commands li.forumng-replylink {
     min-height: 40px;
 }
 .forumng-iframe#page-mod-forumng-editpost .dndupload-arrow,
+#page-mod-forumng-editpost .fp-pathbar,
 .forumng-iframe#page-mod-forumng-editpost .fp-pathbar {
     display: none;
 }
@@ -916,4 +917,20 @@ padding-top: 1em;
 }
 #page-mod-forumng-feature-userposts-list .generaltable td div.active {
     color: black;
+}
+
+/*
+// Discusion selector
+*/
+.path-mod-forumng-feature #discsel .generaltable {
+    width: 100%;
+}
+.path-mod-forumng-feature #discsel .generaltable td.dselect {
+    text-align: center;
+}
+.forumng-discussion-short.forumng-deselected  td {
+    color: #CCC;
+}
+.forumng-discussion-short td .dselectorcheck {
+    float: left;
 }

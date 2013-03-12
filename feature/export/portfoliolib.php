@@ -186,6 +186,8 @@ class forumng_all_portfolio_caller extends forumng_portfolio_caller_base {
     protected $cloneid;
     protected $posts;
     protected $discussionid;
+    protected $filenames = array();
+    protected $content = '';
 
     public static function expected_callbackargs() {
         return array(
@@ -212,7 +214,7 @@ class forumng_all_portfolio_caller extends forumng_portfolio_caller_base {
 
     public function prepare_package() {
         global $CFG;
-
+        $plugin = $this->get('exporter')->get('instance')->get('plugin');
         /*
          * decoding the array from letters to numbers, see export.php
          */
@@ -239,12 +241,22 @@ class forumng_all_portfolio_caller extends forumng_portfolio_caller_base {
         $discussion->build_selected_posts_email($selected, $poststext, $postshtml,
                 array(mod_forumng_post::OPTION_EXPORT => true));
         $allhtml .= $postshtml;
-
-        // Finish the file.
-        $allhtml .= html_writer::end_tag('body') . html_writer::end_tag('html');
+        if ($plugin == 'rtf' && isset($this->discussionids)) {
+            // Support discussions e.g. all into one file.
+            if ($this->discussionid != $this->discussionids[0]) {
+                // Make this text just body if not first discussion.
+                $allhtml = $postshtml;
+            }
+            if ($this->discussionid == $this->discussionids[count($this->discussionids) - 1]) {
+                // Finish the file if last discussion (might be first and last if only 1).
+                $allhtml .= html_writer::end_tag('body') . html_writer::end_tag('html');
+            }
+        } else {
+            // Finish the file.
+            $allhtml .= html_writer::end_tag('body') . html_writer::end_tag('html');
+        }
 
         // Remove embedded img and attachment paths.
-        $plugin = $this->get('exporter')->get('instance')->get('plugin');
         $portfolioformat = $this->get('exporter')->get('format');
         foreach ($this->files as $file) {
             $filename = $file->get_filename();
@@ -289,7 +301,31 @@ class forumng_all_portfolio_caller extends forumng_portfolio_caller_base {
         }
 
         $content = $allhtml;
-        $name = $this->make_filename_safe('forum_discussion') . '.html';
+        if ($plugin == 'rtf' && isset($this->discussionids)) {
+            // Different functionality if multiple discussions.
+            if ($this->discussionid != $this->discussionids[count($this->discussionids) - 1]) {
+                $this->content .= $content;
+                return;
+            } else {
+                $content = $this->content . $content;
+                $forum = mod_forumng::get_from_cmid($this->cm->id, $this->cloneid);
+                $name = $this->make_filename_safe($forum->get_name()) . '.html';
+            }
+        } else {
+            $name = $this->make_filename_safe($discussion->get_subject(true));
+            if (in_array($name, $this->filenames)) {
+                // Make unique filename.
+                for ($a = 1; $a < 100; $a++) {
+                    if (!in_array("$name$a", $this->filenames)) {
+                        $name = "$name$a";
+                        break;
+                    }
+                }
+            }
+            $this->filenames[] = $name;
+            $name .= '.html';
+        }
+
         $manifest = ($this->exporter->get('format') instanceof PORTFOLIO_FORMAT_RICH);
 
         $this->copy_files($this->multifiles);
@@ -304,5 +340,96 @@ class forumng_all_portfolio_caller extends forumng_portfolio_caller_base {
         $bigstring = $filesha;
 
         return sha1($bigstring);
+    }
+}
+
+/**
+ * Portfolio class for exporting the contents of multiple discussions.
+ */
+class forumng_discussions_portfolio_caller extends forumng_all_portfolio_caller {
+    protected $discussionids;
+
+    public static function expected_callbackargs() {
+        return array(
+                'forumngid' => true,
+                'cloneid' => true,
+                'discussionids' => true);
+    }
+
+    public function heading_summary() {
+        $forum = mod_forumng::get_from_cmid($this->cm->id, $this->cloneid);
+        return get_string('exportingcontentfrom', 'portfolio', strtolower(get_string('forum', 'forumng')).
+                ': ' . $forum->get_name());
+    }
+
+    public function load_data() {
+        global $DB, $COURSE;
+
+        // Load base data
+        $this->load_base_data($this->forumngid);
+
+        // Get all files used in the discussions.
+        if ($this->discussionids == '') {
+            // Fallback in case nothing sent - get every discussion in forum!
+            $this->discussionids = array();
+            $groupid = mod_forumng::get_activity_group($this->cm, true);
+            if ($groupid == -1) {
+                $groupid = null;
+            }
+            $discussions = $DB->get_records('forumng_discussions',
+                    array('forumngid' => $this->cm->instance, 'groupid' => $groupid), '', 'id, postid');
+            foreach ($discussions as $discussionrec) {
+                if (!$discussionrec->postid) {
+                    continue;
+                }
+                $discussion = mod_forumng_discussion::get_from_id($discussionrec->id, $this->cloneid);
+                if ($discussion->can_view()) {
+                    $this->discussionids[] = $discussion->get_id();
+                }
+            }
+        } else {
+            $this->posts = $this->discussionids;// Set so decode works.
+            $this->discussionids = $this->decode_string_to_array();
+            $this->posts = '';
+        }
+        if (empty($this->discussionids)) {
+            throw new moodle_exception('exportallnodisc', 'forumngfeature_export', $this->get_return_url());
+        }
+        foreach ($this->discussionids as $discussionid) {
+            $this->discussionid = $discussionid;
+            $this->add_files();
+        }
+    }
+
+    public function get_return_url() {
+        return new moodle_url('/mod/forumng/view.php',
+                array('id' => $this->cm->id, 'clone' => $this->cloneid));
+    }
+
+    public function prepare_package() {
+        $baseurl = $this->get_return_url();
+        $this->content = '';
+        foreach ($this->discussionids as $discussionid) {
+            $this->discussionid = $discussionid;
+            parent::prepare_package();
+        }
+    }
+
+    public function get_sha1() {
+        $filesha = '';
+        if (!empty($this->multifiles)) {
+            $filesha = $this->get_sha1_file();
+        }
+        $bigstring = $filesha;
+
+        return sha1($bigstring);
+    }
+
+    public static function base_supported_formats() {
+        return array(PORTFOLIO_FORMAT_RICHHTML);
+    }
+
+    public function get_navigation() {
+        return array(array(), $this->cm);
     }
 }

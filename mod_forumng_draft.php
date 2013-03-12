@@ -222,16 +222,17 @@ ORDER BY
      * @return string Message after format_text and replacing file URLs
      */
     public function get_formatted_message($forum) {
+        $context = $forum->get_context(true);
         $text = file_rewrite_pluginfile_urls($this->draftfields->message, 'pluginfile.php',
-            $forum->get_context(true)->id, 'mod_forumng', 'draftmessage', $this->draftfields->id);
+            $context->id, 'mod_forumng', 'draftmessage', $this->draftfields->id);
         $textoptions = new stdClass();
         // Don't put a <p> tag round post
         $textoptions->para = false;
         // Does not indicate that we trust the text, only that the
         // TRUSTTEXT marker would be supported. At present though it isn't (hm)
         $textoptions->trusttext = false;
-        return format_text($text, $this->draftfields->messageformat, $textoptions,
-                $forum->get_course_id());
+        $textoptions->context = $context;
+        return format_text($text, $this->draftfields->messageformat, $textoptions);
     }
 
     /**

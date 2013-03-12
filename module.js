@@ -166,7 +166,7 @@ M.mod_forumng = {
         }
 
         // Init feature buttons
-        this.init_feature_buttons();
+        this.init_feature_buttons(false);
 
         // Apply stop indents
         this.apply_stop_indents();
@@ -438,7 +438,9 @@ M.mod_forumng = {
                 }
                 setTimeout(try_focus, 100);
             };
-            setTimeout(try_focus, 250);
+            if (!M.is_mobile) {
+                setTimeout(try_focus, 250);
+            }
         };
 
         // Put it in as last thing in post (except the 'end post' marker).
@@ -699,22 +701,75 @@ M.mod_forumng = {
     /**
      * Initialises the feature buttons that run along the bottom of a discussion. Some
      * of these may use the 'post selector' feature, which requires JavaScript.
+     * @param islist True if discussion list
      */
-    init_feature_buttons: function() {
+    init_feature_buttons: function(islist) {
         // Get all forms
-        var featureForms = this.Y.all('form.forumng-selectorbutton').each(
-                function(node, index, list) {
-            var submit = node.one('input[type=submit]');
-            this.init_select_button(submit);
-        }, this);
+        if (islist) {
+            // Feature btns on discussion list.
+            this.Y.all('form.forumng-dselectorbutton input[type=submit]').each(
+                    function(node) {
+                        this.init_select_button(node, true);
+            }, this);
+        } else {
+            var featureForms = this.Y.all('form.forumng-selectorbutton').each(
+                    function(node, index, list) {
+                var submit = node.one('input[type=submit]');
+                this.init_select_button(submit, false);
+            }, this);
+        }
     },
 
     /**
      * Adds JS to the button which runs the selector feature, causing it to call the
      * 'confirm' prompt to ask whether you want to do the discussion or selected posts.
      * @param submit Submit button node
+     * @param islist True if discussion list
      */
-    init_select_button: function(submit) {
+    init_select_button: function(submit, islist) {
+        if (islist) {
+            // Check there are discussions to select.
+            var discussions = this.Y.all('.forumng-discussionlist tr');
+            if (discussions.size() == 0) {
+                submit.set('disabled', 'disabled');
+                return;
+            }
+            submit.on('click', function(e) {
+                e.preventDefault();
+                var outerThis = this;
+                // Pick up any discussion types we specifically include or exclude.
+                var include = new Array();
+                var exclude = new Array();
+                if (submit.get('form').one('input[name=include]')) {
+                    include = submit.get('form').one('input[name=include]').get('value').split();
+                }
+                if (submit.get('form').one('input[name=exclude]')) {
+                    exclude = submit.get('form').one('input[name=exclude]').get('value').split();
+                }
+                // Pick up inputs needed from form.
+                var inputs = '';
+                var inputnodes = submit.get('form').all('input[type=hidden]');
+                // Some browsers (IE7) don't pick inputs in div up.
+                if (inputnodes.size() == 0) {
+                    inputnodes = submit.get('form').get('children').item(0).all('input[type=hidden]');
+                }
+                inputnodes.each(
+                        function (node) {inputs += '&' + node.get('name') + '=' + node.get('value');}
+                );
+
+                this.confirm("<h4>" + submit.get('value') + "</h4><p>" +
+                    M.str.forumng.selectordiscall + "</p>",
+                    [M.str.forumng.selectoralldisc, M.str.forumng.selectorselecteddisc],
+                    M.str.moodle.cancel,
+                    null, [function() {
+                        location.href = submit.get('form').get('action') + '?all=1' +
+                        M.mod_forumng.cloneparam + inputs;
+                    }, function() {
+                        outerThis.select_discuss_init(submit, include, exclude);
+                    }]);
+            }, this);
+            return;
+        }
         submit.on('click', function(e) {
             e.preventDefault();
             var outerThis = this;
@@ -1455,6 +1510,9 @@ M.mod_forumng = {
         this.Y.all('input.forumng-button-to-link').each(function(specialbutton, index, list) {
             this.turn_button_into_link(specialbutton);
         }, this);
+
+        // Init feature buttons
+        this.init_feature_buttons(true);
     },
 
     /**
@@ -1669,6 +1727,225 @@ M.mod_forumng = {
             }, this);
         } else {
             post.extraSpan.remove();
+            post.removeClass('forumng-deselected');
+            this.links_enable(document.body);
+        }
+    },
+
+    /**
+     * Initialises the discussion selector feature, switching the whole page into select mode.
+     * @param target Target button that indicates where the resulting selection will be posted,
+     *   or null to cancel select mode
+     */
+    select_discuss_init : function(target, includes, excludes) {
+        this.select.on = target ? true : false;
+
+        var discussions = this.Y.all('.forumng-discussionlist tr');
+        if (discussions.size() == 0) {
+            return;
+        }
+        var confirm = this.Y.Node.create('<input type="submit"/>');
+
+        var extraneousDisplay = this.select.on ? 'none' : 'block';
+
+        var main = this.Y.one('table.forumng-discussionlist');
+        if (this.select.on) {
+            // Make form around main elements.
+            var form = this.Y.Node.create("<form method='post'/>");
+            this.select.form = form;
+            form.set('action', target.get('form').get('action'));
+            main.addClass('forumng-selectmode');
+
+            form.inputs = this.Y.Node.create("<div/>");
+            form.appendChild(form.inputs);
+            field = this.Y.Node.create('<input type="hidden" name="fromselect" value="1"/>');
+            form.inputs.appendChild(field);
+            if (this.cloneid) {
+                field = this.Y.Node.create('<input type="hidden" name="clone"/>');
+                field.set('value', this.cloneid);
+                form.inputs.appendChild(field);
+            }
+            target.get('form').get('children').item(0).all('input').each(
+                    function (node) {
+                        if (node.get('type') == 'hidden') {
+                            field = node.cloneNode(true);
+                            form.inputs.appendChild(field);
+                        }
+                    }
+            );
+
+            // Make intro.
+            form.intro = this.Y.Node.create('<div class="forumng-selectintro"/>');
+            main.get('parentNode').insertBefore(form.intro, main);
+            var introText = this.Y.Node.create('<p>' + M.str.forumng.selectdiscintro + '</p>');
+            form.intro.appendChild(introText);
+
+            // Make buttons to select all/none.
+            var selectButtons = this.Y.Node.create('<div class="forumng-selectbuttons"/>');
+            form.intro.appendChild(selectButtons);
+            var all = this.Y.Node.create('<input type="button"/>');
+            selectButtons.appendChild(all);
+            all.set('value', M.str.moodle.selectall);
+            all.on('click', function() {
+                for (var i = 1; i < discussions.size(); i++) {
+                    if (discussions.item(i).check && !discussions.item(i).check.get('checked')) {
+                        M.mod_forumng.simulate_click(discussions.item(i).check);
+                    }
+                }
+                all.set('disabled', true);
+                none.set('disabled', false);
+            }, this);
+            selectButtons.appendChild(document.createTextNode(' '));
+            var none = this.Y.Node.create('<input type="button"/>');
+            selectButtons.appendChild(none);
+            none.set('value', M.str.moodle.deselectall);
+            none.on('click', function() {
+                for (var i = 1; i < discussions.size(); i++) {
+                    if (discussions.item(i).check && discussions.item(i).check.get('checked')) {
+                        M.mod_forumng.simulate_click(discussions.item(i).check);
+                    }
+                }
+                all.set('disabled', false);
+                none.set('disabled', true);
+            }, this);
+
+            main.get('parentNode').insertBefore(form, this.Y.one('#forumng-features'));
+
+            // Make outro.
+            form.outro = this.Y.Node.create('<div class="forumng-selectoutro" />');
+            form.appendChild(form.outro);
+
+            confirm.set('value', M.str.forumng.confirmselection);
+            form.outro.appendChild(confirm);
+
+            form.outro.appendChild(document.createTextNode(' '));
+
+            var cancel = this.Y.Node.create('<input type="button" id="forumng-cancel-select"/>');
+            cancel.set('value', M.str.moodle.cancel);
+            form.outro.appendChild(cancel);
+            cancel.on('click', function() {
+                this.select_discuss_init(null);
+            }, this);
+
+            this.scroll_page(form.intro, null);
+            // Disable all discussion select buttons.
+            this.Y.all('.forumng-dselectorbutton input').each(
+                    function(node) {
+                        node.set('disabled', 'disabled');
+                    });
+        } else {
+            var form = this.select.form;
+            form.remove();
+            form.intro.remove();
+            form.outro.remove();
+            main.removeClass('forumng-selectmode');
+            this.select.form = null;
+            // Eanble all discussion select buttons.
+            this.Y.all('.forumng-dselectorbutton input').each(
+                    function(node) {
+                        node.set('disabled', '');
+                    });
+        }
+
+        for (var i = 0, len = discussions.size(); i < len; i++) {
+            if (discussions.item(i).hasClass('forumng-discussion-short')) {
+                var useid = discussions.item(i).get('id');
+                useid = useid.replace('discrow_', '');
+                // Check we interact with this discussion.
+                var include = true;
+                if (this.select.on) {
+                    if (includes.length > 0) {
+                        include = false;
+                        for (var a = 0; a < includes.length; a++) {
+                            if (discussions.item(i).hasClass(includes[a])) {
+                                include = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (excludes.length > 0) {
+                        for (var a = 0; a < excludes.length; a++) {
+                            if (discussions.item(i).hasClass(excludes[a])) {
+                                include = false;
+                                break;
+                            }
+                        }
+                    }
+                }
+                if (include) {
+                    this.select_init_discuss(discussions.item(i), this.select.on, useid);
+                }
+            }
+        }
+        window.forumng_select_changed = function() {
+            var ok = false;
+            var checkcount = 0;
+            for (var i = 0; i < discussions.size(); i++) {
+                if (discussions.item(i).check && discussions.item(i).check.get('checked')) {
+                    ok = true;
+                    checkcount++;
+                }
+            }
+            none.set('disabled', !ok);
+            confirm.set('disabled', !ok);
+            all.set('disabled', checkcount == discussions.size());
+        };
+        if (this.select.on) {
+            window.forumng_select_changed();
+        }
+    },
+
+    /**
+     * Initialises a discussion row within select mode.
+     * @param post Discussion row
+     * @param on True if select is being turned on, false if it's being turned off
+     * @param number Order number of discussion in list
+     */
+    select_init_discuss : function(post, on, number) {
+        if (on) {
+            var info = post.one('td.cell.c0');
+            var span = this.Y.Node.create('<span class="dselectorcheck" />');
+            var spanseparator = this.Y.Node.create('<span/>');
+            info.prepend(span);
+            post.extraSpan = span;
+            post.addClass('forumng-deselected');
+            var postid = number;
+
+            spanseparator.addClass('forumng-separator');
+            spanseparator.appendChild(document.createTextNode(' \u2022 '));
+            var check = this.Y.Node.create('<input type="checkbox"/>');
+            check.set('id', 'check' + postid);
+            post.check = check;
+            span.appendChild(check);
+            var label = this.Y.Node.create('<label class="accesshide"/>');
+            label.setAttribute('for', check.get('id'));
+            span.appendChild(label);
+            label.appendChild(document.createTextNode(M.str.forumng.selectlabel.replace('{$a}', number)));
+            span.appendChild(spanseparator);
+            this.links_disable(document.body);
+
+            var hidden = this.Y.one("input[name='select" + postid + "']");
+            if (!hidden) {
+                hidden = this.Y.Node.create('<input type="hidden" value="0"/>');
+                hidden.set('name', 'selectd' + postid);
+                this.select.form.appendChild(hidden);
+            }
+            post.forumng_hidden = hidden;
+
+            check.on('click', function() {
+                if (check.get('checked')) {
+                    post.removeClass('forumng-deselected');
+                    post.forumng_hidden.set('value', 1);
+                } else {
+                    post.addClass('forumng-deselected');
+                    post.forumng_hidden.set('value', 0);
+                }
+                window.forumng_select_changed();
+            }, this);
+        } else {
+            if (post.extraSpan) {
+                post.extraSpan.remove();
+            }
             post.removeClass('forumng-deselected');
             this.links_enable(document.body);
         }
@@ -1923,11 +2200,13 @@ M.mod_forumng = {
     zero_disable : function(submit) {
         var select = submit.previous();
         if (!select || select.get('nodeName').toLowerCase() != 'select') {
-            this.log('Warning: Zero-disable feature incorrectly applied.');
+            M.mod_forumng.log('Warning: Zero-disable feature incorrectly applied.');
             return;
         }
         var update = function() {
-            submit.set('disabled', select.get('value') == 0);
+            if (submit.hasClass('forumng-zero-disable')) {
+                submit.set('disabled', select.get('value') == 0);
+            }
         };
         update();
         select.on('change', update, this);
