@@ -1872,15 +1872,19 @@ M.mod_forumng = {
         window.forumng_select_changed = function() {
             var ok = false;
             var checkcount = 0;
+            var availcount = 0;
             for (var i = 0; i < discussions.size(); i++) {
-                if (discussions.item(i).check && discussions.item(i).check.get('checked')) {
-                    ok = true;
-                    checkcount++;
+                if (discussions.item(i).check) {
+                    availcount++;
+                    if (discussions.item(i).check.get('checked')) {
+                        ok = true;
+                        checkcount++;
+                    }
                 }
             }
             none.set('disabled', !ok);
             confirm.set('disabled', !ok);
-            all.set('disabled', checkcount == discussions.size());
+            all.set('disabled', checkcount == availcount);
         };
         if (this.select.on) {
             window.forumng_select_changed();
