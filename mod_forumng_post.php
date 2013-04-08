@@ -1705,6 +1705,25 @@ WHERE
     }
 
     /**
+     * Checks whether the user can view deleted post info.
+     * @param string $whynot If returning false, set to the language string
+     *   defining reason for not being able to view edits
+     * @param int $userid User ID or 0 for current
+     * @return bool True if user can view deleted posts
+     */
+    function can_view_deleted(&$whynot, $userid=0) {
+        $userid = mod_forumng_utils::get_real_userid($userid);
+        // Check the 'edit any' capability (this is checked for deleting/undeleting).
+        if (!has_capability('mod/forumng:editanypost',
+                $this->get_forum()->get_context(), $userid)) {
+            $whynot = 'edit_nopermission';
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
      * Checks whether the user can view edits to posts.
      * @param string $whynot If returning false, set to the language string
      *   defining reason for not being able to view edits
@@ -2089,7 +2108,7 @@ WHERE
         }
         if (!array_key_exists(self::OPTION_VIEW_DELETED_INFO, $options)) {
             $options[self::OPTION_VIEW_DELETED_INFO] =
-                $this->can_undelete($junk) && !$options[self::OPTION_EXPORT];
+                $this->can_view_deleted($junk) && !$options[self::OPTION_EXPORT];
         }
         if (!array_key_exists(self::OPTION_FULL_ADDRESSES, $options)) {
             $options[self::OPTION_FULL_ADDRESSES] =
