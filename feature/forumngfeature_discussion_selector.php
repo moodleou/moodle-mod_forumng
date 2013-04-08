@@ -264,6 +264,11 @@ abstract class forumngfeature_discussion_selector extends forumngfeature_post_se
                     }
                 }
             } else {
+                if (!$all) {
+                    // No slections made.
+                    redirect('../../view.php?' .
+                            $forum->get_link_params(mod_forumng::PARAM_PLAIN));
+                }
                 // Work out discussion list for this page (e.g. selected All).
                 $sortorder = optional_param('sort', 'd' , PARAM_ALPHA);
                 if (isset($SESSION->forumng_discussionlist[$forumngid]->sort)) {

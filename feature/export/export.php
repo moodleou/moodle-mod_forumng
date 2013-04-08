@@ -40,7 +40,7 @@ class export_post_selector extends forumngfeature_post_selector {
          * It is necessary to encode the array of selected discussion posts as text in order to
          * pass the data in the button callback options because it gets filtered as PARAM_ALPHA
          */
-        if (is_array($selected)) {
+        if (is_array($selected) && !empty($selected)) {
             $seltext = implode('x', $selected);
             $letters = array('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j');
             $posts = '';
