@@ -740,11 +740,13 @@ M.mod_forumng = {
                 // Pick up any discussion types we specifically include or exclude.
                 var include = new Array();
                 var exclude = new Array();
-                if (submit.get('form').one('input[name=include]')) {
-                    include = submit.get('form').one('input[name=include]').get('value').split();
+                var includeel = submit.get('form').get('children').item(0).one('input[name=include]');
+                if (includeel) {
+                    include = includeel.get('value').split(',');
                 }
-                if (submit.get('form').one('input[name=exclude]')) {
-                    exclude = submit.get('form').one('input[name=exclude]').get('value').split();
+                var excludeel = submit.get('form').get('children').item(0).one('input[name=exclude]');
+                if (excludeel) {
+                    exclude = excludeel.get('value').split(',');
                 }
                 // Pick up inputs needed from form.
                 var inputs = '';
