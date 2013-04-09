@@ -1,0 +1,280 @@
+This file contains a sequence of test cases for the ForumNG Sticky feature.
+
+Initial setup
+=============
+
+See testcase.txt for a description of the format of these tests.
+Since this test deals only with the forum view page user interface, only these instructions
+will be required.
+Only one forum is required. Six discussions will need to be setup, as follows:
+
+Discussion1 - a discussion containing one text post replies.
+Discussion2 - a discussion containing two text post replies.
+Discussion3 - a discussion containing three or more reply posts.
+Discussion4 - a discussion containing four or more posts.
+Discussion5 - a discussion containing five or more posts.
+Discussion6 - a discussion containing six or more posts.
+
+Some parts of the interface have different behaviour in 'fancy' (AJAX/JavaScript)
+mode, so we will test those parts with first with Javascript disabled and then enabled in the browser
+
+
+Browser Configuration 1
+=======================
+
+Configure the browser to disable Javascript.
+
+
+CRE Creating ForumNG
+====================
+
+CRE01 / admin
+  In any course week, from the add activity dropdown, choose 'ForumNG'.
+  Leave all settings as default except name 'F.ST'. Save form and return to the course.
+
+BSN Basic usage (non-JS)
+========================
+
+BSN01 / admin
+   Go to the course and click into F.ST.
+-  Verify that there is a 'Start a new discussion' button, with text beneath,
+   'There are no discussions in this forum yet.'
+-  Verify that next there are six buttons, the existing 'Mark all posts read', 'Change' and
+   'Export' buttons, followed by two new buttons 'Make sticky' and 'Make normal',
+   with the preexisting 'View posts by user' last.
+
+BSN02 / admin
+   Click the 'Start a new discussion' button.
+-  You should be taken to a new page with a form for starting a discussion.
+   Type 'Discussion1' in subject and a message and hit the 'Post discussion' button.
+-  Verify that you are taken to the new discussion page and your message is shown.
+
+
+BSN03 / admin
+   Click 'Reply' enter any subject and text, click 'Post reply' for post.
+-  You should have one discussion and a reply appearing.
+
+   Repeat the 'Start a new discussion' and 'Reply' process a further five times,
+   enter Discussion(No) as subject and any text for each discussion, and enter any subject and text
+   for each post reply
+Note: Only the post quantities are required for later testing.
+
+Return to the forumng view page.
+
+DEL Delete Discussions
+=======================
+
+DEL01 / admin
+   Open discussion 3 and click delete to delete it.
+-  Click to confirm you are sure you want to delete this discussion.
+-  Confirm Discussion3 is now dimmed and struck through.
+
+DEL02 / admin
+   Open discussion 4 and click delete to delete it.
+-  Click to confirm you are sure you want to delete this discussion.
+-  Confirm Discussion4 is now dimmed and struck through.
+
+
+BSD Basic usage (non-JS) sticky discussions
+===========================================
+
+BSD01 / admin
+-  Confim that the forum view page shows all six discussions, and that they can be ordered by the
+   column headings.
+
+BSD02 / admin
+   Click 'Make sticky'.
+-  Confirm that the Make sticky page opens with the text 'Do you want to include all
+   discussions listed on this page, or only selected discussions?' and two buttons beneath:
+   'All discussions shown' and 'Selected discussions'.
+
+BSD03 / admin
+   Click 'All discussions shown'.
+   Confirm that you are returned to the forum view page.
+-  Verify that all non deleted discussions are now displaying the 'Sticky' icon.
+
+BSD04 / admin
+   Click 'Make sticky'.
+-  Confirm that the Make sticky page opens with the text 'Do you want to include all
+   discussions listed on this page, or only selected discussions?' and two buttons beneath:
+   'All discussions shown' and 'Selected discussions'.
+   Click 'Selected discussions'.
+
+BSD05 / admin
+   Confirm that you are returned to the forum sticky view page with the text at the top
+   'Tick the box beside each discussion you want to include. When you�re done, scroll to the bottom
+   and click �Confirm selection�.' and that there is an empty column 'Select discussion'
+   on the right which is empty.
+   And that there are 'Confirm selection' and 'Cancel' buttons below.
+-  Verify that usable discussions are already sticky so no check boxes are displayed.
+   Click 'Cancel'.
+
+   Confirm that you are returned to the forum view page.
+
+BSD06 / admin
+   Click 'Make normal'.
+-  Confirm that the Make normal page opens with the text 'Do you want to include all
+   discussions listed on this page, or only selected discussions?' and two buttons beneath:
+   'All discussions shown' and 'Selected discussions'.
+   Click 'Selected discussions'.
+
+BSD07 / admin
+   Confirm that you are returned to the forum sticky view page with the text at the top
+   'Tick the box beside each discussion you want to include. When you�re done, scroll to the bottom
+   and click �Confirm selection�.'
+-  Verify that there is a column 'Select discussion' added on the right which now has check boxes
+   against each non deleted discussion.
+
+BSD08 / admin
+   Click the check boxes for discussions 5 + 6.
+   Click 'Confirm selection'
+   Confirm that you are returned to the forum view page.
+-  Verify that the two discussions 5 + 6 are no longer sticky ie. their sticky icon has been removed.
+-  Verify that clicking any header reorders the discussions, and that discussions 1 + 2 are still
+   above discussions 5 + 6.
+
+BSD09 / admin
+   Click 'Make normal'.
+-  Confirm that the Make normal page opens with the text 'Do you want to include all
+   discussions listed on this page, or only selected discussions?' and two buttons beneath:
+   'All discussions shown' and 'Selected discussions'.
+   Click 'Selected discussions'.
+
+BSD10 / admin
+   Confirm that you are returned to the forum sticky view page with the text at the top with
+   �Confirm selection� and 'Cancel' buttons below.
+-  Verify that there is a column 'Select discussion' added on the right which now has check boxes
+   against each currently sticky discussion. (ie only D1 + D2)
+   Click the check box against Discussion2.
+   Click 'Confirm selection'.
+
+   Confirm that you are returned to the forum view page.
+
+BSD11 / admin
+   Click 'Make normal'.
+-  Confirm that the Make normal page opens with the text 'Do you want to include all
+   discussions listed on this page, or only selected discussions?' and two buttons beneath:
+   'All discussions shown' and 'Selected discussions'.
+   Click 'All discussions shown'.
+
+BSD12 / admin
+-  Verify that you are returned to the forum view page, and that there are now no
+   'Sticky' discussions.
+
+
+Browser Configuration 2
+=======================
+
+Configure the browser to enable Javascript, and refresh the forumng view page.
+
+BJD Basic usage (JS Enabled) sticky discussions
+===============================================
+
+BJD01 / admin
+-  Confim that the forum view page shows all six discussions, and that none are currently 'Sticky'.
+
+BJD02 / admin
+   Click 'Make sticky'.
+-  Confirm that the 'Make sticky' dialogue opens over the current page with the phrase
+   'Do you want to include all discussions listed on this page, or only selected discussions?'
+   and three buttons beneath: 'All discussions shown', 'Selected discussions' and 'Cancel'.
+
+BJD03 / admin
+   Click 'All discussions shown'.
+-  Verify that the page refreshes and that all non deleted discussions are now displaying
+   the green and white arrow 'Sticky' icon.
+
+BJD04 / admin
+   Click 'Make sticky'.
+-  Confirm that the Make sticky dialogue opens with the text and buttons beneath:
+   'All discussions shown' and 'Selected discussions'.
+   Click 'Selected discussions'.
+
+BJD05 / admin
+   Confirm that you are returned to the forum sticky view page with the text at the top
+   'Tick the box beside each discussion you want to include. When you�re done, scroll to the bottom
+   and click 'Confirm selection' and that beneath this are two buttons
+   'Select all' and 'Deselect all'.
+
+   And that there are 'Confirm selection' and 'Cancel' buttons below the discussions.
+-  Verify that usable discussions are already sticky so no check boxes are displayed,
+   and that the 'Confirm selection' button is disabled.
+   Click 'Cancel'.
+
+   Confirm that you are returned to the forum view page.
+
+BJD06 / admin
+   Click 'Make normal'.
+-  Confirm that the Make normal dialogue opens over the forum view page with the text
+   'Do you want to include all discussions listed on this page, or only selected discussions?'
+    and three buttons beneath: 'All discussions shown', 'Selected discussions' and 'Cancel'.
+   Click 'All discussions shown'.
+
+BJD07 / admin
+   Confirm that the forum view page refreshes automatically.
+-  Verify that there are now no 'Sticky' icons against any discussions.
+
+BJD08 / admin
+   Click 'Make sticky'.
+-  Confirm that the Make sticky dialogue opens with the text 'Do you want to include all
+   discussions listed on this page, or only selected discussions?' and three buttons beneath:
+   'All discussions shown', 'Selected discussions' and 'Cancel'.
+   Click 'Selected discussions'.
+
+BJD09 / admin
+   Confirm that you are returned to the forum sticky view page with the text at the top
+   'Tick the box beside each discussion you want to include. When you�re done, scroll to the bottom
+   and click 'Confirm selection'
+   Confirm that beneath this are two buttons 'Select all' and 'Deselect all'.
+   Confirm that a check box is placed before each discussion title.
+   Confirm that there are 'Confirm selection' and 'Cancel' buttons below the discussions.
+
+BJD10 / admin
+   Click 'Select all'.
+-  Verify that all usable discussions check boxes are now ticked.
+   Click 'Deselect all'.
+-  Verify that all usable discussions check boxes are now unticked.
+   Click the check boxes against discussions 2 + 5
+   Click 'Confirm selection'.
+
+BJD11 / admin
+   Click 'Make normal'.
+-  Confirm that the Make normal dialogue opens with the text 'Do you want to include all
+   discussions listed on this page, or only selected discussions?' and three buttons beneath:
+   'All discussions shown', 'Selected discussions' and 'Cancel'.
+   Click 'Selected discussions'.
+
+BJD12 / admin
+-  Confirm that the Make normal page opens with the text 'Tick the box beside each discussion
+   you want to include. When you�re done, scroll to the bottom and click �Confirm selection�,
+   and that there are two buttons beneath:  'Select all' and 'Deselect all'.
+-  Verify that only the two 'Sticky' discussions 2 + 5 have check boxes placed against them.
+   Click 'Select all'.
+-  Verify that the two discussions 2 + 5 check boxes have become ticked.
+   Click 'Deselect all'.
+-  Verify that the two discussions 2 + 5 check boxes have become unticked.
+   Click 'Select all'.
+   Click 'Confirm selection'.
+
+BJD13 / admin
+   Confirm that you are returned to the forum view page, and that there are now no
+   'Sticky' discussions.
+
+BJD14 / admin
+   Click 'Make normal'.
+-  Confirm that the Make normal dialogue opens with the text and three buttons beneath:
+   'All discussions shown', 'Selected discussions' and 'Cancel'.
+   Click 'Select discussions'.
+
+BJD15 / admin
+-  Confirm that the Make normal page opens with the text 'Tick the box beside each discussion
+   you want to include. When you�re done, scroll to the bottom and click �Confirm selection�,
+   and that there are two buttons beneath: 'Select all' and 'Deselect all'.
+-  Verify that there are no 'Sticky' discussions and that clicking neither of the two buttons
+   has any effect, as all discussions are currently normal.
+-  Verify the 'Confirm selection' button is disabled.
+   Click 'Cancel'.
+   Confirm that you are returned to the forum view page.
+
+Test complete.
+==============

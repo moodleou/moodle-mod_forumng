@@ -30,7 +30,7 @@ require_once(dirname(__FILE__).'/../forumngfeature_discussion_list.php');
  */
 class forumngfeature_userposts extends forumngfeature_discussion_list {
     public function get_order() {
-        return 300;
+        return 400;
     }
 
     public function should_display($forum) {
