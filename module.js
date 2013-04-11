@@ -228,11 +228,11 @@ M.mod_forumng = {
 
         // Kill reply links if necessary
         if (this.quotaleft == 0) {
-            this.kill_reply_links(el);
+            this.kill_reply_links();
         }
 
         // Add JS to other links
-        node.all('a').each(function(link, index, list) {
+        node.all('#forumng-main a').each(function(link, index, list) {
             var href = link.get('href');
 
             // Ignore mobile links
@@ -267,7 +267,7 @@ M.mod_forumng = {
             }
 
             // Magicalise 'Delete' / 'Undelete' links
-            match = href.match(/\/deletepost\.php\?p=([0-9]+)(?:&clone=[0-9]+)?(?:&delete=([0-9]+))?(?:&currentuser=([0-9]))?$/);
+            match = href.match(/\/deletepost\.php\?p=([0-9]+)(?:&clone=[0-9]+)?(?:&delete=([0-9]+))?(?:&currentuser=([0-9]))?(?:&expand=1)?$/);
             if (match) {
                 this.init_delete(link, parseInt(match[1]), match[2] && match[2]==0, match[3]);
             }
@@ -332,7 +332,7 @@ M.mod_forumng = {
      * @param root Root node to search within
      */
     kill_reply_links: function(root) {
-        this.Y.all('a[href]').each(function(link, index, list) {
+        this.Y.all('#forumng-main a[href]').each(function(link, index, list) {
             if (link.get('href').match(/editpost\.php\?replyto=[0-9]+.*$/)) {
                 link.remove();
             }
@@ -1503,7 +1503,7 @@ M.mod_forumng = {
         this.focus_sort_links();
 
         // Set up all the draft links to use discuss.php instead of non-JS version
-        this.Y.all('a').each(function(link, index, list) {
+        this.Y.all('.forumng-main a').each(function(link, index, list) {
             var match = link.get('className').match(/^forumng-draftreply-([0-9]+)-([0-9]+)$/);
             if (match) {
                 var linkmatch = link.get('href').match(/draft=([0-9]+)(&clone=[0-9]+)?$/);
