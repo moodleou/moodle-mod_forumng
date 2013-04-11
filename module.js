@@ -157,7 +157,7 @@ M.mod_forumng = {
 
         // Set up magic links
         this.forumng_expirelinks = [];
-        this.init_content(this.Y.one(document));
+        this.init_content(this.Y.one('#forumng-main'));
 
         // Hide 'save ratings' button if present
         var saveall = document.getElementById('forumng-saveallratings');
@@ -188,8 +188,11 @@ M.mod_forumng = {
     init_deletepost : function() {
         // if JS is enabled then we can copy the html version of the text to
         // the textarea used by tinymce, otherwise plain text is used by default.
-        var messagehtml = this.Y.one('#delete-form-html').getContent();
-        this.Y.one('#id_forumng_delete_msg').set('innerHTML', messagehtml);
+        var msg = this.Y.one('#delete-form-html');
+        if (msg) {
+            var messagehtml = msg.getContent();
+            this.Y.one('#id_forumng_delete_msg').set('innerHTML', messagehtml);
+        }
     },
 
     /**
@@ -232,7 +235,7 @@ M.mod_forumng = {
         }
 
         // Add JS to other links
-        node.all('#forumng-main a').each(function(link, index, list) {
+        node.all('a').each(function(link, index, list) {
             var href = link.get('href');
 
             // Ignore mobile links
@@ -1329,6 +1332,7 @@ M.mod_forumng = {
             newpost = this.Y.one(newpost);
             link.post.get('parentNode').insertBefore(newpost, link.post);
         }
+        this.links_enable(link.post);
         link.post.remove();
         if (newpost) {
             this.init_content(newpost);
