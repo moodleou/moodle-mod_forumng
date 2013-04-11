@@ -366,6 +366,8 @@ M.mod_forumng = {
         // Add special style that marks links disabled
         this.links_disable(document.body);
 
+        var iframecon = this.Y.one(document.createElement('div'));
+        iframecon.addClass('iframecon');
         var iframe = this.Y.one(document.createElement('iframe'));
         iframe.set('className', 'forumng-inlineform');
         iframe.set('height', 500);
@@ -379,8 +381,9 @@ M.mod_forumng = {
             var counter = 0;
             // Check size and enlarge iframe if required.
             var fix_height = function() {
-                if(doc.body.scrollHeight > Number(iframe.get('height')) + 19) {
-                    iframe.set('height', (doc.body.scrollHeight + 19));
+                if(doc.body.scrollHeight > Number(iframe.get('height'))) {
+                    iframe.set('height', (doc.body.scrollHeight));
+                    iframecon.set('height', (doc.body.scrollHeight));
                 }
 
                 // Check if the mobile view is activated, if so, then we align the
@@ -389,17 +392,28 @@ M.mod_forumng = {
                 //
                 // Create + set M.is_mobile in the mobile theme to activate.
                 if (M.is_mobile) {
+                    iframecon.setStyle('width', '100%');
+                    iframecon.setStyle('height', '100%');
                     iframe.setStyle('position', 'fixed');
                     iframe.setStyle('top', '0px');
                     iframe.setStyle('left', '0px');
-                    iframe.setStyle('z-index', '999');
+                    iframe.setStyle('z-index', '9999');
                     iframe.setStyle('height', '100%');
                     iframe.setStyle('width', '100%');
-                    iframe.focus();
+                    iframe.set('scrolling', 'no');
+                    doc.body.focus();
                     window.scrollTo(0, 0);
                 } else {
-					if (iframe.get('parentNode')) {
-						iframe.set('width', iframe.get('parentNode').getComputedStyle('width'));
+					if (iframe.get('parentNode') && iframe.get('parentNode').get('parentNode')) {
+						iframe.set('width', iframe.get('parentNode').get('parentNode').getComputedStyle('width'));
+					}
+					if (Y.UA.ios || Y.UA.android) {
+					    var margin = parseInt(iframe.get('parentNode').get('parentNode').getComputedStyle('width')) - doc.body.scrollWidth;
+					    if (margin < 0) {
+					        iframecon.setStyle('margin-left', margin);
+					        iframe.setStyle('width', doc.body.scrollWidth);
+					        iframecon.setStyle('width', doc.body.scrollWidth);
+					    }
 					}
 					counter++;
 					if (counter < 20) {
@@ -446,7 +460,8 @@ M.mod_forumng = {
         // Put it in as last thing in post (except the 'end post' marker).
         var ends = post.all('div.forumng-endpost');
         var last = ends.pop();
-        last.get('parentNode').insertBefore(iframe, last);
+        last.get('parentNode').insertBefore(iframecon, last);
+        iframecon.append(iframe);
 
         return iframe;
     },
@@ -797,7 +812,7 @@ M.mod_forumng = {
         // Pick max indent level
         var region = this.Y.DOM.region(document.getElementById('forumng-main'));
         var width = region.right - region.left;
-        var minwidth = 515; // Min size at which the stupid editor doesn't get cut off
+        var minwidth = 550; // Min size at which the stupid editor doesn't get cut off
         var maxindentpixels = width - minwidth;
         var stopIndent;
 
