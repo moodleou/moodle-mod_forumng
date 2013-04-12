@@ -270,7 +270,7 @@ M.mod_forumng = {
             }
 
             // Magicalise 'Delete' / 'Undelete' links
-            match = href.match(/\/deletepost\.php\?p=([0-9]+)(?:&clone=[0-9]+)?(?:&delete=([0-9]+))?(?:&currentuser=([0-9]))?(?:&expand=1)?$/);
+            match = href.match(/\/deletepost\.php\?p=([0-9]+)(?:&clone=[0-9]+)?(?:&expand=1)?(?:&delete=([0-9]+))?(?:&currentuser=([0-9]))?$/);
             if (match) {
                 this.init_delete(link, parseInt(match[1]), match[2] && match[2]==0, match[3]);
             }
