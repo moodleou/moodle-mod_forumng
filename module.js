@@ -410,7 +410,7 @@ M.mod_forumng = {
 					if (iframe.get('parentNode') && iframe.get('parentNode').get('parentNode')) {
 						iframe.set('width', iframe.get('parentNode').get('parentNode').getComputedStyle('width'));
 					}
-					if (Y.UA.ios || Y.UA.android) {
+					if (M.mod_forumng.Y.UA.ios || M.mod_forumng.Y.UA.android) {
 					    var margin = parseInt(iframe.get('parentNode').get('parentNode').getComputedStyle('width')) - doc.body.scrollWidth;
 					    if (margin < 0) {
 					        iframecon.setStyle('margin-left', margin);
