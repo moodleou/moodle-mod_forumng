@@ -15,16 +15,24 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version.
- *
- * @package mod_forumng
+ * Discussion feature: Deletedposts.
+ * @package forumngfeature
+ * @subpackage deletedposts
  * @copyright 2012 The Open University
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$module->version  = 2013041700;
-$module->requires = 2011120100;
-$module->cron     = 60;
+require_once('../../../../config.php');
 
-// Note: This should be replaced with standard ->maturity and other options.
-$module->displayversion = 'Unstable development version (use at own risk)';
+// Redirect to discuss.php.
+
+$discussionid = required_param('d', PARAM_INT);
+$pageparams = array('d' => $discussionid);
+$cloneid = optional_param('clone', 0, PARAM_INT);
+if ($cloneid) {
+    $pageparams['clone' ]= $cloneid;
+}
+
+$pageurl = new moodle_url('/mod/forumng/discuss.php', $pageparams);
+
+redirect($pageurl);

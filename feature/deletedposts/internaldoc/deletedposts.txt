@@ -1,0 +1,32 @@
+== OU ForumNG View Deleted Posts Feature ==
+
+=== Description ===
+
+Display deleted discussions/posts within forumNG.
+
+Participation is defined as:
+
+* discussions deleted
+* posts deleted
+
+=== Capability requirements ===
+
+A user will be considered as participating in a forum if they have the capability to delete a discussion and delete to a post within
+the context of the current forum instance and are not considered an adminstrator
+by standard Moodle legacy roles and capabilities.
+
+A user who has the capability '''mod/forumng:managediscussions''' and has access to the current forum
+can view all deleted discussions and posts, subject to the groupmode settings and their membership of those groups.
+(A user who has the capability '''moodle/site:accessallgroups''' will be able to see all groups regardless of
+personal membership).
+
+=== Deleted page display ===
+
+From the fourum page the button to access the View deleted screens is 'View deleted' which takes you to the deleted discussions
+list screen.
+If you have the ability to '''mod/forumng:managediscussions''' you will be presented with a Group dropdown if the forum has been
+set up for groups, and 2 tabs are also displayed. The 'Deleted discusions' tabs is inactive and the 'Deleted posts' tab will take
+you to the 'Deleted posts' page. The page will also show deleted discussions for that forum.
+
+To view deleted posts click on the tab link 'Deleted posts'. This will take you to a screen containing
+deleted posts and any discussion start posts for that forum. Posts can be undeleted from this page by click the 'Undelete' button

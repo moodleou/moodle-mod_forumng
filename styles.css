@@ -110,10 +110,12 @@ a.forumng-iconlink:hover {
 ///////////////////
 */
 
-#page-mod-forumng-view .generaltable {
+#page-mod-forumng-view .generaltable,
+#page-mod-forumng-feature-deletedposts-list .generaltable {
     width: 100%;
 }
-#page-mod-forumng-view .generaltable th {
+#page-mod-forumng-view .generaltable th,
+#page-mod-forumng-feature-deletedposts-list .generaltable th {
     text-align: left;
 }
 .forumng-startedby a,
@@ -963,6 +965,17 @@ padding-top: 1em;
     color: black;
 }
 
+/*
+// forumfeature deletedposts
+////////////////////////////
+*/
+#page-mod-forumng-feature-deletedposts-deletedpostslist .individualselector,
+#page-mod-forumng-feature-deletedposts-list .individualselector {
+    display:inline;
+    margin-right:0.5em;
+    margin-bottom:0.5em;
+    white-space: nowrap;
+}
 /*
 // Discusion selector
 */

@@ -1,0 +1,186 @@
+This script describes steps to test the view deleted discussions
+and posts facility from an user perspective. It is intended to
+cover most of the UI and features.
+
+NOTE: In this test case, the word 'forum' always refers to the OU ForumNG.
+
+The test steps in this script follow on from each other and aren't independent.
+
+Initial setup
+=============
+
+This test case requires:
+
+- a course which has at least two groups defined (G1 and G2).
+- four test student users (U.S1and U.S1a who are in group G1, and U.S2 and U.S2a, in group G2).
+- one editing teacher (U.ET)
+
+The test server must have debugging set to DEVELOPER level and to display
+errors; during all parts of the test script, there should be no debugging
+warnings.
+
+The completion system must be enabled for (a) the site, and (b) the test
+course.
+
+CRE Creating forums and data
+============================
+
+CRE01 / admin
+  In your test course, create a forum called CRE01
+  Edit forum settings so that:
+
+  Under 'Common module' settings
+  Choose 'Seperate groups' from Group mode
+  Leave 'Grouping' set to 'None'
+  Leave 'Visible' to 'Show'
+
+  Click on Save and display submit button
+
+CRE02 / admin
+  Go into the forum you have just created and start a seperate discussion (GD1 and GD2) for each group
+  For each discussion create a post
+
+CRE03 / U.S1 [change]
+  Go to forum CRE01 (you should be in group G1).
+  Reply to start discussion post created by admin user
+
+CRE04 / U.S1a [change]
+  Go to forum CRE01 (you should be in group G1).
+  Reply to post created by U.S1 user
+
+CRE05 / U.S2 [change]
+  Go to forum CRE01 (you should be in group G2).
+  Reply to start discussion post created by admin user
+
+CRE05 / U.S2a [change]
+  Go to forum CRE01 (you should be in group G2).
+  Reply to post created by U.S2 user
+
+CRE06 / U.ET [change]
+  Go to forum CRE01.
+  Click against 'View deleted'
+
+VDD Viewing Deleted Discussions
+===============================
+
+VDD01
+  This should bring up the deleted discussions list page.
+  The page should have 2 tabs on it 'Deleted discussions'
+  and 'Deleted posts' tabs. The tabs should default to
+  the 'Deleted discussions' tab, and since no discussions
+  have yet been deleted a 'There are no deleted discussions for
+  this forum' message should be displayed.
+
+VDD02
+  Go to forum CRE01.
+  Go to discussion GD1.
+  Delete discussion GD1.
+  Go to forum CRE01 check that GD1 has been deleted.
+  Click against  'View deleted'.
+  GD1 should be shown has deleted.
+
+VDD03
+  Click on the GD1 discussion link.
+  This should take you back to discussion GD1.
+  Click against 'Undelete' and confirm the undelete.
+  This should take you back to discussion GD1.
+  Go to forum CRE01.
+  Click against 'View deleted'
+  This should be the same as VDD01 above.
+
+
+VDP Viewing Deleted Posts
+=========================
+
+VDP01 / U.ET
+  Go to forum CRE01.
+  Click against 'View deleted'
+
+
+VDP02
+  Click on the 'Deleted posts' tab. This should bring up
+  the deleted posts list page.
+
+  The page should have 2 tabs on it 'Deleted discussions'
+  and 'Deleted posts' tabs. The tabs should default to
+  the 'Deleted posts' tab, and since no posts have yet
+  been deleted a No deleted posts found that were created
+  by Anybody and that were deleted by Anybody' message
+  should be displayed.
+
+  The page should also have 2 dropdowns, 'View deleted
+  posts deleted by' and 'View deleted posts created by'.
+  The first dropdown should contain:
+  Yourname (default)
+  Anyone
+  Followed by a list of each user that has deleted a post (should reflect group filter value).
+  The Second dropdown should contain:
+  All
+  Followed by a list of users that have created a deleted post (should reflect group filter value).
+
+VDP03
+  Go to forum CRE01.
+  Go to discussion GD1
+  Expand U.S1a post and Delete and confirm delete.
+  Go to forum CRE01.
+  Click against 'View deleted'
+  Choose the 'Deleted posts' tab.
+
+VDP04
+  This should bring up page containing the root discussion post and the
+  expanded deleted post slightly indented in.
+  Check the dropdowns to see whether they match as expected has in VDP02
+
+VDP05
+  Undelete post.
+  There should be a confirmation dialogue, select 'Undelete post'.
+  This should return you to the VDP04 discussion page with the post undeleted.
+
+VDP06
+  Go to forum CRE01.
+  Click against 'View deleted'
+  Follow the instruction as per VDP02
+  Check the dropdowns to see whether they match as expected has in VDP02
+
+VDP07 / U.S2 [change]
+   Go to forum CRE01.
+   Go to discussion GD2.
+   Expand U.S2 post and Delete and confirm delete.
+
+VDP08 / U.ET [change]
+  Go to forum CRE01.
+  Click against 'View deleted'
+  Follow the instruction as per VDP02.
+  Check the dropdowns to see whether they match as expected has in VDP02.
+
+VDP09
+  Change the Seperate Groups dropdown to GD1
+  This should produce the message No deleted posts found that were created
+  by Anybody and that were deleted by Anybody' message.
+
+VDP10
+  Change the Seperate Groups dropdown to GD2
+  This should show the deleted post
+  Undelete post and confirm.
+  This should return you to the GD2 discussion page with the post undeleted.
+
+VDDP Viewing Deleted Posts within Deleted Discussions
+=====================================================
+
+This should not be possible. To test
+
+VDDP01
+  Follow steps VDP01 - VPDP04 above.
+
+VDDP02
+  Go to forum CRE01.
+  Click against 'View deleted'
+
+
+VDDP03
+  Follow steps VDD01 - VDD02 above.
+
+VDDP04
+  Click on the 'Deleted posts' tab. This should bring up
+  the deleted posts list page.
+  No posts should be shown.

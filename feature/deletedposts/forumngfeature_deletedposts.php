@@ -15,16 +15,27 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version.
- *
- * @package mod_forumng
- * @copyright 2012 The Open University
+ * Discussion feature: Deletedposts.
+ * @package forumngfeature
+ * @subpackage deletedposts
+ * @copyright 2011 The Open University
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+class forumngfeature_deletedposts extends forumngfeature_discussion_list {
+    public function get_order() {
+        return 400;
+    }
 
-$module->version  = 2013041700;
-$module->requires = 2011120100;
-$module->cron     = 60;
+    public function should_display($forum) {
+        $candisplay = parent::should_display($forum)
+        && !($forum->is_shared() || $forum->is_clone());
+        return $candisplay;
+    }
 
-// Note: This should be replaced with standard ->maturity and other options.
-$module->displayversion = 'Unstable development version (use at own risk)';
+    public function display($forum) {
+        $name = get_string('viewdeleted',  'forumngfeature_deletedposts');
+        $script = 'feature/deletedposts/list.php';
+        return parent::get_button($forum, $name, $script);
+    }
+
+}

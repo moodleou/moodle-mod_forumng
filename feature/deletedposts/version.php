@@ -16,15 +16,9 @@
 
 /**
  * Version.
- *
- * @package mod_forumng
- * @copyright 2012 The Open University
+ * @package forumngfeature
+ * @subpackage deleteposts
+ * @copyright 2011 The Open University
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
-$module->version  = 2013041700;
-$module->requires = 2011120100;
-$module->cron     = 60;
-
-// Note: This should be replaced with standard ->maturity and other options.
-$module->displayversion = 'Unstable development version (use at own risk)';
+$plugin->version  = 2013041700;

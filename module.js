@@ -84,6 +84,9 @@ M.mod_forumng = {
             this.init_discuss();
             return;
         }
+        if (document.getElementById('page-mod-forumng-feature-deletedposts-deletedpostslist')) {
+            this.init_content(this.Y.one(document));
+        }
         if (document.getElementById('page-mod-forumng-feature-print-print')) {
             this.init_content(this.Y.one(document));
             this.print_page();
