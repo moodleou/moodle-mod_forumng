@@ -402,16 +402,20 @@ h3.forumng-subject {
     text-align:right;
 }
 ul.forumng-commands {
-    display: inline;
+    display: inline-block;
     margin: 0;
     padding: 0;
     white-space: nowrap;
+}
+.ie7 ul.forumng-commands {
+    display: inline;
 }
 ul.forumng-commands li {
     display:inline;
     list-style-type:none;
     margin:0 0 0 2em;
     padding:0;
+    position: relative;
 }
 ul.forumng-commands li {
     font-size: 0.85em;
