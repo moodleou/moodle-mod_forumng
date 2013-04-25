@@ -249,7 +249,7 @@ abstract class forumngfeature_discussion_selector extends forumngfeature_post_se
             $selectedids = array();
             foreach ($_POST as $field => $value) {
                 $matches = array();
-                if ((string)$value !== '0' &&
+                if (!is_array($value) && (string)$value !== '0' &&
                     preg_match('~^selectd([0-9]+)$~', $field, $matches)) {
                     $selectedids[] = ($matches[1]);
                 }

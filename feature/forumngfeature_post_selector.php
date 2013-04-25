@@ -203,7 +203,7 @@ abstract class forumngfeature_post_selector {
                 $postids = array();
                 foreach ($_POST as $field => $value) {
                     $matches = array();
-                    if ((string)$value !== '0' &&
+                    if (!is_array($value) && (string)$value !== '0' &&
                         preg_match('~^selectp([0-9]+)$~', $field, $matches)) {
                         $postids[] = $matches[1];
                     }
