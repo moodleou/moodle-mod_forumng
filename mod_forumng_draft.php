@@ -231,6 +231,11 @@ ORDER BY
         // Does not indicate that we trust the text, only that the
         // TRUSTTEXT marker would be supported. At present though it isn't (hm)
         $textoptions->trusttext = false;
+        if (trusttext_active() && $this->get_user_id() && has_capability('moodle/site:trustcontent',
+                $context, $this->get_user_id())) {
+            // Support trusted text when initial author is safe.
+            $textoptions->trusted = true;
+        }
         $textoptions->context = $context;
         return format_text($text, $this->draftfields->messageformat, $textoptions);
     }

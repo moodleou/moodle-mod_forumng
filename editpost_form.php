@@ -101,7 +101,7 @@ class mod_forumng_editpost_form extends moodleform {
                     'context' => $forum->get_context(true));
             $mform->addElement('editor', 'message', get_string('message', 'forumng'),
                     $editorattributes, $editoroptions);
-            $mform->setType('message', PARAM_CLEANHTML);
+            $mform->setType('message', PARAM_RAW);
             $mform->addRule('message', get_string('required'),
                     'required', null, 'client');
 
