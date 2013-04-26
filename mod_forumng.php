@@ -2875,8 +2875,8 @@ WHERE fd.forumngid = ?";
      *   $realforums is set)
      */
     public static function get_course_forums($course, $userid = 0,
-        $unread = self::UNREAD_DISCUSSIONS, $specificids = array(),
-        $realforums = false) {
+            $unread = self::UNREAD_DISCUSSIONS, $specificids = array(),
+            $realforums = false) {
         global $USER, $DB;
 
         $userid = mod_forumng_utils::get_real_userid($userid);
@@ -2887,19 +2887,21 @@ WHERE fd.forumngid = ?";
         $aagforums = array();
         $viewhiddenforums = array();
         $groups = array();
+        $contexts = array();
         if ($unread != self::UNREAD_NONE) {
             foreach ($modinfo->cms as $cmid => $cm) {
                 if (count($specificids) && !in_array($cmid, $specificids)) {
                     continue;
                 }
-                $context = context_module::instance($cmid);
                 if ($cm->modname == 'forumng') {
+                    $context = context_module::instance($cmid);
+                    $contexts[$cmid] = $context;
                     if (has_capability(
-                        'moodle/site:accessallgroups', $context, $userid)) {
+                            'moodle/site:accessallgroups', $context, $userid)) {
                         $aagforums[] = $cm->instance;
                     }
                     if (has_capability(
-                        'mod/forumng:viewallposts', $context, $userid)) {
+                            'mod/forumng:viewallposts', $context, $userid)) {
                         $viewhiddenforums[] = $cm->instance;
                     }
                 }
@@ -2950,10 +2952,16 @@ WHERE
                 }
             }
 
+            // Get context if we didn't already get it.
+            if (!empty($contexts[$cmid])) {
+                $context = $contexts[$cmid];
+            } else {
+                $context = context_module::instance($cmid);
+            }
+
             // Create a new forum object from the database details
             $forumfields = mod_forumng_utils::extract_subobject($rec, 'f_');
-            $forum = new mod_forumng($course, $cm,
-                context_module::instance($cm->id), $forumfields);
+            $forum = new mod_forumng($course, $cm, $context, $forumfields);
             $result[$forumfields->id] = $forum;
             if ($forum->is_shared()) {
                 $forum->set_clone_reference(self::CLONE_DIRECT);
