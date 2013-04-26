@@ -21,8 +21,8 @@
  * @copyright 2011 The Open University
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-$string['viewpostsbyuser'] = 'View posts by user';
-$string['userposts'] = 'User posts';
+$string['viewpostsbyuser'] = 'Participation by user';
+$string['userposts'] = 'User participation';
 $string['showallpostsby'] = 'Show all posts by {$a}';
 $string['allpostsby'] = 'All posts by: {$a}';
 $string['notforsharedforum'] = 'Not supported for shared forums';
@@ -30,6 +30,8 @@ $string['replyin'] = 'Reply in discussion: {$a}';
 $string['userposts:view'] = 'View list of posts by user';
 $string['pluginname'] = 'View posts by user';
 $string['action'] = 'Action';
+$string['viewownposts'] = 'My participation';
+$string['nopostsby'] = 'No posts by {$a}';
 
 // User participation.
 $string['savegrades'] = 'Save grades';

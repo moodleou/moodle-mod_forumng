@@ -266,12 +266,12 @@ WHERE
             for ($depth = 1; $depth <= $maxdepth; $depth++) {
                 $var = "s$depth";
                 $var2 = "d$depth";
-                if ($rec->{$var} !== null && $rec->{$var2}==0) {
+                if (isset($rec->{$var}) && $rec->{$var2}==0) {
                     return get_string('re', 'forumng', $rec->{$var});
                 }
             }
 
-            $parentid = $rec->nextparent;
+            $parentid = isset($rec->nextparent) ? $rec->nextparent : null;
 
         } while ($parentid);
 

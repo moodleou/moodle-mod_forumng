@@ -1,0 +1,80 @@
+This script describes steps to test the participation facility from a user
+perspective. It is intended to cover most of the UI and features.
+
+NOTE: In this test case, the word 'forum' always refers to the OU ForumNG.
+
+The test steps in this script follow on from each other and aren't independent.
+
+Initial setup
+=============
+
+This test case requires:
+
+- a course which has at least two groups defined (G1 and G2).
+- two test student users (U.S1, who is in group G1, and U.S2, in group G2).
+- one editing teacher (U.ET)
+
+The test server must have debugging set to DEVELOPER level and to display
+errors; during all parts of the test script, there should be no debugging
+warnings.
+
+The completion system must be enabled for (a) the site, and (b) the test
+course.
+
+CRE Creating forums and data
+============================
+
+CRE01 / admin
+  In your test course, create a forum called CRE01
+  Edit forum settings so that:
+  Under 'Grade' settings
+  Choose 'Teacher grades student' from Grade dropdown
+  Set 'Grading scale' to 100
+
+  Under 'Common module' settings
+  Choose 'Seperate groups' from Group mode
+  Leave 'Grouping' set to 'None'
+  Leave 'Visible' to 'Show'
+
+  Click on Save and display submit button
+
+CRE02 / admin
+  Go into the forum you have just created and start a seperate discussion for each group
+  For each discussion create a post
+
+CRE03 / U.S1 [change]
+  Go to forum CRE01 (you should be in group G1).
+  Reply to start discussion post created by admin user
+
+CRE04 / U.S2 [change]
+  Go to forum CRE01 (you should be in group G2).
+  Reply to start discussion post created by admin user
+
+CRE04 / U.ET [change]
+  Go to forum CRE01.
+  Click against 'View posts by user'
+
+UP Userposts
+===========
+
+UP01 / U.ET
+ This should bring up a screen entitled User posts
+ It should show the student user
+ The number of Discussions started by that user
+ The number of Replies to posts
+ Grades per user,
+ Click on the link that says 'Show all posts by <name>'
+
+UPD02 / U.ET
+ This takes you to a screen showing all posts by that user (including replies and discussions stated)
+
+SUP Retest with student userposts
+=================================
+
+SUP01 / U.S2 [change]
+  Go to forum CRE01 (you should be in group G2).
+  Click against 'View own posts'
+
+SUP02 / U.S2
+============
+ This takes you to a screen showing all posts by U.S2 (including replies and discussions stated)

@@ -33,22 +33,15 @@ $cmid = required_param('id', PARAM_INT);
 $userid = required_param('user', PARAM_INT);
 $cloneid = optional_param('clone', 0, PARAM_INT);
 
+$student = false;
+$groupid = 0;
+
 $pageparams = array('id' => $cmid, 'user'=>$userid);
 if ($cloneid) {
     $pageparams['clone'] = $cloneid;
 }
 
 $forum = mod_forumng::get_from_cmid($cmid, $cloneid);
-if ($forum->get_group_mode()) {
-    $groupid = required_param('group', PARAM_INT);
-    $pageparams['group'] = $groupid;
-    if (!$groupid) {
-        $groupid = mod_forumng::ALL_GROUPS;
-    }
-} else {
-    $groupid = mod_forumng::NO_GROUPS;
-}
-
 $cm = $forum->get_course_module();
 $course = $forum->get_course();
 $forumngid = $forum->get_id();
@@ -57,28 +50,64 @@ if ($forum->is_shared() || $forum->is_clone()) {
     throw new invalid_parameter_exception("Not supported for shared forums.");
 }
 
-// Check access.
-$forum->require_view($groupid);
-require_capability('forumngfeature/userposts:view', $forum->get_context());
+global $USER;
+if (has_capability('forumngfeature/userposts:view', $context)) {
+    $student = false;
+} else {
+    if ($USER->id == $userid) {
+        $student = true;
+    } else {
+        // Throw user access no permissions error.
+        throw new moodle_exception('error_nopermission', 'forumng');
+    }
+}
+
+if ($student) {
+    // We need to get active group from forum.
+    $groupid = mod_forumng::get_activity_group($cm, true);
+} else {
+    // Check access.
+    $forum->require_view($groupid);
+    require_capability('forumngfeature/userposts:view', $context);
+    // Check group mode and set up group id.
+    if ($forum->get_group_mode()) {
+        $groupid = required_param('group', PARAM_INT);
+        $pageparams['group'] = $groupid;
+        if (!$groupid) {
+            $groupid = mod_forumng::ALL_GROUPS;
+        }
+    } else {
+        $groupid = mod_forumng::NO_GROUPS;
+    }
+}
 
 $posts = $forum->get_all_posts_by_user($userid, $groupid);
 
 // Set pagename.
+$postsfound = true;
 if ($posts) {
     $post = reset($posts);
     $user = $post->get_user();
 } else {
     $user = $DB->get_record('user', array('id' => $userid), '*', MUST_EXIST);
+    $postsfound = false;
 }
 $pagename = fullname($user, has_capability('moodle/site:viewfullnames', $context));
 $pagename .= $CFG->forumng_showusername ? ' (' . $user->username . ')' : '';
 
-$prevpage = get_string('userposts', 'forumngfeature_userposts');
-$prevurl = new moodle_url('/mod/forumng/feature/userposts/list.php',
-        $forum->get_link_params_array());
-
+$prevpage = '';
+$prevurl = '';
 $pageurl = new moodle_url('/mod/forumng/feature/userposts/user.php', $pageparams);
-$out = $forum->init_page($pageurl, $pagename, array($prevpage=>$prevurl));
+$out = '';
+
+if (!$student) {
+    $prevpage = get_string('userposts', 'forumngfeature_userposts');
+    $prevurl = new moodle_url('/mod/forumng/feature/userposts/list.php',
+        $forum->get_link_params_array());
+    $out = $forum->init_page($pageurl, $pagename, array($prevpage=>$prevurl));
+} else {
+    $out = $forum->init_page($pageurl, $pagename);
+}
 print $out->header();
 
 foreach ($posts as $postid => $post) {
@@ -104,12 +133,25 @@ foreach ($posts as $postid => $post) {
     print $post->display(true, $options);
 }
 
+if (!$postsfound) {
+    // Should only occur if student because list.php won't let us get here if no posts available.
+    $username = fullname($user);
+    print '<p class="forumng-nopostsby">' .
+            get_string('nopostsby', 'forumngfeature_userposts', $username) . '</p>';
+}
+
 if ($forum->can_grade()) {
     forumngfeature_userposts_display_user_grade( $cm->id, $forum, $user, $groupid);
 }
 
-// Display link to the discussion.
-print link_arrow_left($prevpage, 'list.php?id=' . $cmid);
+if (!$student) {
+    // Display link to the discussion.
+    print link_arrow_left($prevpage, 'list.php?id=' . $cmid);
+} else {
+    // Display link to the forum view.
+    $url = '../../view.php?id=' . $cmid;
+    print link_arrow_left($forum->get_name(), $url);
+}
 
 // Display footer.
 print $out->footer();

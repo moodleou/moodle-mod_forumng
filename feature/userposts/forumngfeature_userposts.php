@@ -34,14 +34,26 @@ class forumngfeature_userposts extends forumngfeature_discussion_list {
     }
 
     public function should_display($forum) {
-        $candisplay = has_capability('forumngfeature/userposts:view', $forum->get_context())
-            && !($forum->is_shared() || $forum->is_clone());
-        return $candisplay;
+        global $USER;
+        if (!($forum->is_shared() || $forum->is_clone() || isguestuser($USER->id)) &&
+            (has_capability('mod/forumng:startdiscussion', $forum->get_context())
+            || has_capability('mod/forumng:replypost', $forum->get_context())
+            || has_capability('forumngfeature/userposts:view', $forum->get_context()))) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public function display($forum) {
-        $name = get_string('viewpostsbyuser', 'forumngfeature_userposts');
-        $script = 'feature/userposts/list.php';
-        return parent::get_button($forum, $name, $script);
+        if (has_capability('forumngfeature/userposts:view', $forum->get_context())) {
+            $name = get_string('viewpostsbyuser', 'forumngfeature_userposts');
+            $script = 'feature/userposts/list.php';
+            return parent::get_button($forum, $name, $script);
+        } else {
+            $name = get_string('viewownposts', 'forumngfeature_userposts');
+            $script = 'feature/userposts/user.php';
+            return parent::get_button($forum, $name, $script, false, array('user'=> mod_forumng_utils::get_real_userid()));
+        }
     }
 }
