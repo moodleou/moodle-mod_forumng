@@ -29,6 +29,8 @@ require_once($CFG->dirroot . '/mod/forumng/mod_forumng.php');
 require_once($CFG->dirroot. '/mod/forumng/feature/userposts/locallib.php');
 require_once($CFG->dirroot . '/lib/gradelib.php');
 
+global $OUTPUT;
+
 $cmid = required_param('id', PARAM_INT);
 $cloneid = optional_param('clone', 0, PARAM_INT);
 $download   = optional_param('download', '', PARAM_TEXT);
@@ -86,7 +88,8 @@ if ($groupid != -1 && !empty($download)) {
 }
 $ptable->is_downloading($download, $filename, get_string('userposts', 'forumngfeature_userposts'));
 
-$users = $forum->get_monitored_users($groupid);
+$users = get_enrolled_users($context, '', $groupid > 0 ? $groupid : 0,
+        'u.id, u.lastname, u.firstname, u.username, u.picture, u.imagealt, u.email');
 
 if (empty($download)) {
     print $out->header();
@@ -125,7 +128,12 @@ if ($viewgrade) {
 $data = array();
 foreach ($users as $id => $u) {
     $row = array();
-    $username = $u->firstname . ' ' . $u->lastname;
+    $picture = $OUTPUT->user_picture($u, array('courseid' => $course->id));
+    $username = fullname($u);
+    $userurl = new moodle_url('/user/view.php?',
+            array('id' => $id, 'course' => $course->id));
+    $userdetails = html_writer::link($userurl, $username);
+
     $username .= $CFG->forumng_showusername ? ' (' . $u->username . ')' : '';
     $showallpostsby = null;
 
@@ -152,7 +160,13 @@ foreach ($users as $id => $u) {
         $span = html_writer::start_tag('div', array('class' => 'active'));
         $postspan = html_writer::end_tag('div');
     }
-    $row[0] = $span . $username . $postspan;
+
+    $rows[0] = '';
+    if (empty($download)) {
+        $row[0] = $span . $picture . '&nbsp;' . $userdetails . $postspan;
+    } else {
+        $row[0] = $span . $username . $postspan;
+    }
     $row[1] = $span . $count->discussions . $postspan;
     $row[2] = $span . $count->replies . $postspan;
     $row[3] = $showallpostsby;
