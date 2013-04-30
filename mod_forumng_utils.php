@@ -316,7 +316,7 @@ class mod_forumng_utils {
     }
 
     static function select_course_fields($alias) {
-        return mod_forumng_utils::select_fields(array('id', 'shortname', 'fullname'),
+        return mod_forumng_utils::select_fields(array('id', 'shortname', 'fullname', 'format'),
             $alias);
     }
 
