@@ -22,7 +22,9 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once($CFG->dirroot.'/mod/forumng/mod_forumng.php');
+defined('MOODLE_INTERNAL') || die();
+
+require($CFG->dirroot . '/mod/forumng/settingslib.php');
 
 $module = new stdClass;
 require($CFG->dirroot.'/mod/forumng/version.php');
@@ -79,23 +81,17 @@ if (empty($CFG->enablerssfeeds)) {
 $settings->add(new admin_setting_configselect('forumng_enablerssfeeds',
     get_string('enablerssfeeds', 'admin'), $str, 0, $options));
 
-$options = mod_forumng::get_subscription_options();
-$options[-1]=get_string('perforumoption', 'forumng');
-$settings->add(new admin_setting_configselect('forumng_subscription',
+$settings->add(new forumng_admin_setting_configselect_subscription('forumng_subscription',
     get_string('subscription', 'forumng'),
-    get_string('configsubscription', 'forumng'), -1, $options));
+    get_string('configsubscription', 'forumng'), -1, null));
 
-$options = mod_forumng::get_feedtype_options();
-$options[-1]=get_string('perforumoption', 'forumng');
-$settings->add(new admin_setting_configselect('forumng_feedtype',
+$settings->add(new forumng_admin_setting_configselect_feedtype('forumng_feedtype',
     get_string('feedtype', 'forumng'),
-    get_string('configfeedtype', 'forumng'), -1, $options));
+    get_string('configfeedtype', 'forumng'), -1, null));
 
-$options = mod_forumng::get_feeditems_options();
-$options[-1]=get_string('perforumoption', 'forumng');
-$settings->add(new admin_setting_configselect('forumng_feeditems',
+$settings->add(new forumng_admin_setting_configselect_feeditems('forumng_feeditems',
     get_string('feeditems', 'forumng'),
-    get_string('configfeeditems', 'forumng'), -1, $options));
+    get_string('configfeeditems', 'forumng'), -1, null));
 
 $options = array(
     0=>get_string('permanentdeletion_never', 'forumng'),
