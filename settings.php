@@ -24,7 +24,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-require($CFG->dirroot . '/mod/forumng/settingslib.php');
+require_once($CFG->dirroot . '/mod/forumng/settingslib.php');
 
 $module = new stdClass;
 require($CFG->dirroot.'/mod/forumng/version.php');
