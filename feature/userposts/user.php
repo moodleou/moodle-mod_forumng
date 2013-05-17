@@ -81,7 +81,7 @@ if ($student) {
     }
 }
 
-$posts = $forum->get_all_posts_by_user($userid, $groupid);
+$posts = $forum->get_all_posts_by_user($userid, $groupid, 'fd.forumngid');
 
 // Set pagename.
 $postsfound = true;
@@ -111,26 +111,35 @@ if (!$student) {
 print $out->header();
 
 foreach ($posts as $postid => $post) {
-    print "<div class='forumng-userpostheading'>";
+    $deleted = $post->get_deleted();
+    $discussion = $post->get_discussion();
+    $discussiondeleted = $discussion->is_deleted();
 
-    // Get URL to post.
-    print '<a href="' . s($post->get_url()) . '">';
+    // Don't display if post or discussion is deleted and user is a student.
+    if (! (($deleted || $discussiondeleted) && $student)) {
 
-    // If this post is a reply, then print a link to the discussion.
-    if (!$post->is_root_post()) {
-        print get_string('replyin', 'forumngfeature_userposts',
-                $post->get_discussion()->get_subject());
-    } else {
-        print get_string('newdiscussion', 'forumng');
+        print "<div class='forumng-userpostheading'>";
+
+        // Get URL to post.
+        print '<a href="' . s($post->get_url()) . '">';
+
+        // If this post is a reply, then print a link to the discussion.
+        if (!$post->is_root_post()) {
+            print get_string('replyin', 'forumngfeature_userposts',
+                $discussion->get_subject());
+        } else {
+            print get_string('newdiscussion', 'forumng');
+        }
+        print "</a></div>";
+
+        // Display this post.
+        $options = array(
+            mod_forumng_post::OPTION_NO_COMMANDS => true,
+            mod_forumng_post::OPTION_FIRST_UNREAD => false,
+            mod_forumng_post::OPTION_UNREAD_NOT_HIGHLIGHTED => true);
+        print $post->display(true, $options);
+
     }
-    print "</a></div>";
-
-    // Display this post.
-    $options = array(
-       mod_forumng_post::OPTION_NO_COMMANDS => true,
-       mod_forumng_post::OPTION_FIRST_UNREAD => false,
-       mod_forumng_post::OPTION_UNREAD_NOT_HIGHLIGHTED => true);
-    print $post->display(true, $options);
 }
 
 if (!$postsfound) {
