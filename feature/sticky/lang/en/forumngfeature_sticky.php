@@ -21,6 +21,6 @@
  * @copyright 2013 The Open University
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-$string['sticky_on'] = 'Make sticky';
-$string['sticky_off'] = 'Make normal';
+$string['sticky_on'] = 'Make discussions sticky';
+$string['sticky_off'] = 'Make discussions not sticky';
 $string['pluginname'] = 'Option to manually mark discussions sticky';

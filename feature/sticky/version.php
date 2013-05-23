@@ -16,9 +16,9 @@
 
 /**
  * Version.
- * @package forumngfeature
- * @subpackage sticky
- * @copyright 2011 The Open University
+ *
+ * @package forumngfeature_sticky
+ * @copyright 2013 The Open University
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-$plugin->version  = 2013040900;
+$plugin->version  = 2013052300;
