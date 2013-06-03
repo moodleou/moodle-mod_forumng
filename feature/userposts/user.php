@@ -66,12 +66,15 @@ if ($student) {
     // We need to get active group from forum.
     $groupid = mod_forumng::get_activity_group($cm, true);
 } else {
+    // Check group mode and get group id.
+    if ($forum->get_group_mode()) {
+        $groupid = required_param('group', PARAM_INT);
+    }
     // Check access.
     $forum->require_view($groupid);
     require_capability('forumngfeature/userposts:view', $context);
     // Check group mode and set up group id.
     if ($forum->get_group_mode()) {
-        $groupid = required_param('group', PARAM_INT);
         $pageparams['group'] = $groupid;
         if (!$groupid) {
             $groupid = mod_forumng::ALL_GROUPS;
