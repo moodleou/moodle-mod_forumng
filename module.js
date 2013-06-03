@@ -626,9 +626,6 @@ M.mod_forumng = {
                 // Set up JavaScript behaviour in new post.
                 t.init_content(newpost);
 
-                // Scroll to it.
-                t.scroll_page(newpost, null);
-
                 // Update quota left.
                 if (t.quotaleft > 0) {
                     t.quotaleft--;
@@ -643,6 +640,9 @@ M.mod_forumng = {
                 // This needs to be palced here for mobile devices to work.
                 t.remove_iframe(iframe);
                 window.iframe_success = null;
+
+                // Scroll to it (must do this after frame removed or height will be incorrect).
+                t.scroll_page(newpost, null);
             };
 
             // Mark that we've got a reply there.
