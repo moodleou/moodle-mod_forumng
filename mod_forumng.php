@@ -2953,10 +2953,10 @@ WHERE
             }
 
             // Get context if we didn't already get it.
-            if (!empty($contexts[$cmid])) {
-                $context = $contexts[$cmid];
+            if (!empty($contexts[$rec->cm_id])) {
+                $context = $contexts[$rec->cm_id];
             } else {
-                $context = context_module::instance($cmid);
+                $context = context_module::instance($rec->cm_id);
             }
 
             // Create a new forum object from the database details
