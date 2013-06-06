@@ -687,6 +687,9 @@ M.mod_forumng = {
     init_flag_div: function(div) {
         // Get on state from image icon
         div.icon = div.one('input[type=image]');
+        if (!div.icon) {
+            return; // Flag not found.
+        }
         div.on = div.icon.get('src').match(/flag\.on/);
         // Get id from p value
         div.postid = div.icon.get('name').replace(/^.*p_([^.]*)\..*$/, '$1');
@@ -1026,7 +1029,9 @@ M.mod_forumng = {
         // Replace 'expand all' text with 'expand this post'
         var postnum = link.post.get('className').replace(/^.*forumng-p([0-9]+).*$/, '$1');
         var text = link.one('.forumng-expandtext');
-        text.set('innerHTML', M.str.forumng.expand.replace('#', postnum));
+        if (text) {
+            text.set('innerHTML', M.str.forumng.expand.replace('#', postnum));
+        }
 
         link.on('click', function(e) {
             e.preventDefault();

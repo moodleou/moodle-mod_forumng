@@ -401,6 +401,12 @@ h3.forumng-subject {
     margin:0.5em 0 0;
     text-align:right;
 }
+/* Hide buttons if copied into message */
+.forumng-message .forumng-postfooter, .forumng-message .forumng-commands,
+.forumng-message .forumng-expandcontainer {
+    display: none;
+}
+
 ul.forumng-commands {
     display: inline-block;
     margin: 0;
