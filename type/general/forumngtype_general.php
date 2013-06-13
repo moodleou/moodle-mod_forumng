@@ -149,6 +149,11 @@ class forumngtype_general extends forumngtype {
             print "<div class='forumng-show-dates'>$message</div>";
         }
 
+        // Show Alert info.
+        if ($forum->has_reporting_email()) {
+            print $out->box(get_string('alert_intro', 'forumng'), 'generalbox', 'forumng-reportingon');
+        }
+
         // Post button - temporarily disabled when in all-groups mode
         print ($groupid == null) ? '':$forum->display_post_button($groupid);
 

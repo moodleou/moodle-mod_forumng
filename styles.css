@@ -916,6 +916,10 @@ form.markread input {
     border: 1px dotted #555;
 }
 
+#forumng-reportingon.generalbox {
+    padding: 5px;
+}
+
 /*
 // Search page
 //////////////

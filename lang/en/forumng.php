@@ -815,3 +815,4 @@ $string['notext'] = '(no text)';
 
 $string['grade'] = 'Grade';
 $string['gradingscale'] = 'Grading scale';
+$string['alert_intro'] = 'You can use the Alert link if you need to bring a post in this forum to the attention of a moderator.';
