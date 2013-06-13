@@ -1,7 +1,7 @@
 ForumNG
 =======
 
-Copyright 2011 The Open University
+Copyright 2013 The Open University
 
 
 This is an alternative forum that you can install into standard Moodle.
@@ -18,9 +18,15 @@ that you are using ForumNG and not the standard forum.)
 
 Bug reports:
 
-Please report bugs to the Moodle tracker using the 'contributed code' project
-and 'Module: ForumNG' component. Under Version, please select your Moodle
-version e.g. 2.1, 2.2.
+Please report bugs using the GitHub 'Issues' tab. Before reporting a bug,
+please try the latest version to verify that the problem hasn't already been
+fixed. In each bug, please remember to give:
+
+1. Exact steps to reproduce your problem, starting from creating a new wiki
+   with default or specified settings.
+2. The news block version you are using (from version.php or Blocks admin
+   screen).
+3. The Moodle version you are using.
 
 Status:
 
@@ -32,7 +38,7 @@ community for testing on other systems.
 
 Requires:
 
-Moodle 2.1+
+Moodle 2.4+
 Postgres / MySQL
 
 Install:
