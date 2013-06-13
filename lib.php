@@ -166,7 +166,7 @@ function forumng_ousearch_add_visible_module($cm, $course) {
         $forums = mod_forumng::get_course_forums($course, 0,
                 mod_forumng::UNREAD_NONE, array(), true);
 
-        foreach ($forums as $id=>$forum) {
+        foreach ($forums as $id => $forum) {
             if ($forum->is_shared()) {
                 $originalcmid = $forum->get_course_module_id(true);
                 $FORUMNG_CLONE_MAP[$originalcmid] = $forum->get_course_module();
@@ -221,7 +221,7 @@ function forumng_get_coursemodule_info($coursemodule) {
 function forumng_get_file_info($browser, $areas, $course, $cm, $context, $filearea,
         $itemid, $filepath, $filename) {
     global $CFG;
-    require_once ($CFG->dirroot . '/mod/forumng/mod_forumng.php');
+    require_once($CFG->dirroot . '/mod/forumng/mod_forumng.php');
     if ($context->contextlevel != CONTEXT_MODULE) {
         return null;
     }
@@ -327,8 +327,8 @@ function forumng_supports($feature) {
         case FEATURE_COMPLETION_TRACKS_VIEWS: return true;
         case FEATURE_COMPLETION_HAS_RULES:    return true;
         case FEATURE_GRADE_HAS_GRADE:         return true;
-//        case FEATURE_GRADE_OUTCOMES:          return true;
-//        case FEATURE_RATE:                    return true;
+            // case FEATURE_GRADE_OUTCOMES:          return true;
+            // case FEATURE_RATE:                    return true;
         case FEATURE_BACKUP_MOODLE2:          return true;
         default: return false;
     }
@@ -368,7 +368,7 @@ function forumng_user_outline($course, $user, $mod, $forum) {
         $result->time = $posts->lastpost;
         return $result;
     } else {
-        return NULL;
+        return null;
     }
 }
 

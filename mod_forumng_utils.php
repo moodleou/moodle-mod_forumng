@@ -24,7 +24,7 @@
 class mod_forumng_utils {
 
     // DB wrapper function
-    //////////////////////
+    /*////////////////////*/
 
     /**
      * Similar to core $DB->get_in_or_equal, but permits empty array and requires the value to
@@ -55,7 +55,7 @@ class mod_forumng_utils {
     }
 
     // Exception handling
-    /////////////////////
+    /*///////////////////*/
 
     /**
      * Adds exception information to Moodle log.
@@ -73,8 +73,8 @@ class mod_forumng_utils {
 
         // These are numeric params so OK to include; I made this list from
         // all the params in editpost.php where this is initially implemented
-        foreach(array('clone', 'id', 'd', 'p', 'ajax', 'draft', 'group', 'replyto', 'lock')
-                as $param) {
+        foreach (array('clone', 'id', 'd', 'p', 'ajax', 'draft', 'group', 'replyto',
+                'lock') as $param) {
             if ($val = optional_param($param, 0, PARAM_INT)) {
                 $info .= $param . '=' . $val . ',';
 
@@ -151,14 +151,14 @@ class mod_forumng_utils {
     }
 
     // Renderer
-    ///////////
+    /*/////////*/
 
     /**
      * Obtains the forum renderer. This is necessary because the forum renderer has functions that
      * are not included in the default $OUTPUT renderer.
      * @return mod_forumng_renderer Singleton renderer
      */
-    static function get_renderer() {
+    public static function get_renderer() {
         // It probably doesn't take very long to construct one, but let's cache it anyhow
         static $out;
         if (!$out) {
@@ -169,7 +169,7 @@ class mod_forumng_utils {
     }
 
     // Exception-safe IO
-    ////////////////////
+    /*//////////////////*/
 
     // TODO Are these still needed now attachments were dumped to core?
 
@@ -178,7 +178,7 @@ class mod_forumng_utils {
      * @param string $file File to delete
      * @throws mod_forumng_exception If the delete fails
      */
-    static function unlink($file) {
+    public static function unlink($file) {
         if (!unlink($file)) {
             throw new mod_forumng_file_exception("Failed to delete $file");
         }
@@ -190,7 +190,7 @@ class mod_forumng_utils {
      * @param $newfile New name
      * @throws mod_forumng_exception If the rename fails
      */
-    static function rename($oldfile, $newfile) {
+    public static function rename($oldfile, $newfile) {
         if (!rename($oldfile, $newfile)) {
             throw new mod_forumng_file_exception("Failed to rename $oldfile to $newfile");
         }
@@ -202,7 +202,7 @@ class mod_forumng_utils {
      * @param string $folder Path of folder
      * @throws mod_forumng_exception If the delete fails
      */
-    static function rmdir($folder) {
+    public static function rmdir($folder) {
         if (!rmdir($folder)) {
             throw new mod_forumng_file_exception("Failed to delete folder $folder");
         }
@@ -214,7 +214,7 @@ class mod_forumng_utils {
      * @param string $folder Path of folder
      * @throws mod_forumng_exception If the create fails
      */
-    static function mkdir($folder) {
+    public static function mkdir($folder) {
         if (!mkdir($folder)) {
             throw new mod_forumng_file_exception("Failed to make folder $folder");
         }
@@ -226,7 +226,7 @@ class mod_forumng_utils {
      * @param $newfile New name
      * @throws mod_forumng_exception If the copy fails
      */
-    static function copy($oldfile, $newfile) {
+    public static function copy($oldfile, $newfile) {
         if (!copy($oldfile, $newfile)) {
             throw new mod_forumng_file_exception("Failed to copy $oldfile to $newfile");
         }
@@ -239,7 +239,7 @@ class mod_forumng_utils {
      * @return int Handle
      * @throws mod_forumng_exception If the open fails
      */
-    static function opendir($folder) {
+    public static function opendir($folder) {
         $handle = @opendir($folder);
         if (!$handle) {
             throw new mod_forumng_file_exception(
@@ -249,7 +249,7 @@ class mod_forumng_utils {
     }
 
     // SQL field selections
-    ///////////////////////
+    /*/////////////////////*/
 
     /**
      * Makes a list of fields with alias in front.
@@ -280,7 +280,7 @@ class mod_forumng_utils {
      * @param bool $includemailfields If true, includes email fields (loads)
      * @return array List of all field names in mdl_user to include
      */
-    static function get_username_fields($includemailfields=false) {
+    public static function get_username_fields($includemailfields=false) {
         return $includemailfields
             ? array('id', 'username', 'firstname', 'lastname', 'picture', 'url',
                 'imagealt', 'email', 'maildisplay', 'mailformat', 'maildigest',
@@ -299,12 +299,12 @@ class mod_forumng_utils {
      *   needed for sending emails
      * @return string SQL select fields (no comma at start or end)
      */
-    static function select_username_fields($alias, $includemailfields = false) {
-        return mod_forumng_utils::select_fields(
+    public static function select_username_fields($alias, $includemailfields = false) {
+        return self::select_fields(
             self::get_username_fields($includemailfields), $alias);
     }
 
-    static function select_course_module_fields($alias) {
+    public static function select_course_module_fields($alias) {
         $fields = array('id', 'course', 'module', 'instance', 'section',
             'added', 'score', 'indent', 'visible', 'visibleold', 'groupmode',
             'groupingid', 'idnumber', 'groupmembersonly', 'completion',
@@ -312,16 +312,16 @@ class mod_forumng_utils {
               'completionexpected', 'availablefrom', 'availableuntil',
               'showavailability');
 
-        return mod_forumng_utils::select_fields($fields, $alias);
+        return self::select_fields($fields, $alias);
     }
 
-    static function select_course_fields($alias) {
-        return mod_forumng_utils::select_fields(array('id', 'shortname', 'fullname', 'format'),
+    public static function select_course_fields($alias) {
+        return self::select_fields(array('id', 'shortname', 'fullname', 'format'),
             $alias);
     }
 
-    static function select_context_fields($alias) {
-        return mod_forumng_utils::select_fields(array('id', 'contextlevel', 'instanceid',
+    public static function select_context_fields($alias) {
+        return self::select_fields(array('id', 'contextlevel', 'instanceid',
             'path', 'depth'), $alias);
     }
 
@@ -330,8 +330,8 @@ class mod_forumng_utils {
      * @param string $alias Alias of table to extract
      * @return string SQL select fields (no comma at start or end)
      */
-    static function select_mod_forumng_fields($alias) {
-        return mod_forumng_utils::select_fields(array('id', 'course', 'name', 'type',
+    public static function select_mod_forumng_fields($alias) {
+        return self::select_fields(array('id', 'course', 'name', 'type',
             'intro', 'ratingscale', 'ratingfrom', 'ratinguntil', 'grading',
             'attachmentmaxbytes', 'reportingemail', 'subscription', 'feedtype', 'feeditems',
             'maxpostsperiod', 'maxpostsblock', 'postingfrom', 'postinguntil',
@@ -343,8 +343,8 @@ class mod_forumng_utils {
      * @param string $alias Alias of table to extract
      * @return string SQL select fields (no comma at start or end)
      */
-    static function select_discussion_fields($alias) {
-        return mod_forumng_utils::select_fields(array('id', 'forumngid', 'groupid', 'postid',
+    public static function select_discussion_fields($alias) {
+        return self::select_fields(array('id', 'forumngid', 'groupid', 'postid',
             'lastpostid', 'timestart', 'timeend', 'deleted', 'locked',
             'sticky'), $alias);
     }
@@ -354,15 +354,15 @@ class mod_forumng_utils {
      * @param string $alias Alias of table to extract
      * @return string SQL select fields (no comma at start or end)
      */
-    static function select_post_fields($alias) {
-        return mod_forumng_utils::select_fields(array('id', 'discussionid', 'parentpostid',
+    public static function select_post_fields($alias) {
+        return self::select_fields(array('id', 'discussionid', 'parentpostid',
             'userid', 'created', 'modified', 'deleted', 'important', 'mailstate',
             'oldversion', 'edituserid', 'subject', 'message', 'messageformat',
             'attachments'), $alias);
     }
 
     // SQL generic helpers
-    //////////////////////
+    /*////////////////////*/
 
     /**
      * Safe version of explode function. Always returns an array. Ignores blank
@@ -371,7 +371,7 @@ class mod_forumng_utils {
      * @param string $string String to split
      * @return array String split into parts
      */
-    static function safe_explode($separator, $string) {
+    public static function safe_explode($separator, $string) {
         $results = explode($separator, $string);
         $answer = array();
         if ($results) {
@@ -385,7 +385,7 @@ class mod_forumng_utils {
     }
 
     // SQL object extraction
-    ////////////////////////
+    /*//////////////////////*/
 
     /**
      * Loops through all the fields of an object, removing those which begin
@@ -394,9 +394,9 @@ class mod_forumng_utils {
      * @param $prefix string Prefix e.g. 'prefix_'
      * @return object Object containing all the prefixed fields (without prefix)
      */
-    static function extract_subobject(&$object, $prefix) {
+    public static function extract_subobject(&$object, $prefix) {
         $result = array();
-        foreach ((array)$object as $key=>$value) {
+        foreach ((array)$object as $key => $value) {
             if (strpos($key, $prefix)===0) {
                 $result[substr($key, strlen($prefix))] = $value;
                 unset($object->{$key});
@@ -413,11 +413,11 @@ class mod_forumng_utils {
      * @param $prefix Prefix for fields to copy
      * @param $newprefix New prefix (null = same prefix)
      */
-    static function copy_subobject(&$target, $source, $prefix, $newprefix=null) {
+    public static function copy_subobject(&$target, $source, $prefix, $newprefix=null) {
         if ($newprefix === null) {
             $newprefix = $prefix;
         }
-        foreach ($source as $key=>$value) {
+        foreach ($source as $key => $value) {
             if (strpos($key, $prefix)===0) {
                 $newkey = $newprefix . substr($key, strlen($prefix));
                 $target->{$newkey} = $value;
@@ -426,13 +426,13 @@ class mod_forumng_utils {
     }
 
     // Moodle generic helpers
-    /////////////////////////
+    /*///////////////////////*/
 
     /**
      * @param int $userid User ID or 0 for default
      * @return Genuine (non-zero) user ID
      */
-    static function get_real_userid($userid=0) {
+    public static function get_real_userid($userid=0) {
         global $USER;
         $userid = $userid==0 ? $USER->id : $userid;
         if (!$userid) {
@@ -447,7 +447,7 @@ class mod_forumng_utils {
      * @param int $userid User ID or 0 for default
      * @return User object
      */
-    static function get_user($userid=0) {
+    public static function get_user($userid=0) {
         global $USER, $DB;
         if ($userid && (empty($USER->id) || $USER->id != $userid)) {
             $user = $DB->get_record('user', array('id' => $userid), '*', MUST_EXIST);
@@ -464,7 +464,7 @@ class mod_forumng_utils {
      * @param int $gradingtype Grading type value
      * @return array Array from value=>name
      */
-    static function make_grades_menu($gradingtype) {
+    public static function make_grades_menu($gradingtype) {
         if (!array_key_exists($gradingtype, self::$scales)) {
             self::$scales[$gradingtype] = make_grades_menu($gradingtype);
         }
@@ -472,7 +472,7 @@ class mod_forumng_utils {
     }
 
     // UI
-    /////
+    // //.
 
     /**
      * Wraps nice way to display reasonable date format in Moodle for use

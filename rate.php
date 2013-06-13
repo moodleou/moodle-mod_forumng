@@ -34,7 +34,7 @@ if ($discussionid) {
 
     // Get list of posts to change
     $changes = array();
-    foreach ($_POST as $key=>$value) {
+    foreach ($_POST as $key => $value) {
         $matches = array();
         if (preg_match('~^rating([0-9]+)$~', $key, $matches) &&
             preg_match('~^[0-9]+$~', $value)) {

@@ -32,7 +32,7 @@ class mod_forumng_cron {
     const EMAIL_DIVIDER =
       "---------------------------------------------------------------------\n";
 
-    static function cron() {
+    public static function cron() {
         // Setup user object (as admin)
         cron_setup_user();
 
@@ -46,7 +46,7 @@ class mod_forumng_cron {
         self::daily_housekeeping();
     }
 
-    static function delete_old_posts() {
+    public static function delete_old_posts() {
         global $CFG, $DB;
 
         // Check if deletion is turned off
@@ -138,7 +138,7 @@ $mainquery", $mainparams);
         }
     }
 
-    static function email() {
+    public static function email() {
         global $CFG;
 
         // Duplicate of check in email_to_user.
@@ -157,7 +157,7 @@ $mainquery", $mainparams);
      * @param string $lf Set to '' if you don't want a linefeed
      * @return bool True if debug output is enabled
      */
-    static function debug($text = '', $lf = "\n") {
+    public static function debug($text = '', $lf = "\n") {
         static $checked = false, $debug;
         if (!$checked) {
             $debug = debugging('', DEBUG_DEVELOPER);
@@ -171,7 +171,7 @@ $mainquery", $mainparams);
         return true;
     }
 
-    static function email_normal() {
+    public static function email_normal() {
         global $USER, $CFG, $PERF;
 
         $exceptioncount = 0;
@@ -251,9 +251,9 @@ $mainquery", $mainparams);
                 }
                 if (self::debug()) {
                     $debugcount = 0;
-                    foreach ($langusers as $lang=>$tzusers) {
-                        foreach ($tzusers as $timezone=>$typeusers) {
-                            foreach ($typeusers as $emailtype=>$users) {
+                    foreach ($langusers as $lang => $tzusers) {
+                        foreach ($tzusers as $timezone => $typeusers) {
+                            foreach ($typeusers as $emailtype => $users) {
                                 mtrace("DEBUG: Subscribers for lang [$lang] " .
                                         "tz [$timezone] type [$emailtype]: " .
                                         count($users));
@@ -274,9 +274,9 @@ $mainquery", $mainparams);
 
                         // These loops are intended so that we generate identical
                         // emails once only, and can then send them in batches
-                        foreach ($langusers as $lang=>$tzusers) {
-                            foreach ($tzusers as $timezone=>$typeusers) {
-                                foreach ($typeusers as $emailtype=>$users) {
+                        foreach ($langusers as $lang => $tzusers) {
+                            foreach ($tzusers as $timezone => $typeusers) {
+                                foreach ($typeusers as $emailtype => $users) {
 
                                     // We get both plaintext and html versions.
                                     // The html version will be blank if set to
@@ -391,7 +391,7 @@ $mainquery", $mainparams);
         return $result;
     }
 
-    static function email_digest() {
+    public static function email_digest() {
         global $CFG, $PERF;
 
         // Do digest mails if required. Note this is based on server time not
@@ -797,7 +797,7 @@ $mainquery", $mainparams);
 
         // Loop through in batches of specified size
         $copy = array();
-        foreach ($targets as $key=>$target) {
+        foreach ($targets as $key => $target) {
             $copy[$key] = $target;
         }
         while (count($copy)>0) {
@@ -878,7 +878,7 @@ $mainquery", $mainparams);
      * @param int $stophour Hour to stop running at (exclusive) e.g. 4
      * @return boolean True if it should currently run
      */
-    static function is_between_hours($starthour, $stophour) {
+    public static function is_between_hours($starthour, $stophour) {
         $hour = (int)date('G');
         if ($starthour < $stophour) {
             // Hours are in numerical order e.g. 0-6
@@ -892,7 +892,7 @@ $mainquery", $mainparams);
     /**
      * Do housekeeping which only runs once per day.
      */
-    static function daily_housekeeping() {
+    public static function daily_housekeeping() {
         global $CFG;
 
         $starthour = $CFG->forumng_housekeepingstarthour;
@@ -911,7 +911,7 @@ $mainquery", $mainparams);
             $lastrun = date('Y-m-d');
         } else {
             if ($today == $lastrun) {
-                //Do not run the housekeeping as it has been run today
+                // Do not run the housekeeping as it has been run today.
                 return;
             }
         }
@@ -929,7 +929,7 @@ $mainquery", $mainparams);
     /**
      * Either delete or archive old discussions based on the forum setting
      */
-    static function archive_old_discussions() {
+    public static function archive_old_discussions() {
         global $CFG, $DB;
         $now = time();
         $housekeepingquery = "
@@ -959,7 +959,7 @@ ORDER BY f.removeto", $housekeepingparams);
                 $discussion = mod_forumng_discussion::get_from_id($rec->discussionid,
                         mod_forumng::CLONE_DIRECT);
                 if ($rec->removeto) {
-                    //moving to a different forum
+                    // Moving to a different forum.
                     $forum = $discussion->get_forum();
                     $course = $forum->get_course();
                     $modinfo = get_fast_modinfo($course);
@@ -971,14 +971,14 @@ ORDER BY f.removeto", $housekeepingparams);
                                     mod_forumng::CLONE_DIRECT);
                             $targetforum = $targetforum->get_real_forum();
                         }
-                        //target discussion groupid must be the same as the original groupid
+                        // Target discussion groupid must be the same as the original groupid.
                         $targetgroupmode = $targetforum->get_group_mode();
                         $targetgroupid = $targetgroupmode ? $discussion->get_group_id() : null;
                         $discussion->move($targetforum, $targetgroupid);
                         $discussionmovecount++;
                     }
                 } else {
-                    //Delete all discussions and relevant data permanently
+                    // Delete all discussions and relevant data permanently.
                     $discussion->permanently_delete();
                     $discussiondeletecount++;
                 }

@@ -53,7 +53,7 @@ abstract class forumngfeature_discussion_selector extends forumngfeature_post_se
      * @param object $context Moodle context object for forum
      * @param mod_forumng $forum Forum object
      */
-    function require_capability($context, $forum) {
+    public function require_capability($context, $forum) {
         // Default makes no extra checks.
     }
 

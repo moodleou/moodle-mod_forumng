@@ -54,8 +54,8 @@ function match_action($key, $prefix) {
     return true;
 }
 
-// Loop through all POST parameters looking for a valid action
-foreach ($_POST as $key=>$value) {
+// Loop through all POST parameters looking for a valid action.
+foreach ($_POST as $key => $value) {
     if (match_action($key, 'action_flag')) {
         require_once('flagpost.php');
         exit;

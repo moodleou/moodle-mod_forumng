@@ -35,7 +35,7 @@ class mod_forumng_discussion_list {
      * @param int $pagecount Count of pages
      * @param int $discussioncount Count of all discussions
      */
-    function __construct($page, $pagecount, $discussioncount) {
+    public function __construct($page, $pagecount, $discussioncount) {
         $this->page = $page;
         $this->pagecount = $pagecount;
         $this->discussioncount = $discussioncount;
@@ -47,7 +47,7 @@ class mod_forumng_discussion_list {
      * Adds a discussion to the list (internal use only).
      * @param mod_forumng_discussion $discussion
      */
-    function add_discussion($discussion) {
+    public function add_discussion($discussion) {
         if ($discussion->is_sticky() && !$discussion->is_deleted()) {
             $this->stickydiscussions[$discussion->get_id()]=$discussion;
         } else {
@@ -128,7 +128,7 @@ class mod_forumng_discussion_list {
     }
 
     private static function munge_page_number($matches) {
-        //always add &page= to the paging bar url no matter if it is the first page
+        // Always add &page= to the paging bar url no matter if it is the first page.
         return $matches[1] . ($matches[2]+1);
     }
 }

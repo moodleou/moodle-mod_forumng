@@ -40,8 +40,8 @@ class forumngtype_general extends forumngtype {
             unset($SESSION->forumng_discussionlist[$forumngid]->groupid);
         }
 
-        //Remember the sort order and page number in session variables
-        //Unset the page session variable when the sort links are clicked
+        // Remember the sort order and page number in session variables
+        // Unset the page session variable when the sort links are clicked
         // or groupid has been changed (using the group dropdown box)
         $sortorder = optional_param('sort', '' , PARAM_ALPHA);
         if (!$sortorder) {
@@ -96,12 +96,12 @@ class forumngtype_general extends forumngtype {
 
         // Remove discussions from list if the forumtype thinks we can't see
         // them
-        foreach ($sticky as $key=>$value) {
+        foreach ($sticky as $key => $value) {
             if (!$this->can_view_discussion($value)) {
                 unset($sticky[$key]);
             }
         }
-        foreach ($normal as $key=>$value) {
+        foreach ($normal as $key => $value) {
             if (!$this->can_view_discussion($value)) {
                 unset($normal[$key]);
             }
@@ -110,7 +110,7 @@ class forumngtype_general extends forumngtype {
         // Intro
         print $out->render_intro($forum);
 
-        //Flagged posts skip link
+        // Flagged posts skip link.
         $flagged = $forum->get_flagged_posts();
         print $out->render_flagged_list_link($flagged);
 
@@ -150,7 +150,7 @@ class forumngtype_general extends forumngtype {
         }
 
         // Post button - temporarily disabled when in all-groups mode
-        print ($groupid == NULL) ? '':$forum->display_post_button($groupid);
+        print ($groupid == null) ? '':$forum->display_post_button($groupid);
 
         print $list->display_paging_bar($baseurl);
 
@@ -253,7 +253,7 @@ class forumngtype_general extends forumngtype {
         $options[mod_forumng_post::OPTION_READ_TIME] = $previousread;
 
         // Display expand all option if there are any 'Expand' links in content
-        $fakedate = '&amp;timeread=' . $previousread ;
+        $fakedate = '&amp;timeread=' . $previousread;
         print '<div id="forumng-expandall">';
         $showexpandall = preg_match(
             '~<a [^>]*href="discuss\.php\?d=[0-9]+[^"]*&amp;expand=1#p[0-9]+">~',

@@ -46,7 +46,7 @@ abstract class forumngfeature_post_selector {
      * @param object $context Moodle context object for forum
      * @param mod_forumng_discussion $discussion Discussion object
      */
-    function require_capability($context, $discussion) {
+    public function require_capability($context, $discussion) {
         // Default makes no extra checks
     }
 
@@ -54,14 +54,14 @@ abstract class forumngfeature_post_selector {
      * @return string Name of page for display in title etc (default is the
      *   same as button name)
      */
-    function get_page_name() {
+    public function get_page_name() {
         return $this->get_button_name();
     }
 
     /**
      * @return string Text of button used to activate this feature
      */
-    abstract function get_button_name();
+    public abstract function get_button_name();
 
     /**
      * For overriding in subclass. If there is a form, return the form object.
@@ -75,7 +75,7 @@ abstract class forumngfeature_post_selector {
      * @param array $selected Array of selected post IDs (if not $all)
      * @return object Form object or null if none
      */
-    function get_form($discussion, $all, $selected = array()) {
+    public function get_form($discussion, $all, $selected = array()) {
         return null;
     }
 
@@ -90,7 +90,7 @@ abstract class forumngfeature_post_selector {
      * @param array $selected Array of post IDs (if not $all)
      * @param object $formdata Data from form (if any; null if no form)
      */
-    abstract function apply($discussion, $all, $selected, $formdata);
+    public abstract function apply($discussion, $all, $selected, $formdata);
 
     /**
      * When displaying the form, extra content (such as an example of the
@@ -102,7 +102,7 @@ abstract class forumngfeature_post_selector {
      * @param object $formdata Data from form (if any; null if no form)
      * @return string HTML content to display after form
      */
-    function get_content_after_form($discussion, $all, $selected, $formdata) {
+    public function get_content_after_form($discussion, $all, $selected, $formdata) {
         return '';
     }
 
@@ -112,7 +112,7 @@ abstract class forumngfeature_post_selector {
      * @param post_selector $selector Object that extends this base class
      * @param string $rawurl Raw 'name' part of url e.g. '/mod/forumng/feature/frog/frog.php'
      */
-    static function go($selector) {
+    public static function go($selector) {
         global $PAGE, $FULLME;
         $d = required_param('d', PARAM_INT);
         $cloneid = optional_param('clone', 0, PARAM_INT);

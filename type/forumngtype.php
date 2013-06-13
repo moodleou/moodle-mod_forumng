@@ -127,7 +127,7 @@ abstract class forumngtype {
 
 
     // Type plugin basics
-    /////////////////////
+    /* ////////////////// */
 
     /**
      * Obtains the ID of this forum type. Default implementation cuts

@@ -116,7 +116,7 @@ if ($email) {
     $mform = new mod_forumng_deletepost_form($url);
 
     if ($mform->is_cancelled()) {
-        //form is cancelled, redirect back to the discussion
+        // Form is cancelled, redirect back to the discussion.
         redirect('discuss.php?' . $discussion->get_link_params(mod_forumng::PARAM_PLAIN) . $expandparam);
 
     } else if ($mform->is_submitted()) {

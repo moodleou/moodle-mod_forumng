@@ -67,14 +67,14 @@ if ($groupid && $groupid!=mod_forumng::NO_GROUPS) {
 }
 print $query->display_results($searchurl);
 
-//Print advanced search link
+// Print advanced search link.
 $options = $forum->get_link_params(mod_forumng::PARAM_HTML);
 $options .= '&amp;action=0';
 $options .= ($querytext) ? '&amp;query=' . rawurlencode($querytext) : '';
 $url = $CFG->wwwroot .'/mod/forumng/advancedsearch.php?' . $options;
 $strlink = get_string('advancedsearch', 'forumng');
 print "<div class='advanced-search-link'><a href=\"$url\">$strlink</a>";
-//Add link to search the rest of this website if service available
+// Add link to search the rest of this website if service available.
 if (!empty($CFG->block_resources_search_baseurl)) {
     $params = array('course' => $course->id, 'query' => $querytext);
     $restofwebsiteurl = new moodle_url('/blocks/resources_search/search.php', $params);

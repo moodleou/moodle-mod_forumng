@@ -75,7 +75,7 @@ if ($mform->is_cancelled()) {
             '#p' . $postid);
 }
 
-//if the alert form has been submitted successfully, send the email
+// If the alert form has been submitted successfully, send the email.
 if ($fromform = $mform->get_data()) {
 
     $alltext = get_string('alert_emailpreface', 'forumng', $customdata)."\n\n";
@@ -103,8 +103,8 @@ if ($fromform = $mform->get_data()) {
     if (!empty($fromform->alert_conditionmore)) {
         $alltext .= "\n".$fromform->alert_conditionmore."\n";
     }
-    //ccnote is only print when the email is sent to 2 different addresses
-    //so that they can decide between themselves who should deal with the report
+    // CCnote is only print when the email is sent to 2 different addresses
+    // so that they can decide between themselves who should deal with the report.
     $ccnote = '';
 
     $forumfields = $DB->get_record('forumng', array('id' => $forumngid), '*', MUST_EXIST);
@@ -149,7 +149,7 @@ if ($fromform = $mform->get_data()) {
             print_error('error_sendalert', 'forumng', $url, $fakeuser->email);
         }
     } else {
-        //Send 2 emails
+        // Send 2 emails.
         $alltext1 =$fakeuser1->ccnote. "\n\n". $alltext . "\n" .
                 get_string('alert_emailappendix', 'forumng' );
         if (!email_to_user($fakeuser1, $from, $subject, $alltext1)) {
@@ -171,7 +171,7 @@ if ($fromform = $mform->get_data()) {
             $discussion->get_link_params(mod_forumng::PARAM_HTML) . '#p' . $postid);
 
 } else {
-    //show the alert form
+    // Show the alert form.
     print $out->header();
     print $mform->display();
 }

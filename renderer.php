@@ -607,13 +607,13 @@ class mod_forumng_renderer extends plugin_renderer_base {
                 $outsubmit .= '<input type="submit" name="submitunsubscribe" value="' .
                         get_string('unsubscribeshort', 'forumng') . '" />';
             } else if ($subscribed == mod_forumng::PARTIALLY_SUBSCRIBED) {
-                //print both subscribe button and unsubscribe button
+                // Print both subscribe button and unsubscribe button.
                 $outsubmit .= '<input type="submit" name="submitsubscribe" value="' .
                     get_string('subscribelong', 'forumng') . '" />' .
                     '<input type="submit" name="submitunsubscribe" value="' .
                     get_string('unsubscribelong', 'forumng') . '" />';
             } else if ($subscribed == mod_forumng::NOT_SUBSCRIBED) {
-                //default unsubscribed, print subscribe button
+                // Default unsubscribed, print subscribe button.
                 $outsubmit .= '<input type="submit" name="submitsubscribe" value="' .
                         get_string('subscribeshort', 'forumng') . '" />';
             } else if ($subscribed == mod_forumng::THIS_GROUP_PARTIALLY_SUBSCRIBED) {
@@ -1148,7 +1148,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
                     }
                 }
 
-                //Direct link
+                // Direct link.
                 if ($options[mod_forumng_post::OPTION_COMMAND_DIRECTLINK]) {
                     $commandsarray['forumng-permalink'] = '<a href="discuss.php?' .
                             $discussion->get_link_params(mod_forumng::PARAM_HTML) . '#p' .

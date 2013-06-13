@@ -25,7 +25,7 @@ require_once($CFG->libdir.'/formslib.php');
  */
 class mod_forumng_editpost_form extends moodleform {
 
-    function definition() {
+    public function definition() {
         global $CFG, $USER;
         $mform = $this->_form;
         $params = $this->_customdata['params'];
@@ -73,7 +73,7 @@ class mod_forumng_editpost_form extends moodleform {
                     '<div id="id_postlimit">' . $text . $script . '</div>');
             }
 
-           $mform->addElement('text', 'subject',
+            $mform->addElement('text', 'subject',
                 $isroot ? get_string('subject', 'forumng')
                 : get_string('optionalsubject', 'forumng'),
                 array('size'=>48, 'id'=>'id_subject'));
@@ -242,7 +242,7 @@ class mod_forumng_editpost_form extends moodleform {
         $mform->addElement('hidden', 'random', rand());
     }
 
-    function validation($data, $files) {
+    public function validation($data, $files) {
         $errors = parent::validation($data, $files);
         if (isset($data['timeend'])
             && ($data['timeend']!=0) && ($data['timestart']!=0)

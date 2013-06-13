@@ -70,13 +70,15 @@ class mod_forumng_post {
     const NO_RATING = 999;
 
     // Object variables and accessors
-    /////////////////////////////////
+    // Comment.
 
     private $discussion, $parentpost, $postfields, $full, $children,
         $forceexpand, $nextunread, $previousunread;
 
     /** @return mod_forumng The forum that this post is in */
-    public function get_forum() { return $this->discussion->get_forum(); }
+    public function get_forum() {
+        return $this->discussion->get_forum();
+    }
 
     /** @return mod_forumng_post Parent post*/
     public function get_parent() {
@@ -87,7 +89,9 @@ class mod_forumng_post {
     }
 
     /** @return mod_forumng_discussion The discussion that this post is in  */
-    public function get_discussion() { return $this->discussion; }
+    public function get_discussion() {
+        return $this->discussion;
+    }
 
     /** @return int ID of this post */
     public function get_id() {
@@ -130,7 +134,7 @@ class mod_forumng_post {
     /**
      * @return bool True if can flag
      */
-    function can_flag() {
+    public function can_flag() {
         // Cannot flag for deleted post
         if ($this->get_deleted() || $this->discussion->is_deleted()) {
             return false;
@@ -207,8 +211,8 @@ class mod_forumng_post {
                     set the flag to say so', DEBUG_DEVELOPER);
             }
 
-            $this->postfields->effectivesubject = self::
-                inner_get_recursive_subject($this->postfields->parentpostid);
+            $this->postfields->effectivesubject =
+                    self::inner_get_recursive_subject($this->postfields->parentpostid);
             return $this->postfields->effectivesubject;
         } else {
             // Posts are loaded, loop through them to find subject
@@ -298,16 +302,24 @@ WHERE
     }
 
     /** @return int Time post was originally created */
-    public function get_created() { return $this->postfields->created; }
+    public function get_created() {
+        return $this->postfields->created;
+    }
 
     /** @return int Time post was most recently modified */
-    public function get_modified() { return $this->postfields->modified; }
+    public function get_modified() {
+        return $this->postfields->modified;
+    }
 
     /** @return int 0 if post is not deleted, otherwise time of deletion */
-    public function get_deleted() { return $this->postfields->deleted; }
+    public function get_deleted() {
+        return $this->postfields->deleted;
+    }
 
     /** @return object User object (basic fields) of deleter */
-    public function get_delete_user() { return $this->postfields->deleteuser; }
+    public function get_delete_user() {
+        return $this->postfields->deleteuser;
+    }
 
     /** @return bool True if this is an old version of a post */
     public function is_old_version() {
@@ -541,7 +553,7 @@ WHERE
      * Obtains search document representing this post.
      * @return local_ousearch_document Document object
      */
-    function search_get_document() {
+    public function search_get_document() {
         $doc = new local_ousearch_document();
         $doc->init_module_instance('forumng',
                 $this->get_forum()->get_course_module(true));
@@ -636,13 +648,13 @@ WHERE
      * @param mod_forumng_post $nextunread
      * @param mod_forumng_post $previousunread
      */
-    function set_unread_list($nextunread, $previousunread) {
+    public function set_unread_list($nextunread, $previousunread) {
         $this->nextunread = $nextunread;
         $this->previousunread = $previousunread;
     }
 
     // Factory method
-    /////////////////
+    /*///////////////*/
 
     /**
      * Creates a forum post object, forum object, and all related data from a
@@ -687,7 +699,7 @@ WHERE
      *   fields: ->content, ->title, ->url, ->activityname, ->activityurl,
      *   and optionally ->extrastrings array, ->data, ->hide
      */
-    static function search_get_page($document) {
+    public static function search_get_page($document) {
         global $DB, $CFG, $USER;
 
         // Implemented directly in SQL for performance, rather than using the
@@ -765,7 +777,7 @@ WHERE
     }
 
     // Object methods
-    /////////////////
+    /*///////////////*/
 
     /**
      * @param mod_forumng_discussion $discussion Discussion object
@@ -774,7 +786,7 @@ WHERE
      * @param mod_forumng_post $parentpost Parent post or null if this is root post,
      *   or PARENT_NOT_LOADED if not available
      */
-    function __construct($discussion, $postfields, $parentpost=self::PARENT_NOT_LOADED) {
+    public function __construct($discussion, $postfields, $parentpost=self::PARENT_NOT_LOADED) {
         $this->discussion = $discussion;
         $this->postfields = $postfields;
 
@@ -793,7 +805,7 @@ WHERE
      * Used to inform the post that all its children will be supplied.
      * Call before calling add_child(), or even if there are no children.
      */
-    function init_children() {
+    public function init_children() {
         $this->children = array();
     }
 
@@ -802,7 +814,7 @@ WHERE
      * the tree of posts
      * @param mod_forumng_post $child Child post
      */
-    function add_child($child) {
+    public function add_child($child) {
         $this->require_children();
         $this->children[] = $child;
     }
@@ -811,7 +823,7 @@ WHERE
      * Checks that children are available.
      * @throws mod_forumng_exception If children have not been loaded
      */
-    function require_children() {
+    public function require_children() {
         if (!is_array($this->children)) {
             throw new coding_exception('Requires child post data');
         }
@@ -834,7 +846,7 @@ WHERE
      * @return array Resulting posts as array of Moodle records, empty array
      *   if none
      */
-    static function query_posts($where, $whereparams, $order='fp.id', $ratings=true,
+    public static function query_posts($where, $whereparams, $order='fp.id', $ratings=true,
         $flags=false, $effectivesubjects=false,
         $userid=0, $joindiscussion=false, $discussionsubject=false, $limitfrom='',
         $limitnum='') {
@@ -970,7 +982,7 @@ ORDER BY
      * @param bool $log True to log this reply
      * @return int ID of newly-created post
      */
-    function reply($subject, $message, $messageformat,
+    public function reply($subject, $message, $messageformat,
         $attachments=false, $setimportant=false, $mailnow=false, $userid=0, $log=true) {
         global $DB;
         $transaction = $DB->start_delegated_transaction();
@@ -993,7 +1005,7 @@ ORDER BY
      * @param int $postid ID of post to update
      * @param string $newtext Updated message text
      */
-    static function update_message_for_files($postid, $newtext) {
+    public static function update_message_for_files($postid, $newtext) {
         global $DB;
         $DB->set_field('forumng_posts', 'message', $newtext, array('id'=>$postid));
     }
@@ -1003,7 +1015,7 @@ ORDER BY
      * order of modification date.
      * @return array Array of mod_forumng_post objects (empty if none)
      */
-    function get_old_versions() {
+    public function get_old_versions() {
         $postdata = self::query_posts(
             'fp.oldversion = 1 AND fp.parentpostid = ?', array($this->postfields->id),
             'fp.modified DESC', false, false);
@@ -1021,7 +1033,7 @@ ORDER BY
      * @param array &$userids Associative array from id=>true that receives
      *   all user IDs
      */
-    function list_all_user_ids(&$userids) {
+    public function list_all_user_ids(&$userids) {
         $this->require_children();
 
         // Add current ID
@@ -1043,7 +1055,7 @@ ORDER BY
      * @param int $messageformat Moodle format ID
      * @param bool $gotsubject True if message subject changed
      */
-    function edit_finish($message, $messageformat, $gotsubject) {
+    public function edit_finish($message, $messageformat, $gotsubject) {
         global $DB;
 
         $transaction = $DB->start_delegated_transaction();
@@ -1060,7 +1072,7 @@ ORDER BY
         }
 
         // Update in-memory representation
-        foreach ((array)$update as $name=>$value) {
+        foreach ((array)$update as $name => $value) {
             $this->postfields->{$name} = $value;
         }
 
@@ -1098,7 +1110,7 @@ ORDER BY
      * @return bool True if subject changed (this is weird, but edit_finish
      *   needs it)
      */
-    function edit_start($subject, $attachments=false, $setimportant=false,
+    public function edit_start($subject, $attachments=false, $setimportant=false,
             $mailnow=false, $userid=0, $log=true) {
         global $DB;
         $now = time();
@@ -1168,7 +1180,7 @@ ORDER BY
         }
 
         // Update in-memory representation
-        foreach ((array)$update as $name=>$value) {
+        foreach ((array)$update as $name => $value) {
             $this->postfields->{$name} = $value;
         }
         // If this is the root post, then changing its subject affects
@@ -1187,7 +1199,7 @@ ORDER BY
      * @param bool $expectingquery True if it might need to make a query to
      *   get the subject
      */
-    function search_update($expectingquery = false) {
+    public function search_update($expectingquery = false) {
         if (!mod_forumng::search_installed()) {
             return;
         }
@@ -1214,7 +1226,7 @@ ORDER BY
      * Calls search_update on each child of the current post, and recurses.
      * Used when the subject's discussion is changed.
      */
-    function search_update_children() {
+    public function search_update_children() {
         if (!mod_forumng::search_installed()) {
             return;
         }
@@ -1246,7 +1258,7 @@ ORDER BY
      * @param int $userid User ID to mark as having deleted the post
      * @param bool $log If true, adds entry to Moodle log
      */
-    function delete($userid=0, $log=true) {
+    public function delete($userid=0, $log=true) {
         global $DB;
 
         if ($this->postfields->deleted) {
@@ -1286,7 +1298,7 @@ ORDER BY
      * Marks a post as undeleted.
      * @param bool $log If true, adds entry to Moodle log
      */
-    function undelete($log=true) {
+    public function undelete($log=true) {
         global $DB;
         if (!$this->postfields->deleted) {
             return;
@@ -1324,7 +1336,7 @@ ORDER BY
      * @param bool $log True to log action
      * @return int ID of new discussion
      */
-    function split($newsubject, $log=true) {
+    public function split($newsubject, $log=true) {
         global $DB;
         $this->require_children();
 
@@ -1375,7 +1387,7 @@ WHERE
         $changes->id = $this->get_id();
         $changes->subject = $newsubject;
         $changes->parentpostid = null;
-        //When split the post, reset the important to 0 so that it is not highlighted.
+        // When split the post, reset the important to 0 so that it is not highlighted.
         $changes->important = 0;
         // Note don't update modified time, or it makes this post unread,
         // which isn't very helpful
@@ -1422,7 +1434,7 @@ WHERE
      * @param $rating Rating (value depends on scale used) or NO_RATING
      * @param $userid User ID or 0 for current user
      */
-    function rate($rating, $userid=0) {
+    public function rate($rating, $userid=0) {
         global $DB;
         $userid = mod_forumng_utils::get_real_userid($userid);
         $transaction = $DB->start_delegated_transaction();
@@ -1458,7 +1470,7 @@ WHERE
      *   this is the reply ID (used because the reply entry is logged under
      *   the new post, not the old one)
      */
-    function log($action, $replyid=0) {
+    public function log($action, $replyid=0) {
         if ($replyid) {
             $postid = $replyid;
         } else {
@@ -1472,7 +1484,7 @@ WHERE
     }
 
     // Permissions
-    //////////////
+    /*////////////*/
 
     /**
      * Makes security checks for viewing this post. Will not return if
@@ -1483,7 +1495,7 @@ WHERE
      * interactive mode (ordinary web page view). It cannot be called in cron,
      * web services, etc.
      */
-    function require_view() {
+    public function require_view() {
         // Check forum and discussion view permission, group access, etc.
         $this->discussion->require_view();
 
@@ -1505,7 +1517,7 @@ WHERE
      * @param int $userid
      * @return unknown_type
      */
-    function can_reply(&$whynot, $userid=0) {
+    public function can_reply(&$whynot, $userid=0) {
         $userid = mod_forumng_utils::get_real_userid($userid);
         $context = $this->get_forum()->get_context();
 
@@ -1559,7 +1571,7 @@ WHERE
      * @param int $userid User ID or 0 for current
      * @return bool True if user can rate this post
      */
-    function can_rate($userid=0) {
+    public function can_rate($userid=0) {
         $userid = mod_forumng_utils::get_real_userid($userid);
         return
             !$this->get_deleted() && !$this->is_old_version()
@@ -1575,7 +1587,7 @@ WHERE
      * @param int $userid User ID or 0 for current
      * @return bool True if user can view ratings for this post
      */
-    function can_view_ratings($userid=0) {
+    public function can_view_ratings($userid=0) {
         $userid = mod_forumng_utils::get_real_userid($userid);
         return !$this->get_deleted() && !$this->is_old_version()
             && $this->get_forum()->has_ratings() &&
@@ -1584,7 +1596,7 @@ WHERE
             : 'mod/forumng:viewanyrating', $this->get_forum()->get_context());
     }
 
-    function can_split(&$whynot, $userid=0) {
+    public function can_split(&$whynot, $userid=0) {
         // Check if this is a special case
         if ($this->get_deleted() || $this->is_old_version()
             || $this->get_discussion()->is_deleted()) {
@@ -1616,7 +1628,7 @@ WHERE
      * @param string &$whynot
      * @return bool True if user can alert this post
      */
-    function can_alert(&$whynot) {
+    public function can_alert(&$whynot) {
         // Check if the post has been deleted
         if ($this->get_deleted() || $this->discussion->is_deleted()) {
             $whynot = 'alert_notcurrentpost';
@@ -1635,7 +1647,7 @@ WHERE
      * @param string &$whynot
      * @return bool True if can display the direct link
      */
-    function can_showdirectlink() {
+    public function can_showdirectlink() {
         // Check if the post has been deleted
         if ($this->get_deleted() || $this->discussion->is_deleted()) {
             return false;
@@ -1651,7 +1663,7 @@ WHERE
      * @param int $userid User ID or 0 if current
      * @return bool True if user can edit this post
      */
-    function can_undelete(&$whynot, $userid=0) {
+    public function can_undelete(&$whynot, $userid=0) {
         $userid = mod_forumng_utils::get_real_userid($userid);
         $context = $this->get_forum()->get_context();
 
@@ -1703,7 +1715,7 @@ WHERE
      * @param int $userid User ID or 0 if current
      * @return bool True if user can edit this post
      */
-    function can_delete(&$whynot, $userid=0) {
+    public function can_delete(&$whynot, $userid=0) {
         // At present the logic for this is identical to the edit logic
         // except that you can't delete the root post
         return !$this->is_root_post() && $this->can_edit($whynot, $userid);
@@ -1716,7 +1728,7 @@ WHERE
      * @param int $userid User ID or 0 for current
      * @return bool True if user can view deleted posts
      */
-    function can_view_deleted(&$whynot, $userid=0) {
+    public function can_view_deleted(&$whynot, $userid=0) {
         $userid = mod_forumng_utils::get_real_userid($userid);
         // Check the 'edit any' capability (this is checked for deleting/undeleting).
         if (!has_capability('mod/forumng:editanypost',
@@ -1735,7 +1747,7 @@ WHERE
      * @param int $userid User ID or 0 for current
      * @return bool True if user can view edits
      */
-    function can_view_history(&$whynot, $userid=0) {
+    public function can_view_history(&$whynot, $userid=0) {
         $userid = mod_forumng_utils::get_real_userid($userid);
         // Check the 'edit any' capability
         if (!has_capability('mod/forumng:editanypost',
@@ -1755,7 +1767,7 @@ WHERE
      * @param int $userid User ID or 0 if current
      * @return bool True if user can edit this post
      */
-    function can_edit(&$whynot, $userid=0) {
+    public function can_edit(&$whynot, $userid=0) {
         $userid = mod_forumng_utils::get_real_userid($userid);
         $context = $this->get_forum()->get_context();
 
@@ -1821,7 +1833,7 @@ WHERE
      * @param int $userid User ID or 0 for current
      * @return True if user can ignore the post editing time limit
      */
-    function can_ignore_edit_time_limit($userid=0) {
+    public function can_ignore_edit_time_limit($userid=0) {
         $userid = mod_forumng_utils::get_real_userid($userid);
         $context = $this->get_forum()->get_context();
         return has_capability('mod/forumng:editanypost',
@@ -1832,7 +1844,7 @@ WHERE
      * @return int Time limit after which users who don't have the edit-all
      *   permission are not allowed to edit this post (as epoch value)
      */
-    function get_edit_time_limit() {
+    public function get_edit_time_limit() {
         global $CFG;
         return $this->get_created() + $CFG->maxeditingtime;
     }
@@ -1841,7 +1853,7 @@ WHERE
      * Checks that the user can edit this post - requiring all higher-level
      * access too.
      */
-    function require_edit() {
+    public function require_edit() {
         // Check forum and discussion view permission, group access, etc.
         $this->discussion->require_view();
 
@@ -1857,7 +1869,7 @@ WHERE
      * Checks that the user can reply to this post - requiring all higher-level
      * access too.
      */
-    function require_reply() {
+    public function require_reply() {
         // Check forum and discussion view permission, group access, etc.
         $this->discussion->require_view();
 
@@ -1871,7 +1883,7 @@ WHERE
 
 
     // Email
-    ////////
+    // ////.
 
     /**
      * Obtains a version of this post as an email.
@@ -1893,7 +1905,7 @@ WHERE
      * @param array $extraoptions Set values here to add or override post
      *   display options
      */
-    function build_email($inreplyto, &$subject, &$text, &$html,
+    public function build_email($inreplyto, &$subject, &$text, &$html,
             $ishtml, $canreply, $viewfullnames, $lang, $timezone, $digest=false,
             $discussionemail=false, $extraoptions = array()) {
         global $CFG, $USER;
@@ -1974,7 +1986,7 @@ WHERE
             $text .= get_string('inreplyto', 'forumng'). ":\n\n";
 
             // Get parent post (unfortunately this requires extra queries)
-            $parent = mod_forumng_post::get_from_id(
+            $parent = self::get_from_id(
                 $this->postfields->parentpostid,
                 $this->get_forum()->get_course_module_id(), false);
 
@@ -2015,7 +2027,7 @@ WHERE
     }
 
     // UI
-    /////
+    // //.
 
     /**
      * Displays this post.
@@ -2023,7 +2035,7 @@ WHERE
      * @param array $options See forumngtype::display_post for details
      * @return string HTML or text of post
      */
-    function display($html, $options=null) {
+    public function display($html, $options=null) {
         global $USER;
 
         // Initialise options array
@@ -2168,9 +2180,9 @@ WHERE
         // Get forum type to do actual display
         $out = mod_forumng_utils::get_renderer();
         return $out->render_post($this, $html, $options);
-   }
+    }
 
-   function display_with_children($options = null, $recursing = false) {
+    public function display_with_children($options = null, $recursing = false) {
         global $USER;
         $this->require_children();
 
@@ -2234,29 +2246,29 @@ WHERE
         }
 
         return $output;
-   }
+    }
 
-   /** @return string User picture HTML (for post author) */
-   function display_user_picture() {
-       $out = mod_forumng_utils::get_renderer();
-       return $out->user_picture($this->get_user(),
-               array('courseid'=>$this->get_forum()->get_course_id()));
-   }
+    /** @return string User picture HTML (for post author) */
+    public function display_user_picture() {
+        $out = mod_forumng_utils::get_renderer();
+        return $out->user_picture($this->get_user(),
+                array('courseid'=>$this->get_forum()->get_course_id()));
+    }
 
-   /**
-    * Displays group pictures. This may make a (single) DB query if group
-    * data has not yet been retrieved for this discussion.
-    * @return string Group pictures HTML (empty string if none) for groups
-    * that post author belongs to
-    */
-   function display_group_pictures() {
+    /**
+     * Displays group pictures. This may make a (single) DB query if group
+     * data has not yet been retrieved for this discussion.
+     * @return string Group pictures HTML (empty string if none) for groups
+     * that post author belongs to
+     */
+    public function display_group_pictures() {
         $groups = $this->discussion->get_user_groups($this->get_user()->id);
         if (count($groups) == 0) {
             return '';
         }
         return print_group_picture($groups, $this->get_forum()->get_course_id(),
             false, true);
-   }
+    }
 
     /**
      * Displays this draft as an item on the list.
@@ -2273,7 +2285,7 @@ WHERE
      * edit code.
      * @return string JSON structure listing key post fields.
      */
-    function prepare_edit_json() {
+    public function prepare_edit_json() {
         global $USER;
         $forum = $this->get_forum();
         $filecontext = $forum->get_context(true);
@@ -2354,7 +2366,7 @@ WHERE
         if (is_object($postorid)) {
             $post = $postorid;
         } else {
-            $post = mod_forumng_post::get_from_id($postorid, $cloneid, true);
+            $post = self::get_from_id($postorid, $cloneid, true);
         }
         return trim($post->display(true, $options));
     }
@@ -2385,7 +2397,7 @@ WHERE
     }
 
     // Completion
-    /////////////
+    /*///////////*/
 
     public function update_completion($positive) {
         // Do nothing if completion isn't enabled

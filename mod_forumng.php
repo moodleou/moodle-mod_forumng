@@ -39,7 +39,7 @@ require_once(dirname(__FILE__).'/feature/forumngfeature.php');
 class mod_forumng {
 
     // Constants
-    ////////////
+    /*//////////*/
 
     /** Subscription: Nobody is allowed to subscribe to the forum. */
     const SUBSCRIPTION_NOT_PERMITTED = 0;
@@ -161,7 +161,7 @@ class mod_forumng {
     const CLONE_GUESS = -2;
 
     // Static methods
-    /////////////////
+    /*///////////////*/
 
     /**
      * Obtains list of available per-forum subscription type options.
@@ -288,7 +288,7 @@ class mod_forumng {
      * @return string 'Sort by xxx' text in current language
      */
     public static function get_sort_title($sort) {
-        return get_string('sortby', 'forumng', mod_forumng::get_sort_field($sort));
+        return get_string('sortby', 'forumng', self::get_sort_field($sort));
     }
 
     /**
@@ -358,9 +358,9 @@ class mod_forumng {
     public static function get_activity_group($cm, $update=false) {
         $result = groups_get_activity_group($cm, $update);
         if ($result === false) {
-            return mod_forumng::NO_GROUPS;
+            return self::NO_GROUPS;
         } else if ($result === 0) {
-            return mod_forumng::ALL_GROUPS;
+            return self::ALL_GROUPS;
         } else {
             return $result;
         }
@@ -383,7 +383,7 @@ class mod_forumng {
     }
 
     // Object variables and accessors
-    /////////////////////////////////
+    /*///////////////////////////////*/
 
     private $course, $cm, $context, $clonecourse, $clonecm, $clonecontext,
             $forumfields, $type, $cache;
@@ -535,14 +535,14 @@ ORDER BY
         if ($cloneid == self::CLONE_GUESS) {
             // We had better cache guesses in session because this is
             // time-consuming
-            if (!isset($SESSION->forumng_cache)) {
-                $SESSION->forumng_cache = new stdClass;
+            if (!isset($SESSION->FORUMNG_CACHE)) {
+                $SESSION->FORUMNG_CACHE = new stdClass;
             }
-            if (!isset($SESSION->forumng_cache->guesses)) {
-                $SESSION->forumng_cache->guesses = array();
+            if (!isset($SESSION->FORUMNG_CACHE->guesses)) {
+                $SESSION->FORUMNG_CACHE->guesses = array();
             }
-            if (isset($SESSION->forumng_cache->guesses[$this->get_id()])) {
-                return $SESSION->forumng_cache->guesses[$this->get_id()];
+            if (isset($SESSION->FORUMNG_CACHE->guesses[$this->get_id()])) {
+                return $SESSION->FORUMNG_CACHE->guesses[$this->get_id()];
             }
             // Okay, no cached guess. First let's see if they can write to the
             // original forum because if so let's just use that
@@ -577,7 +577,7 @@ ORDER BY
             }
 
             // Cache guess
-            $SESSION->forumng_cache->guesses[$this->get_id()] = $this->clonecm;
+            $SESSION->FORUMNG_CACHE->guesses[$this->get_id()] = $this->clonecm;
             return;
         } else {
             // Get course-module record
@@ -735,7 +735,7 @@ WHERE
      */
     public function get_real_forum() {
         if ($this->is_clone()) {
-            return mod_forumng::get_from_cmid($this->forumfields->originalcmid, $this->cm->id);
+            return self::get_from_cmid($this->forumfields->originalcmid, $this->cm->id);
         } else {
             return $this;
         }
@@ -823,7 +823,7 @@ WHERE
      * @return string e.g. 'id=1234'
      */
     public function get_link_params($type) {
-        if ($type == mod_forumng::PARAM_FORM) {
+        if ($type == self::PARAM_FORM) {
             $id = '<input type="hidden" name="id" value="' . $this->cm->id . '" />';
         } else {
             $id = 'id=' . $this->cm->id;
@@ -869,17 +869,17 @@ WHERE
         if (!$this->is_shared()) {
             return '';
         }
-        if ($type & mod_forumng::PARAM_UNKNOWNCLONE) {
+        if ($type & self::PARAM_UNKNOWNCLONE) {
             $cloneid = -2; // Special 'guess' vale
         } else {
             $cloneid = $this->get_course_module_id();
         }
 
-        if ($type == mod_forumng::PARAM_FORM) {
+        if ($type == self::PARAM_FORM) {
             return '<input type="hidden" name="clone" value="' .
                     $cloneid . '" />';
         }
-        if (($type & 0xf) == mod_forumng::PARAM_HTML) {
+        if (($type & 0xf) == self::PARAM_HTML) {
             $params = '&amp;';
         } else {
             $params = '&';
@@ -888,7 +888,7 @@ WHERE
     }
 
     // Factory methods
-    //////////////////
+    /*////////////////*/
 
     /**
      * Creates a forum object and all related data from a single forum ID.
@@ -1036,7 +1036,7 @@ WHERE
     }
 
     // Object methods
-    /////////////////
+    /*///////////////*/
 
     /**
      * Construct the forum's in-memory representation.
@@ -1097,12 +1097,12 @@ WHERE
             }
         }
         if (!$previousfields->shared && $this->is_shared()) {
-            //Start sharing
+            // Start sharing.
             $DB->set_field('forumng_subscriptions', 'clonecmid', $this->get_course_module_id(),
                     array('forumngid' => $previousfields->id));
         }
         if ($previousfields->shared && !$this->is_shared()) {
-            //Stop sharing
+            // Stop sharing.
             $DB->set_field('forumng_subscriptions', 'clonecmid', null,
                     array('forumngid' => $previousfields->id));
         }
@@ -1170,7 +1170,7 @@ WHERE
      *   module's URL
      */
     public function get_log_url() {
-        return 'view.php?' . $this->get_link_params(mod_forumng::PARAM_PLAIN);
+        return 'view.php?' . $this->get_link_params(self::PARAM_PLAIN);
     }
 
     /**
@@ -1190,7 +1190,7 @@ WHERE
         $userid = mod_forumng_utils::get_real_userid($userid);
 
         // Build list of SQL conditions
-        ///////////////////////////////
+        /*/////////////////////////////*/
 
         // Correct forum
         $conditionparams = array();
@@ -1214,7 +1214,7 @@ WHERE
         }
 
         // Count all discussions
-        ////////////////////////
+        /*//////////////////////*/
 
         if ($this->get_type()->has_unread_restriction()) {
             list($restrictionsql, $restrictionparams) =
@@ -1262,7 +1262,7 @@ WHERE $conditions AND m.name = 'forumng' AND $restrictionsql",
         }
 
         // Retrieve selected discussions
-        ////////////////////////////////
+        /*//////////////////////////////*/
 
         // Ordering
         $orderby = 'sticky DESC';
@@ -1409,7 +1409,7 @@ WHERE $conditions AND m.name = 'forumng' AND $restrictionsql",
 
         $newdiscussion->log('add discussion');
 
-        if (mod_forumng::search_installed()) {
+        if (self::search_installed()) {
             mod_forumng_post::get_from_id($postid,
                     $this->get_course_module_id())->search_update();
         }
@@ -1434,7 +1434,7 @@ WHERE $conditions AND m.name = 'forumng' AND $restrictionsql",
     }
 
     // Unread data
-    //////////////
+    /*////////////*/
 
     /**
      * Marks all discussions in this forum as read.
@@ -1514,7 +1514,7 @@ WHERE $conditions AND m.name = 'forumng' AND $restrictionsql",
     }
 
     // Subscriptions
-    ////////////////
+    /*//////////////*/
 
     /**
      * Subscribes a user to this forum. (Assuming it permits manual subscribe/
@@ -1540,7 +1540,7 @@ WHERE $conditions AND m.name = 'forumng' AND $restrictionsql",
         // delete all the subscriptions to the discussions in the entire forum or
         // the discussions in the specified group if any
         if (!$groupid) {
-            //delete all the subscriptions to the discussions/groups in the entire forum
+            // Delete all the subscriptions to the discussions/groups in the entire forum.
             $DB->execute(
                     "DELETE FROM {forumng_subscriptions} " .
                     "WHERE userid = ? AND forumngid = ? AND clonecmid $clonevalue " .
@@ -1569,11 +1569,11 @@ WHERE $conditions AND m.name = 'forumng' AND $restrictionsql",
                 }
             }
         } else {
-            ////delete all the subscriptions to the discussions in the the specified group if any
+            // Delete all the subscriptions to the discussions in the the specified group if any.
             $discussionquery = "SELECT id FROM {forumng_discussions} " .
                     "WHERE forumngid = ? AND groupid = ?";
             $discussionparams = array($this->forumfields->id, $groupid);
-            //Share forum doesn't support group mode so we don't check clonecmid
+            // Share forum doesn't support group mode so we don't check clonecmid.
             $DB->execute(
                     "DELETE FROM {forumng_subscriptions} " .
                     "WHERE userid = ? AND forumngid = ? AND subscribed = 1 " .
@@ -1618,7 +1618,7 @@ WHERE $conditions AND m.name = 'forumng' AND $restrictionsql",
             $cloneparams = array();
         }
         if (!$groupid) {
-            //Unsubscribe from the whole forum; deleting all the discussion/group subscriptions
+            // Unsubscribe from the whole forum; deleting all the discussion/group subscriptions.
             $DB->execute("DELETE FROM {forumng_subscriptions} " .
                     "WHERE userid = ? AND forumngid = ? AND clonecmid $clonevalue AND " .
                     "subscribed = 1 " . "AND (discussionid IS NOT NULL OR groupid IS NOT NULL)",
@@ -1647,8 +1647,8 @@ WHERE $conditions AND m.name = 'forumng' AND $restrictionsql",
                     'forumngid' => $this->forumfields->id, 'clonecmid' => $clonecmid));
             }
         } else {
-            //Unsubscribe from the specified group; remove all the subscritions
-            //to the discussions which belongs to the group if any
+            // Unsubscribe from the specified group; remove all the subscritions
+            // to the discussions which belongs to the group if any.
             $discussionquery = "SELECT id FROM {forumng_discussions}
                 WHERE forumngid = ? AND groupid = ?";
             $discussionparams = array($this->forumfields->id, $groupid);
@@ -1967,10 +1967,9 @@ WHERE
         foreach ($rs as $rec) {
 
             if ($rec->subscribed) {
-                //has_capability('mod/forumng:viewdiscussion', $this->get_context());
-                //Rewrite the whole block
+                // Rewrite the whole block.
                 if ($rec->groupid) {
-                    //Subscrbied to a list of groups only
+                    // Subscrbied to a list of groups only
                     // Only allow this row to count if the user has access to subscribe to group
                     // 1. User must have mod/forumng:viewdiscussion
                     // 2. One of the following must be true:
@@ -2054,7 +2053,7 @@ WHERE
 
         // Feeds can be disabled globally or for whole module
         if (!($CFG->forumng_enablerssfeeds && $CFG->enablerssfeeds)) {
-            $result = mod_forumng::FEEDTYPE_NONE;
+            $result = self::FEEDTYPE_NONE;
         }
 
         // If none of the above applied, use the module's setting
@@ -2075,7 +2074,7 @@ WHERE
      * @return array Array of partial user objects (with enough info to send
      *   email and display them)
      */
-    public function get_auto_subscribers($groupid=mod_forumng::ALL_GROUPS) {
+    public function get_auto_subscribers($groupid = self::ALL_GROUPS) {
         global $DB;
         switch ($this->get_effective_subscription_option()) {
             case self::SUBSCRIPTION_FORCED :
@@ -2122,7 +2121,7 @@ WHERE
      *   email and display them); additionally, if the forum is in group mode,
      *   this includes an ->accessallgroups boolean
      */
-    public function get_subscribers($groupid=mod_forumng::ALL_GROUPS) {
+    public function get_subscribers($groupid= self::ALL_GROUPS) {
         global $DB;
 
         // Array that will contain result
@@ -2139,8 +2138,8 @@ WHERE
             case self::SUBSCRIPTION_FORCED:
             case self::SUBSCRIPTION_INITIALLY_SUBSCRIBED:
                 $users = $this->get_auto_subscribers($groupid);
-                //add $wholeforum = 1 and an empty array() for discussionid
-                //for people who initially subscribed
+                // Add $wholeforum = 1 and an empty array() for discussionid
+                // for people who initially subscribed.
                 foreach ($users as $user) {
                     $user->wholeforum = true;
                     $user->discussionids = array ();
@@ -2166,12 +2165,12 @@ WHERE
         // unless it's in no-groups mode
         $groupmode = $this->get_group_mode();
         if ($groupmode) {
-            //Get a list of user who can access all groups
+            // Get a list of user who can access all groups.
             $aagusers = get_users_by_capability($context, 'moodle/site:accessallgroups', 'u.id');
             mod_forumng_utils::add_admin_users($aagusers);
         }
         // Get the list of subscribed users.
-        if ($groupid == mod_forumng::ALL_GROUPS || $groupid == mod_forumng::NO_GROUPS) {
+        if ($groupid == self::ALL_GROUPS || $groupid == self::NO_GROUPS) {
             $groupcheck = '';
             $groupparams = array();
         } else {
@@ -2202,7 +2201,7 @@ WHERE
         // Filter the result against the list of allowed users
         $allowedusers = null;
         foreach ($rs as $rec) {
-            //subscribed to the whole forum when subscribed == 1 and disucssionid =='';
+            // Subscribed to the whole forum when subscribed == 1 and disucssionid =='';
             // *** Put the allowedusers checks in same part of code so not duplicated
             if ($rec->subscribed) {
                 // This is a 'subscribe' request
@@ -2227,7 +2226,7 @@ WHERE
                     $newuser = false;
                 }
                 $ok = false;
-                //Subscribed to a discussion
+                // Subscribed to a discussion.
                 if ($rec->discussionid) {
                     $groupok = !$rec->discussiongroupid || $rec->discussiongroupmember ||
                         $groupmode==VISIBLEGROUPS || array_key_exists($user->id, $aagusers);
@@ -2235,7 +2234,7 @@ WHERE
                         $ok = true;
                         $user->discussionids[$rec->discussionid] = $rec->discussiongroupid;
                     }
-                //Subscribed to a group
+                    // Subscribed to a group.
                 } else if ($rec->groupid) {
                     $groupok = $groupmode == VISIBLEGROUPS ||
                         ($groupmode == SEPARATEGROUPS &&
@@ -2244,7 +2243,7 @@ WHERE
                         $user->groupids[$rec->groupid] = $rec->groupid;
                         $ok = true;
                     }
-                //Subscribed to the whole forum
+                    // Subscribed to the whole forum.
                 } else {
                     // extra conditions for forum not separate groups or accessallgroups
                     $groupok = $groupmode != SEPARATEGROUPS ||
@@ -2271,10 +2270,10 @@ WHERE
         }
         $rs->close();
 
-        //1. loop through array and clear the discussions/groupids array if wholeforum is true
-        //2. Find any user unsubscribed from initial subscribed forum. If the user has been
-        //   subscribed to discussions/groups, remove the $user->unsubscribe flag;
-        //   Otherwise remove the user from the list.
+        // 1. loop through array and clear the discussions/groupids array if wholeforum is true.
+        // 2. Find any user unsubscribed from initial subscribed forum. If the user has been
+        //    subscribed to discussions/groups, remove the $user->unsubscribe flag;
+        //    Otherwise remove the user from the list.
         foreach ($users as $key => $user) {
             if ($user->wholeforum) {
                 $user->discussionids = array ();
@@ -2312,7 +2311,7 @@ WHERE
     }
 
     // Permissions
-    //////////////
+    /*////////////*/
 
     /**
      * Makes security checks for viewing this forum. Will not return if user
@@ -2396,7 +2395,7 @@ WHERE
         $whynot = '';
         if (!$this->can_start_discussion($groupid, $whynot)) {
             print_error($whynot, 'forumng',
-                    $this->get_url(mod_forumng::PARAM_HTML));
+                    $this->get_url(self::PARAM_HTML));
         }
     }
 
@@ -2668,7 +2667,7 @@ WHERE
     }
 
     // Forum type
-    /////////////
+    /*///////////*/
 
     /**
      * Obtains a forum type object suitable for handling this forum.
@@ -2683,7 +2682,7 @@ WHERE
     }
 
     // Grades
-    /////////
+    /*///////*/
 
     /**
      * Updates the current forum grade(s), creating grade items if required,
@@ -2761,7 +2760,7 @@ WHERE fd.forumngid = ?";
             case self::GRADING_SUM :
                 $customselect = ", SUM(fr.rating) AS rawgrade";
                 break;
-            default : //avg
+            default : // Avg.
                 $customselect = ", AVG(fr.rating) AS rawgrade";
                 break;
         }
@@ -2769,10 +2768,10 @@ WHERE fd.forumngid = ?";
         // Work out the max grade
         $scale = $this->get_rating_scale();
         if ($scale >= 0) {
-            //numeric
+            // Numeric.
             $max = $scale;
         } else {
-            //scale
+            // Scale.
             $scale = $DB->get_record('scale', array('id', -$scale), '*', MUST_EXIST);
             $scale = explode(',', $scale->scale);
             $max = count($scale);
@@ -2850,7 +2849,7 @@ WHERE fd.forumngid = ?";
     }
 
     // Bulk forum requests
-    //////////////////////
+    /*////////////////////*/
 
     /**
      * Queries for all forums on a course, including additional data about unread
@@ -3048,7 +3047,7 @@ WHERE
         // is so we can display the number of UNread posts, but the query
         // works that way around because it will return 0 if no read
         // information is stored).
-        if ($unread!=self::UNREAD_NONE && mod_forumng::enabled_read_tracking()) {
+        if ($unread!=self::UNREAD_NONE && self::enabled_read_tracking()) {
             // Work out when unread status ends
             $endtime = time() - $CFG->forumng_readafterdays*24*3600;
             if (!$userid) {
@@ -3065,7 +3064,7 @@ WHERE
             if ($singleforum) {
                 // If it is for a single forum, get the restriction from the
                 // forum type
-                $forum = mod_forumng::get_from_cmid($singleforum, mod_forumng::CLONE_DIRECT);
+                $forum = self::get_from_cmid($singleforum, self::CLONE_DIRECT);
                 $type = $forum->get_type();
                 if ($type->has_unread_restriction()) {
                     list($value, $restrictionparams) = $type->get_unread_restriction_sql($forum);
@@ -3213,7 +3212,7 @@ ORDER BY
     }
 
     // Search
-    /////////
+    /*///////*/
 
     /** @return True if the OU search extension is available */
     public static function search_installed() {
@@ -3301,7 +3300,7 @@ WHERE
                 }
                 set_time_limit($timelimitbefore);
                 $discussion = mod_forumng_discussion::get_from_id($discussionrec->id,
-                    mod_forumng::CLONE_DIRECT, -1);
+                    self::CLONE_DIRECT, -1);
                 $root = $discussion->get_root_post();
                 $root->search_update();
                 $root->search_update_children();
@@ -3319,7 +3318,7 @@ WHERE
     }
 
     // UI
-    /////
+    /*///*/
 
     /**
      * Returns HTML for search form, or blank if there is no search facility
@@ -3403,15 +3402,15 @@ WHERE
             $subscriptioninfo = $this->get_subscription_info(0, $expectquery);
             if (!$this->get_group_mode()) {
                 if ($subscriptioninfo->wholeforum) {
-                    //subscribed to the entire forum
+                    // Subscribed to the entire forum.
                     $subscribed = self::FULLY_SUBSCRIBED;
                     $text = get_string('subscribestate_subscribed', 'forumng',
                         '<strong>' . $USER->email . '</strong>');
                 } else if (count($subscriptioninfo->discussionids) == 0) {
-                    //not subscribed at all
+                    // Not subscribed at all.
                     $text = get_string('subscribestate_unsubscribed', 'forumng');
                 } else {
-                    //subscribed to one or more discussions
+                    // Subscribed to one or more discussions.
                     $subscribed = self::PARTIALLY_SUBSCRIBED;
                     $text = get_string('subscribestate_partiallysubscribed', 'forumng',
                         '<strong>' . $USER->email . '</strong>');
@@ -3419,8 +3418,8 @@ WHERE
             } else {
                 $currentgroupid = $this->get_activity_group($cm, true);
                 if ($subscriptioninfo->wholeforum) {
-                    //subscribed to the entire forum
-                    if ($currentgroupid == mod_forumng::ALL_GROUPS) {
+                    // Subscribed to the entire forum.
+                    if ($currentgroupid == self::ALL_GROUPS) {
                         $text = get_string('subscribestate_subscribed', 'forumng',
                         '<strong>' . $USER->email . '</strong>');
                         $subscribed = self::FULLY_SUBSCRIBED;
@@ -3434,25 +3433,25 @@ WHERE
                     }
                 } else if (count($subscriptioninfo->groupids) == 0) {
                     if (count($subscriptioninfo->discussionids) == 0) {
-                        //not subscribed at all
-                        if ($currentgroupid == mod_forumng::ALL_GROUPS) {
-                            //return the default value NOT_SUBSCRIBED
+                        // Not subscribed at all.
+                        if ($currentgroupid == self::ALL_GROUPS) {
+                            // Return the default value NOT_SUBSCRIBED
                             $text = get_string('subscribestate_unsubscribed', 'forumng');
                         } else {
                             $text = get_string('subscribestate_unsubscribed_thisgroup', 'forumng');
                             $subscribed = self::THIS_GROUP_NOT_SUBSCRIBED;
                         }
                     } else {
-                        //only subscribed to discussions;
-                        if ($currentgroupid == mod_forumng::ALL_GROUPS) {
+                        // Only subscribed to discussions;
+                        if ($currentgroupid == self::ALL_GROUPS) {
                             $subscribed = self::PARTIALLY_SUBSCRIBED;
                             $text = get_string('subscribestate_partiallysubscribed', 'forumng',
                                 '<strong>' . $USER->email . '</strong>');
                         } else {
-                            //Set default that the discussions do not belong to the current group
+                            // Set default that the discussions do not belong to the current group.
                             $text = get_string('subscribestate_unsubscribed_thisgroup', 'forumng');
                             $subscribed = self::THIS_GROUP_NOT_SUBSCRIBED;
-                            //Check if any of the discussions belongs to the current group
+                            // Check if any of the discussions belongs to the current group.
                             foreach ($subscriptioninfo->discussionids as
                                     $discussionid => $groupid) {
                                 if ($groupid == $currentgroupid) {
@@ -3467,18 +3466,18 @@ WHERE
                     }
 
                 } else {
-                    //subscribed to one or more groups as the groupids array are not empty
-                    if ($currentgroupid == mod_forumng::ALL_GROUPS) {
+                    // Subscribed to one or more groups as the groupids array are not empty.
+                    if ($currentgroupid == self::ALL_GROUPS) {
                         $text = get_string('subscribestate_groups_partiallysubscribed', 'forumng',
                             '<strong>' . $USER->email . '</strong>');
-                        //treat this scenario the same as discussions partically subscribed since
-                        //they all give the same options which is
-                        //subscribe to the whole forum or unsubscribe from the whole forum
+                        // Treat this scenario the same as discussions partically subscribed since
+                        // they all give the same options which is
+                        // subscribe to the whole forum or unsubscribe from the whole forum.
                         $subscribed = self::PARTIALLY_SUBSCRIBED;
                     } else {
-                        //Check if have subscribed to the current group
+                        // Check if have subscribed to the current group.
                         $currentgroupsubscriptionstatus = false;
-                        //Check if any of the discussions belong to the current group
+                        // Check if any of the discussions belong to the current group.
                         foreach ($subscriptioninfo->groupids as $id) {
                             if ($id == $currentgroupid) {
                                 $text = get_string('subscribestate_subscribed_thisgroup',
@@ -3489,7 +3488,7 @@ WHERE
                             }
                         }
                         if (!$currentgroupsubscriptionstatus) {
-                            //not subscribed to the current group.
+                            // Not subscribed to the current group.
                             if (count($subscriptioninfo->discussionids) == 0) {
                                 $text = get_string('subscribestate_unsubscribed_thisgroup',
                                         'forumng');
@@ -3501,7 +3500,7 @@ WHERE
                                 $text = get_string('subscribestate_unsubscribed_thisgroup',
                                         'forumng');
                                 $subscribed = self::THIS_GROUP_NOT_SUBSCRIBED;
-                                //Check if any of the discussions belong to the current group
+                                // Check if any of the discussions belong to the current group.
                                 foreach ($subscriptioninfo->discussionids as
                                         $discussionid => $groupid) {
                                     if ($groupid == $currentgroupid) {
@@ -3566,14 +3565,14 @@ WHERE
         global $CFG;
 
         // Check they're allowed to see it
-        if ($this->get_effective_feed_option() == mod_forumng::FEEDTYPE_NONE) {
+        if ($this->get_effective_feed_option() == self::FEEDTYPE_NONE) {
             return '';
         }
 
         // Icon (decoration only) and Atom link
         $out = mod_forumng_utils::get_renderer();
-        return $out->render_feed_links($this->get_feed_url(mod_forumng::FEEDFORMAT_ATOM, $groupid),
-                $this->get_feed_url(mod_forumng::FEEDFORMAT_RSS, $groupid));
+        return $out->render_feed_links($this->get_feed_url(self::FEEDFORMAT_ATOM, $groupid),
+                $this->get_feed_url(self::FEEDFORMAT_RSS, $groupid));
     }
 
     /**
@@ -3799,7 +3798,7 @@ WHERE
     }
 
     // Feeds
-    /////////
+    // ////.
 
     /**
      * Key that allows access to this forum's Atom/RSS feeds
@@ -3856,7 +3855,7 @@ WHERE
         $userid = mod_forumng_utils::get_real_userid($userid);
 
         return $CFG->wwwroot . '/mod/forumng/feed.php?' .
-            $this->get_link_params(mod_forumng::PARAM_PLAIN) .
+            $this->get_link_params(self::PARAM_PLAIN) .
             '&user=' . $userid . ($groupid == self::ALL_GROUPS
                 || $groupid == self::NO_GROUPS ? '' : '&group=' . $groupid) .
             '&key=' . $this->get_feed_key($groupid, $userid) . '&format=' .
@@ -4136,7 +4135,7 @@ WHERE
     }
 
     // Conversion
-    //////////////
+    /*///////////*/
 
     /**
      * Creates a new ForumNG by copying data (including all messages etc) from
@@ -4249,7 +4248,7 @@ WHERE
             $DB->update_record('course_sections', $updatesection);
         }
         // Construct forum object for new forum
-        $newforum = self::get_from_id($forumng->id, mod_forumng::CLONE_DIRECT);
+        $newforum = self::get_from_id($forumng->id, self::CLONE_DIRECT);
 
         if ($progress) {
             print ' ' . get_string('convert_process_state_done', 'forumng') . '</li>';
@@ -4769,7 +4768,7 @@ WHERE
     }
 
     // Shared/clone forums
-    //////////////////////
+    /*////////////////////*/
 
     /**
      * Redirects to the original forum that this is a clone of, setting
@@ -4807,7 +4806,7 @@ WHERE
             $viewhiddenforums[] = $DB->get_field(
                     'course_modules', 'instance', array('id' => $cmid));
         }
-        $rows = mod_forumng::query_forums(array($cmid), null, 0, $unread,
+        $rows = self::query_forums(array($cmid), null, 0, $unread,
                 array(), array(), $viewhiddenforums);
         if (count($rows) != 1) {
             throw new coding_exception('Unexpected data extracting base forum');
@@ -4868,7 +4867,7 @@ WHERE
         $transaction = $DB->start_delegated_transaction();
 
         if ($cmid) {
-            //only update one forum
+            // Only update one forum.
             $optionalquery = "AND cm.id = ?";
             $optionalqueryparams = array($cmid);
         } else {
@@ -4888,7 +4887,7 @@ WHERE
     discussionid IS NULL AND m.name = 'forumng' $optionalquery
     AND (CASE WHEN c.groupmodeforce=1 THEN c.groupmode ELSE cm.groupmode END ) = 1";
 
-        //Query lists all subscriptions to forums that have separate groups
+        // Query lists all subscriptions to forums that have separate groups.
         $sqlsub = "
 SELECT
     cm.id AS cmid, fs.id AS subid, fs.userid, fs.forumngid, c.id AS courseid, cm.groupingid
@@ -4902,7 +4901,7 @@ WHERE
     AND (CASE WHEN c.groupmodeforce = 1 THEN c.groupmode ELSE cm.groupmode END ) = 1
 ORDER BY cm.id, fs.id";
 
-        //Query lists all groups that the user belongs to from the above query
+        // Query lists all groups that the user belongs to from the above query.
         $sqlgroup = "
 SELECT
     subs.subid, g.id AS groupid
@@ -4944,9 +4943,9 @@ ORDER BY
                 $forumcount++;
             }
             if (!array_key_exists($rec->userid, $aagusers)) {
-                //Delete the whole forum subscription
+                // Delete the whole forum subscription.
                 $DB->delete_records('forumng_subscriptions', array('id' => $rec->subid));
-                //check if the subid exists in the results array
+                // Check if the subid exists in the results array.
                 if (array_key_exists($rec->subid, $results)) {
                     foreach ($results[$rec->subid] as $groupid) {
                         $subrecord = new StdClass;

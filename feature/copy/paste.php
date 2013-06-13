@@ -35,7 +35,7 @@ if (optional_param('cancel', '', PARAM_RAW)) {
     unset($SESSION->forumng_copyfrom);
     redirect($targetforum->get_url(mod_forumng::PARAM_PLAIN));
 }
-//If the paste action has already been done or cancelled in a different window/tab
+// If the paste action has already been done or cancelled in a different window/tab.
 if (!isset($SESSION->forumng_copyfrom)) {
     redirect($targetforum->get_url(mod_forumng::PARAM_PLAIN));
 }
@@ -45,7 +45,7 @@ $olddiscussion = mod_forumng_discussion::get_from_id($olddiscussionid, $oldclone
 // Check permission to copy the discussion
 require_capability('mod/forumng:copydiscussion',
     $olddiscussion->get_forum()->get_context());
-//security check to see if can start a new discussion in the target forum
+// Security check to see if can start a new discussion in the target forum.
 $targetforum->require_start_discussion($groupid);
 $olddiscussion->copy($targetforum, $groupid);
 unset($SESSION->forumng_copyfrom);

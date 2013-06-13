@@ -78,7 +78,7 @@ function forumng_get_results_for_this_forum($forum, $groupid, $author=null, $dat
     $where = "WHERE d.forumngid = ?";
     $params[] = $forumngid;
 
-    //exclude deleted discussion/post
+    // Exclude deleted discussion/post.
     $where .= " AND d.deleted = 0 AND p.deleted = 0 AND p.oldversion = 0 ";
 
     if ($author) {
@@ -117,7 +117,7 @@ function forumng_get_results_for_this_forum($forum, $groupid, $author=null, $dat
     $groupposts = array();
     foreach ($posts as $post) {
         if (!$post->title) {
-            //Add Re: if the post doesn't have a subject
+            // Add Re: if the post doesn't have a subject.
             $post->title = get_string('re', 'forumng', $post->subject);
         }
         $post->title = s(strip_tags($post->title));
@@ -203,7 +203,7 @@ function forumng_get_results_for_all_forums($course, $author=null, $daterangefro
     $where .= " AND (? < d.timeend OR d.timeend = 0)";
     $params[] = $currenttime;
 
-    //exclude older post versions
+    // Exclude older post versions.
     $where .= " AND p.oldversion = 0 ";
     $where .= " AND d.deleted = 0 AND p.deleted = 0 ";
 
@@ -309,12 +309,12 @@ function forumng_get_author_sql($author, $t='u') {
         $where .= "((UPPER($t.username)=UPPER(?)) ";
         $params[] = $author;
 
-        //search for first name only
+        // Search for first name only.
         // Finds "Mah",  "Mahmo", "mahmoud", etc.
         $where .= " OR (UPPER($t.firstname) LIKE UPPER(?)) ";
         $params[] = $author . '%';
 
-        //search for surname only
+        // Search for surname only.
         // Finds "Kass",  "kassa", "Kassaei", etc.
         $where .= " OR (UPPER($t.lastname) LIKE UPPER(?))) ";
         $params[] = $author . '%';

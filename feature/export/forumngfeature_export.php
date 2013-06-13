@@ -48,12 +48,12 @@ class forumngfeature_export extends forumngfeature_discussion {
     public function should_display($discussion) {
         global $CFG;
 
-        //check are portfolios enabled
+        // Check are portfolios enabled.
         if (!$CFG->enableportfolios) {
             return false;
         }
 
-        //check at there's at least one enabled and visible portfolio plugin
+        // Check at there's at least one enabled and visible portfolio plugin.
         require_once($CFG->libdir . '/portfoliolib.php');
         $instances = portfolio_instances();
         if (empty($instances)) {

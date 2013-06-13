@@ -80,6 +80,6 @@ if ($back == 'discuss') {
         $courseid = $forum->get_course()->id;
     }
     redirect('discuss.php?' . $discussion->get_link_params(mod_forumng::PARAM_PLAIN));
-} else  {
+} else {
     redirect($forum->get_url(mod_forumng::PARAM_PLAIN));
 }

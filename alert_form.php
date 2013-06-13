@@ -25,7 +25,7 @@ require_once($CFG->libdir.'/formslib.php');
  */
 class mod_forumng_alert_form extends moodleform {
 
-    function definition() {
+    public function definition() {
 
         global $CFG, $USER;
         $mform = $this->_form;
@@ -57,7 +57,7 @@ class mod_forumng_alert_form extends moodleform {
         $mform->addGroup($checkboxarray, get_string('alert_reasons', 'forumng'),
                 get_string('alert_reasons', 'forumng'), '<br />', false);
 
-        //plain text field
+        // Plain text field.
         $mform->addElement('textarea', 'alert_conditionmore',
                 get_string('alert_conditionmore', 'forumng'), array('cols'=>50,
                     'rows'=> 15));
@@ -70,17 +70,17 @@ class mod_forumng_alert_form extends moodleform {
         $mform->addElement('static', '', '',
             get_string('alert_reporterdetail', 'forumng', $this->_customdata));
 
-        //Add submit and cancel buttons
+        // Add submit and cancel buttons.
         $this->add_action_buttons(true, get_string('alert_submit', 'forumng'));
 
-        //Add postid as hidden field
+        // Add postid as hidden field.
         $mform->addElement('hidden', 'p', $this->_customdata->postid);
         $mform->addElement('hidden', 'clone', $this->_customdata->cloneid);
     }
 
-    function validation($data, $files) {
+    public function validation($data, $files) {
         $errors = parent::validation($data, $files);
-        //Error if all fields are empty
+        // Error if all fields are empty.
         if (empty($data['alert_condition1']) && empty($data['alert_condition2']) &&
                 empty($data['alert_condition3']) && empty($data['alert_condition4']) &&
                 empty($data['alert_condition5']) && empty($data['alert_condition6']) &&

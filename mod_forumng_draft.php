@@ -34,7 +34,7 @@ class mod_forumng_draft {
      *   replied to)
      * @return array Array of mod_forumng_draft objects (empty if none)
      */
-    static function query_drafts($where, $whereparams) {
+    public static function query_drafts($where, $whereparams) {
         global $DB;
         $result = array();
         $rs = $DB->get_recordset_sql("
@@ -96,7 +96,7 @@ ORDER BY
      * @param int $userid User ID or 0 for current
      * @return int ID of new draft
      */
-    static function save_new($forum, $groupid, $parentpostid, $subject,
+    public static function save_new($forum, $groupid, $parentpostid, $subject,
             $message, $messageformat, $attachments, $options, $userid=0) {
         global $DB;
         $userid = mod_forumng_utils::get_real_userid($userid);
@@ -133,7 +133,7 @@ ORDER BY
      * @param int $groupid Group ID (null if none)
      * @param object $options Options (null if none)
      */
-    function update($subject, $message,
+    public function update($subject, $message,
             $messageformat, $attachments, $groupid, $options) {
         global $DB;
 
@@ -153,7 +153,7 @@ ORDER BY
      * Deletes an existing draft message.
      * @param object $filecontext Context used for files (=forum context)
      */
-    function delete($filecontext) {
+    public function delete($filecontext) {
         global $DB;
         $transaction = $DB->start_delegated_transaction();
 
@@ -173,47 +173,47 @@ ORDER BY
     }
 
     // Direct fields
-    ////////////////
+    /*//////////////*/
 
     /**
      * @return int ID of this draft
      */
-    function get_id() {
+    public function get_id() {
         return $this->draftfields->id;
     }
 
     /**
      * @return int ID of user making draft
      */
-    function get_user_id() {
+    public function get_user_id() {
         return $this->draftfields->userid;
     }
 
     /**
      * @return int ID of forum containing draft
      */
-    function get_forumng_id() {
+    public function get_forumng_id() {
         return $this->draftfields->forumngid;
     }
 
     /**
      * @return int Time (seconds since epoch) this draft was saved
      */
-    function get_saved() {
+    public function get_saved() {
         return $this->draftfields->saved;
     }
 
     /**
      * @return string Message subject
      */
-    function get_subject() {
+    public function get_subject() {
         return $this->draftfields->subject;
     }
 
     /**
      * @return string Message content
      */
-    function get_raw_message() {
+    public function get_raw_message() {
         return $this->draftfields->message;
     }
 
@@ -243,32 +243,32 @@ ORDER BY
     /**
      * @return int Format (FORMAT_xx) of message content
      */
-    function get_format() {
+    public function get_format() {
         return $this->draftfields->messageformat;
     }
 
     /**
      * @return object Options object (may be null)
      */
-    function get_options() {
+    public function get_options() {
         return $this->draftfields->options
             ? unserialize($this->draftfields->options) : null;
     }
 
     // Discussion-related information from joins
-    ////////////////////////////////////////////
+    /*//////////////////////////////////////////*/
 
     /**
      * @return bool True if this is a new discussion, false if it's a reply
      */
-    function is_new_discussion() {
+    public function is_new_discussion() {
         return is_null($this->draftfields->discussionid);
     }
 
     /**
      * @return bool True if this is a reply, false if it's a new discussion
      */
-    function is_reply() {
+    public function is_reply() {
         return !is_null($this->draftfields->discussionid);
     }
 
@@ -276,7 +276,7 @@ ORDER BY
      * @return int ID of group for new discussion (this field is not set for
      *   replies)
      */
-    function get_group_id() {
+    public function get_group_id() {
         return $this->draftfields->groupid;
     }
 
@@ -295,7 +295,7 @@ ORDER BY
      * @return int Discussion id
      * @throws mod_forumng_exception If this is a new discussion (so no id yet)
      */
-    function get_discussion_id() {
+    public function get_discussion_id() {
         $this->check_discussion_exists();
         return $this->draftfields->discussionid;
     }
@@ -304,7 +304,7 @@ ORDER BY
      * @return string Discussion subject
      * @throws mod_forumng_exception If this is a new discussion
      */
-    function get_discussion_subject() {
+    public function get_discussion_subject() {
         $this->check_discussion_exists();
         return $this->draftfields->discussionsubject;
     }
@@ -314,7 +314,7 @@ ORDER BY
      *   replied to
      * @throws mod_forumng_exception If this is a new discussion
      */
-    function get_reply_to_user() {
+    public function get_reply_to_user() {
         $this->check_discussion_exists();
         return $this->draftfields->replytouser;
     }
@@ -323,13 +323,13 @@ ORDER BY
      * @return int Parent post that is being replied to
      * @throws mod_forumng_exception If this is a new discussion
      */
-    function get_parent_post_id() {
+    public function get_parent_post_id() {
         $this->check_discussion_exists();
         return $this->draftfields->parentpostid;
     }
 
     // Attachments
-    ///////////////
+    /*////////////*/
 
     /**
      * @return bool True if this draft has any attachments
@@ -339,7 +339,7 @@ ORDER BY
     }
 
     // UI
-    /////
+    /*///*/
 
     /**
      * Prints the content of this draft as a JavaScript variable (including
@@ -392,7 +392,7 @@ ORDER BY
         unset($fields->attachments);
 
         // Add options
-        foreach ( (array)($this->get_options()) as $key=>$value) {
+        foreach ((array)($this->get_options()) as $key => $value) {
             $fields->{$key} = $value;
         }
 

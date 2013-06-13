@@ -76,7 +76,7 @@ abstract class forumngfeature_discussion extends forumngfeature {
         if ($post) {
             $options['sesskey'] = sesskey();
         }
-        foreach ($options as $key=>$value) {
+        foreach ($options as $key => $value) {
             $optionshtml .= '<input type="hidden" name="' . $key .
                 '" value="' . $value . '" />';
         }
