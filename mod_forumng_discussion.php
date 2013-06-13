@@ -282,7 +282,7 @@ class mod_forumng_discussion {
         if ($usecache) {
             global $SESSION;
             self::check_cache();
-            foreach ($SESSION->FORUMNG_CACHE->discussions as $info) {
+            foreach ($SESSION->forumng_cache->discussions as $info) {
                 if ($info->userid==mod_forumng_utils::get_real_userid($userid) &&
                         $info->id==$id && $info->cloneid==$cloneid) {
                     $info->lastused = time();
@@ -312,7 +312,7 @@ class mod_forumng_discussion {
         if ($usecache) {
             global $SESSION;
             self::check_cache();
-            foreach ($SESSION->FORUMNG_CACHE->discussions as $info) {
+            foreach ($SESSION->forumng_cache->discussions as $info) {
                 if ($info->userid!=mod_forumng_utils::get_real_userid($userid)) {
                     continue;
                 }
@@ -383,9 +383,9 @@ class mod_forumng_discussion {
         // Remove any existing data for this discussion id
         $oldest = -1;
         $oldesttime = 0;
-        foreach ($SESSION->FORUMNG_CACHE->discussions as $key => $info) {
+        foreach ($SESSION->forumng_cache->discussions as $key => $info) {
             if ($info->id == $this->get_id()) {
-                unset($SESSION->FORUMNG_CACHE->discussions[$key]);
+                unset($SESSION->forumng_cache->discussions[$key]);
             } else {
                 if ($oldest==-1 || $info->lastused<$oldesttime) {
                     $oldest = $key;
@@ -394,8 +394,8 @@ class mod_forumng_discussion {
         }
 
         // If there are too many, discard oldest
-        if (count($SESSION->FORUMNG_CACHE->discussions) > self::CACHE_COUNT) {
-            unset($SESSION->FORUMNG_CACHE->discussions[$oldest]);
+        if (count($SESSION->forumng_cache->discussions) > self::CACHE_COUNT) {
+            unset($SESSION->forumng_cache->discussions[$oldest]);
         }
 
         // Cache this data
@@ -416,7 +416,7 @@ class mod_forumng_discussion {
         }
 
         $this->incache = $info;
-        $SESSION->FORUMNG_CACHE->discussions[] = $info;
+        $SESSION->forumng_cache->discussions[] = $info;
     }
 
     /**
@@ -426,10 +426,10 @@ class mod_forumng_discussion {
      */
     public function uncache() {
         global $SESSION;
-        if (isset($SESSION->FORUMNG_CACHE->discussions)) {
-            foreach ($SESSION->FORUMNG_CACHE->discussions as $key => $info) {
+        if (isset($SESSION->forumng_cache->discussions)) {
+            foreach ($SESSION->forumng_cache->discussions as $key => $info) {
                 if ($info->id == $this->get_id()) {
-                    unset($SESSION->FORUMNG_CACHE->discussions[$key]);
+                    unset($SESSION->forumng_cache->discussions[$key]);
                 }
             }
         }
@@ -466,10 +466,10 @@ class mod_forumng_discussion {
         global $SESSION;
         self::check_cache();
 
-        foreach ($SESSION->FORUMNG_CACHE->discussions as $key => $info) {
+        foreach ($SESSION->forumng_cache->discussions as $key => $info) {
             if ($info->id == $this->get_id()
                 && $info->timemodified != $this->get_time_modified()) {
-                unset($SESSION->FORUMNG_CACHE->discussions[$key]);
+                unset($SESSION->forumng_cache->discussions[$key]);
             }
         }
     }
@@ -481,17 +481,17 @@ class mod_forumng_discussion {
         global $SESSION;
 
         // Check cache variable exists
-        if (!isset($SESSION->FORUMNG_CACHE)) {
-            $SESSION->FORUMNG_CACHE = new stdClass;
+        if (!isset($SESSION->forumng_cache)) {
+            $SESSION->forumng_cache = new stdClass;
         }
-        if (!isset($SESSION->FORUMNG_CACHE->discussions)) {
-            $SESSION->FORUMNG_CACHE->discussions = array();
+        if (!isset($SESSION->forumng_cache->discussions)) {
+            $SESSION->forumng_cache->discussions = array();
         }
 
         // Remove old cache data
-        foreach ($SESSION->FORUMNG_CACHE->discussions as $key => $info) {
+        foreach ($SESSION->forumng_cache->discussions as $key => $info) {
             if (time() - $info->lastused > self::CACHE_TIMEOUT) {
-                unset($SESSION->FORUMNG_CACHE->discussions[$key]);
+                unset($SESSION->forumng_cache->discussions[$key]);
             }
         }
     }

@@ -535,14 +535,14 @@ ORDER BY
         if ($cloneid == self::CLONE_GUESS) {
             // We had better cache guesses in session because this is
             // time-consuming
-            if (!isset($SESSION->FORUMNG_CACHE)) {
-                $SESSION->FORUMNG_CACHE = new stdClass;
+            if (!isset($SESSION->forumng_cache)) {
+                $SESSION->forumng_cache = new stdClass;
             }
-            if (!isset($SESSION->FORUMNG_CACHE->guesses)) {
-                $SESSION->FORUMNG_CACHE->guesses = array();
+            if (!isset($SESSION->forumng_cache->guesses)) {
+                $SESSION->forumng_cache->guesses = array();
             }
-            if (isset($SESSION->FORUMNG_CACHE->guesses[$this->get_id()])) {
-                return $SESSION->FORUMNG_CACHE->guesses[$this->get_id()];
+            if (isset($SESSION->forumng_cache->guesses[$this->get_id()])) {
+                return $SESSION->forumng_cache->guesses[$this->get_id()];
             }
             // Okay, no cached guess. First let's see if they can write to the
             // original forum because if so let's just use that
@@ -577,7 +577,7 @@ ORDER BY
             }
 
             // Cache guess
-            $SESSION->FORUMNG_CACHE->guesses[$this->get_id()] = $this->clonecm;
+            $SESSION->forumng_cache->guesses[$this->get_id()] = $this->clonecm;
             return;
         } else {
             // Get course-module record
