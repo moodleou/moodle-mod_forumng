@@ -39,6 +39,12 @@ $groupid = mod_forumng::get_activity_group($cm, true);
 $forum->require_view($groupid, 0, true);
 mod_forumng::search_installed();
 
+// If no search text has been entered, go straight to advanced search.
+if (empty($querytext)) {
+    redirect('advancedsearch.php?' . $forum->get_link_params(mod_forumng::PARAM_HTML) .
+            '&amp;action=0');
+}
+
 // Search form for header
 $buttontext = $forum->display_search_form($querytext);
 
