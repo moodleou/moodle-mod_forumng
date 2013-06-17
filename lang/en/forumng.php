@@ -313,16 +313,16 @@ $string['olderversions'] = 'Older versions (most recent first)';
 $string['deleteemailpostbutton'] = 'Delete and email';
 $string['deleteandemail'] = 'Delete and email author';
 $string['emailmessage'] = 'Message';
-$string['emailcontentplain'] = 'This is a notification to advise you that your forum post with the '.
-'following details has been deleted by \'{$a->firstname} {$a->lastname}\':
+$string['emailcontentplain'] = 'This is a notification to advise you that your forum post with the
+ following details has been deleted by \'{$a->firstname} {$a->lastname}\':
 
 Subject: {$a->subject}
 Forum: {$a->forum}
 Module: {$a->course}
 
 To view the discussion visit {$a->deleteurl}';
-$string['emailcontenthtml'] = 'This is a notification to advise you that your forum post with the '.
-'following details has been deleted by \'{$a->firstname} {$a->lastname}\':<br />
+$string['emailcontenthtml'] = 'This is a notification to advise you that your forum post with the
+ following details has been deleted by \'{$a->firstname} {$a->lastname}\':<br />
 <br />
 Subject: {$a->subject}<br />
 Forum: {$a->forum}<br />
