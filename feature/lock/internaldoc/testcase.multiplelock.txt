@@ -1,0 +1,282 @@
+This file contains a sequence of test cases for the ForumNG Lock feature.
+
+Initial setup
+=============
+
+See testcase.txt for a description of the format of these tests.
+Since this test deals only with the forum view page user interface,
+only these instructions will be required.
+One forum is required. Three discussions will need to be setup.
+
+Some parts of the interface have different behaviour in 'fancy' (AJAX/JavaScript) mode,
+so we will test those parts first with Javascript disabled and then enabled in the browser
+
+One text file will be required to insert as an attachment.
+
+
+Browser Configuration 1
+=======================
+
+Configure the browser to disable Javascript.
+
+CRE Creating ForumNG
+====================
+
+CRE01 / admin
+  In any course week, from the add activity dropdown, choose 'ForumNG'.
+  Leave all settings as default except name 'F.LD'. Save form and return to the course.
+
+
+BSN Basic usage (non-JS)
+========================
+
+BSN01 / admin
+   Go to the course and click into F.LD to enter the first ForumNG.
+-  Verify that there is a 'Start a new discussion' button, with text beneath,
+   'There are no discussions in this forum yet.'
+-  Verify that next there are seven buttons, the existing 'Mark all posts read', 'Change' and
+   'Export', 'Make sticky', 'Make normal', with the preexisting 'View posts by user'
+   followed by the new 'Lock' button.
+
+BSN02 / admin
+   Click the 'Start a new discussion' button.
+-  You should be taken to a new page with a form for starting a discussion.
+   Type 'Discussion1' in subject and a message and hit the 'Post discussion' button.
+-  Verify that you are taken to the new discussion page and your message is shown.
+   Return to forum view page.
+
+BSN03 / admin
+   Repeat the 'Start a new discussion' process a further two times,
+   enter Discussion(No) as subject and any text for each discussion.
+
+Return to the forumng view page.
+
+
+DEL Delete Discussions
+=======================
+
+DEL01 / admin
+   Open discussion 3 and click delete to delete it.
+-  Click to confirm you are sure you want to delete this discussion.
+-  Confirm Discussion3 is now dimmed and struck through.
+
+
+BLD Basic lock discussions usage   (non-JS).
+===========================================
+
+BLD01 / admin
+   Click F.LD to enter the first ForumNG.
+-  Confim that the forum view page shows all three discussions, and that they can be ordered by the
+   column headings.
+
+BLD02 / admin
+   Click 'Lock'.
+-  Confirm that the Lock page opens with the text 'Do you want to include all
+   discussions listed on this page, or only selected discussions?' and two buttons beneath:
+   'All discussions shown' and 'Selected discussions'.
+
+BLD03 / admin
+   Click 'All discussions shown'.
+   Confirm that a 'Lock discussion(s)' form is displayed on the page, that the Subject has a default
+   entry, "This discussion is now closed"
+   Confirm that there are two file addition areas, the second labeled Attachments.
+   Confirm that there is a 'Mail soon' check box, with help.
+   Finally, confirm three buttons 'Lock discussion', 'Cancel', and 'Save as draft'.
+
+BLD04 / admin
+   Enter a message regarding locking all discussions.
+   Click 'Lock discussion'.
+   Confirm that you are returned to the forum view page.
+-  Verify that all non deleted discussions are now displaying the 'Lock' icon.
+
+BLD05 / admin
+   Enter discussion 1.
+   Verify that the top discussion post is high-lighted and contains the title,
+   'This discussion is now closed' and the message entered regarding locking all discussions.
+   Verify that there is an 'Unlock' button on the left.
+   Click F.LD to return to the forum view page.
+
+BLD06 / admin
+   Click to Enter discussion 2.
+   Verify that the top discussion post is high-lighted and contains the title,
+   'This discussion is now closed' and the same message entered regarding locking all discussions.
+   Verify that there is an 'Unlock' button on the left.
+   Click F.LD to return to the forum view page.
+
+BLD07 / admin
+  Enter both discussions and click the 'Unlock' button to unlock them, and to confirm unlock.
+  Return to the forum view page.
+
+BLD08 / admin
+-  Confim that the forum view page shows all three discussions, and that none are now locked.
+
+BLD09 / admin
+   Click 'Lock'.
+-  Confirm that the Lock page opens with the text 'Do you want to include all discussions
+   listed on this page, or only selected discussions?' and two buttons beneath:
+   'All discussions shown' and 'Selected discussions'.
+
+BLD10 / admin
+   Click 'Selected discussions'.
+-  Confirm that you are returned to the forum lock view page with the text at the top
+   'Tick the box beside each discussion you want to include. When you're done, scroll to the bottom
+   and click "Confirm selection".
+-  Confirm that there is a column "Select discussion" on the right which contains check boxes
+   against each discussion which is not deleted.
+-  Confirm that below the discussions there are 'Confirm selection' and 'Cancel' buttons.
+
+BLD11 / admin
+   Click check the box for Discussion1.
+   Click 'Confirm selection' button.
+-  Confirm that the 'Lock discussion(s)' page opens.
+
+BLD12 / admin
+-   Confirm that a 'Lock discussion(s)' form is displayed as before, the Subject has a default entry,
+   "This discussion is now closed".
+-   Confirm that there are two file addition areas, the second labeled Attachments.
+-   Confirm two further areas, Display period and Discussion options
+-   Confirm three buttons 'Lock discussion', 'Cancel', and 'Save as draft'.
+
+BLD13 / admin
+   Enter a message regarding locking discussion.
+   Click the 'Lock discussion' button.
+-  Confirm that you are returned to the forum view page.
+-  Verify that only Discussion1 is displaying the 'Lock' icon.
+
+BLD14 / admin
+   Enter discussion 1.
+-   Verify that the top discussion post is high-lighted and contains the title,
+   'This discussion is now closed' and the message entered regarding locking all discussions.
+-  Confirm that the attached file link appears to the right of the posted message text.
+   Scroll to the bottom of the posts.
+-   Verify that there is an 'Unlock' button on the left.
+   Click the 'Unlock' button, once to unlock the discussion, and once to confirm unlock.
+   Click F.LD to be returned to the forum view page.
+
+
+Browser Configuration 2
+=======================
+
+Re-configure the browser to enable Javascript, and refresh the forumng view page.
+
+BJD Basic usage Lock discussions   (JS Enabled)
+===============================================
+
+BJD01 / admin
+-  Confim that the forum view page shows all three discussions, and that none are currently 'Locked'.
+   but that discussions 3 is shown 'deleted'.
+
+BJD02 / admin
+   Click 'Lock'.
+-  Confirm that the Lock page POPUP opens over the current page with the text
+   'Do you want to include all discussions listed on this page, or only selected discussions?'
+    with three buttons beneath:
+   'All discussions shown' and 'Selected discussions' and 'Cancel'.
+
+BJD03 / admin
+   Click 'All discussions shown'.
+-  Confirm that a 'Lock discussion(s)' form is displayed on the page, that the Subject has a default
+   entry, "This discussion is now closed".
+-  Confirm that there is a box labeled Attachments split into three rows, with links 'Add', 'Files'
+   and a large area below. Except in IE8, this area may have a caption 'You can drag and drop files
+   here to add them'.
+-  Confirm that thee are two further areas below, Display period and Discussion options
+-  Confirm three buttons 'Lock discussion', 'Cancel', and 'Save as draft'.
+
+BJD04 / admin
+   Enter the message 'Regarding locking all discussions, with added attachment provided' .
+   Upload the text file into the attachment area, either by browsing for the file or drag and drop.
+   Click button 'Lock discussion'.
+-  Confirm that you are returned to the forum view page.
+-  Verify that all non deleted discussions are now displaying the 'Lock' icon.
+
+BJD05 / admin
+   Enter discussion 1.
+   Verify that the top discussion post is high-lighted and contains the title,
+   'This discussion is now closed' and the message entered 'Regarding locking all discussions,
+   with added attachment provided'.
+-   Verify that the post contains the text file attachment provided as a link to the right of the post.
+   Scroll to the bottom of the posts.
+   Verify that there is an 'Unlock' button on the left.
+   Click F.LD
+-  Confirm that you are returned to the forum view page.
+
+BJD06 / admin
+   Enter discussion 2.
+-  Verify that the top discussion post is high-lighted and contains the title,
+   'This discussion is now closed' and the message entered 'Regarding locking all discussions,
+   with added attachment provided'.
+-  Verify that the post contains the same text file attachment provided as a link to the right of the post.
+   Scroll to the bottom of the posts.
+-  Verify that there is an 'Unlock' button on the left.
+   Click F.LD to return to the forum view page.
+-   Confirm that you are returned to the forum view page.
+
+BJD07 / admin
+  Enter both discussions and click the 'Unlock' button once to unlock, and once to confirm unlock.
+  Click F.LD to return to the forum view page.
+
+BJD08 / admin
+-  Confim that the forum view page shows all three discussions,and that discussion 3 is shown as
+   'deleted' and greyed out.
+
+BJD09 / admin
+   Click 'Lock'.
+-  Confirm that the Lock Popup opens over the forum view page with the text
+   'Do you want to include all discussions listed on this page, or only selected discussions?'
+    and three buttons beneath:
+   'All discussions shown', 'Selected discussions' and 'Cancel'.
+
+BJD10 / admin
+   Click 'Selected discussions'
+-  Confirm that you are returned to the forum lock view page with the text at the top
+   'Tick the box beside each discussion you want to include. When you're done, scroll to the bottom
+   and click "Confirm selection".
+-  Confirm that there two buttons beneath this 'Select all' which is enabled and 'Deselect all', which
+   is disabled.
+-   Confirm that there is a now check box against each discussion title which is not deleted.
+-   Confirm that below the discussions there are 'Confirm selection' and 'Cancel' buttons and
+   that 'Confirm selection' is disabled.
+
+BJD11 / admin
+   Click the 'Select all' button.
+-  Confirm that the two check boxes are now ticked and that the  'Confirm selection'
+   button is now enabled.
+
+BJD12 / admin
+   Click the 'Deselect all' button.
+-  Confirm that the two check boxes are now unticked and that the  'Confirm selection'
+   button is now disabled.
+
+BJD13 / admin
+   Click the check box against Discussions2.
+-  Confirm that both the 'Select all' and 'Deselect all' buttons are now enabled.
+-  Confirm that the 'Confirm selection' button is now enabled.
+   Click 'Confirm selection' button.
+   Confirm that the 'Lock discussion(s)' page opens.
+
+BJD14 / admin
+   Confirm that the 'Lock discussions' form is displayed, that the Subject has a default entry,
+   "This discussion is now closed" as previously.
+
+BJD15 / admin
+   Enter the message 'Regarding locking selected discussions, with added attachment provided'.
+   Upload the text file into the attachment area, either by browsing for the file or drag and drop.
+   Click button 'Lock discussion'.
+-  Confirm that you are returned to the forum view page.
+-  Verify that only Discussions2 displays the 'Lock' icon.
+
+BJD16 / admin
+   Enter discussion 2.
+-  Verify that the top discussion post is high-lighted and contains the title,
+   'This discussion is now closed' and the message entered 'Regarding locking all discussions,
+   with added attachment provided', and that the uploaded files link ios displayed to the
+   right of the text.
+   Scroll to the bottom of the posts.
+-   Verify that there is an 'Unlock' button on the left.
+   Click F.LD
+-   Confirm that you are returned to the forum view page.
+
+
+Test complete.
+==============

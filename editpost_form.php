@@ -221,7 +221,7 @@ class mod_forumng_editpost_form extends moodleform {
             $submitlabel, array('id' => 'id_submitbutton'));
         $buttonarray[] = &$mform->createElement('cancel', '', '',
             array('id' => 'id_cancel'));
-        if (!$edit) {
+        if (!$edit && !$islock) {
             // Can't save draft while editing.
             $buttonarray[] = &$mform->createElement('submit', 'savedraft',
                 get_string('savedraft', 'forumng'),
