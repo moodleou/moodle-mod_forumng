@@ -349,7 +349,14 @@ M.mod_forumng = {
      * Removes iframe and marks it closed.
      */
     remove_iframe : function(iframe) {
-        iframe.get('parentNode').removeChild(iframe);
+        var parent = iframe.get('parentNode');
+        parent.removeChild(iframe);
+        if (M.is_mobile) {
+            // Hide iframe container also.
+            parent.setStyle('display', 'none');
+            // Remove scroll event trapping.
+            Y.one('window').detach('scroll');
+        }
         this.nowediting = false;
         this.links_enable(document.body);
     },
@@ -398,12 +405,27 @@ M.mod_forumng = {
                 //
                 // Create + set M.is_mobile in the mobile theme to activate.
                 if (M.is_mobile) {
+                    iframecon.setStyle('display', 'block');
                     iframecon.setStyle('width', '100%');
                     iframecon.setStyle('height', '100%');
-                    iframe.setStyle('position', 'fixed');
-                    iframe.setStyle('top', '0px');
-                    iframe.setStyle('left', '0px');
-                    iframe.setStyle('z-index', '9999');
+                    if (M.mod_forumng.Y.UA.ios) {
+                        // Make fixed div work in iOS.
+                        iframecon.setStyle('position', 'fixed');
+                        iframecon.setStyle('top', '0px');
+                        iframecon.setStyle('left', '0px');
+                        iframecon.setStyle('z-index', '9999');
+                    } else {
+                        iframe.setStyle('position', 'fixed');
+                        iframe.setStyle('top', '0px');
+                        iframe.setStyle('left', '0px');
+                        iframe.setStyle('z-index', '9999');
+                        Y.one('window').on('scroll', function(){
+                            // Prevent scrolling past iframe as not 'fixed' on some mobiles.
+                            if (window.scrollY > iframe.get('contentWindow.document').one('#page').get('clientHeight')) {
+                                parent.window.scrollTo(0, 0);
+                            }
+                        });
+                    }
                     iframe.setStyle('height', '100%');
                     iframe.setStyle('width', '100%');
                     iframe.set('scrolling', 'no');
