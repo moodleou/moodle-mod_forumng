@@ -702,10 +702,13 @@ form.markread input {
 */
 
 .forumng-confirmdialog {
-    width: 328px;
+    width: 390px;
     background: white;
     border: 1px solid #aaa;
     padding: 10px;
+}
+.safari .forumng-confirmdialog {
+    width: 375px;
 }
 
 .forumng-confirmdialog .forumng-message {
