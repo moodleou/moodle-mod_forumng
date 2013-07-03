@@ -48,7 +48,7 @@ class forumngfeature_lock extends forumngfeature_discussion {
             $params['exclude'] = 'forumng-deleted,forumng-locked';
             $lock_get = array_merge($params, $_GET);
             $button = forumngfeature_discussion_list::get_button(
-                    $discussion, get_string('lock', 'forumngfeature_lock'),
+                    $discussion, get_string('lockdis', 'forumngfeature_lock'),
                     'feature/lock/lockall.php', false, $lock_get, '', 'forumng-dselectorbutton');
         }
         return $button;
