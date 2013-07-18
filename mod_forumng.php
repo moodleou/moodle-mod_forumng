@@ -3582,11 +3582,13 @@ WHERE
     public function display_archive_warning() {
         $course = $this->get_course();
         if (has_capability('moodle/course:manageactivities', $this->get_context())) {
-            if ($this->forumfields->removeafter && $this->forumfields->removeto) {
-                $modinfo = get_fast_modinfo($course);
-                $warningtext = '';
-                if (!($this->can_archive_forum($modinfo, $warningtext))) {
-                    return '<div class="forumng-archivewarning">' . $warningtext . '</div>';
+            if (!$this->forumfields->removeto == -1) {
+                if ($this->forumfields->removeafter && $this->forumfields->removeto) {
+                    $modinfo = get_fast_modinfo($course);
+                    $warningtext = '';
+                    if (!($this->can_archive_forum($modinfo, $warningtext))) {
+                        return '<div class="forumng-archivewarning">' . $warningtext . '</div>';
+                    }
                 }
             }
         }

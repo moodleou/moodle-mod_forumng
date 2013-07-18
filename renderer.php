@@ -33,19 +33,48 @@ class mod_forumng_renderer extends plugin_renderer_base {
      * @return string HTML content of discussion
      */
     public function render_discussion($discussion, $options) {
-        // Get main bit of discussion
+
+        if ($discussion->is_auto_locked()) {
+            $options[mod_forumng_post::OPTION_INCLUDE_LOCK] = true;
+        }
+        // Get main bit of discussion.
         $content = $discussion->get_root_post()->display_with_children($options);
 
-        // Get lock post, if any
-        $lockpost = $discussion->get_lock_post();
-        if ($lockpost) {
-            $content = '<div class="forumng-lockmessage">' .
-                $lockpost->display(true,
-                    array(mod_forumng_post::OPTION_NO_COMMANDS=>true)) .
-            '</div>' . $content;
+        if ($discussion->is_auto_locked()) {
+            $content = $this->render_lock_message()  . $content;
+        } else {
+            // Get lock post, if any.
+            $lockpost = $discussion->get_lock_post();
+            if ($lockpost) {
+                $content = '<div class="forumng-lockmessage">' .
+                    $lockpost->display(true,
+                       array(mod_forumng_post::OPTION_NO_COMMANDS=>true)) .
+                '</div>' . $content;
+            }
         }
-
         return $content;
+    }
+
+    public function render_lock_message() {
+
+        $output = html_writer::start_tag('div', array('class' => 'forumng-auto-lockmessage'));
+        $output .= html_writer::start_tag('div', array('class' => 'forumng-post forumng-full'));
+        $output .= html_writer::start_tag('div', array('class' => 'post-deco'));
+        $output .= html_writer::tag('div', '', array('class' => 'post-deco-bar'));
+        $output .= html_writer::end_tag('div');
+        $output .= html_writer::start_tag('div', array('class' => 'forumng-post-outerbox'));
+        $output .= html_writer::tag('h3', get_string('lockedtitle', 'forumng'), array('class' => 'forumng-subject'));
+        $output .= html_writer::start_tag('div', array('class' => 'forumng-postmain'));
+        $output .= html_writer::start_tag('div', array('class' => 'forumng-message'));
+        $output .= html_writer::tag('p', get_string('autolockedmessage', 'forumng'));
+        $output .= html_writer::end_tag('div');
+        $output .= html_writer::tag('div', '', array('class' => 'forumng-postfooter'));
+        $output .= html_writer::end_tag('div');
+        $output .= html_writer::tag('div', '', array('class' => 'forumng-endpost'));
+        $output .= html_writer::end_tag('div');
+        $output .= html_writer::end_tag('div');
+        $output .= html_writer::end_tag('div');
+        return $output;
     }
 
     /**

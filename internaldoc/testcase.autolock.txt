@@ -1,0 +1,190 @@
+This file contains a sequence of test cases for the auto locking ForumNG feature.
+
+
+Each section has a unique (within this test case) three letter code and the
+steps are numbered so that the location where a failure occurs can be reported.
+
+Steps are shown in the following format:
+
+XXX01 / U.S1 [change]
+  Do something
+  - Check something
+
+The unique step number is followed by the user that you should be logged
+in as for that step. If the user changes from the previous step, the word
+[Change] will be noted.
+
+Some steps don't have specific items to check. In that case, the check
+'passes' if there are no errors or warnings while completing the task.
+
+When told to create a discussion or reply, you may wish to use the code number
+for that step inside the text of the discussion/reply. Occasionally, later
+steps might refer to the reply UNR03 or whatever.
+
+If you wish to fully test the feature you will need to have access to the relevant database.
+
+When asked to run cron from the browser the relevant url will be similar to
+http://oucu.testserver.open.ac.uk/ou-moodle2-directory/admin/cron.php
+
+Initial setup
+=============
+
+Please set up a standard test course as follows.
+
+Course short name
+-----------------
+
+FORUMTEST
+
+
+CRE Creating ForumNG
+====================
+
+CRE01 / admin
+  In any course week, from the add activity dropdown, choose 'ForumNG'. Leave
+  all settings as default except name 'F.WC' (whole course) and group setting
+  'No groups'. Save form and return to course.
+
+
+CRE02 / admin
+  Create 2 discussions within the forum
+
+CRE02 / admin
+  Post to each discussion
+  Reply to each post
+
+CRE03 / admin
+  Under 'ForumNG administration'
+  Choose 'Edit Settings'
+  Under 'Manage old discussions after'
+  Set dropdown to the required time period
+  Under 'Action or move discussions to'
+  Set dropdown to 'Automatically lock'
+  Save and display this should return you to the forum
+
+CRE04 / admin
+  Note: To continue to test you will need to have access to the relevant database
+  For test purposes the required time period should be set
+  Check to see if the removeto _forumng table field as been set to -1
+  Check to see if the removeafter _forumng table field as been set to 2592000+ (1 month)
+  Change the removeafter _forumng table field to 300 (5 minutes) and save
+  Find the name _config_plugin field which matches 'housekeepinglastrun' and the plugin field that matches 'forumng'
+  If the relevant value field is set for today's date in the format of 'yyyy-mm-dd' change the date to an earlier date in the same
+  format and save
+
+CRE05 / admin
+  Under 'Site administration' on the left hand side of any page
+  Click on 'Plugins'
+  Choose 'Activity modules'
+  Click on ForumNG
+  In the ForumNG admin page
+  Set 'Start hour of archiving' dropdown to 0 if not already set to 0  (default 0)
+  Set 'Stop hour of archiving' dropdown to 23 if not already set to 23 (default 5)
+  Save changes
+
+TAL Testing auto-locking
+========================
+
+TAL01 / admin
+  Wait 5 minutes and run cron from the web browser
+  The relevant url is /admin/cron.php
+  A message similar to below should be displayed within the cron output
+
+Beginning processing 2 discussion archiving/deleting requests
+
+ 0 discussions have been archived and 0 discussions have been deleted permanently and 2 discussions have been automatically locked
+... used 63 dbqueries
+... used 0.33172106742859 seconds
+done.
+
+TAL02 / admin
+  Return to the forumng set up above
+  Both discussions should have a locked symbol against them
+  Open both discussions to check that they are locked
+  There should be the following messages at the top of the posts
+
+"This discussion is now closed
+
+This discussion has been closed automatically as the maximum time permitted to be open has passed."
+
+TAL03 / admin
+  Expand the posts to check that you can not reply
+
+TAL04 / admin
+  Unlock the discussions
+  Check that you can reply, etc.
+
+NOTE : Each day that cron is now run it will automatically re-lock any forum that is set to be automatically locked.
+If you wish to keep forum discussion open beyond the locking time period revisit the forums 'Edit settings' page and change the time
+period of when automatic locking comes into force.
+
+TAL05 / admin
+  Under 'ForumNG administration'
+  Choose 'Edit Settings'
+  Under 'Manage old discussions after'
+  Set dropdown to one month time period
+  Under 'Action or move discussions to'
+  Set dropdown to 'Automatically lock'
+  Save and display this should return you to the forum
+
+TAL06 / admin
+  Find the name _config_plugin field which matches 'housekeepinglastrun' and the plugin field that matches 'forumng'
+  If the relevant value field is set for today's date in the format of 'yyyy-mm-dd' change the date to an earlier date in the same
+  format and save
+  Rerun cron and check that the discussions are not locked
+
+ TAL07 / admin
+  Amend the _forumng table
+  Check to see if the removeafter _forumng table field as been set to 2592000+ (1 month)
+  Change the removeafter _forumng table field to 300 (5 minutes) and save
+  Find the 'name' _config_plugin field which matches 'housekeepinglastrun' and the plugin field that matches 'forumng'
+  If the relevant value field is set for today's date in the format of 'yyyy-mm-dd' change the date to an earlier date in the same
+  format and save
+
+TAL08 / admin
+  Go to the discussion pages and manually lock the discussions.
+  You will be invited to lock the discussion with a post message.
+  Enter a relevant message such as 'Manually locked' and lock the discussion.
+  Once locked a top post will appear with the following title 'This discussion is now closed'
+  and your locked message
+
+TAL09 / admin
+  Wait 5 minutes and run cron from the web browser
+  A message similar to below should be displayed within the cron output
+
+Beginning processing 2 discussion archiving/deleting requests
+
+ 0 discussions have been archived and 0 discussions have been deleted permanently and 0 discussions have been automatically locked
+... used 63 dbqueries
+... used 0.33172106742859 seconds
+done.
+
+TAL10 / admin
+  Go to the formng page
+  Check that the discussions are still manually locked
+
+TAL11 / admin
+  Unlock both discussions
+  Delete both discussions
+
+TAL12 / admin
+  Amend the _forumng table
+  Change the removeafter _forumng table field to 300 (5 minutes) and save
+  Find the 'name' _config_plugin field which matches 'housekeepinglastrun' and the plugin field that matches 'forumng'
+  If the relevant value field is set for today's date in the format of 'yyyy-mm-dd' change the date to an earlier date in the same
+  format and save
+
+TAL13 / admin
+  Wait 5 minutes and run cron from the web browser
+  A message similar to below should be displayed within the cron output
+
+Beginning processing 2 discussion archiving/deleting requests
+
+ 0 discussions have been archived and 0 discussions have been deleted permanently and 0 discussions have been automatically locked
+... used 63 dbqueries
+... used 0.33172106742859 seconds
+done.
+
+TAL14 / admin
+  Check to see that both discussions do not have a locked icon marker against them, and that they are still marked as deleted
+  with their discussion names greyed out and struck through

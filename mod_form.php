@@ -218,6 +218,7 @@ class mod_forumng_mod_form extends moodleform_mod {
 
         $options = array();
         $options[0] = get_string('deletepermanently', 'forumng');
+        $options[-1] = get_string('automaticallylock', 'forumng');
         $modinfo = get_fast_modinfo($COURSE);
         $targetforumngid = $this->_instance ? $this->_instance : 0;
         // Add all instances to drop down if the user can access them and
@@ -285,7 +286,7 @@ class mod_forumng_mod_form extends moodleform_mod {
         // If old discussions are set to be moved to another forum...
         $targetforumngid = isset($data['removeto'])? $data['removeto'] : 0;
         $removeafter = isset($data['removeafter']) ? $data['removeafter'] : 0;
-        if ($removeafter && $targetforumngid) {
+        if ($removeafter && $targetforumngid > 0) {
             $modinfo = get_fast_modinfo($COURSE);
             // Look for target forum
             if (!array_key_exists($targetforumngid, $modinfo->instances['forumng'])) {
@@ -444,6 +445,10 @@ class mod_forumng_mod_form extends moodleform_mod {
         if (empty($data->removeto)) {
             $data->removeto = null;
         }
+        // Set the removeto to null if option 'Automatically lock' was selected and removeafter is empty.
+        if (($data->removeto == -1) && (empty($data->removeafter)) ) {
+            $data->removeto = null;
+        }
         // Turn off ratings/limit if required
         if (empty($data->enableratings)) {
             $data->ratingscale = 0;
@@ -485,7 +490,7 @@ class mod_forumng_mod_form extends moodleform_mod {
         $targetforumngid = $targetforumngid[0];
         $removeafter = $mform->getElementValue('removeafter');
         $removeafter = $removeafter[0];
-        if ($removeafter && $targetforumngid) {
+        if ($removeafter && $targetforumngid > 0) {
             $modinfo = get_fast_modinfo($COURSE);
             if (!array_key_exists($targetforumngid, $modinfo->instances['forumng'])) {
                 $mform->getElement('removeto')->addOption(

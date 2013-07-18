@@ -130,6 +130,15 @@ class mod_forumng_discussion {
         return $this->discussionfields->locked ? true : false;
     }
 
+    /** @return bool True if discussion is auto locked */
+    public function is_auto_locked() {
+        if ($this->discussionfields->locked == 2) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     /**
      * @return int Time this discussion becomes visible (seconds since epoch)
      *  or null if no start time
@@ -178,7 +187,7 @@ class mod_forumng_discussion {
      * @return mod_forumng_post Lock post or null if none
      */
     public function get_lock_post() {
-        if ($this->is_locked()) {
+        if ($this->is_locked() && !$this->is_auto_locked() ) {
             return $this->get_root_post()->find_child(
                 $this->discussionfields->lastpostid);
         } else {
@@ -905,8 +914,10 @@ WHERE
         // Normalise entries to match db values
         $timestart = $timestart ? $timestart : 0;
         $timeend = $timeend ? $timeend : 0;
-        $locked = $locked ? 1 : 0;
         $sticky = $sticky ? 1 : 0;
+        if (!($locked == 1 || $locked == 2)) {
+            $locked = 0;
+        }
         $groupid = $groupid ? $groupid : null;
 
         // Start transaction in case there are multiple changes relating to
@@ -1307,6 +1318,26 @@ WHERE
     }
 
     /**
+     * Auto locks a discussion with a final message.
+     * @return int post ID
+     */
+    public function auto_lock() {
+
+        if ($this->is_locked() ) {
+            $locked = self::NOCHANGE;
+        } else {
+            $locked = 2;
+            // Mark discussion locked.
+            $this->edit_settings(self::NOCHANGE,
+                self::NOCHANGE, self::NOCHANGE,
+                $locked, self::NOCHANGE);
+            // Log.
+            $this->log('auto lock discussion', ' d' . $this->get_id());
+        }
+
+    }
+
+    /**
      * Unlocks a discussion.
      * @param int $userid User ID (0 = current)
      * @param bool $log True to log this action
@@ -1315,12 +1346,17 @@ WHERE
         global $DB;
         $transaction = $DB->start_delegated_transaction();
 
-        // Delete lock post
-        $lockpost = $this->get_lock_post();
-        if (!$lockpost) {
-            throw new invalid_state_exception('Discussion not locked');
+        // Get autolocked value as it changes after edit_settings is run.
+        $autolocked = $this->is_auto_locked();
+        // If not auto locked.
+        if (!$autolocked) {
+            // Delete lock post.
+            $lockpost = $this->get_lock_post();
+            if (!$lockpost) {
+                throw new invalid_state_exception('Discussion not locked');
+            }
+            $lockpost->delete($userid, false);
         }
-        $lockpost->delete($userid, false);
 
         // Mark discussion unlocked
         $this->edit_settings(self::NOCHANGE,
@@ -1329,7 +1365,11 @@ WHERE
 
         // Log
         if ($log) {
-            $this->log('unlock discussion', 'p' . $lockpost->get_id() . ' d' . $this->get_id());
+            if (!$autolocked) {
+                $this->log('unlock discussion', 'p' . $lockpost->get_id() . ' d' . $this->get_id());
+            } else {
+                $this->log('unlock auto locked discussion', ' d' . $this->get_id());
+            }
         }
 
         $transaction->allow_commit();

@@ -1,0 +1,31 @@
+
+== OU ForumNG Auto Locking Feature ==
+
+=== Description ===
+
+This enhancement will allow discussions within a forum to be automatically locked (made read-only) after a specified amount of time,
+reducing the need for moderators to do this manually.
+
+
+=== Capability requirements ===
+
+The user needs the capability to access the ForumNG 'Edit settings' screen
+
+A user who has the capability ''mod/forumng:managediscussions'' and has access to the current forum
+can access the ForumNG 'Edit settings' screen
+
+=== Setting up auto locking ===
+
+Under 'ForumNG administration'
+Choose 'Edit Settings'
+Under 'Manage old discussions after'
+Set dropdown to the required time period
+Under 'Action or move discussions to'
+Set dropdown to 'Automatically lock'
+Save settings
+
+=== Note ===
+
+Each day that cron is run it will automatically re-lock any forum which has been unlocked after it was automatically locked.
+If you wish to keep forum discussion open beyond the locking time period revisit the forums 'Edit settings' page and change the time
+period of when automatic locking comes into force.

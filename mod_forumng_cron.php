@@ -955,27 +955,49 @@ ORDER BY f.removeto", $housekeepingparams);
             $cronlog = '';
             $discussionmovecount = 0;
             $discussiondeletecount = 0;
+            $discussionautolocked = 0;
             foreach ($housekeepingrs as $rec) {
                 $discussion = mod_forumng_discussion::get_from_id($rec->discussionid,
                         mod_forumng::CLONE_DIRECT);
                 if ($rec->removeto) {
-                    // Moving to a different forum.
-                    $forum = $discussion->get_forum();
-                    $course = $forum->get_course();
-                    $modinfo = get_fast_modinfo($course);
-                    if ($forum->can_archive_forum($modinfo, $cronlog)) {
-                        // Do not get the target forum and course id again
-                        // if the target forum is the same
-                        if (!$targetforum || $targetforum->get_id() != $rec->removeto) {
-                            $targetforum = mod_forumng::get_from_id($rec->removeto,
-                                    mod_forumng::CLONE_DIRECT);
-                            $targetforum = $targetforum->get_real_forum();
+                    if ($rec->removeto == -1) {
+                        // Locked record or discussion deleted.
+                        if ($discussion->is_locked() || $discussion->is_auto_locked() || $discussion->is_deleted()) {
+                            continue;
+                        } else {
+                            $end = $discussion->get_time_end();
+                            $canautolock = true;
+                            // Check to see whether time now is beyond the end time.
+                            if ($end > $now) {
+                                $canautolock = false;
+                            }
+                            if ($canautolock) {
+                                // Lock record.
+                                $discussion->auto_lock();
+                                $discussionautolocked++;
+                            } else {
+                                continue;
+                            }
                         }
-                        // Target discussion groupid must be the same as the original groupid.
-                        $targetgroupmode = $targetforum->get_group_mode();
-                        $targetgroupid = $targetgroupmode ? $discussion->get_group_id() : null;
-                        $discussion->move($targetforum, $targetgroupid);
-                        $discussionmovecount++;
+                    } else {
+                        // Moving to a different forum.
+                        $forum = $discussion->get_forum();
+                        $course = $forum->get_course();
+                        $modinfo = get_fast_modinfo($course);
+                        if ($forum->can_archive_forum($modinfo, $cronlog)) {
+                            // Do not get the target forum and course id again
+                            // if the target forum is the same.
+                            if (!$targetforum || $targetforum->get_id() != $rec->removeto) {
+                                $targetforum = mod_forumng::get_from_id($rec->removeto,
+                                        mod_forumng::CLONE_DIRECT);
+                                $targetforum = $targetforum->get_real_forum();
+                            }
+                            // Target discussion groupid must be the same as the original groupid.
+                            $targetgroupmode = $targetforum->get_group_mode();
+                            $targetgroupid = $targetgroupmode ? $discussion->get_group_id() : null;
+                            $discussion->move($targetforum, $targetgroupid);
+                            $discussionmovecount++;
+                        }
                     }
                 } else {
                     // Delete all discussions and relevant data permanently.
@@ -985,7 +1007,8 @@ ORDER BY f.removeto", $housekeepingparams);
             }
             $housekeepingrs->close();
             mtrace ("\n $discussionmovecount discussions have been archived and " .
-                    "$discussiondeletecount discussions have been deleted permanently.");
+                    "$discussiondeletecount discussions have been deleted permanently and " .
+                    "$discussionautolocked discussions have been automatically locked");
         }
     }
 }
