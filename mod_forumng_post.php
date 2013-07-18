@@ -1496,12 +1496,18 @@ WHERE
      * web services, etc.
      */
     public function require_view() {
+        global $USER;
         // Check forum and discussion view permission, group access, etc.
         $this->discussion->require_view();
 
         // Other than being able to view the discussion, no additional
         // requirements to view a normal post
         if (!$this->get_deleted() && !$this->is_old_version()) {
+            return true;
+        }
+
+        // User can see own deleted posts.
+        if (isset($USER) && $this->get_deleted() && $this->get_user()->id === $USER->id) {
             return true;
         }
 
@@ -1730,11 +1736,15 @@ WHERE
      */
     public function can_view_deleted(&$whynot, $userid=0) {
         $userid = mod_forumng_utils::get_real_userid($userid);
+
         // Check the 'edit any' capability (this is checked for deleting/undeleting).
         if (!has_capability('mod/forumng:editanypost',
                 $this->get_forum()->get_context(), $userid)) {
-            $whynot = 'edit_nopermission';
-            return false;
+            // Check if post belongs to specified user.
+            if ($this->get_user()->id != $userid) {
+                $whynot = 'edit_nopermission';
+                return false;
+            }
         }
 
         return true;
