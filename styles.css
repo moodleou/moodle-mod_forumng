@@ -710,6 +710,9 @@ form.markread input {
 .safari .forumng-confirmdialog {
     width: 375px;
 }
+.ie8 .forumng-confirmdialog {
+    width: 400px;
+}
 
 .forumng-confirmdialog .forumng-message {
     margin-bottom: 10px;
