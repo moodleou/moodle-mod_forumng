@@ -50,5 +50,17 @@ function xmldb_forumng_upgrade($oldversion=0) {
         upgrade_mod_savepoint(true, 2012102601, 'forumng');
     }
 
+    if ($oldversion < 2013081500) {
+        // Fix posts that have been orphaned after incorrect clean up in cron.
+        $sql = 'UPDATE {forumng_posts} p
+                SET parentpostid = (select postid from {forumng_discussions} where id = p.discussionid)
+                WHERE p.parentpostid is not null
+                and not exists (select id from {forumng_posts} where id = p.parentpostid)
+        ';
+        $DB->execute($sql);
+        // ForumNG savepoint reached.
+        upgrade_mod_savepoint(true, 2013081500, 'forumng');
+    }
+
     return true;
 }
