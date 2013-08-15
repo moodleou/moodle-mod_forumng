@@ -24,6 +24,6 @@
 
 $string['deletediscussion'] = 'Supprimer la discussion';
 $string['undeletediscussion'] = 'Restaurer la discussion';
-$string['confirmdeletediscussion'] = 'Etes-vous s&ucirc;r de vouloir supprimer cette discussion ?';
-$string['confirmundeletediscussion'] = 'Etes-vous s&ucirc;r de vouloir restaurer cette discussion ?';
+$string['confirmdeletediscussion'] = 'Etes-vous sûr de vouloir supprimer cette discussion ?';
+$string['confirmundeletediscussion'] = 'Etes-vous sûr de vouloir restaurer cette discussion ?';
 $string['pluginname'] = 'Suppression/Restauration de discussion';

@@ -16,17 +16,9 @@
 
 /**
  * Lang strings.
- * @package forumngfeature
- * @subpackage copy
+ * @package forumngtype
+ * @subpackage general
  * @copyright 2011 The Open University
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-$string['copy_discussion'] = 'Copier';
-$string['copy_info'] = 'Pour copier cette discussion vers un autre forum :<ol>
-<li>Cliquer sur <strong>Commencer la copie</strong> pour activer le porcessus.</li>
-<li>Aller vers le forum de destination. Cela peut être dans le mêmme forum (mais pour un groupe différent), dans un autre forum du même cours, ou un autre forum d\'un autre cours.</li>
-<li>Cliquer sur <strong>Copier la discussion</strong> pour finir la copie, ou <strong>Annuler</strong> pour annuler le processus..</li>
-</ol>';
-$string['copy_begin'] = 'Commencer la copie';
-$string['copy_title'] = 'Copier la discussion';
-$string['pluginname'] = 'Copie de discussion';
+$string['pluginname'] = 'Forum standard pour utilisation générale';

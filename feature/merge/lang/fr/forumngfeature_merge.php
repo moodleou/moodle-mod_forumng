@@ -22,14 +22,14 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 $string['merge'] = 'Fusionner';
-$string['beginmerge'] = 'Commencer le fusionnement';
-$string['mergeinfo'] = 'Pour fusionner cette discussion &agrave; une autre :<ol>
-<li>Cliquer sur <strong>Commencer le fusionnement</strong> pour activer le processus.</li>
-<li>Aller vers la discussion avec laquelle vous souhaitez faire la fusion (elle doit &ecirc;tre dans le m&ecirc;me forum).</li>
+$string['beginmerge'] = 'Commencer la fusion';
+$string['mergeinfo'] = 'Pour fusionner cette discussion à une autre :<ol>
+<li>Cliquer sur <strong>Commencer la fusion</strong> pour activer le processus.</li>
+<li>Aller vers la discussion avec laquelle vous souhaitez faire la fusion (elle doit être dans le même forum).</li>
 <li>Cliquer sur <strong>Fusionner ici</strong> pour finir la fusion.</li>
 </ol>';
 $string['mergehere'] = 'Fusionner ici';
 $string['cancelmerge'] = 'Annuler';
-$string['cannotmergehere'] = '(Fusionnement ici impossible.)';
-$string['error_wrongforum'] = 'Impossible de fusionner dans un forum diff&eacute;rent';
-$string['pluginname'] = 'Fusionnement des discussions';
+$string['cannotmergehere'] = '(Fusion ici impossible.)';
+$string['error_wrongforum'] = 'Impossible de fusionner dans un forum différent';
+$string['pluginname'] = 'Fusion des discussions';
