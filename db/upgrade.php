@@ -50,16 +50,33 @@ function xmldb_forumng_upgrade($oldversion=0) {
         upgrade_mod_savepoint(true, 2012102601, 'forumng');
     }
 
-    if ($oldversion < 2013081500) {
+    if ($oldversion < 2013082000) {
         // Fix posts that have been orphaned after incorrect clean up in cron.
-        $sql = 'UPDATE {forumng_posts} p
-                SET parentpostid = (select postid from {forumng_discussions} where id = p.discussionid)
-                WHERE p.parentpostid is not null
-                and not exists (select id from {forumng_posts} where id = p.parentpostid)
-        ';
-        $DB->execute($sql);
+        // This is processed in a recordset with update per row as 1 big update is too slow.
+
+        // Find affected posts info, put into recordset.
+        $sql = 'SELECT p.id, d.postid
+                FROM {forumng_posts} p
+                JOIN {forumng_discussions} d on d.id = p.discussionid
+                WHERE p.parentpostid IS NOT NULL
+                AND NOT EXISTS (SELECT id FROM {forumng_posts} WHERE id = p.parentpostid)';
+        $rs = $DB->get_records_sql($sql);
+        if ($rs) {
+            $pbar = new progress_bar('mod_forumng_fixposts', 500, true);
+            $cur = 1;
+            $total = count($rs);
+            // Update each row, making parent post id the discussion root post.
+            foreach ($rs as $record) {
+                $update = new stdClass();
+                $update->id = $record->id;
+                $update->parentpostid = $record->postid;
+                $DB->update_record('forumng_posts', $update);
+                $pbar->update($cur, $total, 'Repair ForumNG orphaned posts');
+                $cur++;
+            }
+        }
         // ForumNG savepoint reached.
-        upgrade_mod_savepoint(true, 2013081500, 'forumng');
+        upgrade_mod_savepoint(true, 2013082000, 'forumng');
     }
 
     return true;
