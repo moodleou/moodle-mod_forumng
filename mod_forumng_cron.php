@@ -72,7 +72,8 @@ FROM
         (SELECT id FROM {modules} WHERE name='forumng')
     INNER JOIN {context} x on x.instanceid=cm.id AND x.contextlevel=?
 WHERE
-    (fp.deleted<>0 AND fp.deleted<?)
+    (fp.deleted<>0 AND fp.deleted<? AND
+    NOT EXISTS (SELECT id from {forumng_posts} where parentpostid = fp.id and deleted = 0))
     OR (fp.oldversion<>0 AND fp.modified<?)
     OR (fd.deleted<>0 AND fd.deleted<?)";
         $idquery = "SELECT fp.id $mainquery ";
