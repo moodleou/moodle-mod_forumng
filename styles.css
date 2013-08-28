@@ -378,6 +378,7 @@ h2.forumng-author {
 }
 .forumng-subject {
     margin-top:0.5em;
+    word-break: break-word;
 }
 h3.forumng-subject {
     font-size:1em;
