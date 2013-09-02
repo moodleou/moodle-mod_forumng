@@ -101,7 +101,9 @@ function forumng_delete_instance($id) {
                 notify("Could not delete the Clone forumng (id) $clone->cloneforumngid ");
                 return false;
             }
-            if (!delete_course_module($clone->context->instanceid)) {
+            try {
+                course_delete_module($clone->context->instanceid);
+            } catch (moodle_exception $e) {
                 notify("Could not delete the Clone
                         forumng (coursemoduleid) $clone->context->instanceid ");
                 return false;
