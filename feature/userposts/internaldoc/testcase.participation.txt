@@ -1,0 +1,73 @@
+Testing the downloadable output
+This script describes steps to test the user participation download facility from a tutor and
+student user perspective. It is intended to cover only this single feature.
+
+NOTE: In this test case, the word 'forum' always refers to the OU ForumNG.
+
+The test steps in this script follow on from those in testcase.grading and aren't independent.
+
+Initial setup
+=============
+
+This test case requires:
+
+An existing setup, such as after completing textcase.grading.txt.
+
+The test server must have debugging set to DEVELOPER level and to display
+errors; during all parts of the test script, there should be no debugging warnings.
+
+ERE Existing forums and data
+============================
+
+ERE01 / U.ET [change]
+  Go to forum CRE01.
+  Click against 'Participation by user', formerly labled 'View posts by user'.
+
+UPD Userposts download
+=====================
+
+UPD01 / U.ET
+ This should bring up a screen entitled 'User participation', formerly 'User posts'.
+ It should show the student user.
+ The number of Discussions started by that user.
+ The number of Replies to posts.
+ Grades per user.
+ Click any link that says 'Show all posts by <name>'.
+
+UPD02 / U.ET
+ This opens a screen screen entitled 'User participation > <name>', showing all posts by the user
+ (including replies and discussions started).
+
+UPD03 / U.ET
+-  Verify that the page has a 'Download table data as' form, with the single option
+   'Comma seperated values text file' and 'Download' button, above the first user post.
+
+UPD04 / U.ET  new bit
+   Click the 'Download' button.
+   In IE this should result in a file save dialogue - save the file and then open in Excel (or another spreadsheet package).
+-  Verify that the same data as in the web view is shown in three columns,
+   'In reply to', 'Post subject' and 'Post message'.  (Except hyperlinks titles are removed).
+
+
+SUPD Download as student
+=====================
+
+SUPD01 / U.S2 [change]
+  Go to forum CRE01 (you should be in group G2).
+  Click against 'My participation', formerly 'View own posts'.
+
+SUPD02 / U.S2
+ This opens a screen showing all posts by <name> (including replies and discussions started).
+
+SUPD03 / U.S2
+-  Verify that the page has a 'Download table data as' form, with the single option
+   'Comma seperated values text file' and 'Download' button, above the first user post.
+
+SUPD04 / U.S2
+   Click the 'Download' button.
+   In IE this should result in a file save dialogue - save the file and then open in Excel (or another spreadsheet package).
+-  Verify that the same data as in the web view is shown in three columns,
+   'In reply to', 'Post subject' and 'Post message'.  (Except hyperlinks titles are removed).
+
+Test complete
+=============

@@ -19,6 +19,7 @@
  * in chronological order (modified date). It is also indicates whether
  * a post is a new discussion or a reply. If it is a reply then a link
  * link is printed for displaying the original post.
+ * It can also produce a csv format output file.
  * @package forumngfeature
  * @subpackage userposts
  * @copyright 2011 The Open University
@@ -28,15 +29,17 @@
 require_once('../../../../config.php');
 require_once($CFG->dirroot . '/mod/forumng/mod_forumng.php');
 require_once($CFG->dirroot . '/mod/forumng/feature/userposts/locallib.php');
+require_once($CFG->dirroot.'/mod/forumng/locallib.php');
 
 $cmid = required_param('id', PARAM_INT);
 $userid = required_param('user', PARAM_INT);
 $cloneid = optional_param('clone', 0, PARAM_INT);
+$download = optional_param('download', '', PARAM_TEXT);
 
 $student = false;
 $groupid = 0;
 
-$pageparams = array('id' => $cmid, 'user'=>$userid);
+$pageparams = array('id' => $cmid, 'user'=>$userid, 'download' => $download);
 if ($cloneid) {
     $pageparams['clone'] = $cloneid;
 }
@@ -111,8 +114,22 @@ if (!$student) {
 } else {
     $out = $forum->init_page($pageurl, $pagename);
 }
-print $out->header();
 
+$table = new forumng_participation_table('mod-forumng-participation');
+$table->set_attribute('class', 'flexible generaltable');
+$table->set_attribute('width', '100%');
+$table->define_columns(array('c1', 'c2', 'c3'));
+$table->define_headers(array('In reply to', 'Post subject', 'Post message'));
+$table->define_baseurl($pageurl);
+$filename = "$course->shortname-" . format_string($forum->get_name(), true) . "-" . $USER->username;
+$table->is_downloading($download, $filename, get_string('userposts', 'forumngfeature_userposts'));
+
+if (empty($download)) {
+    print $out->header();
+    print $table->download_buttons();
+}
+
+$data = array();
 foreach ($posts as $postid => $post) {
     $deleted = $post->get_deleted();
     $discussion = $post->get_discussion();
@@ -120,51 +137,75 @@ foreach ($posts as $postid => $post) {
 
     // Don't display if post or discussion is deleted and user is a student.
     if (! (($deleted || $discussiondeleted) && $student)) {
-
-        print "<div class='forumng-userpostheading'>";
-
-        // Get URL to post.
-        print '<a href="' . s($post->get_url()) . '">';
-
+        if (empty($download)) {
+            print "<div class='forumng-userpostheading'>";
+            // Get URL to post.
+            print '<a href="' . s($post->get_url()) . '">';
+        }
         // If this post is a reply, then print a link to the discussion.
         if (!$post->is_root_post()) {
-            print get_string('replyin', 'forumngfeature_userposts',
-                $discussion->get_subject());
+            if (empty($download)) {
+                print get_string('replyin', 'forumngfeature_userposts',
+                    $discussion->get_subject());
+            } else {
+                $row[0] = $discussion->get_subject();
+            }
         } else {
-            print get_string('newdiscussion', 'forumng');
+            if (empty($download)) {
+                print get_string('newdiscussion', 'forumng');
+            } else {
+                $row[0] = '';
+            }
         }
-        print "</a></div>";
-
+        if (empty($download)) {
+            print "</a></div>";
+        }
         // Display this post.
         $options = array(
             mod_forumng_post::OPTION_NO_COMMANDS => true,
             mod_forumng_post::OPTION_FIRST_UNREAD => false,
             mod_forumng_post::OPTION_UNREAD_NOT_HIGHLIGHTED => true);
-        print $post->display(true, $options);
-
+        if (empty($download)) {
+            print $post->display(true, $options);
+        } else {
+            $row[1] = $post->get_subject();
+            $row[2] = $post->get_formatted_message();
+            $data[] = $row;
+        }
     }
 }
 
 if (!$postsfound) {
     // Should only occur if student because list.php won't let us get here if no posts available.
     $username = fullname($user);
-    print '<p class="forumng-nopostsby">' .
-            get_string('nopostsby', 'forumngfeature_userposts', $username) . '</p>';
+    if (empty($download)) {
+        print '<p class="forumng-nopostsby">' .
+                get_string('nopostsby', 'forumngfeature_userposts', $username) . '</p>';
+    }
 }
 
-if ($forum->can_grade()) {
+if ($forum->can_grade() && empty($download)) {
     forumngfeature_userposts_display_user_grade( $cm->id, $forum, $user, $groupid);
 }
 
-if (!$student) {
+if (!$student && empty($download)) {
     // Display link to the discussion.
     print link_arrow_left($prevpage, 'list.php?id=' . $cmid);
-} else {
+} else if (empty($download)) {
     // Display link to the forum view.
     $url = '../../view.php?id=' . $cmid;
     print link_arrow_left($forum->get_name(), $url);
 }
-
-// Display footer.
-print $out->footer();
+if (!empty($download)) {
+    $table->downloadable = false;
+    $table->setup($download);
+    foreach ($data as $row) {
+        $table->add_data($row);
+    }
+    $table->finish_output();
+}
+if (empty($download)) {
+    // Display footer.
+    print $out->footer();
+}
 add_to_log($course->id, 'forumng', 'view', 'user.php?' . $pageurl->get_query_string(false));
