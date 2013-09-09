@@ -333,8 +333,10 @@ try {
                 $transaction = $DB->start_delegated_transaction();
 
                 // Save any changes to files
-                file_save_draft_area_files($fromform->attachments, $filecontext->id, 'mod_forumng',
-                        'draft', $draft->get_id(), $fileoptions);
+                if (isset($fromform->attachments)) {
+                    file_save_draft_area_files($fromform->attachments, $filecontext->id, 'mod_forumng',
+                            'draft', $draft->get_id(), $fileoptions);
+                }
                 if (!empty($fromform->message['itemid'])) {
                     $fromform->message['text'] = file_save_draft_area_files($fromform->message['itemid'],
                             $filecontext->id, 'mod_forumng', 'draftmessage',
@@ -366,8 +368,10 @@ try {
                     $hasattachments, $options);
 
                 // Save any attachments
-                file_save_draft_area_files($fromform->attachments, $filecontext->id, 'mod_forumng',
-                        'draft', $newdraftid, $fileoptions);
+                if (isset($fromform->attachments)) {
+                    file_save_draft_area_files($fromform->attachments, $filecontext->id, 'mod_forumng',
+                            'draft', $newdraftid, $fileoptions);
+                }
                 if (!empty($fromform->message['itemid'])) {
                     $newtext = file_save_draft_area_files($fromform->message['itemid'],
                             $filecontext->id, 'mod_forumng', 'draftmessage', $newdraftid, $fileoptions,
@@ -416,8 +420,10 @@ try {
                             $fromform->timestart, $fromform->timeend, false, $fromform->sticky);
 
                 // Save attachments
-                file_save_draft_area_files($fromform->attachments, $filecontext->id, 'mod_forumng',
-                        'attachment', $postid, $fileoptions);
+                if (isset($fromform->attachments)) {
+                    file_save_draft_area_files($fromform->attachments, $filecontext->id, 'mod_forumng',
+                            'attachment', $postid, $fileoptions);
+                }
                 $newtext = file_save_draft_area_files($fromform->message['itemid'],
                         $filecontext->id, 'mod_forumng', 'message', $postid, $fileoptions,
                         $fromform->message['text']);
@@ -442,8 +448,10 @@ try {
                         $fromform->message['format'], $hasattachments, !empty($fromform->mailnow));
 
                 // Save attachments
-                file_save_draft_area_files($fromform->attachments, $filecontext->id, 'mod_forumng',
-                        'attachment', $postid, $fileoptions);
+                if (isset($fromform->attachments)) {
+                    file_save_draft_area_files($fromform->attachments, $filecontext->id, 'mod_forumng',
+                            'attachment', $postid, $fileoptions);
+                }
                 $newtext = file_save_draft_area_files($fromform->message['itemid'],
                         $filecontext->id, 'mod_forumng', 'message', $postid, $fileoptions,
                         $fromform->message['text']);
@@ -465,8 +473,10 @@ try {
                         !empty($fromform->mailnow));
 
                 // Save attachments
-                file_save_draft_area_files($fromform->attachments, $filecontext->id, 'mod_forumng',
-                        'attachment', $postid, $fileoptions);
+                if (isset($fromform->attachments)) {
+                    file_save_draft_area_files($fromform->attachments, $filecontext->id, 'mod_forumng',
+                            'attachment', $postid, $fileoptions);
+                }
                 if (!empty($fromform->message['itemid'])) {
                     $newtext = file_save_draft_area_files($fromform->message['itemid'],
                             $filecontext->id, 'mod_forumng', 'message', $postid, $fileoptions,
@@ -497,9 +507,10 @@ try {
             if ($ispost) {
                 $gotsubject = $post->edit_start($fromform->subject, $hasattachments,
                         !empty($fromform->setimportant), !empty($fromform->mailnow));
-
-                file_save_draft_area_files($fromform->attachments, $filecontext->id, 'mod_forumng',
-                        'attachment', $post->get_id(), $fileoptions);
+                if (isset($fromform->attachments)) {
+                    file_save_draft_area_files($fromform->attachments, $filecontext->id, 'mod_forumng',
+                            'attachment', $post->get_id(), $fileoptions);
+                }
                 // itemid is not present when using text-only editor
                 if (!empty($fromform->message['itemid'])) {
                     $fromform->message['text'] = file_save_draft_area_files($fromform->message['itemid'],
