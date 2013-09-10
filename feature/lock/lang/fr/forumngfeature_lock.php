@@ -22,9 +22,11 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 $string['lock'] = 'Bloquer';
-$string['unlock'] = 'D&eacute;bloquer';
+$string['unlock'] = 'Débloquer';
 $string['lockdiscussion'] = 'Bloquer la discussion : {$a}';
 $string['lockdiscussionbutton'] = 'Bloquer la discussion';
-$string['locksubject'] = 'La discussion est maintenant bloqu&eacute;e';
-$string['confirmunlock'] = 'Etes-vous s&ucirc;r de vouloir d&eacute;bloquer la discussion ?';
-$string['pluginname'] = 'Blocage/D&eacute;blocage des discussions';
+$string['locksubject'] = 'La discussion est maintenant bloquée';
+$string['confirmunlock'] = 'Etes-vous sûr de vouloir débloquer la discussion ?';
+$string['pluginname'] = 'Blocage/Déblocage des discussions';
+$string['lockdiscussiontitle'] = 'Blocage de discussion(s)';
+$string['lockdis'] = 'Bloquer les discussions';

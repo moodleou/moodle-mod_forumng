@@ -23,3 +23,4 @@
  */
 $string['export'] = 'Exporter';
 $string['pluginname'] = 'Exportation des messages';
+$string['exportallnodisc'] = 'Aucun fil de discussion sélectionné pour l\'export';

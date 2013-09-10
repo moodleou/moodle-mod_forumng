@@ -23,6 +23,6 @@
  */
 $string['print'] = 'Imprimer';
 $string['print_pagename'] = 'Version imprimable';
-$string['printedat'] = 'Format&eacute; pour l\'impression &agrave; {$a}';
-$string['back'] = 'A la fin de l\'impression, <a href=\'{$a}\'>retournez &agrave; la discussion</a>. (Cette zone n\'appara&icirc;t pas &agrave; l\'impression.)';
+$string['printedat'] = 'Formaté pour l\'impression à {$a}';
+$string['back'] = 'A la fin de l\'impression, <a href=\'{$a}\'>retournez à la discussion</a>. (Cette zone n\'apparaît pas à l\'impression.)';
 $string['pluginname'] = 'Impression des messages';
