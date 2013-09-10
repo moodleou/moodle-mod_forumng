@@ -45,7 +45,6 @@ class mod_forumng_editpost_form extends moodleform {
         $groupselector = false;
 
         if ($ispost) {
-            $mform->addElement('header', 'general', '');
 
             if ($edit && $timelimit) {
                 // Note: We display a safer version of the time limit (30 seconds
@@ -94,7 +93,7 @@ class mod_forumng_editpost_form extends moodleform {
             // Special field just to tell javascript that we're trying to use the
             // html editor.
             $mform->addElement('hidden', 'tryinghtmleditor', can_use_html_editor() ? 1 : 0);
-
+            $mform->setType('tryinghtmleditor', PARAM_BOOL);
             $editorattributes = array('id' => 'id_message',
                     'cols' => 50, 'rows' => !empty($params['iframe']) ? 15 : 30);
             $editoroptions = array('maxfiles' => EDITOR_UNLIMITED_FILES,
@@ -113,7 +112,6 @@ class mod_forumng_editpost_form extends moodleform {
             }
 
             // If you can mail now, we show this option.
-            $mform->addElement('header', 'id_importance', '');
             $attachmentlist = '';
             if (!$edit && $forum->can_mail_now()) {
                 $mform->addElement('checkbox', 'mailnow', get_string('mailnow', 'forumng'));
@@ -237,9 +235,11 @@ class mod_forumng_editpost_form extends moodleform {
                 continue;
             }
             $mform->addElement('hidden', $param, $value);
+            $mform->setType($param, PARAM_INT);
         }
         // Prevent multiple submits.
         $mform->addElement('hidden', 'random', rand());
+        $mform->setType('random', PARAM_INT);
     }
 
     public function validation($data, $files) {

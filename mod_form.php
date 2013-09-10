@@ -91,8 +91,6 @@ class mod_forumng_mod_form extends moodleform_mod {
         // Max size of attachments
         $choices = get_max_upload_sizes($CFG->maxbytes, $COURSE->maxbytes);
         $choices[-1] = get_string('uploadnotallowed');
-        $choices[0] = get_string('courseuploadlimit') . ' (' .
-            display_size($COURSE->maxbytes) . ')';
         $mform->addElement('select', 'attachmentmaxbytes',
             get_string('attachmentmaxbytes', 'forumng'), $choices);
         $mform->addHelpButton('attachmentmaxbytes', 'attachmentmaxbytes', 'forumng');
