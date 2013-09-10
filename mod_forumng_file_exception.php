@@ -26,7 +26,7 @@ class mod_mod_forumng_file_exception extends moodle_exception {
      * Constructor.
      * @param string $error Actual error message (not displayed to user unless debug is turned on)
      */
-    function __construct($error) {
+    public function __construct($error) {
         parent::__construct('error_fileexception', 'forumng', '', '', $error);
     }
 }

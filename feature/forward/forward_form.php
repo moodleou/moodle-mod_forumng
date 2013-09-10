@@ -25,7 +25,7 @@ require_once($CFG->libdir.'/formslib.php');
 
 class mod_forumng_forward_form extends moodleform {
 
-    function definition() {
+    public function definition() {
 
         global $CFG, $USER;
         $mform = $this->_form;
@@ -84,7 +84,7 @@ class mod_forumng_forward_form extends moodleform {
         $this->add_action_buttons(true, get_string('forward', 'forumngfeature_forward'));
     }
 
-    function validation($data, $files) {
+    public function validation($data, $files) {
         $errors = parent::validation($data, $files);
         if (isset($data['email'])) {
             $emails = preg_split('~[; ]+~', $data['email']);

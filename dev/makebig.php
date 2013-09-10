@@ -62,7 +62,7 @@ function get_post_text() {
     // 660 is the current mean number of bytes for a forum post text on Learn.
     $length = my_random(660);
     $text = '';
-    for ($i=0;$i<$length;$i++) {
+    for ($i=0; $i < $length; $i++) {
         $text .= '0';
         if (my_random_percentage(20)) {
             $text .= ' ';
@@ -105,14 +105,14 @@ function make_discussion($forum, $posts, $readusers, &$userids, $ratingpercent) 
     // Make posts
     $count = my_random($posts)-1;
     $allposts = array($discussion->get_root_post());
-    for ($i=0;$i<$count;$i++) {
+    for ($i=0; $i < $count; $i++) {
         make_post($discussion, $allposts, $userids, $ratingpercent);
     }
 
     // Mark the discussion read if requested
     if ($readusers > 0) {
         $now = time();
-        for ($i = 0; $i<$readusers; $i++) {
+        for ($i = 0; $i < $readusers; $i++) {
             $discussion->mark_read($now, $userids[$i]);
         }
     }
@@ -177,7 +177,7 @@ function make_forumng($courseid, $starttime, $discussions, $posts,
     // OK, forum is created. Let's make discussions
     $forum = mod_forumng::get_from_id($forumng->id, mod_forumng::CLONE_DIRECT);
     $count = my_random($discussions);
-    for ($i=0;$i<$count;$i++) {
+    for ($i=0; $i < $count; $i++) {
         make_discussion($forum, $posts,
             my_random_percentage($readpercent) ? $readusers : 0, $userids,
             $ratingpercent);
@@ -185,7 +185,7 @@ function make_forumng($courseid, $starttime, $discussions, $posts,
 
     // Add subscribe users
     set_time_limit(200);
-    for ($i=0; $i<$readusers; $i++) {
+    for ($i=0; $i < $readusers; $i++) {
         if (my_random_percentage($subscribepercent)) {
             $forum->subscribe($userids[$i]);
         }
@@ -243,7 +243,7 @@ WHERE
     // Create forums
     print "<h3>Making $count forums</h3><pre>";
     $time = time();
-    for ($i=0;$i<$count;$i++) {
+    for ($i=0; $i < $count; $i++) {
         make_forumng($courseid, $time, $discussions, $posts,
             $readpercent, $readusers, $userids, $subscribepercent,
             $ratingpercent);
@@ -318,7 +318,7 @@ function make_students($courseid, $count) {
     print "<h3>Making $count students</h3><pre>";
     $time = time();
     $transaction = $DB->start_delegated_transaction();
-    for ($i=0;$i<$count;$i++) {
+    for ($i=0; $i < $count; $i++) {
         make_student($courseid, $time.'_'.$i);
         print '.';
         if (($i+1)%20==0) {
@@ -332,7 +332,7 @@ function make_students($courseid, $count) {
 }
 
 class make_big_form extends moodleform {
-    function definition() {
+    public function definition() {
         global $CFG;
 
         $mform =& $this->_form;
@@ -408,14 +408,12 @@ if ($mform->is_cancelled()) {
             $fromform->readusers, $fromform->subscribepercent,
             $fromform->ratingpercent);
             // TODO Ratings aren't done yet!!
-    }
-    else if (isset($fromform->submitwipe)) {
+    } else if (isset($fromform->submitwipe)) {
         if (required_param('confirm', PARAM_ALPHA) != 'yes') {
             error('You didn\'t type yes to confirm the wipe.');
         }
         wipe_forums($fromform->course);
-    }
-    else if (isset($fromform->submitstudents)) {
+    } else if (isset($fromform->submitstudents)) {
         make_students($fromform->course, $fromform->students);
     }
 }

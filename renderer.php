@@ -33,19 +33,48 @@ class mod_forumng_renderer extends plugin_renderer_base {
      * @return string HTML content of discussion
      */
     public function render_discussion($discussion, $options) {
-        // Get main bit of discussion
+
+        if ($discussion->is_auto_locked()) {
+            $options[mod_forumng_post::OPTION_INCLUDE_LOCK] = true;
+        }
+        // Get main bit of discussion.
         $content = $discussion->get_root_post()->display_with_children($options);
 
-        // Get lock post, if any
-        $lockpost = $discussion->get_lock_post();
-        if ($lockpost) {
-            $content = '<div class="forumng-lockmessage">' .
-                $lockpost->display(true,
-                    array(mod_forumng_post::OPTION_NO_COMMANDS=>true)) .
-            '</div>' . $content;
+        if ($discussion->is_auto_locked()) {
+            $content = $this->render_lock_message()  . $content;
+        } else {
+            // Get lock post, if any.
+            $lockpost = $discussion->get_lock_post();
+            if ($lockpost) {
+                $content = '<div class="forumng-lockmessage">' .
+                    $lockpost->display(true,
+                       array(mod_forumng_post::OPTION_NO_COMMANDS=>true)) .
+                '</div>' . $content;
+            }
         }
-
         return $content;
+    }
+
+    public function render_lock_message() {
+
+        $output = html_writer::start_tag('div', array('class' => 'forumng-auto-lockmessage'));
+        $output .= html_writer::start_tag('div', array('class' => 'forumng-post forumng-full'));
+        $output .= html_writer::start_tag('div', array('class' => 'post-deco'));
+        $output .= html_writer::tag('div', '', array('class' => 'post-deco-bar'));
+        $output .= html_writer::end_tag('div');
+        $output .= html_writer::start_tag('div', array('class' => 'forumng-post-outerbox'));
+        $output .= html_writer::tag('h3', get_string('lockedtitle', 'forumng'), array('class' => 'forumng-subject'));
+        $output .= html_writer::start_tag('div', array('class' => 'forumng-postmain'));
+        $output .= html_writer::start_tag('div', array('class' => 'forumng-message'));
+        $output .= html_writer::tag('p', get_string('autolockedmessage', 'forumng'));
+        $output .= html_writer::end_tag('div');
+        $output .= html_writer::tag('div', '', array('class' => 'forumng-postfooter'));
+        $output .= html_writer::end_tag('div');
+        $output .= html_writer::tag('div', '', array('class' => 'forumng-endpost'));
+        $output .= html_writer::end_tag('div');
+        $output .= html_writer::end_tag('div');
+        $output .= html_writer::end_tag('div');
+        return $output;
     }
 
     /**
@@ -607,13 +636,13 @@ class mod_forumng_renderer extends plugin_renderer_base {
                 $outsubmit .= '<input type="submit" name="submitunsubscribe" value="' .
                         get_string('unsubscribeshort', 'forumng') . '" />';
             } else if ($subscribed == mod_forumng::PARTIALLY_SUBSCRIBED) {
-                //print both subscribe button and unsubscribe button
+                // Print both subscribe button and unsubscribe button.
                 $outsubmit .= '<input type="submit" name="submitsubscribe" value="' .
                     get_string('subscribelong', 'forumng') . '" />' .
                     '<input type="submit" name="submitunsubscribe" value="' .
                     get_string('unsubscribelong', 'forumng') . '" />';
             } else if ($subscribed == mod_forumng::NOT_SUBSCRIBED) {
-                //default unsubscribed, print subscribe button
+                // Default unsubscribed, print subscribe button.
                 $outsubmit .= '<input type="submit" name="submitsubscribe" value="' .
                         get_string('subscribeshort', 'forumng') . '" />';
             } else if ($subscribed == mod_forumng::THIS_GROUP_PARTIALLY_SUBSCRIBED) {
@@ -1148,7 +1177,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
                     }
                 }
 
-                //Direct link
+                // Direct link.
                 if ($options[mod_forumng_post::OPTION_COMMAND_DIRECTLINK]) {
                     $commandsarray['forumng-permalink'] = '<a href="discuss.php?' .
                             $discussion->get_link_params(mod_forumng::PARAM_HTML) . '#p' .

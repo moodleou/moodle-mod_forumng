@@ -69,11 +69,11 @@ abstract class forumngfeature_discussion_list extends forumngfeature {
         if ($forum->is_shared()) {
             $options['clone'] = $forum->get_course_module_id();
         }
-        //$options['group'] = $groupid;
+
         if ($post) {
             $options['sesskey'] = sesskey();
         }
-        foreach ($options as $key=>$value) {
+        foreach ($options as $key => $value) {
             $optionshtml .= '<input type="hidden" name="' . $key .
                 '" value="' . $value . '" />';
         }

@@ -14,8 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-require_once ($CFG->dirroot . '/course/moodleform_mod.php');
-require_once ($CFG->dirroot . '/mod/forumng/mod_forumng.php');
+require_once($CFG->dirroot . '/course/moodleform_mod.php');
+require_once($CFG->dirroot . '/mod/forumng/mod_forumng.php');
 
 /**
  * Form for editing module settings.
@@ -28,7 +28,7 @@ class mod_forumng_mod_form extends moodleform_mod {
 
     private $clone;
 
-    function definition() {
+    public function definition() {
 
         global $CFG, $COURSE, $DB;
         $mform    =& $this->_form;
@@ -98,7 +98,7 @@ class mod_forumng_mod_form extends moodleform_mod {
         $mform->addHelpButton('attachmentmaxbytes', 'attachmentmaxbytes', 'forumng');
         $mform->setDefault('attachmentmaxbytes', $CFG->forumng_attachmentmaxbytes);
 
-        //Email address for reporting unacceptable post for this forum, default is blank
+        // Email address for reporting unacceptable post for this forum, default is blank.
         $mform->addElement('text', 'reportingemail', get_string('reportingemail', 'forumng'),
             array('size'=>48));
         $mform->setType('reportingemail', PARAM_NOTAGS);
@@ -126,7 +126,7 @@ class mod_forumng_mod_form extends moodleform_mod {
         }
 
         // Ratings header
-        /////////////////
+        /*///////////////*/
 
         $mform->addElement('header', '', get_string('ratings', 'forumng'));
         $mform->addElement('checkbox', 'enableratings', get_string('enableratings', 'forumng'));
@@ -169,7 +169,7 @@ class mod_forumng_mod_form extends moodleform_mod {
         $mform->setDefault('gradingscale', 5);
 
         // Blocking header
-        //////////////////
+        /*////////////////*/
 
         $mform->addElement('header', '', get_string('limitposts', 'forumng'));
 
@@ -218,6 +218,7 @@ class mod_forumng_mod_form extends moodleform_mod {
 
         $options = array();
         $options[0] = get_string('deletepermanently', 'forumng');
+        $options[-1] = get_string('automaticallylock', 'forumng');
         $modinfo = get_fast_modinfo($COURSE);
         $targetforumngid = $this->_instance ? $this->_instance : 0;
         // Add all instances to drop down if the user can access them and
@@ -270,7 +271,7 @@ class mod_forumng_mod_form extends moodleform_mod {
         $this->add_action_buttons();
     }
 
-    function validation($data, $files) {
+    public function validation($data, $files) {
         global $COURSE, $CFG, $DB;
         $errors = parent::validation($data, $files);
 
@@ -285,7 +286,7 @@ class mod_forumng_mod_form extends moodleform_mod {
         // If old discussions are set to be moved to another forum...
         $targetforumngid = isset($data['removeto'])? $data['removeto'] : 0;
         $removeafter = isset($data['removeafter']) ? $data['removeafter'] : 0;
-        if ($removeafter && $targetforumngid) {
+        if ($removeafter && $targetforumngid > 0) {
             $modinfo = get_fast_modinfo($COURSE);
             // Look for target forum
             if (!array_key_exists($targetforumngid, $modinfo->instances['forumng'])) {
@@ -344,7 +345,7 @@ class mod_forumng_mod_form extends moodleform_mod {
         return $errors;
     }
 
-    function data_preprocessing(&$data) {
+    public function data_preprocessing(&$data) {
         if (!empty($data['ratingscale'])) {
             $data['enableratings'] = 1;
         } else {
@@ -360,7 +361,7 @@ class mod_forumng_mod_form extends moodleform_mod {
             $data['limitgroup[enablelimit]'] = 0;
             $data['limitgroup[maxpostsperiod]'] = 60*60*24;
             $data['limitgroup[maxpostsblock]'] = 10;
-       }
+        }
 
         // Set up the completion checkboxes which aren't part of standard data.
         // We also make the default value (if you turn on the checkbox) for those
@@ -382,7 +383,7 @@ class mod_forumng_mod_form extends moodleform_mod {
         }
     }
 
-    function add_completion_rules() {
+    public function add_completion_rules() {
         $mform =& $this->_form;
 
         $group = array();
@@ -423,14 +424,14 @@ class mod_forumng_mod_form extends moodleform_mod {
                 'completionrepliesgroup', 'completionpostsgroup');
     }
 
-    function completion_rule_enabled($data) {
+    public function completion_rule_enabled($data) {
         return (!empty($data['completiondiscussionsenabled']) &&
                 $data['completiondiscussions']!=0) || (!empty($data['completionrepliesenabled']) &&
                 $data['completionreplies']!=0) || (!empty($data['completionpostsenabled']) &&
                 $data['completionposts']!=0);
     }
 
-    function get_data() {
+    public function get_data() {
         $data = parent::get_data();
         if (!$data) {
             return false;
@@ -442,6 +443,10 @@ class mod_forumng_mod_form extends moodleform_mod {
         }
         // Set the removeto to null if the default option 'Delete permanently' was select
         if (empty($data->removeto)) {
+            $data->removeto = null;
+        }
+        // Set the removeto to null if option 'Automatically lock' was selected and removeafter is empty.
+        if (($data->removeto == -1) && (empty($data->removeafter)) ) {
             $data->removeto = null;
         }
         // Turn off ratings/limit if required
@@ -471,7 +476,7 @@ class mod_forumng_mod_form extends moodleform_mod {
         return $data;
     }
 
-    function definition_after_data() {
+    public function definition_after_data() {
         parent::definition_after_data();
         global $COURSE;
         $mform =& $this->_form;
@@ -485,7 +490,7 @@ class mod_forumng_mod_form extends moodleform_mod {
         $targetforumngid = $targetforumngid[0];
         $removeafter = $mform->getElementValue('removeafter');
         $removeafter = $removeafter[0];
-        if ($removeafter && $targetforumngid) {
+        if ($removeafter && $targetforumngid > 0) {
             $modinfo = get_fast_modinfo($COURSE);
             if (!array_key_exists($targetforumngid, $modinfo->instances['forumng'])) {
                 $mform->getElement('removeto')->addOption(

@@ -26,15 +26,15 @@ require_once('../forumngfeature_post_selector.php');
 require_once('forward_form.php');
 
 class forward_post_selector extends forumngfeature_post_selector {
-    function get_button_name() {
+    public function get_button_name() {
         return get_string('forward', 'forumngfeature_forward');
     }
 
-    function require_capability($context, $discussion) {
+    public function require_capability($context, $discussion) {
         require_capability('mod/forumng:forwardposts', $context);
     }
 
-    function get_form($discussion, $all, $selected = array()) {
+    public function get_form($discussion, $all, $selected = array()) {
         $customdata = (object)array(
             'subject' => $discussion->get_subject(),
             'discussionid' => $discussion->get_id(),
@@ -44,19 +44,12 @@ class forward_post_selector extends forumngfeature_post_selector {
         return new mod_forumng_forward_form('forward.php', $customdata);
     }
 
-    function apply($discussion, $all, $selected, $formdata) {
+    public function apply($discussion, $all, $selected, $formdata) {
         global $COURSE, $USER, $CFG;
 
         // Begin with standard text
         $a = (object)array('name' => fullname($USER, true));
 
-        // TODO Is this needed? It doesn't work; $CFG->stylesheets not there
-//         $allhtml = "<head>";
-//         foreach ($CFG->stylesheets as $stylesheet) {
-//             $allhtml .= '<link rel="stylesheet" type="text/css" href="' .
-//                 $stylesheet . '" />' . "\n";
-//         }
-//         $allhtml .= "</head>\n';
         $allhtml = "<body id='forumng-email'>\n";
 
         $preface = get_string('forward_preface', 'forumngfeature_forward', $a);
@@ -120,7 +113,7 @@ class forward_post_selector extends forumngfeature_post_selector {
         print $out->footer();
     }
 
-    function get_content_after_form($discussion, $all, $selected, $formdata) {
+    public function get_content_after_form($discussion, $all, $selected, $formdata) {
         // Print selected messages if they have any (rather than whole
         // discussion)
         if (!$all) {

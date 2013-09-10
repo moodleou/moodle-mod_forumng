@@ -100,8 +100,8 @@ class restore_forumng_activity_task extends restore_activity_task {
                 'view.php?id={course_module}', '{forumng}');
         $rules[] = new restore_log_rule('forumng', 'view',
                 'view.php?id={course_module}', '{forumng}');
-/*
-TODO Figure out all the things it can possibly put in log and work out transformation for all/most
+        /*
+        TODO Figure out all the things it can possibly put in log and work out transformation for all/most
         $rules[] = new restore_log_rule('forumng', 'view forumng',
         'view.php?id={course_module}', '{forumng}');
         $rules[] = new restore_log_rule('forumng', 'mark read',
@@ -138,7 +138,7 @@ TODO Figure out all the things it can possibly put in log and work out transform
                 'discuss.php?d={forumng_discussion}', '{forumng_post}');
         $rules[] = new restore_log_rule('forumng', 'delete post',
                 'discuss.php?d={forumng_discussion}', '[post]');
-*/
+        */
         return $rules;
     }
 
@@ -154,8 +154,8 @@ TODO Figure out all the things it can possibly put in log and work out transform
      */
     static public function define_restore_log_rules_for_course() {
         $rules = array();
-/*
-TODO Sort this out too
+        /*
+        TODO Sort this out too
         $rules[] = new restore_log_rule('forumng', 'view forumngs', 'index.php?id={course}', null);
         $rules[] = new restore_log_rule('forumng',
                 'subscribeall', 'index.php?id={course}', '{course}');
@@ -165,7 +165,7 @@ TODO Sort this out too
                 'user report', 'user.php?course={course}&id={user}&mode=[mode]', '{user}');
         $rules[] = new restore_log_rule('forumng',
                 'search', 'search.php?id={course}&search=[searchenc]', '[search]');
-*/
+        */
         return $rules;
     }
 }

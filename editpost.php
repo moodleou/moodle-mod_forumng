@@ -201,7 +201,7 @@ try {
         $params = array('d'=>$discussionid);
         $pagename = get_string('editdiscussionoptions', 'forumng',
             $post->get_effective_subject(false));
-    } else  {
+    } else {
         // To edit existing posts, p (forum post id) is required
         $postid = required_param('p', PARAM_INT);
         $pageparams['p'] = $postid;
@@ -391,7 +391,7 @@ try {
                     $SESSION->forumng_createdrandoms = array();
                 }
                 $now = time();
-                foreach ($SESSION->forumng_createdrandoms as $r=>$then) {
+                foreach ($SESSION->forumng_createdrandoms as $r => $then) {
                     // Since this is meant to stop you clicking twice quickly,
                     // expire anything older than 1 minute
                     if ($then < $now - 60) {
@@ -668,7 +668,7 @@ try {
         // Display footer
         print $out->footer();
     }
-} catch(Exception $e) {
+} catch (Exception $e) {
     // Add special entry to log
     mod_forumng_utils::log_exception($e);
 

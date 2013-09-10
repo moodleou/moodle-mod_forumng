@@ -142,14 +142,14 @@ foreach ($forums as $forum) {
     $subscribed = $subscriptioninfo->wholeforum || count($subscriptioninfo->discussionids) > 0 ||
         count($subscriptioninfo->groupids) > 0;
     if ($subscriptioninfo->wholeforum) {
-        //subscribed to the entire forum
+        // Subscribed to the entire forum.
         $strtemp = $stryes;
     } else if (count($subscriptioninfo->discussionids) == 0 &&
             count($subscriptioninfo->groupids) == 0) {
         $strtemp = $strno;
     } else {
-        //treat partial subscribe the same as subscribe on the index page
-        //but display 'Partial' instead of 'Yes'
+        // Treat partial subscribe the same as subscribe on the index page
+        // but display 'Partial' instead of 'Yes'.
         $strtemp = $strpartial;
     }
 
@@ -161,7 +161,7 @@ foreach ($forums as $forum) {
         $option = $forum->get_effective_subscription_option();
         if ($forum->can_change_subscription()) {
             if ($subscribed) {
-                //Here print unsubscribe button for full subscribed or partial subscribed forum
+                // Here print unsubscribe button for full subscribed or partial subscribed forum.
                 $canunsubscribesomething = true;
                 $submitbutton = "<input type='submit' name='submitunsubscribe'
                         value='$strunsubscribe'/>";
@@ -171,9 +171,10 @@ foreach ($forums as $forum) {
                         value='$strsubscribe'/>";
             }
             $subscribetext .= "&nbsp;" .
-"<form method='post' action='subscribe.php'><div>" .
-$forum->get_link_params(mod_forumng::PARAM_FORM) .
-"<input type='hidden' name='back' value='index' />" . $submitbutton . "</div></form>";
+                    "<form method='post' action='subscribe.php'><div>" .
+                    $forum->get_link_params(mod_forumng::PARAM_FORM) .
+                    "<input type='hidden' name='back' value='index' />" .
+                    $submitbutton . "</div></form>";
         }
         $subscribetext .= '</div>';
         $row[] = $subscribetext;
@@ -205,13 +206,13 @@ if ($canmaybesubscribe) {
     $unsubscribedisabled = $canunsubscribesomething ? '' : 'disabled="disabled"';
 
     print "<form method='post' action='subscribe.php'><div>" .
-"<input type='hidden' name='course' value='{$course->id}' />" .
-"<input type='hidden' name='back' value='index' />" .
-"<input type='submit' name='submitsubscribe' value='" .
+    "<input type='hidden' name='course' value='{$course->id}' />" .
+    "<input type='hidden' name='back' value='index' />" .
+    "<input type='submit' name='submitsubscribe' value='" .
     get_string('allsubscribe', 'forumng') . "' $subscribedisabled/>" .
-"<input type='submit' name='submitunsubscribe' value='" .
+    "<input type='submit' name='submitunsubscribe' value='" .
     get_string('allunsubscribe', 'forumng') . "' $unsubscribedisabled/>" .
-"</div></form> ";
+    "</div></form> ";
 
     print '</div>';
 }

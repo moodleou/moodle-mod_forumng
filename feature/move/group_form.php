@@ -26,7 +26,7 @@ require_once($CFG->libdir.'/formslib.php');
 
 class mod_forumng_group_form extends moodleform {
 
-    function definition() {
+    public function definition() {
 
         global $CFG, $USER;
         $mform = $this->_form;

@@ -25,7 +25,7 @@ require_once($CFG->libdir.'/formslib.php');
  */
 class mod_forumng_splitpost_form extends moodleform {
 
-    function definition() {
+    public function definition() {
 
         global $CFG;
         $mform =& $this->_form;

@@ -22,7 +22,7 @@
  * @copyright 2011 The Open University
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-function atom_standard_header($uniqueid, $link, $updated, $title = NULL, $description = NULL) {
+function atom_standard_header($uniqueid, $link, $updated, $title = null, $description = null) {
 
     global $CFG, $USER;
 
@@ -35,17 +35,17 @@ function atom_standard_header($uniqueid, $link, $updated, $title = NULL, $descri
 
     if ($status) {
 
-        //Calculate title, link and description
+        // Calculate title, link and description.
         if (empty($title)) {
             $title = format_string($site->fullname);
         }
 
-        //xml headers
+        // XML headers.
         $result .= "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
         $result .= "<feed xmlns=\"http://www.w3.org/2005/Atom\">\n";
 
-        //open the channel
-        //write channel info
+        // Open the channel
+        // write channel info.
         $result .= atom_full_tag('id', 1, false, htmlspecialchars($uniqueid));
         $result .= atom_full_tag('updated', 1, false, date_format_rfc3339($updated));
         $result .= atom_full_tag('title', 1, false, htmlspecialchars(html_to_text($title)));
@@ -58,11 +58,11 @@ function atom_standard_header($uniqueid, $link, $updated, $title = NULL, $descri
         $result .= atom_full_tag('rights', 1, false, '&#169; '. $today['year'] .' '.
                 format_string($site->fullname));
 
-        //write image info
+        // Write image info.
         $out = mod_forumng_utils::get_renderer();
         $atompix = $out->pix_url('/i/rsssitelogo');
 
-        //write the info
+        // Write the info.
         $result .= atom_full_tag('logo', 1, false, $atompix);
 
     }
@@ -90,7 +90,7 @@ function atom_add_items($items) {
             $result .= atom_full_tag('link', 2, false, null,
                     array('href' => $item->link, 'rel'=>'alternate'));
             $result .= atom_full_tag('updated', 2, false, date_format_rfc3339($item->pubdate));
-            //Include the author if exists
+            // Include the author if exists.
             if (isset($item->author)) {
                 $result .= atom_start_tag('author', 2, true);
                 $result .= atom_full_tag('name', 3, false, $item->author);
@@ -120,15 +120,15 @@ function atom_add_items($items) {
 }
 
 
-//This function return all the common footers for every rss feed in the site
-function atom_standard_footer($title = NULL, $link = NULL, $description = NULL) {
+// This function return all the common footers for every rss feed in the site.
+function atom_standard_footer($title = null, $link = null, $description = null) {
 
     global $CFG, $USER;
 
     $status = true;
     $result = '';
 
-    ////Close the rss tag
+    // Close the rss tag.
     $result .= '</feed>';
 
     return $result;
@@ -136,12 +136,12 @@ function atom_standard_footer($title = NULL, $link = NULL, $description = NULL) 
 
 
 
-//Return the xml start tag
+// Return the xml start tag.
 function atom_start_tag($tag, $level=0, $endline=false, $attributes=null) {
     if ($endline) {
-       $endchar = "\n";
+        $endchar = "\n";
     } else {
-       $endchar = "";
+        $endchar = "";
     }
     $attrstring = '';
     if (!empty($attributes) && is_array($attributes)) {
@@ -152,23 +152,23 @@ function atom_start_tag($tag, $level=0, $endline=false, $attributes=null) {
     return str_repeat(" ", $level*2)."<".$tag.$attrstring.">".$endchar;
 }
 
-//Return the xml end tag
+// Return the xml end tag.
 function atom_end_tag($tag, $level=0, $endline=true) {
     if ($endline) {
-       $endchar = "\n";
+        $endchar = "\n";
     } else {
-       $endchar = "";
+        $endchar = "";
     }
     return str_repeat(" ", $level*2)."</".$tag.">".$endchar;
 }
 
 
-//Return the start tag, the contents and the end tag
+// Return the start tag, the contents and the end tag.
 function atom_full_tag($tag, $level=0, $endline=true, $content, $attributes=null) {
     global $CFG;
     $st = atom_start_tag($tag, $level, $endline, $attributes);
     if ($content === false) {
-        $st = preg_replace('~>$~',' />', $st);
+        $st = preg_replace('~>$~', ' />', $st);
         return $st;
     }
     $co = "";

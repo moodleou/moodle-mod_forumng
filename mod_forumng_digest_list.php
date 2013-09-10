@@ -31,7 +31,7 @@ class mod_forumng_digest_list extends mod_forumng_mail_list {
     /** Config flag used to prevent sending mails twice */
     const PENDING_MARK_DIGESTED = 'pending_mark_digested';
 
-    function __construct($tracetimes) {
+    public function __construct($tracetimes) {
         parent::__construct($tracetimes);
     }
 

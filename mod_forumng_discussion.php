@@ -49,7 +49,7 @@ class mod_forumng_discussion {
     const PAST_SELL_BY = 1000000;
 
     // Object variables and accessors
-    /////////////////////////////////
+    /*///////////////////////////////*/
 
     private $forum, $discussionfields, $full, $rootpost, $timeretrieved,
         $pretendtimeread, $foruserid;
@@ -61,13 +61,19 @@ class mod_forumng_discussion {
     private $totalsize = 0;
 
     /** @return mod_forumng The forum that this discussion comes from */
-    public function get_forum() { return $this->forum; }
+    public function get_forum() {
+        return $this->forum;
+    }
 
     /** @return object Moodle course object */
-    public function get_course() { return $this->forum->get_course(); }
+    public function get_course() {
+        return $this->forum->get_course();
+    }
 
     /** @return object Moodle course-module object */
-    public function get_course_module() { return $this->forum->get_course_module(); }
+    public function get_course_module() {
+        return $this->forum->get_course_module();
+    }
 
     /** @return int ID of this discussion */
     public function get_id() {
@@ -110,7 +116,7 @@ class mod_forumng_discussion {
      * after an edit.
      * @param string $subject New subject
      */
-    function hack_subject($subject) {
+    public function hack_subject($subject) {
         $this->discussionfields->subject = $subject;
     }
 
@@ -122,6 +128,15 @@ class mod_forumng_discussion {
     /** @return bool True if discussion is locked */
     public function is_locked() {
         return $this->discussionfields->locked ? true : false;
+    }
+
+    /** @return bool True if discussion is auto locked */
+    public function is_auto_locked() {
+        if ($this->discussionfields->locked == 2) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -172,7 +187,7 @@ class mod_forumng_discussion {
      * @return mod_forumng_post Lock post or null if none
      */
     public function get_lock_post() {
-        if ($this->is_locked()) {
+        if ($this->is_locked() && !$this->is_auto_locked() ) {
             return $this->get_root_post()->find_child(
                 $this->discussionfields->lastpostid);
         } else {
@@ -200,7 +215,7 @@ class mod_forumng_discussion {
      * @return string URL of this discussion for log table, relative to the
      *   module's URL
      */
-    function get_log_url() {
+    public function get_log_url() {
         return 'discuss.php?' . $this->get_link_params(mod_forumng::PARAM_PLAIN);
     }
 
@@ -257,7 +272,7 @@ class mod_forumng_discussion {
     }
 
     // Factory method
-    /////////////////
+    /*///////////////*/
 
     /**
      * Creates a forum discussion object, forum object, and all related data from a
@@ -301,7 +316,7 @@ class mod_forumng_discussion {
      *   stored to cache
      * @return mod_forumng_discussion Discussion object
      */
-    static function get_from_post_id($postid, $cloneid, $userid=0,
+    public static function get_from_post_id($postid, $cloneid, $userid=0,
             $usecache=false, $storecache=false) {
         if ($usecache) {
             global $SESSION;
@@ -352,7 +367,7 @@ class mod_forumng_discussion {
     }
 
     // Discussion caching
-    /////////////////////
+    /*///////////////////*/
 
     /**
      * Caches the specified discussion in session.
@@ -377,7 +392,7 @@ class mod_forumng_discussion {
         // Remove any existing data for this discussion id
         $oldest = -1;
         $oldesttime = 0;
-        foreach ($SESSION->forumng_cache->discussions as $key=>$info) {
+        foreach ($SESSION->forumng_cache->discussions as $key => $info) {
             if ($info->id == $this->get_id()) {
                 unset($SESSION->forumng_cache->discussions[$key]);
             } else {
@@ -418,10 +433,10 @@ class mod_forumng_discussion {
      * Used so that current user sees changes immediately (other users will
      * still wait 10 minutes).
      */
-    function uncache() {
+    public function uncache() {
         global $SESSION;
         if (isset($SESSION->forumng_cache->discussions)) {
-            foreach ($SESSION->forumng_cache->discussions as $key=>$info) {
+            foreach ($SESSION->forumng_cache->discussions as $key => $info) {
                 if ($info->id == $this->get_id()) {
                     unset($SESSION->forumng_cache->discussions[$key]);
                 }
@@ -456,11 +471,11 @@ class mod_forumng_discussion {
      * newer posts) than an equivalent discussion stored in the cache.
      * If so, removes the cached value.
      */
-    function maybe_invalidate_cache() {
+    public function maybe_invalidate_cache() {
         global $SESSION;
         self::check_cache();
 
-        foreach ($SESSION->forumng_cache->discussions as $key=>$info) {
+        foreach ($SESSION->forumng_cache->discussions as $key => $info) {
             if ($info->id == $this->get_id()
                 && $info->timemodified != $this->get_time_modified()) {
                 unset($SESSION->forumng_cache->discussions[$key]);
@@ -471,7 +486,7 @@ class mod_forumng_discussion {
     /**
      * Updates the discussion cache, discarding old data.
      */
-    static function check_cache() {
+    public static function check_cache() {
         global $SESSION;
 
         // Check cache variable exists
@@ -483,7 +498,7 @@ class mod_forumng_discussion {
         }
 
         // Remove old cache data
-        foreach ($SESSION->forumng_cache->discussions as $key=>$info) {
+        foreach ($SESSION->forumng_cache->discussions as $key => $info) {
             if (time() - $info->lastused > self::CACHE_TIMEOUT) {
                 unset($SESSION->forumng_cache->discussions[$key]);
             }
@@ -491,7 +506,7 @@ class mod_forumng_discussion {
     }
 
     // Object methods
-    /////////////////
+    /*///////////////*/
 
     /**
      * Initialises the discussion. Used internally by forum - don't call directly.
@@ -503,7 +518,7 @@ class mod_forumng_discussion {
      * @param int $foruserid The user ID that was used to obtain the discussion
      *   data (may be -1 for no unread data)
      */
-    function __construct($forum, $discussionfields, $full, $foruserid) {
+    public function __construct($forum, $discussionfields, $full, $foruserid) {
         if ($full && !isset($discussionfields->firstuser)) {
             // Extract the user details into Moodle user-like objects
             $discussionfields->firstuser = mod_forumng_utils::extract_subobject($discussionfields,
@@ -535,7 +550,7 @@ class mod_forumng_discussion {
         }
         $new = self::get_from_id($this->discussionfields->id,
                 $this->get_forum()->get_course_module_id(), $foruserid, $usecache, $storecache);
-        foreach (get_class_vars('mod_forumng_discussion') as $field=>$dontcare) {
+        foreach (get_class_vars('mod_forumng_discussion') as $field => $dontcare) {
             $this->{$field} = $new->{$field};
         }
     }
@@ -554,7 +569,7 @@ class mod_forumng_discussion {
      *   flags) for; 0 = current
      * @return mod_forumng_post Post object
      */
-    function get_root_post($usecache=true, $userid=0) {
+    public function get_root_post($usecache=true, $userid=0) {
         if (!$usecache || !$this->rootpost) {
             if (!$usecache || !$this->postscache) {
                 // Retrieve most posts in the discussion - even deleted
@@ -578,7 +593,7 @@ class mod_forumng_discussion {
 
             // Obtain post relationships
             $children = array();
-            foreach ($posts as $id=>$fields) {
+            foreach ($posts as $id => $fields) {
                 if (!array_key_exists($fields->parentpostid, $children)) {
                     $children[$fields->parentpostid] = array();
                 }
@@ -595,7 +610,7 @@ class mod_forumng_discussion {
                 $this->rootpost->build_linear_children($linear);
                 $nextunread = array();
                 $dump = '';
-                foreach ($linear as $index=>$post) {
+                foreach ($linear as $index => $post) {
                     $nextunread[$index] = null;
                     if ($post->is_unread() &&
                             (!$post->get_deleted() || $post->can_undelete($dump))) {
@@ -608,7 +623,7 @@ class mod_forumng_discussion {
                     }
                 }
                 $previous = null;
-                foreach ($linear as $index=>$post) {
+                foreach ($linear as $index => $post) {
                     $post->set_unread_list($nextunread[$index], $previous);
                     if ($post->is_unread() &&
                             (!$post->get_deleted() || $post->can_undelete($dump))) {
@@ -639,7 +654,7 @@ class mod_forumng_discussion {
      *   the results based on forum type limits
      * @return adodb_recordset Database query results
      */
-    static function query_discussions($conditions, $conditionparams, $userid, $orderby,
+    public static function query_discussions($conditions, $conditionparams, $userid, $orderby,
         $limitfrom='', $limitnum='', $typeforum=null) {
         global $USER, $DB;
 
@@ -750,11 +765,11 @@ WHERE
         if (!array_key_exists($id, $posts)) {
             $msg = "No such post: $id (discussion " . $this->get_id() . '); ' .
                 'posts';
-            foreach ($posts as $id=>$junk) {
+            foreach ($posts as $id => $junk) {
                 $msg .= ' ' . $id;
             }
             $msg .= '; children';
-            foreach ($children as $id=>$junk) {
+            foreach ($children as $id => $junk) {
                 $msg .= ' ' . $id;
             }
             throw new dml_exception($msg);
@@ -782,7 +797,7 @@ WHERE
      * @param int $userid User ID (0 = current)
      * @return int ID of newly-created post
      */
-    function create_root_post($subject, $message, $format,
+    public function create_root_post($subject, $message, $format,
         $attachments=false, $mailnow=false, $userid=0) {
         return $this->create_reply(null, $subject, $message, $format,
             $attachments, false, $mailnow, $userid);
@@ -801,7 +816,7 @@ WHERE
      *
      * @return int ID of newly-created post
      */
-    function create_reply($parentpost, $subject, $message, $format,
+    public function create_reply($parentpost, $subject, $message, $format,
         $attachments=false, $setimportant=false, $mailnow=false, $userid=0) {
         global $DB;
         $userid = mod_forumng_utils::get_real_userid($userid);
@@ -899,8 +914,10 @@ WHERE
         // Normalise entries to match db values
         $timestart = $timestart ? $timestart : 0;
         $timeend = $timeend ? $timeend : 0;
-        $locked = $locked ? 1 : 0;
         $sticky = $sticky ? 1 : 0;
+        if (!($locked == 1 || $locked == 2)) {
+            $locked = 0;
+        }
         $groupid = $groupid ? $groupid : null;
 
         // Start transaction in case there are multiple changes relating to
@@ -943,7 +960,7 @@ WHERE
 
         // Update in memory (needed for the next group bit)
         $this->uncache();
-        foreach ($update as $key=>$value) {
+        foreach ($update as $key => $value) {
             $this->discussionfields->{$key} = $value;
         }
 
@@ -982,7 +999,7 @@ WHERE
             // No change
             return;
         }
-        //Delete search data for this discussion before moving
+        // Delete search data for this discussion before moving.
         $this->ismakingsearchchange = true;
         $root = $this->get_root_post();
         $root->search_update();
@@ -1011,7 +1028,7 @@ WHERE
                     'discussionid' => $this->get_id()), '', 'id');
 
             // Loop through all posts copying attachments & deleting old one
-            foreach ($postids as $postid=>$junk) {
+            foreach ($postids as $postid => $junk) {
                 foreach (array('attachment', 'message') as $filearea) {
                     $oldfiles = $fs->get_area_files($filecontext->id, 'mod_forumng', $filearea,
                             $postid, 'id', false);
@@ -1032,7 +1049,7 @@ WHERE
             }
         }
 
-        //Update the search data after the move
+        // Update the search data after the move.
         $newroot = $newdiscussion->get_root_post();
         $newroot->search_update();
         $newroot->search_update_children();
@@ -1046,18 +1063,18 @@ WHERE
      * @param int $groupid If 'All participants' has been selected from the
      * separate groups dropdown box, use default value 0
      */
-    function copy($targetforum, $groupid) {
+    public function copy($targetforum, $groupid) {
         global $SESSION, $DB;
         $oldforum = $this->get_forum();
         $oldforumngid = $oldforum->get_id();
         $oldcourseid = $oldforum->get_course_id();
         $targetforumngid = $targetforum->get_id();
         $targetcourseid = $targetforum->get_course_id();
-        //Clone the old discussion
+        // Clone the old discussion.
         $discussionobj = clone($this->discussionfields);
         unset($discussionobj->id);
 
-        //update the forumngid and gruopid to the target forumngid and selected groupid
+        // Update the forumngid and gruopid to the target forumngid and selected groupid.
         $discussionobj->forumngid = $targetforumngid;
         unset($discussionobj->groupid);
         if ($targetforum->get_group_mode() && $groupid) {
@@ -1066,10 +1083,10 @@ WHERE
         $transaction = $DB->start_delegated_transaction();
         $newdiscussionid =  $DB->insert_record('forumng_discussions', $discussionobj);
         $rs = $DB->get_recordset('forumng_posts', array('discussionid' => $this->get_id()));
-        //$newids and $parentused are temp arrays used to
-        //$newids is a array of new postids using the indices of its old postids
-        //update the parentid of the post records copied over
-        //$hasattachments is a temp array for record the posts which has attachments.
+        // $newids and $parentused are temp arrays used to
+        // $newids is a array of new postids using the indices of its old postids
+        // Update the parentid of the post records copied over
+        // $hasattachments is a temp array for record the posts which has attachments.
         $newids = array();
         $parentsused = array();
         $hasattachments = array();
@@ -1094,9 +1111,9 @@ WHERE
         $newlastpostid = $newids[$discussionobj->lastpostid];
         $DB->execute("UPDATE {forumng_discussions} SET postid = ?, lastpostid = ? WHERE id = ?",
                 array($newpostid, $newlastpostid, $newdiscussionid));
-        foreach ($parentsused as $key=>$value) {
+        foreach ($parentsused as $key => $value) {
             $newparentpostid = $newids[$key];
-            //Update the parentpostids which have just been copied over
+            // Update the parentpostids which have just been copied over.
             $DB->execute("UPDATE {forumng_posts} SET parentpostid = ? " .
                     "WHERE parentpostid = ? AND discussionid = ?",
                     array($newparentpostid, $key, $newdiscussionid));
@@ -1105,7 +1122,7 @@ WHERE
         $fs = get_file_storage();
         $oldfilecontext = $oldforum->get_context(true);
         $newfilecontext = $targetforum->get_context(true);
-        foreach ($hasattachments as $oldpostid=>$newpostid) {
+        foreach ($hasattachments as $oldpostid => $newpostid) {
             foreach (array('attachment', 'message') as $filearea) {
                 $oldfiles = $fs->get_area_files($oldfilecontext->id, 'mod_forumng', $filearea,
                         $oldpostid, 'id', false);
@@ -1133,7 +1150,7 @@ WHERE
      * @param int $lastpostid Last post in discussion
      * @return int New discussion ID
      */
-    function clone_for_split($postid, $lastpostid) {
+    public function clone_for_split($postid, $lastpostid) {
         global $DB;
         // Create new discussion
         $discussionobj = clone($this->discussionfields);
@@ -1215,13 +1232,13 @@ WHERE
         global $DB;
         $transaction = $DB->start_delegated_transaction();
 
-        //Deleting the relevant data in the forumng_subscriptions table
+        // Deleting the relevant data in the forumng_subscriptions table.
         $DB->delete_records('forumng_subscriptions', array('discussionid' => $this->get_id()));
 
-        //Deleting the relevant data in the forumng_read table
+        // Deleting the relevant data in the forumng_read table.
         $DB->delete_records('forumng_read', array('discussionid' => $this->get_id()));
 
-        //Deleting the relevant data in the forumng_ratings table
+        // Deleting the relevant data in the forumng_ratings table.
         $query = "WHERE postid IN (
 SELECT fp.id
 FROM
@@ -1232,10 +1249,10 @@ WHERE
         $queryparams = array($this->discussionfields->id);
         $DB->execute("DELETE FROM {forumng_ratings} $query", $queryparams);
 
-        //Deleting the relevant data in the forumng_flags table
+        // Deleting the relevant data in the forumng_flags table.
         $DB->execute("DELETE FROM {forumng_flags} $query", $queryparams);
 
-        //Delete all the attachment files of this discussion.
+        // Delete all the attachment files of this discussion.
         $fs = get_file_storage();
         $filecontext = $this->get_forum()->get_context(true);
 
@@ -1244,20 +1261,20 @@ WHERE
                 'discussionid' => $this->get_id(), 'attachments' => 1), '', 'id');
 
         // Loop through all posts and deleting the attachments for each post.
-        foreach ($postids as $postid=>$junk) {
+        foreach ($postids as $postid => $junk) {
             foreach (array('attachment', 'message') as $filearea) {
                 $fs->delete_area_files($filecontext->id, 'mod_forumng', $filearea,
                         $postid);
             }
         }
 
-        //Deleting the relevant posts in this discussion in the forumng_posts table
+        // Deleting the relevant posts in this discussion in the forumng_posts table.
         $DB->delete_records('forumng_posts', array('discussionid' => $this->get_id()));
 
-        //Finally deleting this discussion in the forumng_discussions table
+        // Finally deleting this discussion in the forumng_discussions table.
         $DB->delete_records('forumng_discussions', array('id' => $this->get_id()));
 
-        //Log delete
+        // Log delete.
         if ($log) {
             $this->log('permdelete discussion');
         }
@@ -1287,9 +1304,9 @@ WHERE
             $attachments, false, $mailnow, $userid, false);
 
         // Mark discussion locked
-        $this->edit_settings(mod_forumng_discussion::NOCHANGE,
-            mod_forumng_discussion::NOCHANGE, mod_forumng_discussion::NOCHANGE,
-            true, mod_forumng_discussion::NOCHANGE);
+        $this->edit_settings(self::NOCHANGE,
+            self::NOCHANGE, self::NOCHANGE,
+            true, self::NOCHANGE);
 
         // Log
         if ($log) {
@@ -1301,6 +1318,26 @@ WHERE
     }
 
     /**
+     * Auto locks a discussion with a final message.
+     * @return int post ID
+     */
+    public function auto_lock() {
+
+        if ($this->is_locked() ) {
+            $locked = self::NOCHANGE;
+        } else {
+            $locked = 2;
+            // Mark discussion locked.
+            $this->edit_settings(self::NOCHANGE,
+                self::NOCHANGE, self::NOCHANGE,
+                $locked, self::NOCHANGE);
+            // Log.
+            $this->log('auto lock discussion', ' d' . $this->get_id());
+        }
+
+    }
+
+    /**
      * Unlocks a discussion.
      * @param int $userid User ID (0 = current)
      * @param bool $log True to log this action
@@ -1309,21 +1346,30 @@ WHERE
         global $DB;
         $transaction = $DB->start_delegated_transaction();
 
-        // Delete lock post
-        $lockpost = $this->get_lock_post();
-        if (!$lockpost) {
-            throw new invalid_state_exception('Discussion not locked');
+        // Get autolocked value as it changes after edit_settings is run.
+        $autolocked = $this->is_auto_locked();
+        // If not auto locked.
+        if (!$autolocked) {
+            // Delete lock post.
+            $lockpost = $this->get_lock_post();
+            if (!$lockpost) {
+                throw new invalid_state_exception('Discussion not locked');
+            }
+            $lockpost->delete($userid, false);
         }
-        $lockpost->delete($userid, false);
 
         // Mark discussion unlocked
-        $this->edit_settings(mod_forumng_discussion::NOCHANGE,
-            mod_forumng_discussion::NOCHANGE, mod_forumng_discussion::NOCHANGE,
-            false, mod_forumng_discussion::NOCHANGE);
+        $this->edit_settings(self::NOCHANGE,
+            self::NOCHANGE, self::NOCHANGE,
+            false, self::NOCHANGE);
 
         // Log
         if ($log) {
-            $this->log('unlock discussion', 'p' . $lockpost->get_id() . ' d' . $this->get_id());
+            if (!$autolocked) {
+                $this->log('unlock discussion', 'p' . $lockpost->get_id() . ' d' . $this->get_id());
+            } else {
+                $this->log('unlock auto locked discussion', ' d' . $this->get_id());
+            }
         }
 
         $transaction->allow_commit();
@@ -1494,7 +1540,7 @@ ORDER BY
      * larger change to the discussion
      * @param mod_forumng_post $post Post that has changed; null to always recalculate
      */
-    function possible_lastpost_change($post=null) {
+    public function possible_lastpost_change($post=null) {
         $recalculate = false;
         if (!$post) {
             $recalculate = true;
@@ -1539,7 +1585,7 @@ ORDER BY
      * @param string $replaceinfo Optional info text to replace default (which
      *   is just the discussion id again)
      */
-    function log($action, $replaceinfo = '') {
+    public function log($action, $replaceinfo = '') {
         $info = 'd' . $this->discussionfields->id;
         if ($replaceinfo !== '') {
             $info = $replaceinfo;
@@ -1555,7 +1601,7 @@ ORDER BY
      * restricted to a non-current time period.
      * @return bool True if it's visible
      */
-    function is_currently_visible() {
+    public function is_currently_visible() {
         // Deleted
         if ($this->is_deleted()) {
             return false;
@@ -1567,7 +1613,7 @@ ORDER BY
     /**
      * @return bool True if deleted
      */
-    function is_deleted() {
+    public function is_deleted() {
         return $this->discussionfields->deleted ? true : false;
     }
 
@@ -1575,7 +1621,7 @@ ORDER BY
      * @return bool True if discussion is within the given time period, or
      *   there isn't one
      */
-    function is_within_time_period() {
+    public function is_within_time_period() {
         // Start/end time, if set
         $now = time();
         return ($this->discussionfields->timestart <= $now &&
@@ -1588,43 +1634,43 @@ ORDER BY
      * THIS_GROUP_SUBSCRIBED:5; THIS_GROUP_NOT_SUBSCRIBED:6;
      * @param int $userid User who's not read the discussion (0=current)
      */
-    function is_subscribed($userid=0) {
+    public function is_subscribed($userid=0) {
         $userid = mod_forumng_utils::get_real_userid($userid);
         $subscriptioninfo = $this->get_forum()->get_subscription_info($userid);
-            if ($subscriptioninfo->wholeforum) {
-                //subscribed to the entire forum
-                return mod_forumng::FULLY_SUBSCRIBED;
-            } else if (count($subscriptioninfo->discussionids) == 0) {
-                if (count($subscriptioninfo->groupids) == 0) {
-                    //not subscribed at all
-                    return mod_forumng::NOT_SUBSCRIBED;
-                } else {
-                    if ($this->get_forum()->get_group_mode()) {
-                        //if the group mode turned on, we need to check if subscribed to the group
-                        //that the current discussion belongs to
-                        foreach ($subscriptioninfo->groupids as $id) {
-                            if ($this->get_group_id() == $id) {
-                                return mod_forumng::THIS_GROUP_SUBSCRIBED;
-                            }
-                        }
-                        return mod_forumng::THIS_GROUP_NOT_SUBSCRIBED;
-                    } else {
-                        return mod_forumng::NOT_SUBSCRIBED;
-                    }
-                }
-
-            } else {
-                //discussionids array is not empty
-                //No needs to check the groupids here assuming all the subscripiton data in
-                //the database is not messed up
-                $discussionid = $this->get_id();
-                foreach ($subscriptioninfo->discussionids as $id => $groupid) {
-                    if ($discussionid == $id) {
-                        return mod_forumng::PARTIALLY_SUBSCRIBED;
-                    }
-                }
+        if ($subscriptioninfo->wholeforum) {
+            // Subscribed to the entire forum.
+            return mod_forumng::FULLY_SUBSCRIBED;
+        } else if (count($subscriptioninfo->discussionids) == 0) {
+            if (count($subscriptioninfo->groupids) == 0) {
+                // Not subscribed at all.
                 return mod_forumng::NOT_SUBSCRIBED;
+            } else {
+                if ($this->get_forum()->get_group_mode()) {
+                    // If the group mode turned on, we need to check if subscribed to the group
+                    // that the current discussion belongs to.
+                    foreach ($subscriptioninfo->groupids as $id) {
+                        if ($this->get_group_id() == $id) {
+                            return mod_forumng::THIS_GROUP_SUBSCRIBED;
+                        }
+                    }
+                    return mod_forumng::THIS_GROUP_NOT_SUBSCRIBED;
+                } else {
+                    return mod_forumng::NOT_SUBSCRIBED;
+                }
             }
+
+        } else {
+            // Discussionids array is not empty.
+            // No needs to check the groupids here assuming all the subscripiton data in
+            // the database is not messed up.
+            $discussionid = $this->get_id();
+            foreach ($subscriptioninfo->discussionids as $id => $groupid) {
+                if ($discussionid == $id) {
+                    return mod_forumng::PARTIALLY_SUBSCRIBED;
+                }
+            }
+            return mod_forumng::NOT_SUBSCRIBED;
+        }
     }
 
     /**
@@ -1805,7 +1851,7 @@ WHERE
     }
 
     // Permissions
-    //////////////
+    /*////////////*/
 
     /**
      * Checks if user can view this discussion, given that they can see the
@@ -1813,7 +1859,7 @@ WHERE
      * @param int $userid User ID
      * @return bool True if user can view discusion
      */
-    function can_view($userid=0) {
+    public function can_view($userid=0) {
         $userid = mod_forumng_utils::get_real_userid($userid);
 
         // If this is a 'all groups' post, then we only require access to the
@@ -1852,7 +1898,7 @@ WHERE
      * equivalent method.
      * @param int $userid ID of user to check for
      */
-    function require_view($userid=0) {
+    public function require_view($userid=0) {
         $userid = mod_forumng_utils::get_real_userid($userid);
 
         // If this is a 'all groups' post, then we only require access to the
@@ -1889,7 +1935,7 @@ WHERE
      * an error. (You need the managediscussions capability for this.)
      * Editing options is not affected by locks.
      */
-    function require_edit() {
+    public function require_edit() {
         $this->require_view();
         if (!$this->can_manage()) {
             print_error('error_cannotmanagediscussion', 'forumng');
@@ -1950,7 +1996,7 @@ WHERE
      * @return bool True if this user is allowed to subscribe
      */
     public function can_subscribe($userid=0) {
-        //if PARTIALLY_SUBSCRIBED:1 or FULLY_SUBSCRIBED:2 or THIS_GROUP_SUBSCRIBED:5 return false
+        // If PARTIALLY_SUBSCRIBED:1 or FULLY_SUBSCRIBED:2 or THIS_GROUP_SUBSCRIBED:5 return false.
         if ($this->is_subscribed($userid) != mod_forumng::NOT_SUBSCRIBED &&
             $this->is_subscribed($userid) != mod_forumng::THIS_GROUP_NOT_SUBSCRIBED) {
             return false;
@@ -1970,12 +2016,12 @@ WHERE
         if ($issubscribed == mod_forumng::PARTIALLY_SUBSCRIBED &&
             $this->get_forum()->can_change_subscription($userid)) {
                 return true;
-            }
+        }
         return false;
     }
 
     // UI
-    /////
+    // //.
 
     /**
      * Given a list of post IDs, displays these selected posts in a manner
@@ -1989,7 +2035,7 @@ WHERE
      *   appended (HTML format)
      * @param array $extraoptions Set or override options when displaying posts
      */
-    function build_selected_posts_email($postids, &$alltext, &$allhtml,
+    public function build_selected_posts_email($postids, &$alltext, &$allhtml,
             $extraoptions = array()) {
         global $USER;
         $list = array();
@@ -2026,7 +2072,7 @@ WHERE
             array($this, 'internal_build_selected_posts_replacer'), $allhtml);
     }
 
-    function internal_build_selected_posts_replacer($matches) {
+    public function internal_build_selected_posts_replacer($matches) {
         if (strpos($this->posthtml, ' id="p' . $matches[1] . '"') === false) {
             return $matches[2];
         } else {
@@ -2118,7 +2164,7 @@ WHERE
         }
         $transaction = $DB->start_delegated_transaction();
 
-        //Clear any previous subscriptions to this discussion from the same user if any
+        // Clear any previous subscriptions to this discussion from the same user if any.
         $DB->execute(
             "DELETE FROM {forumng_subscriptions} " .
             "WHERE userid = ? AND discussionid = ? AND clonecmid " . $clonevalue, $params);
@@ -2156,7 +2202,7 @@ WHERE
             $clonevalue = 'IS NULL';
         }
         $transaction = $DB->start_delegated_transaction();
-        //Clear any subscriptions to this discussion from the same user if any
+        // Clear any subscriptions to this discussion from the same user if any.
         $DB->execute(
             "DELETE FROM {forumng_subscriptions} " .
             "WHERE userid = ? AND discussionid = ? AND clonecmid " . $clonevalue, $params);
@@ -2197,7 +2243,7 @@ WHERE
     }
 
     // Feeds
-    ////////
+    /*//////*/
 
     /**
      * Gets URL for an Atom/RSS feed to this discussion.
@@ -2227,7 +2273,7 @@ WHERE
     }
 
     // Completion
-    /////////////
+    /*///////////*/
 
     /**
      * Updates completion status based on changes made to entire discussion.

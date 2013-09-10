@@ -27,7 +27,6 @@
 
 require_once('../../config.php');
 require_once($CFG->dirroot . '/mod/forumng/mod_forumng.php');
-// require_capability('moodle/site:config', context_system::instance());
 
 $cmid = required_param('id', PARAM_INT);
 $cloneid = optional_param('clone', 0, PARAM_INT);

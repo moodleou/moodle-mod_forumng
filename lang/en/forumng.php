@@ -313,16 +313,16 @@ $string['olderversions'] = 'Older versions (most recent first)';
 $string['deleteemailpostbutton'] = 'Delete and email';
 $string['deleteandemail'] = 'Delete and email author';
 $string['emailmessage'] = 'Message';
-$string['emailcontentplain'] = 'This is a notification to advise you that your forum post with the '.
-'following details has been deleted by \'{$a->firstname} {$a->lastname}\':
+$string['emailcontentplain'] = 'This is a notification to advise you that your forum post with the
+ following details has been deleted by \'{$a->firstname} {$a->lastname}\':
 
 Subject: {$a->subject}
 Forum: {$a->forum}
 Module: {$a->course}
 
 To view the discussion visit {$a->deleteurl}';
-$string['emailcontenthtml'] = 'This is a notification to advise you that your forum post with the '.
-'following details has been deleted by \'{$a->firstname} {$a->lastname}\':<br />
+$string['emailcontenthtml'] = 'This is a notification to advise you that your forum post with the
+ following details has been deleted by \'{$a->firstname} {$a->lastname}\':<br />
 <br />
 Subject: {$a->subject}<br />
 Forum: {$a->forum}<br />
@@ -417,7 +417,7 @@ $string['selectorselectdisc'] = 'Select discussion';
 $string['selectordiscall'] = 'Do you want to include all discussions listed on this page, or only selected discussions?';
 $string['selectdiscintro'] = 'Tick the box beside each discussion you want to include. When you&rsquo;re done,
 scroll to the bottom and click &lsquo;Confirm selection&rsquo;.';
-$string['setimportant'] = 'Mark posts as important';//used by moderators, highlight important posts
+$string['setimportant'] = 'Mark posts as important';// Used by moderators, highlight important posts.
 $string['important'] = 'Important post'; // alt text for important icon
 $string['flaggedposts'] = 'Flagged posts';
 $string['flaggedpostslink'] = '{$a} flagged posts';
@@ -672,18 +672,21 @@ $string['afterenddate'] = 'You can read any posts within this forum, but not sub
 This forum closed for posting on {$a}.';
 $string['afterenddatecapable'] = 'Students can read any posts within this forum, but not submit
 their own posts since the forum closed on {$a}. You still have access to submit posts.';
-$string['removeolddiscussions'] = 'Remove old discussions';
+$string['removeolddiscussions'] = 'Manage old discussions';
 $string['removeolddiscussions_help'] = 'The system can automatically remove discussions if they
 have not had any new replies for a certain length of time.';
-$string['removeolddiscussionsafter'] = 'Remove old discussions after';
+$string['removeolddiscussionsafter'] = 'Manage old discussions after';
 $string['removeolddiscussionsdefault'] = 'Never remove';
-$string['withremoveddiscussions'] = 'Move discussions to';
+$string['withremoveddiscussions'] = 'Action or move discussions to';
+$string['automaticallylock'] = 'Automatically lock';
 $string['onemonth'] = '1 month';
-$string['withremoveddiscussions_help'] = 'You have two options for handling removed discussions:
+$string['withremoveddiscussions_help'] = 'You have three options for managing old discussions:
 <ul><li>Delete them permanently; unlike the standard delete feature, these cannot be undeleted.
 This option could be used to save space in the database.</li>
+<li>Automatically lock (make read-only) them</li>
 <li>Move them to another forum; for example, you might have an &lsquo;archive forum&rsquo;.
-You can select any forum on the same course.</li></ul>';
+You can select any forum on the same course.</li>
+</ul>';
 $string['deletepermanently'] = 'Delete permanently';
 $string['housekeepingstarthour']='Start hour of archiving';
 $string['housekeepingstophour']='Stop hour of archiving';
@@ -815,3 +818,7 @@ $string['notext'] = '(no text)';
 
 $string['grade'] = 'Grade';
 $string['gradingscale'] = 'Grading scale';
+
+$string['lockedtitle'] = 'This discussion is now closed';
+$string['autolockedmessage'] = 'This discussion has been closed automatically as the maximum time permitted to be open has passed.';
+$string['alert_intro'] = 'You can use the Alert link if you need to bring a post in this forum to the attention of a moderator.';

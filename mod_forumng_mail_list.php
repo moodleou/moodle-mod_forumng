@@ -57,7 +57,7 @@ class mod_forumng_mail_list {
      * @param bool $tracetimes True if it should call mtrace to display
      *   performance information
      */
-    function __construct($tracetimes) {
+    public function __construct($tracetimes) {
         global $DB, $CFG;
         $this->time = time();
         $this->forum = null;
@@ -109,9 +109,9 @@ ORDER BY
      * @return bool True if a post could be retrieved, false if there are
      *   no more posts in this forum (call next_forum)
      */
-    function next_post(&$post, &$inreplyto) {
+    public function next_post(&$post, &$inreplyto) {
         // Make sure we have a forum/discussion setup
-        if ($this->forum==null || $this->discussion==null)  {
+        if ($this->forum==null || $this->discussion==null) {
             throw new coding_exception("Cannot call next_post when not inside
                 forum and discussion");
         }
@@ -163,9 +163,9 @@ ORDER BY
      * Obtains the next discussion in the list.
      * @param mod_forumng_discussion $discussion Discussion
      */
-    function next_discussion(&$discussion) {
+    public function next_discussion(&$discussion) {
         // Make sure we have a forum setup but no discussion
-        if ($this->forum==null)  {
+        if ($this->forum==null) {
             throw new coding_exception("Cannot call next_discussion when not inside
                 forum");
         }
@@ -219,7 +219,7 @@ ORDER BY
      * @param object &$context Context object (out variable)
      * @param object &$course Course object (out variable)
      */
-    function next_forum(&$forum, &$cm, &$context, &$course) {
+    public function next_forum(&$forum, &$cm, &$context, &$course) {
         // Skip if required to get to new forum
         while ($this->forum!=null) {
             $this->next_discussion($discussion);

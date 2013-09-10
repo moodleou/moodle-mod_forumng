@@ -104,7 +104,7 @@ $settings->add(new admin_setting_configselect('forumng_permanentdeletion',
     get_string('permanentdeletion', 'forumng'),
     get_string('configpermanentdeletion', 'forumng'), 30*60*60*24, $options));
 
-//Start hour of deleting or archiving old discussions
+// Start hour of deleting or archiving old discussions.
 $options = array();
 for ($i = 0; $i < 24; $i++) {
     $options[$i*3600] = $i;

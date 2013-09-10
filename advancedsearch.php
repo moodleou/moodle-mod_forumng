@@ -40,10 +40,10 @@ class advancedsearch_form extends moodleform {
             $mform->addElement('hidden', 'clone', $this->_customdata['cloneid']);
         }
 
-        //words to be searched
+        // Words to be searched.
         $mform->addElement('text', 'query', get_string('words', 'forumng'), 'size="40"');
 
-        //author name or OUCU to be filtered
+        // Author name or OUCU to be filtered.
         $mform->addElement('text', 'author', get_string('authorname', 'forumng'), 'size="40"');
 
         // Date range_from to be filtered
@@ -87,7 +87,7 @@ class advancedsearch_form extends moodleform {
         return $errors;
     }
 }
-///////////////////////////////////////////////////////////////////////////////
+/*////////////////////////////////////////////////////////////////////////////*/
 
 $url = new Moodle_url('/mod/forumng/advancedsearch.php');
 $courseid = optional_param('course', 0,  PARAM_INT);
@@ -172,7 +172,7 @@ if ($allforums) {
 $PAGE->set_pagelayout('base');
 $PAGE->navbar->add(get_string('advancedsearch', 'forumng'));
 
-//set up the form
+// Set up the form.
 $now = date('Y-m-d');
 $defaultdatefrom = empty($datefrom) ? date_parse($now . ' 0:0') : $datefrom;
 $defaultdateto = empty($dateto) ? date_parse($now . ' 23:59') : $dateto;

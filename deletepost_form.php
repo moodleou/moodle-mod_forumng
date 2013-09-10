@@ -30,19 +30,19 @@ class mod_forumng_deletepost_form extends moodleform {
 
         $expand = $this->_customdata['expand'];
 
-        //header
+        // Header.
         $mform->addElement('header', 'general', get_string('deleteandemail', 'forumng'));
 
-        //Message box
+        // Message box.
         $mform->addElement('editor', 'message',
                 get_string('emailmessage', 'forumng'), array('size'=>'64', 'id' => 'id_forumng_delete_msg'));
         $mform->setType('message', PARAM_RAW);
         $mform->addRule('message', null, 'required', null, 'client');
 
-        //Send a copy to self
+        // Send a copy to self.
         $mform->addElement('checkbox', 'copyself', get_string('copytoself', 'forumng'));
 
-        //keep the expand status
+        // Keep the expand status.
         $mform->addElement('hidden', 'expand', $expand);
 
         // add some buttons

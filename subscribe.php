@@ -65,7 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
     $requestingsubscribe = '';
 }
 
-//Only one of the $courseid, $discussionid and $cmid must be true, also subscribe/unsubscribe
+// Only one of the $courseid, $discussionid and $cmid must be true, also subscribe/unsubscribe.
 $options = ($courseid ? 1 : 0) + ($cmid ? 1 : 0) + ($discussionid ? 1 : 0);
 $subscribeoptions = ($requestingsubscribe ? 1 : 0) + ($requestingunsubscribe ? 1 : 0) +
     ($requestingsubscribegroup ? 1 : 0) + ($requestingunsubscribegroup ? 1 : 0);
@@ -112,8 +112,6 @@ $userid = $USER->id;
  */
 function get_group_list($userid, $forumngid) {
     global $DB;
-    // $courseid = mod_forumng::get_from_id($forumng->id,
-    // mod_forumng::CLONE_DIRECT)->get_course_id();
     $sqlgroup = "
 SELECT
     g.id AS groupid
@@ -138,7 +136,7 @@ WHERE
     return $results;
 }
 
-//decide the subscription confirmation string for not directing
+// Decide the subscription confirmation string for not directing.
 if ($requestingsubscribe) {
     $subscribe = true;
 } else {
@@ -222,12 +220,12 @@ if ($cmid) {
     $discussionidcount = count($subscriptioninfo->discussionids);
     $groupidcount = count($subscriptioninfo->groupids);
     if (!$forum->get_group_mode()) {
-        //No group mode
+        // No group mode.
         if ($requestingsubscribegroup || $requestingunsubscribegroup) {
             print_error('error_cannotchangegroupsubscription', 'forumng');
         }
         if ($subscriptioninfo->wholeforum) {
-            //subscribed to the entire forum
+            // Subscribed to the entire forum.
             $subscribed = mod_forumng::FULLY_SUBSCRIBED;
         } else if ($discussionidcount == 0) {
             $subscribed = mod_forumng::NOT_SUBSCRIBED;
@@ -250,7 +248,7 @@ if ($cmid) {
                 print_error('error_invalidsubscriptionrequest', 'forumng');
             }
         } else if ($discussionidcount != 0 || $groupidcount != 0 ) {
-            //possible for subscribing to /unsubscribing from forum/group
+            // Possible for subscribing to /unsubscribing from forum/group.
             if ($requestingsubscribe) {
                 if ($grouplist == -1) {
                     $forum->subscribe();
@@ -286,7 +284,7 @@ if ($cmid) {
                         break;
                     }
                 }
-                //Check if subscribed to any discussions belong to this group
+                // Check if subscribed to any discussions belong to this group.
                 foreach ($subscriptioninfo->discussionids as $id => $grpid) {
                     if ($grpid == $groupid) {
                         $canunsubscribefromgroup = true;
@@ -303,7 +301,7 @@ if ($cmid) {
                 print_error('error_invalidsubscriptionrequest', 'forumng');
             }
 
-        } else { // $discussionidcount == 0 && $groupidcount == 0
+        } else {
             // Not subscribed yet
             if ($requestingsubscribe) {
                 // TODO Change to take account of group list if there is one
@@ -339,7 +337,7 @@ if ($courseid) {
         $subscriptioninfo = $forum->get_subscription_info();
         $discussionidcount = count($subscriptioninfo->discussionids);
         if ($subscriptioninfo->wholeforum) {
-            //subscribed to the entire forum
+            // Subscribed to the entire forum.
             $subscribed = mod_forumng::FULLY_SUBSCRIBED;
         } else if ($discussionidcount == 0) {
             $subscribed = mod_forumng::NOT_SUBSCRIBED;

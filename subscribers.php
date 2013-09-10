@@ -128,7 +128,7 @@ groups_print_activity_menu($cm, $CFG->wwwroot . '/mod/forumng/subscribers.php?' 
 $subscribers = $forum->get_subscribers();
 $individualgroup = $groupid != mod_forumng::ALL_GROUPS && $groupid != mod_forumng::NO_GROUPS;
 
-//Remove the subscribers to other groups and discussions which don't belong to this group
+// Remove the subscribers to other groups and discussions which don't belong to this group.
 if ($individualgroup) {
     foreach ($subscribers as $key => $user) {
         $removeuser = true;
@@ -206,8 +206,6 @@ if (count($subscribers) == 0) {
                     }
                 }
 
-                // $numberofdiscussions = $numberofdiscussions>0 ?
-                // $numberofdiscussions . '<br />' : '';
                 if ($numberofdiscussions>0) {
                     $numberofdiscussions = ($numberofdiscussions==1 ?
                             get_string("numberofdiscussion", "forumng", $numberofdiscussions) :
@@ -243,8 +241,10 @@ if (count($subscribers) == 0) {
 
             $row[] = $numberofdiscussions . $grouplist;
         }
-        if ($user->link)
-        $table->data[] = $row;
+        if ($user->link) {// CC Inline control structures are not allowed.
+            $table->data[] = $row;
+        }
+
     }
 
     print html_writer::table($table);

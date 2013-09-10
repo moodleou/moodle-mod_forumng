@@ -27,13 +27,13 @@
 require_once('../forumngfeature_post_selector.php');
 
 class print_post_selector extends forumngfeature_post_selector {
-    function get_button_name() {
+    public function get_button_name() {
         return get_string('print', 'forumngfeature_print');
     }
-    function get_page_name() {
+    public function get_page_name() {
         return get_string('print_pagename', 'forumngfeature_print');
     }
-    function apply($discussion, $all, $selected, $formdata) {
+    public function apply($discussion, $all, $selected, $formdata) {
         global $COURSE, $USER, $CFG, $PAGE;
         $d = $discussion->get_id();
         $forum = $discussion->get_forum();

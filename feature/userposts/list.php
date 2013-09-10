@@ -33,8 +33,10 @@ global $OUTPUT;
 
 $cmid = required_param('id', PARAM_INT);
 $cloneid = optional_param('clone', 0, PARAM_INT);
+$page = optional_param('page', 0, PARAM_INT);
 $download   = optional_param('download', '', PARAM_TEXT);
-$pageparams = array('id' => $cmid, 'download' => $download);
+$pageparams = array('id' => $cmid, 'download' => $download, 'page' => $page);
+$perpage = 100;
 if ($cloneid) {
     $pageparams['clone'] = $cloneid;
 }
@@ -90,6 +92,16 @@ $ptable->is_downloading($download, $filename, get_string('userposts', 'forumngfe
 
 $users = get_enrolled_users($context, '', $groupid > 0 ? $groupid : 0,
         'u.id, u.lastname, u.firstname, u.username, u.picture, u.imagealt, u.email');
+
+if (!$ptable->is_downloading()) {
+    $ptable->pagesize($perpage, count($users));
+    $offset = $page * $perpage;
+    $endposition = $offset + $perpage;
+} else {
+    // Always export all users.
+    $endposition = count($users);
+    $offset = 0;
+}
 
 if (empty($download)) {
     print $out->header();
@@ -220,8 +232,8 @@ if (empty($download)) {
 }
 $ptable->downloadable = false;
 $ptable->setup();
-foreach ($data as $row) {
-    $ptable->add_data($row);
+for ($datacount = count($data); $offset < $endposition && $offset < $datacount; $offset++) {
+    $ptable->add_data($data[$offset]);
 }
 $ptable->finish_output();
 

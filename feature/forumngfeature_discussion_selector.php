@@ -53,7 +53,7 @@ abstract class forumngfeature_discussion_selector extends forumngfeature_post_se
      * @param object $context Moodle context object for forum
      * @param mod_forumng $forum Forum object
      */
-    function require_capability($context, $forum) {
+    public function require_capability($context, $forum) {
         // Default makes no extra checks.
     }
 
@@ -115,7 +115,7 @@ abstract class forumngfeature_discussion_selector extends forumngfeature_post_se
             // Either an initial request (non-JS) to display the 'dialog' box,
             // or a request to show the list of posts with checkboxes for selection.
             // Both types share same navigation.
-            $out = $forum->init_page(new moodle_url('/mod/forumng/view.php', $params));
+            $out = $forum->init_page(new moodle_url('/mod/forumng/view.php', $forum->get_link_params_array()));
             print $out->header();
             if (!$select) {
                 // Show initial dialog.
@@ -297,7 +297,7 @@ abstract class forumngfeature_discussion_selector extends forumngfeature_post_se
                 }
             }
 
-            $out = $forum->init_page(new moodle_url('/mod/forumng/view.php', $params), $pagename);
+            $out = $forum->init_page(new moodle_url('/mod/forumng/view.php', $forum->get_link_params_array()), $pagename);
 
             // Get form to use.
             $mform = $selector->get_form($forum, $all, $postids);
