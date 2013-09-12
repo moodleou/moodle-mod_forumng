@@ -55,6 +55,7 @@ class mod_forumng_editpost_form extends moodleform {
                             get_string('strftimetime', 'langconfig'))),
                         array('id' => 'id_editlimit')));
                 $mform->addElement('hidden', 'timelimit', $timelimit);
+                $mform->setType('timelimit', PARAM_INT);
             }
 
             $quotaleft = $forum->get_remaining_post_quota();
