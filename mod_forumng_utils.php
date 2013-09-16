@@ -180,6 +180,7 @@ class mod_forumng_utils {
      */
     public static function unlink($file) {
         if (!unlink($file)) {
+            require_once(dirname(__FILE__) . '/mod_forumng_file_exception.php');
             throw new mod_forumng_file_exception("Failed to delete $file");
         }
     }
@@ -192,6 +193,7 @@ class mod_forumng_utils {
      */
     public static function rename($oldfile, $newfile) {
         if (!rename($oldfile, $newfile)) {
+            require_once(dirname(__FILE__) . '/mod_forumng_file_exception.php');
             throw new mod_forumng_file_exception("Failed to rename $oldfile to $newfile");
         }
     }
@@ -204,6 +206,7 @@ class mod_forumng_utils {
      */
     public static function rmdir($folder) {
         if (!rmdir($folder)) {
+            require_once(dirname(__FILE__) . '/mod_forumng_file_exception.php');
             throw new mod_forumng_file_exception("Failed to delete folder $folder");
         }
     }
@@ -216,6 +219,7 @@ class mod_forumng_utils {
      */
     public static function mkdir($folder) {
         if (!mkdir($folder)) {
+            require_once(dirname(__FILE__) . '/mod_forumng_file_exception.php');
             throw new mod_forumng_file_exception("Failed to make folder $folder");
         }
     }
@@ -228,6 +232,7 @@ class mod_forumng_utils {
      */
     public static function copy($oldfile, $newfile) {
         if (!copy($oldfile, $newfile)) {
+            require_once(dirname(__FILE__) . '/mod_forumng_file_exception.php');
             throw new mod_forumng_file_exception("Failed to copy $oldfile to $newfile");
         }
     }
@@ -242,6 +247,7 @@ class mod_forumng_utils {
     public static function opendir($folder) {
         $handle = @opendir($folder);
         if (!$handle) {
+            require_once(dirname(__FILE__) . '/mod_forumng_file_exception.php');
             throw new mod_forumng_file_exception(
               "Failed to open folder: $folder");
         }

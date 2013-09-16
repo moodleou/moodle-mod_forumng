@@ -220,7 +220,7 @@ $mainquery", $mainparams);
                 if (count($subscribers)==0) {
                     continue;
                 }
-            } catch (mod_forumng_exception $e) {
+            } catch (coding_exception $e) {
                 // If an error occurs while getting subscribers, continue
                 // to next forum
                 mtrace(' Exception while getting subscribers for forum ' .

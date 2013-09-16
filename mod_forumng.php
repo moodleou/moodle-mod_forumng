@@ -4413,7 +4413,7 @@ WHERE
                             mod_forumng_utils::copy("$oldfolder/$attachment",
                                 "$newfolder/$attachment");
                             $filesok ++;
-                        } catch (mod_forumng_exception $e) {
+                        } catch (moodle_exception $e) {
                             if ($progress) {
                                 print "[<strong>Warning</strong>: file copy failed for post " .
                                         $recp->id . " => " . $newp->id .

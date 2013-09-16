@@ -231,15 +231,17 @@ function forumng_get_file_info($browser, $areas, $course, $cm, $context, $filear
     if (!in_array($filearea, $fileareas)) {
         return null;
     }
+    //echo "$filearea :: $itemid:: $filepath :: $filename";
     try {
         // This will not work for users who can only access the clone forum but cannot access
         // the origin forumng. The ideal way is to pass in the real cloneid instead of using
         // CLONE_DIRECT which means always get the origin forum.
         // But we cannot get the cloneid in here without doing expensive querys such as get all
         // the clone forums and check them one by one.
+        //error_log("POSTID=$itemid");
         $post = mod_forumng_post::get_from_id($itemid, mod_forumng::CLONE_DIRECT);
 
-    } catch (mod_forumng_exception $e) {
+    } catch (coding_exception $e) {
         return null;
     }
 
