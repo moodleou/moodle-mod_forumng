@@ -410,7 +410,7 @@ DRP02 / U.S1
   Click on draft.
   - Verify that it appears including your text.
   Cancel.
-  - Should be back on main forum page.
+  Go back to main page.
   Click on draft again and this time, make a change to the text. Then click
   'Save draft'.
   - Form should reload.
@@ -449,7 +449,7 @@ DRP04 / U.S2 [change]
   - Should go back to discussion page (URL discuss.php).
   - Should automatically open a reply form for the post you replied to.
   - Form should contain the text you saved.
-  Click cancel then return to F.SH main page.
+  Click cancel, then return to F.SH main page.
   - Draft still there.
   Click draft again and this time, when the form opens, 'Post reply'.
   - Post should appear (just like if you make a reply normally).
