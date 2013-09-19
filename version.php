@@ -22,8 +22,8 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$module->version  = 2013082000;
-$module->requires = 2011120100;
+$module->version  = 2013082001;
+$module->requires = 2013091900;
 $module->cron     = 60;
 
 // Note: This should be replaced with standard ->maturity and other options.

@@ -1246,15 +1246,14 @@ M.mod_forumng = {
                 M.mod_forumng.simulate_click(targetpost2.expandlink);
                 targetpost2.focushandler = focuser;
             }
+            var targetpost3 = this.Y.one('#' + id).get('parentNode');
+            // If post has already been expanded, focus it now
+            if (!targetpost3.focushandler) {
+                focuser();
+            }
 
             // Scroll to it
-            this.scroll_page(targetpost2, function() {
-                var targetpost3 = this.Y.one('#' + id).get('parentNode');
-                // If post has already been expanded, focus it now
-                if (!targetpost3.focushandler) {
-                    focuser();
-                }
-            });
+            this.scroll_page(targetpost2);
         }, this);
     },
 
