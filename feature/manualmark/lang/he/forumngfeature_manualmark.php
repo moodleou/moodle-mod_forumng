@@ -15,16 +15,19 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version.
- *
- * @package mod_forumng
- * @copyright 2012 The Open University
+ * Lang strings.
+ * @package forumngfeature
+ * @subpackage manualmark
+ * @copyright 2011 The Open University
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+$string['manualmark_auto'] = 'סימון אוטומטי של הודעות אשר נקראו';
+$string['manualmark_manual'] = 'סימון ידני של הודעות אשר נקראו';
+$string['manualmark_change'] = 'עדכון';
 
-$module->version  = 2013091901;
-$module->requires = 2011120100;
-$module->cron     = 60;
+$string['manualmark_change_help'] = '&lsquo;Automatically marking discussions read&rsquo; marks all posts in a discussion as read when you view any post in that discussion.
 
-// Note: This should be replaced with standard ->maturity and other options.
-$module->displayversion = 'Unstable development version (use at own risk)';
+&lsquo;Manually marking discussions read&rsquo; leaves posts marked as unread until you click &lsquo;Mark discussion read&rsquo;.
+
+This option applies to all forums on the system.';
+$string['pluginname'] = 'סימון הודעות אשר נקראו';

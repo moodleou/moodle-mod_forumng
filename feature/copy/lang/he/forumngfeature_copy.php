@@ -15,16 +15,21 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version.
- *
- * @package mod_forumng
- * @copyright 2012 The Open University
+ * Lang strings.
+ * @package forumngfeature
+ * @subpackage copy
+ * @copyright 2011 The Open University
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
-$module->version  = 2013091901;
-$module->requires = 2011120100;
-$module->cron     = 60;
-
-// Note: This should be replaced with standard ->maturity and other options.
-$module->displayversion = 'Unstable development version (use at own risk)';
+$string['copy_discussion'] = 'העתקה';
+$string['copy_info'] = 'To copy this discussion into another forum:<ol>
+<li>Click <strong>Begin copy</strong> to confirm this form.</li>
+<li>Go to the forum that you want to copy it into. (This may be the same forum,
+perhaps in a different group; a different forum on the same course; or a
+forum on a different course.)</li>
+<li>Click <strong>Paste discussion</strong> to finish the copy, or
+the <strong>Cancel</strong> button alongside if you change your mind.</li>
+</ol>';
+$string['copy_begin'] = 'תחילת העתקה';
+$string['copy_title'] = 'העתקת דיון';
+$string['pluginname'] = 'העתקת דיון';
