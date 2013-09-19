@@ -212,7 +212,7 @@ M.mod_forumng = {
 
         // Get post id listed as URL anchor, if any (initial run only)
         var expandposts = new Object;
-        if (this.Y.Node.getDOMNode(node) == document) {
+        if (this.Y.Node.getDOMNode(node) == document || node.get('id') == 'forumng-main') {
             // Post from location bar
             if (window.location.hash) {
                 var match = window.location.hash.match(/p([0-9]+)$/);
