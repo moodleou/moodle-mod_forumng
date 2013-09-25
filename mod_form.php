@@ -40,6 +40,11 @@ class mod_forumng_mod_form extends moodleform_mod {
         // If this is a clone, don't show the normal form
         if ($this->clone) {
             $mform->addElement('hidden', 'name', $forumng->name);
+            if (!empty($CFG->formatstringstriptags)) {
+                $mform->setType('name', PARAM_TEXT);
+            } else {
+                $mform->setType('name', PARAM_NOTAGS);
+            }
             $mform->addElement('static', 'sharedthing', '', get_string(
                     'sharedinfo', 'forumng',
                     $CFG->wwwroot . '/course/modedit.php?update=' .
@@ -56,7 +61,7 @@ class mod_forumng_mod_form extends moodleform_mod {
         if (!empty($CFG->formatstringstriptags)) {
             $mform->setType('name', PARAM_TEXT);
         } else {
-            $mform->setType('name', PARAM_CLEAN);
+            $mform->setType('name', PARAM_NOTAGS);
         }
         $mform->addRule('name', null, 'required', null, 'client');
         $mform->addRule('name', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
@@ -86,6 +91,7 @@ class mod_forumng_mod_form extends moodleform_mod {
             // Hidden element contains default value (not used anyhow)
             $mform->addElement('hidden', 'subscription',
                 mod_forumng::SUBSCRIPTION_PERMITTED);
+            $mform->setType('subscription', PARAM_INT);
         }
 
         // Max size of attachments
@@ -244,6 +250,7 @@ class mod_forumng_mod_form extends moodleform_mod {
                 $sharegroup = array();
                 $sharegroup[] = $mform->createElement('checkbox', 'useshared', '');
                 $sharegroup[] = $mform->createElement('text', 'originalcmidnumber', '');
+                $mform->setType('usesharedgroup[originalcmidnumber]', PARAM_RAW);
                 $mform->addGroup($sharegroup, 'usesharedgroup',
                         get_string('useshared', 'forumng'));
                 $mform->disabledIf('usesharedgroup[originalcmidnumber]',
