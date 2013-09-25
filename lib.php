@@ -283,8 +283,12 @@ function forumng_print_overview($courses, &$htmlarray) {
 
     foreach ($courses as $course) {
         $str = "";
-        $forums = mod_forumng::get_course_forums($course,
-                $USER->id, mod_forumng::UNREAD_DISCUSSIONS);
+        $forums = array();
+        // Read tracking is for real users only.
+        if (mod_forumng::enabled_read_tracking() && !isguestuser() && isloggedin()) {
+            $forums = mod_forumng::get_course_forums($course,
+                    $USER->id, mod_forumng::UNREAD_DISCUSSIONS);
+        }
         if (!empty($forums)) {
             foreach ($forums as $forum) {
                 // note like all mymoodle, there's no check current user can see each forum
