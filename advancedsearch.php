@@ -49,7 +49,7 @@ class advancedsearch_form extends moodleform {
 
         // Author name or OUCU to be filtered.
         $mform->addElement('text', 'author', get_string('authorname', 'forumng'), 'size="40"');
-        $mform->setType('author', PARAM_ALPHANUMTEXT);
+        $mform->setType('author', PARAM_ALPHANUMEXT);
 
         // Date range_from to be filtered
         $mform->addElement('date_time_selector', 'datefrom',
