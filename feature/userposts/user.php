@@ -37,7 +37,7 @@ $cloneid = optional_param('clone', 0, PARAM_INT);
 $download = optional_param('download', '', PARAM_TEXT);
 
 $student = false;
-$groupid = 0;
+$groupid = -1;
 
 $pageparams = array('id' => $cmid, 'user'=>$userid, 'download' => $download);
 if ($cloneid) {
