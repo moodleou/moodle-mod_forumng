@@ -745,7 +745,14 @@ WHERE
      */
     public function get_num_unread_discussions() {
         if (!isset($this->forumfields->numunreaddiscussions)) {
-            throw new coding_exception('Unread discussion count not obtained');
+            //throw new coding_exception('Unread discussion count not obtained');
+            $list = $this->get_discussion_list();
+            $normal = $list->get_normal_discussions();
+            $discussioncount = 0;
+            foreach ($normal as $discussion) {
+                $discussioncount += $discussion->get_num_unread_posts();
+            }
+            return $discussioncount;
         }
         return $this->forumfields->numunreaddiscussions;
     }
