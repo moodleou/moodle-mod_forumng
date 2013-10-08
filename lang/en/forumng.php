@@ -330,6 +330,7 @@ Module: {$a->course}<br/>
 <br/>
 <a href="{$a->deleteurl}" title="view deleted post">View the discussion</a>';
 $string['copytoself'] = 'Send a copy to yourself';
+$string['includepost'] = 'Include post';
 $string['deletedforumpost'] = 'Your post has been deleted';
 $string['emailerror'] = 'There was an error sending the email';
 $string['sendanddelete'] = 'Send and delete';

@@ -42,8 +42,12 @@ class mod_forumng_deletepost_form extends moodleform {
         // Send a copy to self.
         $mform->addElement('checkbox', 'copyself', get_string('copytoself', 'forumng'));
 
+        // Include a copy of the post.
+        $mform->addElement('checkbox', 'includepost', get_string('includepost', 'forumng'));
+
         // Keep the expand status.
         $mform->addElement('hidden', 'expand', $expand);
+        $mform->setType('expand', PARAM_INT);
 
         // add some buttons
         $this->add_action_buttons(true, get_string('sendanddelete', 'forumng'));

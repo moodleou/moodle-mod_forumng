@@ -120,6 +120,10 @@ if ($email) {
         redirect('discuss.php?' . $discussion->get_link_params(mod_forumng::PARAM_PLAIN) . $expandparam);
 
     } else if ($mform->is_submitted()) {
+        // Store copy of the post for the author.
+        $messagepost = $post->display(true, array(mod_forumng_post::OPTION_NO_COMMANDS => true,
+                mod_forumng_post::OPTION_SINGLE_POST => true));
+
         // Delete the post
         $post->delete();
 
@@ -127,6 +131,7 @@ if ($email) {
         $submitted = $mform->get_data();
         $messagetext = $submitted->message['text'];
         $copyself = (isset($submitted->copyself))? true : false;
+        $includepost = (isset($submitted->includepost))? true : false;
         $user = $post->get_user();
         $from = $SITE->fullname;
         $subject = get_string('deletedforumpost', 'forumng');
@@ -134,6 +139,11 @@ if ($email) {
         // Always send HTML version
         $user->mailformat = 1;
         $messagehtml = $out->deletion_email(text_to_html($messagetext));
+
+        // Include the copy of the post in the email to the author.
+        if ($includepost) {
+            $messagehtml .= $messagepost;
+        }
 
         // send an email to the author of the post
         if (!email_to_user($user, $from, $subject, '', $messagehtml)) {
@@ -169,8 +179,8 @@ if ($email) {
     $emailmessage->lastname = $USER->lastname;
     $emailmessage->course = $COURSE->fullname;
     $emailmessage->forum = $post->get_forum()->get_name();
-    $emailmessage->deleteurl = $CFG->wwwroot . '/mod/forumng/discuss.php?d=' .
-                                $discussion->get_id();
+    $emailmessage->deleteurl = $CFG->wwwroot . '/mod/forumng/discuss.php?' .
+            $discussion->get_link_params(mod_forumng::PARAM_PLAIN);
     $formdata = new stdClass;
 
     // Use the plain
