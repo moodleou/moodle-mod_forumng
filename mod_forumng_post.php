@@ -69,6 +69,10 @@ class mod_forumng_post {
     /** Constant indicating that post is not rated by user */
     const NO_RATING = 999;
 
+    const OPTION_INDICATE_MODERATOR = 'indicate_moderator';
+    const OPTION_IS_ANON = 'is_anon';
+    const OPTION_VIEW_ANON_INFO = 'view_anon';
+
     // Object variables and accessors
     // Comment.
 
@@ -980,14 +984,16 @@ ORDER BY
      * @param bool $mailnow If true, sends mail ASAP
      * @param int $userid User ID (0 = current)
      * @param bool $log True to log this reply
+     * @param int $asmoderator values are ASMODERATOR_NO, ASMODERATOR_IDENTIFY or ASMODERATOR_ANON
      * @return int ID of newly-created post
      */
     public function reply($subject, $message, $messageformat,
-        $attachments=false, $setimportant=false, $mailnow=false, $userid=0, $log=true) {
+        $attachments=false, $setimportant=false, $mailnow=false, $userid=0, $log=true,
+        $asmoderator = mod_forumng::ASMODERATOR_NO) {
         global $DB;
         $transaction = $DB->start_delegated_transaction();
         $id = $this->discussion->create_reply($this, $subject, $message, $messageformat,
-                $attachments, $setimportant, $mailnow, $userid);
+                $attachments, $setimportant, $mailnow, $userid, $asmoderator);
         if ($log) {
             $this->log('add reply', $id);
         }
@@ -1107,11 +1113,12 @@ ORDER BY
      * @param bool $setimportant If true, highlight the post
      * @param bool $mailnow New value of mailnow flag (ignored if message was already mailed)
      * @param int $userid Userid doing the editing (0 = current)
+     * @param int $asmoderator values are ASMODERATOR_NO, ASMODERATOR_IDENTIFY or ASMODERATOR_ANON
      * @return bool True if subject changed (this is weird, but edit_finish
      *   needs it)
      */
     public function edit_start($subject, $attachments=false, $setimportant=false,
-            $mailnow=false, $userid=0, $log=true) {
+            $mailnow=false, $userid=0, $log=true, $asmoderator = mod_forumng::ASMODERATOR_NO) {
         global $DB;
         $now = time();
 
@@ -1173,6 +1180,7 @@ ORDER BY
         $update->edituserid = mod_forumng_utils::get_real_userid($userid);
 
         $update->id = $this->postfields->id;
+        $update->asmoderator = $asmoderator;
         $DB->update_record('forumng_posts', $update);
 
         if ($log) {
@@ -1891,6 +1899,13 @@ WHERE
         }
     }
 
+    /**
+     * @return bool asmoderator, null returned as ASMODERATOR_NO
+     */
+    public function get_asmoderator() {
+        return is_null($this->postfields->asmoderator)
+                ? mod_forumng::ASMODERATOR_NO : $this->postfields->asmoderator;
+    }
 
     // Email
     // ////.
@@ -2185,6 +2200,31 @@ WHERE
         }
         if (!array_key_exists(self::OPTION_UNREAD_NOT_HIGHLIGHTED, $options)) {
             $options[self::OPTION_UNREAD_NOT_HIGHLIGHTED] = false;
+        }
+        if (!array_key_exists(self::OPTION_IS_ANON, $options)) {
+            if (self::get_asmoderator() == mod_forumng::ASMODERATOR_ANON &&
+                    $this->get_forum()->get_can_post_anon()) {
+                $options[self::OPTION_IS_ANON] = true;
+                $options[self::OPTION_INDICATE_MODERATOR] = true;
+            } else {
+                $options[self::OPTION_IS_ANON] = false;
+                $options[self::OPTION_INDICATE_MODERATOR] = false;
+            }
+        }
+        if (self::get_asmoderator() == mod_forumng::ASMODERATOR_IDENTIFY) {
+            $options[self::OPTION_INDICATE_MODERATOR] = true;
+        } else {
+            $options[self::OPTION_INDICATE_MODERATOR] = false;
+        }
+        if ($options[self::OPTION_IS_ANON] == true ||
+                $options[self::OPTION_INDICATE_MODERATOR] == true) {
+            if (!array_key_exists(self::OPTION_VIEW_ANON_INFO, $options)) {
+                if ($this->get_forum()->can_post_anonymously()) {
+                    $options[self::OPTION_VIEW_ANON_INFO] = true;
+                } else {
+                    $options[self::OPTION_VIEW_ANON_INFO] = false;
+                }
+            }
         }
 
         // Get forum type to do actual display

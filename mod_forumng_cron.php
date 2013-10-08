@@ -287,6 +287,12 @@ $mainquery", $mainparams);
                                         $emailtype & 2, $emailtype & 4, $lang,
                                         $timezone);
 
+                                    if ($post->get_asmoderator() == mod_forumng::ASMODERATOR_ANON) {
+                                        $from->maildisplay = false;
+                                        $from->firstname = get_string('moderator', 'forumng');
+                                        $from->lastname = '';
+                                    }
+
                                     $beforemail = microtime(true);
                                     if ($CFG->forumng_usebcc) {
                                         // Use BCC to send all emails at once

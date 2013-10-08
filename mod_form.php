@@ -107,6 +107,8 @@ class mod_forumng_mod_form extends moodleform_mod {
             array('size'=>48));
         $mform->setType('reportingemail', PARAM_NOTAGS);
         $mform->addHelpButton('reportingemail', 'reportingemail', 'forumng');
+        $mform->addElement('checkbox', 'canpostanon', get_string('canpostanon', 'forumng'));
+        $mform->addHelpButton('canpostanon', 'canpostanon', 'forumng');
         // Atom/RSS feed on/off/discussions-only
         if ($CFG->enablerssfeeds && !empty($CFG->forumng_enablerssfeeds)) {
             if ($CFG->forumng_feedtype == -1 || $CFG->forumng_feeditems == -1) {
@@ -445,6 +447,10 @@ class mod_forumng_mod_form extends moodleform_mod {
         // Set the reportingemail to null if empty so that they are consistency
         if (empty($data->reportingemail)) {
             $data->reportingemail = null;
+        }
+        // Set the canpostanon to 0 if empty so that they are consistency
+        if (empty($data->canpostanon)) {
+            $data->canpostanon = 0;
         }
         // Set the removeto to null if the default option 'Delete permanently' was select
         if (empty($data->removeto)) {

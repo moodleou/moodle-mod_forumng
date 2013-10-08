@@ -178,7 +178,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
      */
     public function render_discussion_list_item(mod_forumng_discussion $discussion,
             $groupid, $last) {
-        global $CFG;
+        global $CFG, $USER;
         $showgroups = $groupid == mod_forumng::ALL_GROUPS;
 
         // Work out CSS classes to use for discussion
@@ -242,14 +242,43 @@ class mod_forumng_renderer extends plugin_renderer_base {
                 format_string($discussion->get_subject(), true, $courseid) . "</a></td>";
 
         // Author
+        $posteranon = $discussion->get_poster_anon();
         $poster = $discussion->get_poster();
-        $picture = $this->user_picture($poster, array('courseid' => $courseid));
+        $lastposteranon = $discussion->get_last_post_anon();
+        $userimage = $this->user_picture($poster, array('courseid' => $courseid));
+        $defaultimage = html_writer::empty_tag('img',
+                array('src' => $this->pix_url('u/f2'), 'alt' => ''));
         if ($discussion->get_forum()->is_shared()) {
             // Strip course id if shared forum.
-            $picture = str_replace('&amp;course=' . $courseid, '', $picture);
+            $userimage = str_replace('&amp;course=' . $courseid, '', $userimage);
         }
-        $result .= "<td class='forumng-startedby cell c1'>" .
-            $picture . $discussion->get_forum()->display_user_link($poster) . "</td>";
+
+        $result .= "<td class='forumng-startedby cell c1'>";
+        $wrapper = html_writer::start_tag('div', array('class'=>'forumng-startedby-wrapper'));
+        $user = $discussion->get_forum()->display_user_link($poster);
+        $br = html_writer::empty_tag('br', array());
+        $moderator = get_string('moderator', 'forumng');
+        $userpicture = html_writer::tag('div', $userimage,
+                array('class' => 'forumng-startedbyimage'));
+        $defaultpicture = html_writer::tag('div', $defaultimage,
+                array('class' => 'forumng-startedbyimage'));
+        $userlink = html_writer::tag('div', $user ,
+                array('class' => 'forumng-startedbyuser'));
+        $moderated = html_writer::tag('div', $moderator,
+                array('class' => 'forumng-moderator'));
+        $endwrapper = html_writer::end_tag('div');
+        if ($posteranon == mod_forumng::ASMODERATOR_IDENTIFY) {
+            $startedby = $userpicture . $wrapper . $userlink . $moderated;
+        } else if ($posteranon == mod_forumng::ASMODERATOR_ANON) {
+            if ($discussion->get_forum()->can_post_anonymously()) {
+                $startedby = $userpicture . $wrapper . $userlink .  $moderated;
+            } else {
+                $startedby = $defaultimage . $moderator;
+            }
+        } else {
+            $startedby = $userimage . $user;
+        }
+        $result .= $startedby . $endwrapper . "</td>";
 
         $num = 2;
 
@@ -289,15 +318,25 @@ class mod_forumng_renderer extends plugin_renderer_base {
             $result .= '</td>';
             $num = 4;
         }
+        // Update last post user profile link.
+        // Last post.
+        $result .= '<td class="cell c' . $num .' lastcol forumng-lastpost">';
+        $lastposter = $discussion->get_last_post_user();
+        $lastuserlink = $discussion->get_forum()->display_user_link($lastposter);
+        $timestr = mod_forumng_utils::display_date($discussion->get_time_modified());
+        if ($lastposteranon == mod_forumng::ASMODERATOR_IDENTIFY) {
+            $lastpostcell =  $timestr . $br . $lastuserlink . $br . $moderator;
+        } else if ($lastposteranon == mod_forumng::ASMODERATOR_ANON) {
+            if ($discussion->get_forum()->can_post_anonymously()) {
+                $lastpostcell = $timestr . $br . $lastuserlink .$br . $moderator;
+            } else {
+                $lastpostcell = $timestr .$br . $moderator;
+            }
+        } else {
+            $lastpostcell = $timestr . $br . $lastuserlink;
+        }
 
-        // Last post
-        $last = $discussion->get_last_post_user();
-
-        $result .= '<td class="cell c' . $num .' lastcol forumng-lastpost">' .
-            mod_forumng_utils::display_date($discussion->get_time_modified()) . "<br/>" .
-            $discussion->get_forum()->display_user_link($last) . "</td>";
-
-        $result .= "</tr>";
+        $result .= $lastpostcell . "</td></tr>";
         return $result;
     }
 
@@ -797,6 +836,9 @@ class mod_forumng_renderer extends plugin_renderer_base {
                 $post->is_unread()) ? ' forumng-unread' : ' forumng-read';
             $classes .= $post->get_deleted() ? ' forumng-deleted' : '';
             $classes .= ' forumng-p' .$postnumber;
+            if ($options[mod_forumng_post::OPTION_INDICATE_MODERATOR] == true) {
+                $classes .= ' forumng-imoderator';
+            }
             $out .= $lf . '<div class="forumng-post' . $classes . '">' .
                     '<div class="post-deco"><div class="post-deco-bar"></div></div><a id="p' .
                     $post->get_id() . '"></a>';
@@ -867,9 +909,14 @@ class mod_forumng_renderer extends plugin_renderer_base {
         if ($html && !$export && $options[mod_forumng_post::OPTION_USER_IMAGE]) {
             $out .= $lf . html_writer::start_tag('div', array('class' => 'forumng-pic'));
 
-            // User picture
-            $out .= $deletedhide ? '' : $post->display_user_picture();
-
+            // User picture.
+            if (!$options[mod_forumng_post::OPTION_IS_ANON]) {
+                    $out .= $deletedhide ? '' : $post->display_user_picture();
+            } else {
+                if ($options[mod_forumng_post::OPTION_VIEW_ANON_INFO]) {
+                    $out .= $deletedhide ? '' : $post->display_user_picture();
+                }
+            }
             // Group pictures if any - only for expanded version
             if ($expanded) {
                 $grouppics = $post->display_group_pictures();
@@ -903,13 +950,23 @@ class mod_forumng_renderer extends plugin_renderer_base {
             get_string('important', 'forumng') . '" ' .
             'title = "' . get_string('important', 'forumng') . '"/>' : '';
             if ($export) {
-                $out .=  $by->name;
+                if (!$options[mod_forumng_post::OPTION_IS_ANON]) {
+                    $out .=  $by->name;
+                }
             } else {
-                $out .= '<a href="' . $CFG->wwwroot . '/user/view.php?id=' .
-                    $post->get_user()->id .
-                    ($post->get_forum()->is_shared() ? '' : '&amp;course=' .
-                    $post->get_forum()->get_course_id()) .
-                    '">' . $by->name . '</a>';
+                if (!$options[mod_forumng_post::OPTION_IS_ANON]) {
+                    $out .= '<a href="' . $CFG->wwwroot . '/user/view.php?id=' .
+                        $post->get_user()->id .
+                        ($post->get_forum()->is_shared() ? '' : '&amp;course=' .
+                        $post->get_forum()->get_course_id()) .
+                        '">' . $by->name . '</a>';
+                }
+            }
+            if ($options[mod_forumng_post::OPTION_IS_ANON] ||
+                    $options[mod_forumng_post::OPTION_INDICATE_MODERATOR]) {
+                $moderator = get_string('moderator', 'forumng');
+                $out .= html_writer::tag('div', get_string('moderator', 'forumng'),
+                        array('class' => 'forumng-moderator-flag'));
             }
             if ($postnumber) {
                 if ($options[mod_forumng_post::OPTION_VISIBLE_POST_NUMBERS]) {
@@ -921,27 +978,32 @@ class mod_forumng_renderer extends plugin_renderer_base {
             }
             $out .= $deletedhide ? '' : '</h2> <span class="forumng-separator">&#x2022;</span> ';
             $out .= '<span class="forumng-date">' . $by->date . '</span>';
-            if ($edituser = $post->get_edit_user()) {
-                $out .= ' <span class="forumng-separator">&#x2022;</span> ' .
-                    '<span class="forumng-edit">';
-                $edit = new stdClass;
-                $edit->date = userdate($post->get_modified(),
-                    get_string('strftimedatetime', 'langconfig'),
-                    $options[mod_forumng_post::OPTION_TIME_ZONE]);
-                $edit->name = fullname($edituser,
-                    $options[mod_forumng_post::OPTION_VIEW_FULL_NAMES]);
-                if ($edituser->id == $post->get_user()->id) {
-                    $out .= get_string('editbyself', 'forumng', $edit->date);
-                } else {
-                    $out .= get_string('editbyother', 'forumng', $edit);
+            // Should not show editing user info, if poster is anonymous and
+            // current user can�t view anonymous info .
+            if ((($options[mod_forumng_post::OPTION_IS_ANON] && $discussion->get_forum()->can_post_anonymously()) ||
+                    $options[mod_forumng_post::OPTION_INDICATE_MODERATOR])  ||
+                    (!$options[mod_forumng_post::OPTION_IS_ANON] && !$email)) {
+                if ($edituser = $post->get_edit_user()) {
+                    $out .= ' <span class="forumng-separator">&#x2022;</span> ' .
+                            '<span class="forumng-edit">';
+                    $edit = new stdClass;
+                    $edit->date = userdate($post->get_modified(),
+                            get_string('strftimedatetime', 'langconfig'),
+                            $options[mod_forumng_post::OPTION_TIME_ZONE]);
+                    $edit->name = fullname($edituser,
+                            $options[mod_forumng_post::OPTION_VIEW_FULL_NAMES]);
+                    if ($edituser->id == $post->get_user()->id) {
+                        $out .= get_string('editbyself', 'forumng', $edit->date);
+                    } else {
+                        $out .= get_string('editbyother', 'forumng', $edit);
+                    }
+                    if ($options[mod_forumng_post::OPTION_COMMAND_HISTORY]) {
+                        $out .= ' (<a href="history.php?' .
+                                $post->get_link_params(mod_forumng::PARAM_HTML) . '">' .
+                                get_string('history', 'forumng') . '</a>)';
+                    }
+                    $out .= '</span>';
                 }
-
-                if ($options[mod_forumng_post::OPTION_COMMAND_HISTORY]) {
-                    $out .= ' (<a href="history.php?' .
-                            $post->get_link_params(mod_forumng::PARAM_HTML) . '">' .
-                            get_string('history', 'forumng') . '</a>)';
-                }
-                $out .= '</span>';
             }
             if ($options[mod_forumng_post::OPTION_SELECTABLE]) {
                 $out .= '<span class="forumng-separator"> &#x2022; </span>' .
@@ -996,6 +1058,15 @@ class mod_forumng_renderer extends plugin_renderer_base {
                 $out .= get_string('deletedbyuser', 'forumng', $a);
             }
             $out .= '</p>';
+        }
+
+        if ($options[mod_forumng_post::OPTION_IS_ANON] &&
+                $options[mod_forumng_post::OPTION_VIEW_ANON_INFO] && !$email) {
+            $a = html_writer::link(new moodle_url('/user/view.php', array(
+                'id' => $post->get_user()->id,
+                'course' => $post->get_forum()->get_course_id())),
+                fullname($post->get_user(), $options[mod_forumng_post::OPTION_VIEW_FULL_NAMES]));
+            $out .= get_string('createdbymoderator', 'forumng', $a);
         }
 
         // Get subject. This may make a db query when showing a single post

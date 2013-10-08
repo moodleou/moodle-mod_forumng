@@ -341,7 +341,7 @@ class mod_forumng_utils {
             'intro', 'ratingscale', 'ratingfrom', 'ratinguntil', 'grading',
             'attachmentmaxbytes', 'reportingemail', 'subscription', 'feedtype', 'feeditems',
             'maxpostsperiod', 'maxpostsblock', 'postingfrom', 'postinguntil',
-            'typedata', 'magicnumber', 'originalcmid', 'shared'), $alias);
+            'typedata', 'magicnumber', 'originalcmid', 'shared', 'canpostanon'), $alias);
     }
 
     /**
@@ -364,7 +364,7 @@ class mod_forumng_utils {
         return self::select_fields(array('id', 'discussionid', 'parentpostid',
             'userid', 'created', 'modified', 'deleted', 'important', 'mailstate',
             'oldversion', 'edituserid', 'subject', 'message', 'messageformat',
-            'attachments'), $alias);
+            'attachments', 'asmoderator'), $alias);
     }
 
     // SQL generic helpers

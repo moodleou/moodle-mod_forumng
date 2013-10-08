@@ -1,0 +1,609 @@
+This script describes steps to test the moderator facility from the moderator and student user
+perspective. It is intended to cover most of the UI and features.
+
+NOTE: In this test case, the word 'forum' always refers to the OU ForumNG.
+
+The test steps in this script follow on from each other and aren't independent.
+
+
+Initial setup
+=============
+
+See testcase.txt for a description of the format of these tests.
+This test deals with the forum user interface, only these instructions will be required.
+
+Only two fora are required. A number of discussions will need to be setup, as follows:
+
+Moderator not enabled discussion, a discussion containing post replies.
+Moderator enabled discussion containing post replies.
+
+Users and groups
+----------------
+
+U.S1 - student 1. Ensure the user profile 'Email digest type' is set to
+'Complete (daily email with full posts)'.
+U.ET - editing teacher, not in a group.
+Ensure that the email account for each user is accessible during testing.
+
+The test script also refers to the user 'Admin' (the Admin user).
+Ensure that each user has a Profile Picture too.
+
+
+CRE Creating ForumNG
+====================
+
+CRE01 / Admin
+   In course week one, from the add activity dropdown, choose 'ForumNG'.
+   Leave all settings as default except name and introduction,
+   as name enter 'F.AMNE', and introduction enter,
+   'Anonymous Moderation not enabled. No anonymous moderator posts, but Moderators should be flagged.'.
+-  Confirm that the General form contains a check box 'Enable anonymous moderator posts', with help.
+   Click 'Save and display' and return to the new course forum.
+-  Confirm creation of new empty forum with the introduction as entered above.
+
+Return to course main page.
+
+CRE02 / Admin
+   In course week one, from the add activity dropdown, choose 'ForumNG'.
+   Leave all settings as default except name and introduction
+   as name  enter 'F.AME' and as introduction enter,
+   'Anonymous Moderation is enabled. Moderators may post anonymously, but should be flagged.'.
+-  Confirm that the General form contains a check box 'Enable anonymous moderator posts', with help.
+   Click the check box to 'Enable anonymous moderator posts'.
+   Click 'Save and display' and return to the new course forum.
+-  Confirm creation of new empty forum with the introduction as entered above.
+
+Return to course main page.
+
+BUN Basic usage
+===============
+
+BUN01 / U.ET
+   Enter the course and click to enter forum 'F.AMNE'.
+-  Verify that there is a 'Start a new discussion' button, with text beneath,
+   'There are no discussions in this forum yet.'
+
+BUN02 / U.ET
+   Click the 'Start a new discussion' button.
+-  You should be taken to a new page with a form for starting a discussion.
+-  Confirm that 'Post as', is available as the last option on this page, and that
+   the drop down options are 'Standard Post', and 'Identify self as moderator'.
+
+BUN03 / U.ET
+   Type 'F.AMNE Teacher UET discussion 1 BUN03' in subject and add the message
+   'BUN03 This is the first standard post by Teacher UET.',
+   hit the 'Post discussion' button.
+-  Verify that you are taken to the new discussion page and your message is shown.
+
+BUN04 / U.ET
+   Click the 'Reply' link beneath the first message.
+   Enter 'Moderating Teacher, standard post BUN04' as subject and the message text
+   'BUN04 Teacher added as a standard post with one other choice.',
+   hit the 'Post reply' button.
+-  Verify that you are returned to the discussion page showing your reply.
+   You should have one discussion post and your reply post appearing, each with a standard
+   user description block to the left of the post.
+
+BUN05 / U.ET
+   Click the 'Reply' link beneath your original message.
+   Enter 'Teacher identifing self as moderator post BUN05' as subject and the message text
+   'BUN05 Teacher added a reply post as moderator with one other choice.'
+   In the 'Post as' selector choose the second option, 'Identify self as moderator',
+   hit the 'Post reply' button.
+-  You should have one discussion and two replys appearing.
+-  Verify that the second reply BUN05 identifying the U.ET teacher as moderator has the addition
+   of 'Moderator' to the user description block to the left of the post.
+
+Return to the forumng view page.
+
+BUN06 / U.ET
+-  Confirm that the main page discussion list shows that the discussion entry under 'Started by'
+   has a User image icon and that the teacher name is visible.
+-  Confirm that the 'Last post' entry is dated and that the U.ET teacher name is visible,
+   as is the text flag 'Moderator'.
+
+BUN07 / U.ET
+   Click the 'Start a new discussion' button.
+-  You should be taken to a new page with a form for starting a discussion.
+
+BUN08 / U.ET
+   Enter 'F.AMNE Teacher UET discussion 2 BUN08' in subject and the message
+   'BUN08 This is the second discussion posted by Teacher UET, identifing self as moderator post.
+   Teacher added this post as moderator with one other choice.'
+   In the 'Post as' selector choose the second option, 'Identify self as moderator'
+   and hit the 'Post discussion' button.
+-  Verify that you are taken to the new discussion page and your message is shown.
+-  Verify the addition of 'Moderator' to the user description block to the left of the post.
+
+BUN09 / U.ET
+   Click the 'Reply' link beneath this message.
+   Enter 'Moderating Teacher, standard post BUN09' as subject and the message text
+   'BUN09 Teacher added as a standard post with one other choice.',
+   hit the 'Post reply' button.
+-  Verify that you are returned to the discussion page showing your reply.
+   You should have one discussion and your reply appearing.
+
+BUN10 / U.ET
+   Click the 'Reply' link beneath this second message BUN09.
+   Enter 'Teacher identifing self as moderator post BUN10' as subject and the message text
+   'BUN10 Teacher added a reply post as moderator with one other choice.'
+   In the 'Post as' selector choose the second option, 'Identify self as moderator',
+   hit the 'Post reply' button.
+-  You should have one discussion post and two post replies appearing.
+-  Verify that this second reply identifying the teacher as moderator has the addition of 'Moderator'
+   to the user description block to the left of the post.
+
+Return to the forumng view page.
+
+BUN11 / U.ET
+-  Confirm that the main page discussion list shows that each discussions entry under 'Started by'
+   has a image icon and that the user name is visible, and that 'discussion 2 BUN08'
+   also has 'Moderator' after the username.
+-  Confirm that the 'Teacher UET discussion 2 BUN08' discussion's 'Last post' entry is dated and that
+   both user name and the 'Moderator' flag are visible.
+
+BUN12 / US.1 [Change]
+   Go to the course and click to enter into 'F.AMNE'.
+-  Verify that there is a 'Start discussion' button and two discussions started by teacher uet.
+-  Confirm that the main page discussion list shows that each discussions entry under 'Started by'
+   has an image icon and that the user name is visible.
+-  Confirm that 'discussion 2 BUN08' also has 'Moderator' after the user name.
+-  Confirm that the 'Last post' entries are dated and that the user name is also visible as is
+   the 'Moderator' flag.
+
+BUN13 / US.1
+   Click the 'Start a new discussion' button.
+-  You should be taken to a new page with a form for starting a discussion.
+-  Confirm that 'Attachments' is the last option on this page.
+-  Confirm that there is no 'Post as' selector available to students.
+
+BUN14 / US.1
+   Type 'Student non moderator discussion 1 BUN14' in subject and a message text
+   'BUN14 Student added as standard post with no other options.', and then
+   hit the 'Post discussion' button.
+-  Verify that you are taken to the new discussion page and your message is shown,
+   with a standard user description block to the left of the post.
+
+Return to forum main page.
+
+BUN15 / US.1
+   Click to enter discussion 'F.AMNE Teacher UET discussion 1 BUN03'.
+-  Confirm that only the third post 'Teacher identifing self as moderator post BUN05'
+   is identified as being from a moderator in the user details block to the left of the post.
+
+BUN16 / US.1
+   Click reply beneath this single moderator post.
+-  Confirm that the post entry form does not offer the student the 'Post as' option selector.
+   Enter the post subject as 'Student 1 reply to moderator post BUN16'.
+   Enter the message as 'BUN16 Student added as standard post with no other choices.',
+   hit the 'Post reply' button.
+-  Verify that you are returned to the discussion page showing your reply in the correct location.
+
+Return to forum main page.
+
+BUN17 / US.1
+-  Confirm that the main page discussion list shows that each discussions entry under 'Started by'
+   has a image icon and that the user name is visible.
+-  Confirm that 'discussion 2 BUN08' also has 'Moderator' after the user name.
+-  Confirm that the 'Last post' entries are dated and that the user name is also visible.
+-  Verify that the 'Last post' entry against 'discussion 1 BUN03' is the student user name.
+-  Verify that the 'Last post' entry against 'discussion 2 BUN08' is the uet user flagged as 'Moderator'.
+
+BUN18 / US.1
+   Click the 'Subscribe' button to ensure that test student user recieves the
+   Email digest complete with full posts.
+
+Return to course main page.
+
+BUM Basic usage anonymous moderated
+===================================
+
+BUM01 / U.ET [Change]
+   Enter the course and click into forum 'F.AME'.
+-  Confirm that the introduction is 'Anonymous Moderation is enabled. Moderators may post anonymously,
+   but should be flagged.'
+-  Verify that there is a 'Start a new discussion' button, with text beneath,
+   'There are no discussions in this forum yet.'
+
+BUM02 / U.ET
+   Click the 'Start a new discussion' button.
+-  You should be taken to a new page with a form for starting a discussion.
+-  Confirm that 'Post as', is available as the last option on this page, and that
+   the drop down options are 'Standard Post', 'Identify self as moderator' and
+   'Post anonymously as moderator'.
+
+BUM03 / U.ET
+   Type 'F.AME Teacher UET anonymous moderator discussion 1 BUM03' in subject and a message
+   'BUM03 This is the first moderator post by Teacher UET.'
+   In the 'Post as' selector choose the second option, 'Identify self as moderator' and
+   hit the 'Post discussion' button.
+-  Verify that you are taken to the new discussion page and your message is shown.
+-  Verify that the user description block to the left of the post contains the text 'Moderator'
+   beneath the teacher name.
+
+BUM04 / U.ET
+   Click the 'Reply' link beneath this first moderator discussion post.
+   Enter 'Moderating Teacher, standard post BUM04' as subject and the message text
+   'Teacher added as a standard post but with two other choices BUM04.',
+   hit the 'Post reply' button.
+-  Verify that you are returned to the discussion page showing your reply.
+   You should have one discussion post and one reply post appearing.
+-  Verify that the user description block to the left of the post second does not contain 'Moderator'
+   beneath the uet teacher name.
+
+BUM05 / U.ET
+   Click the 'Reply' link beneath your original post.
+   Enter 'Anonymous Teacher moderator posting 1 BUM05' as subject and the message text
+   'Teacher added a reply post as anonymous moderator but had two other choices BUM05.'
+   In the 'Post as' selector choose the third option, 'Post anonymously as moderator' and
+   hit the 'Post reply' button.
+-  You should have one discussion post and two post replies appearing.
+-  Verify that the last post begins with the line 'This is an anoymous post created by moderator uet username.'
+-  Verify that this second reply identifying the poster as an anonymous moderator has
+   only the user image icon, the text 'Moderator' and the date in the user description block
+   to the left of this post.
+
+Return to the forumng view page.
+
+BUM06 / U.ET
+-  Confirm that the forum view discussion list shows that the discussion entry under 'Started by'
+   has a user image and that the teacher name is visible with the text 'Moderator' beneath.
+-  Confirm that the 'Last post' entry is dated and that the teacher name is also visible and
+   has the text 'Moderator' underneath.
+
+BUM07 / U.ET
+   Click the 'Start a new discussion' button.
+-  You should be taken to a new page with a form for starting a discussion.
+
+BUM08 / U.ET
+   Enter 'F.AME Teacher UET anonymous moderator discussion 2 BUM08' in subject and a message
+   'BUM08 This is the second discussion posted by Teacher UET, as an anonymous moderator.
+   The teacher added this post as moderator with two other choices.'
+   In the 'Post as' selector choose the third option, 'Post anonymously as moderator'
+   and hit the 'Post discussion' button.
+-  Verify that you are taken to the new discussion page and your message is shown.
+-  Verify the post begins with the line 'This is an anonymous post created by moderator uet username.'
+-  Verify that the post has the only the image icon, the text 'Moderator' and the date
+   in the user description block to the left of the post.
+
+BUM09 / U.ET
+   Click the 'Reply' link beneath this message post.
+   Enter 'Moderating Teacher, standard post BUM09' as subject and the message text
+   'BUM09 Teacher added as a standard post with two other choices.', and
+   hit the 'Post reply' button.
+-  Verify that you are returned to the discussion page showing your reply.
+   You should have one discussion post and your reply post appearing.
+-  Verify that the post has the image icon, the teacher name and the date
+   in the user description block to the left of the post.
+
+BUM10 / U.ET
+   Click the 'Reply' link beneath this second message post.
+   Enter 'Teacher identifing self as moderator post BUM10' as subject and the message text
+   'BUM10 Teacher added a reply post as moderator with two other choices.'
+   In the 'Post as' selector choose the second option, 'Identify self as moderator', and
+   hit the 'Post reply' button.
+-  You should have one discussion post and two post replies appearing.
+-  Verify that the second reply identifying the teacher as moderator has the addition of 'Moderator'
+   to the user description block to the left of the post.
+
+BUM11 / U.ET
+   Click the 'Reply' link beneath the original message.
+   Enter 'Teacher, standard post BUN11.' as subject and the message text
+   'Teacher added as a standard post with two other choices BUN11.',
+   hit the 'Post reply' button.
+-  Verify that you are returned to the discussion page showing your reply in the correct location.
+   You should have one discussion post and your three teacher reply posts appearing.
+
+BUM12 / U.ET
+   Click the 'Reply' link beneath this last message.
+   Enter 'Anonymous teacher as moderator post BUM12' as subject and the message text
+   'Teacher added a reply post as an anonymous moderator with two other choices BUM12.'
+   In the 'Post as' selector choose the third option, 'Post anonymously as moderator', and
+   hit the 'Post reply' button.
+-  Verify the post begins with the line 'This is an anoymous post created by moderator uet username.'
+-  Verify that the post has only the image icon, the text 'Moderator' and the date
+   in the user description to the left of the post.
+
+BUM13 / U.ET
+   Click 'Expand all posts'.
+   Click the 'Edit' link beneath the second message, 'Moderating Teacher, standard post BUM09'.
+   Add this text to the message. 'This message was edited by the teacher as part of test BUM13.'
+   hit the 'Save changes' button.
+-  Verify that the user description block to the left of the post, has been extended to include
+   'Edited by the author on' and the date, with a (History) link beneath.
+
+BUM14 / U.ET
+   Click the 'Edit' link beneath the original message, 'F.AME Teacher UET anonymous moderator discussion 2 BUM08'.
+   Add this text 'This message was edited by the teacher as part of test BUM14.' to the message,
+   hit the 'Save changes' button.
+-  Verify that the user description block to the left of the post, has been extended to include
+   'Edited by the author on' and the date, with a (History) link beneath.
+
+Return to the forumng view page.
+
+BUM15 / U.ET
+-  Confirm that the forum view page discussion list shows that each discussions entry under 'Started by'
+   has an image icon and that the user name is visible and that it is followed by 'Moderator'.
+-  Confirm that the 'Last post' entry is dated and that the user name is also visible, and that
+   it is also followed by the text 'Moderator' .
+
+Return to the course main page.
+
+BUM16 / US.1 [Change]
+   Go to the course and click into forum 'F.AME'
+-  Verify that the introduction is 'Anonymous Moderation is enabled. Moderators may post anonymously,
+   but should be flagged.'
+-  Verify that there is a 'Start discussion' button.
+-  Confirm that there are two entries in the discussion list.
+-  Confirm that in 'discussion 1 BUM03' 'Started by' has the uet teacher user image and user name
+   with the text 'Moderator' beneath it.
+-  Confirm that in 'discussion 2 BUM08' 'Started by' is a placeholder image and the text 'Moderator'.
+-  Verify that the 'Last post' entry against both discussions is just dated and the text 'Moderator'.
+
+BUM17 / US.1
+   Click to enter discussion 'F.AME Teacher UET anonymous moderator discussion 1 BUM03'.
+-  Confirm that the second post 'Moderating Teacher, standard post BUM04' is not identified as being
+   from a moderator in the user description block to the left of the post.
+
+BUM18 / US.1
+   Click 'Reply' beneath the last moderator post, 'Anonymous Teacher moderator posting 1 BUM05'.
+-  Confirm that the post entry form does not offer the student the 'Post as' option selector.
+   Enter the post subject as 'Student 1 reply to moderator post BUM18'.
+   Enter the message as 'Student added as standard post with no other choices BUM18.',
+   hit the 'Post reply' button.
+-  Verify that you are returned to the discussion page showing your reply in the correct location.
+
+Return to forum view page.
+
+BUM19 / US.1
+-  Confirm that where the user name is visible, that user name is followed by 'Moderator',
+   and that the user picture is visible.
+-  Confirm that where the user name is not visible, that an image placeholder is followed by 'Moderator'.
+-  Confirm that the 'Last post' entries are dated.
+-  Verify that the 'Last post' entry against 'discussion 1 BUM03' is the student user name.
+-  Verify that the 'Last post' entry against 'discussion 2 BUM08' is just 'Moderator'.
+
+Return to course main page.
+
+BLD Basic lock discussions usage.
+=================================
+
+BLD01 / U.ET [Change]
+   Click 'F.AME' to enter the second forum.
+-  Confim that the forum view page shows all discussions, and that none are showing the padlock icon.
+
+BLD02 / U.ET
+   Click 'Lock discussions'.
+-  Confirm that the Lock page opens with the text 'Do you want to include all
+   discussions listed on this page, or only selected discussions?' and three buttons beneath:
+   'All discussions shown', 'Selected discussions' and 'Cancel'.
+
+BLD03 / U.ET
+   Click 'Selected discussions'.
+   You should be returned to the forum view page, with both discussions selectable by check box.
+   Click the check box by 'F.AME Teacher UET anonymous moderator discussion 1 BUM03'.
+   Click 'Confirm selection'.
+
+BLD04 / U.ET
+   Confirm that a 'Lock discussion(s)' form is displayed on the page, that the Subject has a default
+   entry, "This discussion is now closed"
+-  Confirm that there are two file addition areas, the second labeled Attachments.
+-  Confirm that there is a 'Mail soon' check box, with help.
+-  Confirm that 'Post as', is available as the last option on this page, and that
+   the drop down options are 'Standard Post', 'Identify self as moderator' and
+   'Post anonymously as moderator'.
+   Finally, confirm two buttons 'Lock discussion' and 'Cancel'.
+
+BLD05 / U.ET
+   Add to the subject entered ' identifing self as a moderator BLD05'.
+   Enter a message 'BLD05 regarding locking this discussion identify self as moderator'.
+   From the 'Post as' selector choose the second option 'Identify self as moderator'.
+   Click 'Lock discussion'.
+   Confirm that you are returned to the forum view page.
+-  Verify that the discussion 'F.AME Teacher UET anonymous moderator discussion 1 BUM03' is now
+   displaying the 'Lock' icon and that the 'Last post' entry against the discussion has changed
+   to U.ET user plus 'Moderator'.
+
+BLD06 / U.ET
+   Enter 'F.AME Teacher UET anonymous moderator discussion 1 BUM03'.
+   Verify that the top discussion post is high-lighted and contains the title,
+   'This discussion is now closed identifing self as a moderator BLD05' and the message entered
+   'BLD05 regarding locking this discussion identify self as moderator'.
+-  Verify that the user info block is visible to the left of the post,
+   and that it has the text 'Moderator' under the username.
+-  Verify that there is an 'Unlock' button on the right of the 'Discussion options' button
+   at the bottom of the screen, below the last post.
+
+Return to the forum view page.
+
+BLD07 / U.ET
+   Click 'Lock discussions'.
+-  Confirm that the Lock page opens with the text 'Do you want to include all
+   discussions listed on this page, or only selected discussions?' and three buttons beneath:
+   'All discussions shown', 'Selected discussions' and 'Cancel'.
+
+BLD08 / U.ET
+   Click 'All discussions shown'.
+   Confirm that a 'Lock discussion(s)' form is displayed on the page, that the subject has a default
+   entry, "This discussion is now closed"
+-  Confirm that there is a file addition area labeled 'Attachments'.
+-  Confirm that there is a 'Mail soon' check box, with help.
+-  Confirm that 'Post as', is available as the last option on this page, and that
+   the drop down options are 'Standard Post', and 'Identify self as moderator' and
+   'Post anonymously as moderator'.
+   Finally, confirm two buttons 'Lock discussion' and 'Cancel'.
+
+BLD09 / U.ET
+   Add to the subject entered ' anonymously by a moderator BLD09'.
+   Enter the message 'BLD09 regarding locking this discussion anonymously by a moderator.'.
+   From the 'Post as' selector choose the third option 'Post anonymously as moderator'.
+   Click 'Lock discussion'.
+   Confirm that you are returned to the forum view page.
+-  Verify that all discussions are now displaying the 'Lock' icon and that the 'Last post' against
+   'F.AME Teacher UET anonymous moderator discussion 2 BUN08' is now U.ET user name plus 'Moderator'.
+
+BLD10 / U.ET
+   Enter 'F.AME Teacher UET discussion 2 BUN08'.
+   Verify that the top discussion post is high-lighted and contains the title,
+   'This discussion is now closed' and the message entered
+   'BLD09 regarding locking all discussions anonymously by a moderator.'
+-  Verify that the user description block is visible to the left of the post.
+
+Return to course main page
+
+BLD11 / US.1 [change]
+   Click to enter forum 'F.AME'
+-  Verify that for 'discussion 1 BUM03', 'Started by' shows the U.ET user image and user name, with
+   the text 'Moderator' beneath and that 'Last post' shows the date and the U.ET user name, followed by 'Moderator'.
+-  Verify that 'discussion 2 BUM08', 'Started by' shows the image placeholder the text 'Moderator'
+   and that 'Last post' shows just the date and 'Moderator'.
+
+BLD12 / US.1
+   Enter 'F.AME Teacher UET anonymous moderator discussion 1 BUM03'.
+   Verify that the top discussion post is high-lighted and contains the title,
+   'This discussion is now closed identifing self as a moderator BLD05' and the message entered
+   'BLD05 regarding locking this discussion identify self as moderator'.
+-  Verify that the user description block is visible to the left of the post,
+   and that it has an image icon, the username, the text 'Moderator' and the date .
+
+Return to the forum view page.
+
+BLD13 / US.1
+   Enter 'F.AME Teacher UET anonymous moderator discussion 2 BUM08'.
+   Verify that the top discussion post is high-lighted and contains the title,
+   'This discussion is now closed anonymously by a moderator BLD09' and the message entered
+   'BLD09 regarding locking this discussion anonymously by a moderator'.
+-  Verify that the user description block is visible to the left of the post,
+   and that it has only the text 'Moderator' and the date.
+
+BLD14 / US.1
+   Confirm the the third post BUM09 has the text 'Edited by the author on' and a date,
+   visible beneath the user description block to the left of the post.
+
+Return to course main page
+
+Search forums
+=============
+
+SUM01 / US.1
+   Enter the forum 'F.AME'.
+   Click the arrow beside 'Search this forum'.
+-  Confirm that the 'Advanced search' page opens with the form containing search options.
+   Click in to 'Author name' search box and enter 'uet'.
+   Click 'Search this forum'.
+-  Verify that each result either contains 'uet' within the title, or
+   has the search word emboldened in the post text.
+-  Confirm that only the post 'F.AME Teacher UET anonymous moderator discussion 1 BUM03'
+   contains anonymous in the title.
+   Click the link to open this post.
+-  Verify that the user data box to the left of this post contains the user image and user name,
+   as well as the 'Moderator' text.
+[Note this test shows that the student user is not able to identify 'Anonymous' posters by searching
+for known usernames.]
+
+Return to course main page.
+
+SUM02 / UET  [change]
+   Enter forum 'F.AME''.
+   Click the arrow beside 'Search this forum'.
+-  Confirm that the 'Advanced search' page opens with the form containing search options.
+   Click in to 'Author name' search box and enter 'uet'.
+   Click 'Search this forum'.
+-  Verify that each result either contains 'uet' within the title, or
+   has the search word emboldened in the post text.
+-  Confirm that there are multiple posts which contain anonymous in the title.
+   Click the link to open the post 'F.AME Teacher UET anonymous moderator discussion 2 BUM08'.
+-  Verify that the user data box to the left of this post contains the user image and the 'Moderator' text.
+   but not the user name.
+-  Verify that the post contains the message 'This is an anoymous post created by moderator 'uet' username'
+   above the post title 'F.AME Teacher UET anonymous moderator discussion 2 BUM08'.
+[Note this test shows that the uet teacher user is able to identify 'Anonymous' posters by
+searching for usernames.]
+
+EML Email
+=========
+NOTE: Before starting this section, check that both users (U.S1, U.ET)
+have email addresses set up that go to an email address that you can read.
+The text 'allowemail' must be added to the image alt field of the user's profile.
+When testing within the OU, note that developer servers will only send email
+to OU (@open.ac.uk) addresses.
+
+NOTE: This script uses the phrase 'trigger email sending' to indicate that you
+should make sure the system sends out emails at that point. You can manually
+trigger email sending by visiting the URL admin/cron.php in a browser when
+logged in as admin. It will probably be useful to use multiple browsers for
+this test (one to do the email sending, the other for everything else).
+
+NOTE: Running cron.php also runs periodic tasks for all other modules, not
+just ForumNG. Consequently, cron might be broken even if there is nothing wrong with ForumNG.
+You may also use the URL local/cronadmin/selectivecron.php?module=forumng
+which will only run over the forumng.
+
+EML01 / U.ET [change]
+   Trigger email sending [see above].
+-  Verify that you receive a digest email copy of F.AMNE and F.AME.
+   In the digest email, check the copy of 'Teacher UET anonymous moderator discussion 1',
+   against the view which the teacher sees in the browser.
+   It should be similar but in plain text format.
+-  Verify that the email does not include the
+   'Moderating Teacher, standard post' and 'Student 1 reply to teacher post'
+-  Verify that in email, the post 'Anonymous Teacher moderator posting 1' does not include
+   the moderator name.
+-  Verify that in email, the post 'Anonymous Teacher moderator posting 1' does not include
+   the message above the post 'This is an anonymous post created by moderator uet username}'
+-  Verify that the email 'From' address reflects who the poster is, except where the post is by an
+   anonymous moderator, in which case the senders name and email address should be,
+   'Moderator' <noreply@active.vle.server>. Where active.vle.server depends upon the VLE instance.
+
+EML02 / U.ET
+   In the digest email, check the copy of 'Teacher UET anonymous moderator discussion 2',
+   against the view which the teacher sees in the browser..
+-  Verify that the email version of the first post 'Teacher UET anonymous moderator discussion 2'
+   does not include the message above the post.
+   'This is an anonymous post created by moderator uet username'
+-  Verify that in email, the post 'Teacher UET anonymous moderator discussion 2' does not include
+   the moderator name, or the detail of the editing and the history link.
+
+EML03 / U.ET
+   In the digest email, check the copy of 'Anonymous teacher as moderator post',
+   against the view which the teacher sees in the browser, which is the last post.
+-  Verify that the email version of the last post 'Anonymous teacher as moderator post'
+   does not include the message above the post.
+   'This is an anonymous post created by moderator {teacher name}'.
+-  Verify that in email, the post 'Anonymous teacher as moderator post' does not include
+   the moderator name.
+
+
+Export discussion
+=================
+
+EXP01 / U.ET
+   Open forum 'F.AME Teacher UET anonymous discussion 2'.
+   Scroll to the end of the list of posts. You will see a row of buttons starting with
+   'Discussion options'.
+
+EXP02 / U.ET
+   Click the Export button. A popup appears asking what you want to export, choose
+   Discussion. A page is shown asking you to select your export type.
+
+EXP03 / U.ET
+  Choose 'File download' in the drop-down box and click 'Next'. If this is the
+  first export from this discussion you will be taken straight to the save file
+  dialogue box, otherwise you will see the page that lists previous exports and
+  asks you to confirm you want to export, choose Continue to be taken to the save
+  file dialogue box.
+
+EXP04 / U.ET
+-  Confirm that the file you have downloaded is a HTML file and when opened in
+   a browser you will see all the visible posts in the discussion.
+   Compare the exported HTML against the view which the teacher sees in the browser.
+
+EXP05 / U.ET
+-  Verify that the HTML version of the first post 'Teacher UET anonymous moderator discussion 2'
+   does not include the message above the post,
+   'This is an anonymous post created by moderator uet username'
+-  Verify that in HTML output, the post 'Teacher UET anonymous moderator discussion 2' does not include
+   the moderator name, or the detail of the editing and the history link.
+
+Test complete.
+==============

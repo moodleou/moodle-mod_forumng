@@ -271,6 +271,26 @@ class mod_forumng_discussion {
                 $this->get_link_params($type);
     }
 
+    /**
+     * Obtains details of user who posted the first post to this discussion.
+     * @return object Moodle user object (selected fields)
+     */
+    public function get_poster_anon() {
+        $this->check_full();
+        return is_null($this->discussionfields->firstasmoderator)
+                ? mod_forumng::ASMODERATOR_NO : $this->discussionfields->firstasmoderator;
+    }
+
+    /**
+     * Obtains details of user who posted the last post to this discussion.
+     * @return object Moodle user object (selected fields)
+     */
+    public function get_last_post_anon() {
+        $this->check_full();
+        return is_null($this->discussionfields->lastasmoderator)
+                ? mod_forumng::ASMODERATOR_NO : $this->discussionfields->lastasmoderator;
+    }
+
     // Factory method
     /*///////////////*/
 
@@ -726,6 +746,8 @@ SELECT * FROM (SELECT
     fpfirst.subject AS subject,
     fplast.subject AS lastsubject,
     fplast.message AS lastmessage,
+    fpfirst.asmoderator AS firstasmoderator,
+    fplast.asmoderator AS lastasmoderator,
     ".mod_forumng_utils::select_username_fields('fu').",
     ".mod_forumng_utils::select_username_fields('lu').",
     (SELECT COUNT(1)
@@ -795,12 +817,13 @@ WHERE
      * @param bool $attachments True if post contains attachments
      * @param bool $mailnow If true, sends mail ASAP
      * @param int $userid User ID (0 = current)
+     * @param int $asmoderator values are ASMODERATOR_NO, ASMODERATOR_IDENTIFY or ASMODERATOR_ANON
      * @return int ID of newly-created post
      */
     public function create_root_post($subject, $message, $format,
-        $attachments=false, $mailnow=false, $userid=0) {
+        $attachments=false, $mailnow=false, $userid=0, $asmoderator = mod_forumng::ASMODERATOR_NO) {
         return $this->create_reply(null, $subject, $message, $format,
-            $attachments, false, $mailnow, $userid);
+            $attachments, false, $mailnow, $userid, $asmoderator);
     }
 
     /**
@@ -813,11 +836,11 @@ WHERE
      * @param bool $setimportant If true, highlight the post
      * @param bool $mailnow If true, sends mail ASAP
      * @param int $userid User ID (0 = current)
-     *
+     * @param int $asmoderator values are ASMODERATOR_NO, ASMODERATOR_IDENTIFY or ASMODERATOR_ANON
      * @return int ID of newly-created post
      */
     public function create_reply($parentpost, $subject, $message, $format,
-        $attachments=false, $setimportant=false, $mailnow=false, $userid=0) {
+        $attachments=false, $setimportant=false, $mailnow=false, $userid=0, $asmoderator = mod_forumng::ASMODERATOR_NO) {
         global $DB;
         $userid = mod_forumng_utils::get_real_userid($userid);
 
@@ -839,6 +862,7 @@ WHERE
         $postobj->message = $message;
         $postobj->messageformat = $format;
         $postobj->attachments = $attachments ? 1 : 0;
+        $postobj->asmoderator = $asmoderator;
 
         $transaction = $DB->start_delegated_transaction();
 
@@ -1292,16 +1316,17 @@ WHERE
      * @param bool $mailnow If true, sends mail ASAP
      * @param int $userid User ID (0 = current)
      * @param bool $log True to log this action
+     * @param int $asmoderator values are ASMODERATOR_NO, ASMODERATOR_IDENTIFY or ASMODERATOR_ANON
      * @return int post ID
      */
     public function lock($subject, $message, $format,
-        $attachments=false, $mailnow=false, $userid=0, $log=true) {
+        $attachments=false, $mailnow=false, $userid=0, $log=true, $asmoderator = mod_forumng::ASMODERATOR_NO) {
         global $DB;
         $transaction = $DB->start_delegated_transaction();
 
         // Post reply
         $postid = $this->get_root_post()->reply($subject, $message, $format,
-            $attachments, false, $mailnow, $userid, false);
+            $attachments, false, $mailnow, $userid, false, $asmoderator);
 
         // Mark discussion locked
         $this->edit_settings(self::NOCHANGE,

@@ -151,7 +151,8 @@ $string['forumng:viewrating'] = 'View ratings of own posts';
 $string['forumng:viewsubscribers'] = 'View subscribers';
 $string['forumng:copydiscussion'] = 'Copy discussion';
 $string['forumng:forwardposts'] = 'Forward posts';
-
+$string['forumng:postasmoderator'] = 'Indentify self as moderator in post';
+$string['forumng:postanon'] = 'Post as anonymous moderator';
 $string['pluginadministration'] = 'ForumNG administration';
 $string['modulename'] = 'ForumNG';
 $string['pluginname'] = 'ForumNG';
@@ -234,6 +235,7 @@ $string['alt_discussion_deleted'] = 'Deleted discussion';
 $string['alt_discussion_timeout'] = 'Not currently visible to users (time limit)';
 $string['alt_discussion_sticky'] = 'This discussion always appears at top of list';
 $string['alt_discussion_locked'] = 'Discussion is read-only';
+$string['alt_discussion_moderator'] = 'Discussion is moderated';
 $string['subscribestate_partiallysubscribed'] = 'You receive messages from some discussions in
 this forum via email to {$a}.';
 $string['subscribestate_partiallysubscribed_thisgroup'] = 'You receive messages from some
@@ -819,6 +821,18 @@ $string['notext'] = '(no text)';
 
 $string['grade'] = 'Grade';
 $string['gradingscale'] = 'Grading scale';
+
+$string['moderator'] = 'Moderator';
+$string['anonymousmoderator'] = 'Anonymous moderator';
+$string['canpostanon'] = 'Enable anonymous moderator posts';
+$string['canpostanon_help'] = 'Allows users that have postanon capability to make their post anonymous by hiding their name from students.';
+$string['asmoderator'] = 'Post as?';
+$string['asmoderator_post'] = 'Standard Post';
+$string['asmoderator_self'] = 'Identify self as moderator';
+$string['asmoderator_anon'] = 'Identify self as moderator (name hidden from students)';
+$string['asmoderator_help'] = 'This option will enable certain users to be able to identify themselves as a forum
+moderator or post as a moderator with their profile hidden from students.';
+$string['createdbymoderator'] = 'This is a post created by moderator {$a} with their name hidden from students.';
 
 $string['lockedtitle'] = 'This discussion is now closed';
 $string['autolockedmessage'] = 'This discussion has been closed automatically as the maximum time permitted to be open has passed.';

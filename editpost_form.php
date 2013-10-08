@@ -122,6 +122,24 @@ class mod_forumng_editpost_form extends moodleform {
                 $mform->addElement('checkbox', 'setimportant',
                         get_string('setimportant', 'forumng'));
             }
+            // Only add moderator element to post edit form if op1 or op2 available.
+            if ($forum->can_post_anonymously() || $forum->can_indicate_moderator()) {
+                $options=array();
+                $options[mod_forumng::ASMODERATOR_NO] = get_string('asmoderator_post', 'forumng');
+                if ($forum->can_indicate_moderator()) {
+                    $options[mod_forumng::ASMODERATOR_IDENTIFY] = get_string('asmoderator_self', 'forumng');
+                }
+                if ($forum->can_post_anonymously()) {
+                    $options[mod_forumng::ASMODERATOR_ANON] = get_string('asmoderator_anon', 'forumng');
+                }
+                $mform->addElement('select', 'asmoderator', get_string('asmoderator', 'forumng'), $options);
+                $mform->addHelpButton('asmoderator', 'asmoderator', 'forumng');
+                $mform->setDefault('asmoderator', 0);
+                $mform->setType('asmoderator', PARAM_INT);
+            } else {
+                $mform->addElement('hidden', 'asmoderator', 0);
+                $mform->setType('asmoderator', PARAM_INT);
+            }
         }
 
         // Additional options apply only to discussion.

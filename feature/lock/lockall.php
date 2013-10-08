@@ -62,7 +62,8 @@ class lockall_on_selector extends forumngfeature_discussion_selector {
             $discussion = mod_forumng_discussion::get_from_id($postid, $formdata->clone);
             if (!$discussion->is_deleted() && !$discussion->is_locked()) {
                 $newpostid = $discussion->lock($formdata->subject, $formdata->message['text'],
-                        $formdata->message['format'], $formdata->attachments, $formdata->mailnow);
+                        $formdata->message['format'], $formdata->attachments, $formdata->mailnow,
+                        '', '', $formdata->asmoderator);
                 // Save attachments.
                 file_save_draft_area_files($formdata->attachments, $filecontext->id, 'mod_forumng',
                         'attachment', $newpostid, null);
