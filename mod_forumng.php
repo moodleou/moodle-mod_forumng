@@ -3342,8 +3342,10 @@ WHERE
                 $root->search_update();
                 $root->search_update_children();
                 $root = null;
-                print '. ';
-                flush();
+                if ($feedback) {
+                    echo '. ';
+                    flush();
+                }
             }
 
             $transaction->allow_commit();
