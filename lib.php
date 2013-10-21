@@ -380,6 +380,24 @@ function forumng_user_outline($course, $user, $mod, $forum) {
     }
 }
 
+/**
+ * List of view style log actions
+ * @return array
+ */
+function forumng_get_view_actions() {
+    return array('view', 'view all', 'view discussion');
+}
+
+/**
+ * List of update style log actions
+ * @return array
+ */
+function forumng_get_post_actions() {
+    return array('update', 'add', 'add discussion', 'add reply', 'delete post', 'edit post',
+            'delete discussion', 'undelete post', 'undelete discussion', 'lock discussion');
+}
+
+
 function mod_forumng_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload) {
     global $CFG, $USER;
     require_once($CFG->dirroot . '/mod/forumng/mod_forumng.php');
