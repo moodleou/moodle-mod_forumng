@@ -39,6 +39,14 @@ class forumngfeature_userposts extends forumngfeature_discussion_list {
             (has_capability('mod/forumng:startdiscussion', $forum->get_context())
             || has_capability('mod/forumng:replypost', $forum->get_context())
             || has_capability('forumngfeature/userposts:view', $forum->get_context()))) {
+            if ($forum->get_group_mode() == VISIBLEGROUPS &&
+                    !has_capability('forumngfeature/userposts:view', $forum->get_context())) {
+                // In visible group mode, check student is in group - if not they can't see button.
+                $groupid = $forum->get_activity_group($forum->get_course_module());
+                if ($groupid != null && !$forum->can_access_group($groupid, true)) {
+                    return false;
+                }
+            }
             return true;
         } else {
             return false;
