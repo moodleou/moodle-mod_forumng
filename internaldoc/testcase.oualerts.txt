@@ -1,0 +1,115 @@
+This file contains a sequence of test cases for the OU Alert ForumNG feature.
+
+Each section has a unique (within this test case) three letter code and the
+steps are numbered so that the location where a failure occurs can be reported.
+
+Steps are shown in the following format:
+
+XXX01 / U.S1 [change]
+  Do something
+  - Check something
+
+The unique step number is followed by the user that you should be logged
+in as for that step. If the user changes from the previous step, the word
+[Change] will be noted.
+
+Some steps don't have specific items to check. In that case, the check
+'passes' if there are no errors or warnings while completing the task.
+
+When told to create a discussion or reply, you may wish to use the code number
+for that step inside the text of the discussion/reply. Occasionally, later
+steps might refer to the reply UNR03 or whatever.
+
+Initial setup
+=============
+
+See testcase.txt for a description of the format of these tests and the initial
+site and ForumNG setup.
+
+Please set up a standard test course as follows.
+
+Course short name
+-----------------
+
+FORUMTEST
+
+CRE Creating ForumNG
+====================
+
+CRE01 / admin
+  In any course week, from the add activity dropdown, choose 'ForumNG'.
+  Call the Forum F1
+
+  In the edit settings form for the forum in the 'Email for reporting offensive posts' text field
+  enter 2 valid e-mail address separated by a semi-colon ';'
+  i.e. firstnamne.surname@open.ac.uk;initial.initial.surname@open.ac.uk
+
+  and make sure that group setting is set to  'No groups'. Save forum and return to course.
+
+CRE02 / admin
+  You need 2 users 'admin' and a student enrolled on the course and each one needs to be logged on in separate browser sessions.
+
+CRE03 / admin
+  Create a discussion called D1 containing one post.
+  Check to see that it has an 'Alert' button at the bottom of the post.
+
+CRE04 / student [Change]
+  Add a reply to the original post.
+
+CRE05 / admin [Change]
+  Reply to the CRE04 student post.
+
+TST Testing OU Alert feature for forumNG
+========================================
+
+TST01 / admin
+  Reply to the CRE05 admin post and under 'Post as?' dropdown 'identify self as moderator'.
+  Click on 'Post reply' button.
+  Check to see that the 'Alert' is not shown for that post.
+
+TST02 / student [Change]
+  Click against the Alert button of the CRE05 post.
+  When the report form comes up tick check box against a 'reason for the alert'.
+  Enter some text in the 'other information' text box.
+  Click against 'Send alert' button.
+
+TST03 / you [Change]
+  Check to see that the person(s) nominated to receive alert e-mails has received them.
+  Check for Item Title and ItemURL in the email, i.e.
+
+    Item Title: Re: discussion name
+    ItemURL: https://ouco.vled.open.ac.uk/ou-moodle2/mod/forumng/discuss.php?d=nnn#pnnnn
+
+  Click against the ItemURL:  https://ouco.vled.open.ac.uk/ou-moodle2/mod/forumng/discuss.php?d=nnn#pnnnn link.
+  Make sure that this take you to the post.
+
+TST04 / admin [Change]
+  Go to forum F1.
+  Under the heading on the left hand side block 'Administration'
+  Open up 'ForumNG Administration' if not already open.
+  Click against 'Manage reported post alerts'.
+  This should bring up a series of stats about the alert.
+  Module, Item, Item ID, Course,           Status,          Item Date,            Resolved Alerts, Unresolved Alerts
+  F1      post   nnnn     <course code>    'Need Action'    Day DD MM YYYY time       0                   1
+
+  To see how to use the OU Alert reporting tool check out the spec for it in the oualerts internaldoc directory.
+
+TST05 / admin
+  Go to the forum F1 settings and remove the email addresses from the 'Email for reporting offensive posts' text field.
+  Go to forum F1 and open discussion D1.
+  Check to see that the 'Alert' button in each post no longer shows.
+
+Optional Tests
+==============
+
+OT01 / admin
+Create a clone of forum F1 in another course and repeat tests above
+checking to see that everything is against the new F1 forum in the new course.
+
+The functionality of the previous forumNG Alert system has been changed to allow for alerts to be sent to multiple people.
+There is no test script for testing it as was. To test the changes:
+
+OT02 / admin
+  Disable OU Alerts.
+  Follow through the Creation Routine above calling the forum F2 instead of F1.
+  Follow through the tests TST01, TST02, TST03 and TST05

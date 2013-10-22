@@ -239,7 +239,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
         }
         $result .= "<a href='discuss.php?" .
                 $discussion->get_link_params(mod_forumng::PARAM_HTML) . "'>" .
-                format_string($discussion->get_subject(), true, $courseid) . "</a></td>";
+                format_string($discussion->get_subject(true), true, $courseid) . "</a></td>";
 
         // Author
         $posteranon = $discussion->get_poster_anon();
@@ -1257,11 +1257,27 @@ class mod_forumng_renderer extends plugin_renderer_base {
                             get_string('directlink', 'forumng', $postnumber) . '</a>';
                 }
 
-                // Alert link
-                if ($options[mod_forumng_post::OPTION_COMMAND_REPORT]) {
-                    $commandsarray['forumng-alert'] = '<a href="' . $linkprefix . 'alert.php?' .
-                            $post->get_link_params(mod_forumng::PARAM_HTML) .
-                            $expandparam . '" title="'.get_string('alert_linktitle', 'forumng').'">' .
+                // Alert link.
+                $forum = $discussion->get_forum();
+                if ($options[mod_forumng_post::OPTION_COMMAND_REPORT] && !($options[mod_forumng_post::OPTION_IS_ANON]
+                        || $options[mod_forumng_post::OPTION_INDICATE_MODERATOR])) {
+                    $reportabuselink = '';
+                    if ($forum->oualerts_enabled()) {
+                        $itmurl = $CFG->wwwroot . '/mod/forumng/discuss.php';
+                        $itmurl .= '?' . $discussion->get_link_params(mod_forumng::PARAM_PLAIN);
+                        $itemurl = $itmurl . '#p' . $post->get_id();
+                        $context = $post->get_forum()->get_context(false);
+                        $reportabuselink = oualerts_generate_alert_form_url(
+                            'forumng', $context->id,
+                            'post', $post->get_id(), $itemurl, $itemurl,
+                            $USER->id, false, true);
+                    } else {
+                        $reportabuselink = $linkprefix . 'alert.php?' .
+                            $post->get_link_params(mod_forumng::PARAM_HTML) . $expandparam;
+                    }
+
+                    $commandsarray['forumng-alert'] = '<a href="' . $reportabuselink.
+                            '" title="'.get_string('alert_linktitle', 'forumng').'">' .
                             get_string('alert_link', 'forumng', $postnumber) .
                             '</a>';
                 }

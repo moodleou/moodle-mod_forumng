@@ -104,8 +104,10 @@ class mod_forumng_mod_form extends moodleform_mod {
 
         // Email address for reporting unacceptable post for this forum, default is blank.
         $mform->addElement('text', 'reportingemail', get_string('reportingemail', 'forumng'),
-            array('size'=>48));
+            array('size'=> 64));
         $mform->setType('reportingemail', PARAM_NOTAGS);
+        $mform->addRule('reportingemail',
+                get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
         $mform->addHelpButton('reportingemail', 'reportingemail', 'forumng');
         $mform->addElement('checkbox', 'canpostanon', get_string('canpostanon', 'forumng'));
         $mform->addHelpButton('canpostanon', 'canpostanon', 'forumng');
@@ -278,6 +280,17 @@ class mod_forumng_mod_form extends moodleform_mod {
         $this->add_action_buttons();
     }
 
+    private function validate_emails($emails) {
+        // Loop through string looking for ';' as seperators.
+        $emailarray = explode(';' , $emails);
+        foreach ($emailarray as $email) {
+            if (!validate_email($email) ) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public function validation($data, $files) {
         global $COURSE, $CFG, $DB;
         $errors = parent::validation($data, $files);
@@ -286,7 +299,7 @@ class mod_forumng_mod_form extends moodleform_mod {
             !preg_match('/^[0-9]{1,9}$/', $data['limitgroup']['maxpostsblock'])) {
             $errors['limitgroup'] = get_string('err_numeric', 'form');
         }
-        if (!empty($data['reportingemail']) && !validate_email($data['reportingemail'])) {
+        if (!empty($data['reportingemail']) && !$this->validate_emails($data['reportingemail'])) {
             $errors['reportingemail'] = get_string('invalidemail', 'forumng');
         }
 

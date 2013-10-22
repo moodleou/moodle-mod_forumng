@@ -660,6 +660,25 @@ WHERE
         return $this->forumfields->reportingemail;
     }
 
+    /** @return array of reporting emails of forum */
+    public function get_reportingemails() {
+        global $CFG;
+        $recipients = $this->get_reportingemail();
+        if (!empty($recipients)) {
+            $recipients = explode(';', $recipients);
+        } else {
+            $recipients = array();
+        }
+        if (!empty($CFG->forumng_reportunacceptable)) {
+            // Check to see whether global forum report e-mail is already in recipients.
+            if (!in_array($recipients, $CFG->forumng_reportunacceptable)) {
+                // Add global recipient address to recipents array.
+                $recipients[] = $CFG->forumng_reportunacceptable;
+            }
+        }
+        return $recipients;
+    }
+
     /** @return posting from of form */
     public function get_postingfrom() {
         return $this->forumfields->postingfrom;
@@ -5001,6 +5020,23 @@ ORDER BY
         }
         $transaction->allow_commit();
     }
+
+    /*
+    * Call to check if search plugin exists.  If so, includes
+    * the library suppport, otherwise return false.
+    *
+    * @return bool True if OU search extension is installed.
+    */
+    public function oualerts_enabled() {
+        global $CFG;
+
+        if (file_exists($CFG->dirroot.'/report/oualerts/locallib.php')) {
+            @include_once($CFG->dirroot.'/report/oualerts/locallib.php');
+            return oualerts_enabled();
+        }
+        return false;
+    }
+
 }
 
 /**

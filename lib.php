@@ -187,7 +187,7 @@ function forumng_ousearch_add_visible_module($cm, $course) {
  */
 function forumng_get_extra_capabilities() {
     return array('moodle/site:accessallgroups', 'moodle/site:viewfullnames',
-            'moodle/site:trustcontent');
+            'moodle/site:trustcontent', 'report/oualerts:managealerts');
 }
 
 /**
@@ -472,5 +472,70 @@ function mod_forumng_cm_info_dynamic(cm_info $cm) {
             context_module::instance($cm->id))) {
         $cm->uservisible = false;
         $cm->set_available(false);
+    }
+}
+
+/**
+ * Returns an array of recipients for OU alerts
+ * @param char $type
+ * @param int $id
+ * @returns array
+ */
+function forumng_oualerts_additional_recipients($type, $id) {
+    global $CFG;
+    require_once($CFG->dirroot . '/mod/forumng/mod_forumng.php');
+    require_once($CFG->dirroot . '/mod/forumng/mod_forumng_discussion.php');
+
+    $recipents = array();
+    if ($type == 'post') {
+        $discussion = mod_forumng_discussion::get_from_post_id($id, mod_forumng::CLONE_DIRECT);
+        $forum = $discussion->get_forum();
+        $recipients = $forum->get_reportingemails();
+    }
+    return($recipients);
+}
+
+/**
+ * Return post subject or current discussion title
+ * @param char $item
+ * @param int $id
+ * @returns string
+ */
+function forumng_oualerts_custom_info($item, $id) {
+    global $CFG;
+    require_once($CFG->dirroot . '/mod/forumng/mod_forumng.php');
+    require_once($CFG->dirroot . '/mod/forumng/mod_forumng_post.php');
+
+    $title = '';
+    if ($item == 'post') {
+        $post = mod_forumng_post::get_from_id($id, mod_forumng::CLONE_DIRECT);
+    }
+
+    if ($post) {
+        $title = $post->get_subject();
+        if ($title == null) {
+            // We need to get the last previous post that has a subject field.
+            $title = $post->get_effective_subject(true);
+        }
+    }
+    return $title;
+}
+
+/**
+ * Provides a link for managing OU alerts reports
+ * @param settings_navigation $settings
+ * @param navigation_node $node
+ */
+function forumng_extend_settings_navigation(settings_navigation $settings, navigation_node $node) {
+    global $PAGE, $CFG, $COURSE;
+    require_once($CFG->dirroot . '/mod/forumng/mod_forumng.php');
+
+    $forum = mod_forumng::get_from_cmid($PAGE->cm->id, mod_forumng::CLONE_DIRECT);
+    $context = $forum->get_context();
+    if ($forum->oualerts_enabled() && has_capability('report/oualerts:managealerts', $PAGE->cm->context)
+            && ((count($forum->get_reportingemails()) > 0)) ) {
+        $managelevelnode = $node->add(get_string('managepostalerts', 'forumng'),
+            new moodle_url( '/report/oualerts/manage.php',
+            array('coursename' => $COURSE->id, 'contextcourseid' => $COURSE->id, 'cmid' => $PAGE->cm->id)));
     }
 }
