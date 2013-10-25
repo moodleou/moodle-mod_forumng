@@ -1944,7 +1944,7 @@ WHERE
         $discussion = $this->get_discussion();
 
         // Get subject (may make DB query, unfortunately)
-        $subject = $course->shortname . ': ' .
+        $subject = $course->shortname . ': ' . format_string($forum->get_name(), true) . ': ' .
             format_string($this->get_effective_subject(true), true);
 
         $canunsubscribe = mod_forumng::SUBSCRIPTION_FORCED !=
