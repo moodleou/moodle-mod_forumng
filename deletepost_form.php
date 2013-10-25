@@ -42,6 +42,12 @@ class mod_forumng_deletepost_form extends moodleform {
         // Send a copy to self.
         $mform->addElement('checkbox', 'copyself', get_string('copytoself', 'forumng'));
 
+        // Adding optional text field 'Email address of other recipients'.
+        $mform->addElement('text', 'emailadd', get_string('extra_emails', 'forumng'),
+                array('size' => '48'));
+        $mform->addHelpButton('emailadd', 'extra_emails', 'forumng');
+        $mform->setType('emailadd', PARAM_RAW);
+
         // Include a copy of the post.
         $mform->addElement('checkbox', 'includepost', get_string('includepost', 'forumng'));
 
@@ -52,6 +58,24 @@ class mod_forumng_deletepost_form extends moodleform {
         // add some buttons
         $this->add_action_buttons(true, get_string('sendanddelete', 'forumng'));
 
+    }
+
+    public function validation($data, $files) {
+        $errors = parent::validation($data, $files);
+        if (!empty($data['emailadd'])) {
+            $emails = preg_split('~[; ]+~', $data['emailadd']);
+            if (count($emails) < 1) {
+                $errors['emailadd'] = get_string('invalidemails', 'forumng');
+            } else {
+                foreach ($emails as $email) {
+                    if (!validate_email($email)) {
+                        $errors['emailadd'] = get_string('invalidemails', 'forumng');
+                        break;
+                    }
+                }
+            }
+        }
+        return $errors;
     }
 
 }

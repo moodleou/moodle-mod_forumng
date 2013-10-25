@@ -838,6 +838,10 @@ $string['createdbymoderator'] = 'This is a post created by moderator {$a} with t
 
 $string['lockedtitle'] = 'This discussion is now closed';
 $string['autolockedmessage'] = 'This discussion has been closed automatically as the maximum time permitted to be open has passed.';
+$string['alert_intro'] = 'You can use the Alert link if you need to bring a post in this forum to the attention of a moderator.';
 $string['alert_intro'] = 'You can use the Report post link if you need to bring a post in this forum to the attention of a moderator.';
 
 $string['managepostalerts'] = 'Manage reported post alerts';
+
+$string['extra_emails'] = 'Email address of other recipients';
+$string['extra_emails_help'] = 'Enter one or more email address(es) separated by spaces or semicolons.';

@@ -872,6 +872,12 @@ DEP04 / U.S2
    Enter the message 'DEP04 This message may also appear in an email following its deletion'.
    Click Post reply.
 
+DEP04A / U.S2
+   Click 'reply' beneath the uet teacher post 'DEP02 - testing delete and email post feature'.
+   Enter the subject 'DEP04A user two response three'.
+   Enter the message 'DEP04A This message may also appear in an email following its deletion'.
+   Click Post reply.
+
 Return to the forum list.
 
 DEP05 / U.ET [Change]
@@ -894,6 +900,7 @@ DEP05 / U.ET [Change]
 
 -  Verify that there are two checkboxes beneath the message box,
    'Send a copy to yourself' and 'Include post'.
+-  Verify that there is a text entry field 'Email address of other recipients'.
 -  Verify that the form also has a 'Send and delete' and 'Cancel' buttons, and that the selected
    post is displayed beneath the form.
    Click 'Send a copy to yourself'.
@@ -915,6 +922,7 @@ DEP07 / U.ET
 -  Verify that the message displayed in the form is similar to that in DEP05.
 -  Verify that there are two checkboxes beneath the message box,
    'Send a copy to yourself' and 'Include post'.
+-  Verify that there is a text entry field 'Email address of other recipients'.
 -  Verify that the form also has a 'Send and delete' and 'Cancel' buttons, and that the selected
    post is displayed beneath the form.
    Click 'Send a copy to yourself'.
@@ -926,6 +934,32 @@ DEP08 / U.ET
 -  Confirm that the post 'DEP04 user two response two' is now visible as deleted by uet {username}.
 -  Confirm that user U.S2 has recieved an email 'Your post has been deleted'.
 -  Confirm that user U.ET has recieved an email 'Copy - Your post has been deleted'.
+-  Verify that the above form message is reproduced in the emails, followed by the deleted post.
+
+DEP08A / U.ET
+   Click 'Expand all posts'.
+   Click 'Delete' beneath the message 'DEP04A user two response three'
+-  Confirm that the page refreshes with the 'Are you sure you want to delete this post?' box with
+   'Delete and email', 'Delete' and 'Cancel' buttons, above the selected post.
+   Click 'Delete and email'.
+-  Confirm that the page refreshes with the 'Delete and email author' form showing above the selected post.
+-  Verify that the message displayed in the form is similar to that in DEP05.
+-  Verify that there are two checkboxes beneath the message box,
+   'Send a copy to yourself' and 'Include post'.
+-  Verify that there is a text entry field 'Email address of other recipients'.
+-  Verify that the form also has a 'Send and delete' and 'Cancel' buttons, and that the selected
+   post is displayed beneath the form.
+   Click 'Send a copy to yourself'.
+   Click 'Include post'.
+-  Enter multiple checkable user email addresses which you have access to.
+   Click 'Send and delete'.
+
+DEP08B / U.ET
+-  Confirm that you are returned to the discussion.
+-  Confirm that the post 'DEP04A user two response three' is now visible as deleted by uet {username}.
+-  Confirm that user U.S2 has recieved an email 'Your post has been deleted'.
+-  Confirm that user U.ET has recieved an email 'Copy - Your post has been deleted'.
+-  Confirm that the other users have recieved an email 'Copy - Your post has been deleted'.
 -  Verify that the above form message is reproduced in the emails, followed by the deleted post.
 
 EML Email

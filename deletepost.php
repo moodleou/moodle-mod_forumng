@@ -119,7 +119,7 @@ if ($email) {
         // Form is cancelled, redirect back to the discussion.
         redirect('discuss.php?' . $discussion->get_link_params(mod_forumng::PARAM_PLAIN) . $expandparam);
 
-    } else if ($mform->is_submitted()) {
+    } else if ($submitted = $mform->get_data()) {
         // Store copy of the post for the author.
         $messagepost = $post->display(true, array(mod_forumng_post::OPTION_NO_COMMANDS => true,
                 mod_forumng_post::OPTION_SINGLE_POST => true));
@@ -127,8 +127,7 @@ if ($email) {
         // Delete the post
         $post->delete();
 
-        // Get the form data and set up the email
-        $submitted = $mform->get_data();
+        // Set up the email.
         $messagetext = $submitted->message['text'];
         $copyself = (isset($submitted->copyself))? true : false;
         $includepost = (isset($submitted->includepost))? true : false;
@@ -150,13 +149,30 @@ if ($email) {
             print_error(get_string('emailerror', 'forumng'));
         }
 
-        // send a copy so self
+        // Prepare for copies.
+        $emails = $selfmail = array();
         if ($copyself) {
-            $user = $USER;
-            $user->mailformat = 1;  // Always send HTML version
+            $selfmail[] = $USER->email;
+        }
+
+        // Addition of 'Email address of other recipients'.
+        if (!empty($submitted->emailadd)) {
+            $emails = preg_split('~[; ]+~', $submitted->emailadd);
+        }
+        $emails = array_merge($emails, $selfmail);
+
+        // If there are any recipients listed send them a copy.
+        if (!empty($emails[0])) {
             $subject = strtoupper(get_string('copy')) . ' - '. $subject;
-            if (!email_to_user($user, $from, $subject, '', $messagehtml)) {
-                print_error(get_string('emailerror', 'forumng'));
+            foreach ($emails as $email) {
+                $fakeuser = (object)array(
+                        'email' => $email,
+                        'mailformat' => 1,
+                        'id' => 0
+                );
+                if (!email_to_user($fakeuser, $from, $subject, '', $messagehtml)) {
+                    print_error(get_string('emailerror', 'forumng'));
+                }
             }
         }
 
