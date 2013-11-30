@@ -3728,8 +3728,8 @@ WHERE
         $PAGE->set_context($this->get_context());
         $course = $this->get_course();
         $PAGE->set_heading($course->fullname);
-        $PAGE->set_title($course->shortname . ': ' . format_string($this->get_name()));
         $PAGE->set_cm($this->get_course_module(), $course);
+        $PAGE->set_title($course->shortname . ': ' . format_string($this->get_name()));
         foreach ($navigation as $text => $url) {
             $PAGE->navbar->add($text, $url);
         }
