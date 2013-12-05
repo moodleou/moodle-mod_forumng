@@ -46,6 +46,7 @@ class mod_forumng_splitpost_form extends moodleform {
         // Hidden fields
         foreach ($this->_customdata as $param => $value) {
             $mform->addElement('hidden', $param, $value);
+            $mform->setType($param, PARAM_INT);
         }
     }
 }

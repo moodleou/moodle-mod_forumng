@@ -147,7 +147,7 @@ function make_forumng($courseid, $starttime, $discussions, $posts,
         throw new Exception("Could not add a new course module");
     }
 
-    if (! $sectionid = add_mod_to_section($mod) ) {
+    if (!$sectionid = course_add_cm_to_section($mod->course, $mod->coursemodule, $mod->section)) {
         throw new Exception("Could not add the new course module to that section");
     }
 

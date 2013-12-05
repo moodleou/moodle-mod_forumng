@@ -45,7 +45,6 @@ class mod_forumng_editpost_form extends moodleform {
         $groupselector = false;
 
         if ($ispost) {
-            $mform->addElement('header', 'general', '');
 
             if ($edit && $timelimit) {
                 // Note: We display a safer version of the time limit (30 seconds
@@ -56,6 +55,7 @@ class mod_forumng_editpost_form extends moodleform {
                             get_string('strftimetime', 'langconfig'))),
                         array('id' => 'id_editlimit')));
                 $mform->addElement('hidden', 'timelimit', $timelimit);
+                $mform->setType('timelimit', PARAM_INT);
             }
 
             $quotaleft = $forum->get_remaining_post_quota();
@@ -94,7 +94,7 @@ class mod_forumng_editpost_form extends moodleform {
             // Special field just to tell javascript that we're trying to use the
             // html editor.
             $mform->addElement('hidden', 'tryinghtmleditor', can_use_html_editor() ? 1 : 0);
-
+            $mform->setType('tryinghtmleditor', PARAM_BOOL);
             $editorattributes = array('id' => 'id_message',
                     'cols' => 50, 'rows' => !empty($params['iframe']) ? 15 : 30);
             $editoroptions = array('maxfiles' => EDITOR_UNLIMITED_FILES,
@@ -113,7 +113,6 @@ class mod_forumng_editpost_form extends moodleform {
             }
 
             // If you can mail now, we show this option.
-            $mform->addElement('header', 'id_importance', '');
             $attachmentlist = '';
             if (!$edit && $forum->can_mail_now()) {
                 $mform->addElement('checkbox', 'mailnow', get_string('mailnow', 'forumng'));
@@ -122,6 +121,24 @@ class mod_forumng_editpost_form extends moodleform {
             if ($forum->can_set_important() && !$isdiscussion && !$isroot && !$islock) {
                 $mform->addElement('checkbox', 'setimportant',
                         get_string('setimportant', 'forumng'));
+            }
+            // Only add moderator element to post edit form if op1 or op2 available.
+            if ($forum->can_post_anonymously() || $forum->can_indicate_moderator()) {
+                $options=array();
+                $options[mod_forumng::ASMODERATOR_NO] = get_string('asmoderator_post', 'forumng');
+                if ($forum->can_indicate_moderator()) {
+                    $options[mod_forumng::ASMODERATOR_IDENTIFY] = get_string('asmoderator_self', 'forumng');
+                }
+                if ($forum->can_post_anonymously()) {
+                    $options[mod_forumng::ASMODERATOR_ANON] = get_string('asmoderator_anon', 'forumng');
+                }
+                $mform->addElement('select', 'asmoderator', get_string('asmoderator', 'forumng'), $options);
+                $mform->addHelpButton('asmoderator', 'asmoderator', 'forumng');
+                $mform->setDefault('asmoderator', 0);
+                $mform->setType('asmoderator', PARAM_INT);
+            } else {
+                $mform->addElement('hidden', 'asmoderator', 0);
+                $mform->setType('asmoderator', PARAM_INT);
             }
         }
 
@@ -237,9 +254,11 @@ class mod_forumng_editpost_form extends moodleform {
                 continue;
             }
             $mform->addElement('hidden', $param, $value);
+            $mform->setType($param, PARAM_INT);
         }
         // Prevent multiple submits.
         $mform->addElement('hidden', 'random', rand());
+        $mform->setType('random', PARAM_INT);
     }
 
     public function validation($data, $files) {

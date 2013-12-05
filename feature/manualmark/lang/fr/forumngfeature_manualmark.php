@@ -27,7 +27,7 @@ $string['manualmark_change'] = 'Changer';
 
 $string['manualmark_change_help'] = '&lsquo;Marquer automatiquement les discussions comme lues&rsquo; marque toutes les messages de la discussion comme lus lorsque vous afficher le message dans la discussion.
 
-&lsquo;Marquer manuellement les discussions comme lues&rsquo; laisse les messages comme non lu jusqu\'&agrave; ce que vous cliquiez sur &lsquo;Marquer la discussion comme lue&rsquo;.
+&lsquo;Marquer manuellement les discussions comme lues&rsquo; laisse les messages comme non lu jusqu\'à ce que vous cliquiez sur &lsquo;Marquer la discussion comme lue&rsquo;.
 
-Cette option s\'applique &agrave; tous les forums sur le syst&egrave;me.';
+Cette option s\'applique à tous les forums sur le système.';
 $string['pluginname'] = 'Option de marquage de lecture de discussions';

@@ -21,6 +21,6 @@
  * @copyright 2011 The Open University
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-$string['movethisdiscussionto'] = 'D&eacute;placer cette discussion vers...';
-$string['move_group_info'] = 'Vous &ecirc;tes en train de d&eacute;placer cette discussion vers le forum <strong>{$a}</strong>. Ce forum utilise les groupes. Merci de s&eacute;lectionnez le groupe dans lequel vous souhaitez y d&eacute;placer le message.';
-$string['pluginname'] = 'D&eacute;placement de discussions';
+$string['movethisdiscussionto'] = 'Déplacer cette discussion vers...';
+$string['move_group_info'] = 'Vous êtes en train de déplacer cette discussion vers le forum <strong>{$a}</strong>. Ce forum utilise les groupes. Merci de sélectionnez le groupe dans lequel vous souhaitez y déplacer le message.';
+$string['pluginname'] = 'Déplacement de discussions';

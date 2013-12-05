@@ -103,62 +103,22 @@ if ($fromform = $mform->get_data()) {
     if (!empty($fromform->alert_conditionmore)) {
         $alltext .= "\n".$fromform->alert_conditionmore."\n";
     }
-    // CCnote is only print when the email is sent to 2 different addresses
-    // so that they can decide between themselves who should deal with the report.
-    $ccnote = '';
 
-    $forumfields = $DB->get_record('forumng', array('id' => $forumngid), '*', MUST_EXIST);
-    $siteemail = $CFG->forumng_reportunacceptable;
-    $forumemail = $forum->get_reportingemail();
-    $emailcopy = 1;
-    if (!empty($siteemail) && $forumemail != null && $siteemail != $forumemail ) {
-        $emailcopy = 2;
-        $fakeuser1 = (object)array(
-            'email' => $siteemail,
-            'mailformat' => 1,
-            'id' => 0,
-            'ccnote' => get_string('alert_note', 'forumng', $forumemail )
-            );
-        $fakeuser2 = (object)array(
-            'email' => $forumemail,
-            'mailformat' => 1,
-            'id' => 0,
-            'ccnote' => get_string('alert_note', 'forumng', $siteemail )
-            );
+    $recipients = $forum->get_reportingemails();
 
-    } else if (!empty($siteemail)) {
-        $fakeuser = (object)array(
-            'email' => $siteemail,
-            'mailformat' => 1,
-            'id' => 0
-        );
-    } else {
+    foreach ($recipients as $forumemail) {
+        // Send out email.
         $fakeuser = (object)array(
             'email' => $forumemail,
             'mailformat' => 1,
             'id' => 0
-        );
-    }
-
-    $from = $USER;
-
-    $subject = get_string('alert_emailsubject', 'forumng', $customdata);
-    if ($emailcopy == 1) {
+             );
+        $from = $USER;
+        $subject = get_string('alert_emailsubject', 'forumng', $customdata);
         $alltext .= get_string('alert_emailappendix', 'forumng' );
+
         if (!email_to_user($fakeuser, $from, $subject, $alltext)) {
             print_error('error_sendalert', 'forumng', $url, $fakeuser->email);
-        }
-    } else {
-        // Send 2 emails.
-        $alltext1 =$fakeuser1->ccnote. "\n\n". $alltext . "\n" .
-                get_string('alert_emailappendix', 'forumng' );
-        if (!email_to_user($fakeuser1, $from, $subject, $alltext1)) {
-            print_error('error_sendalert', 'forumng', $url, $fakeuser1->email);
-        }
-        $alltext2 =$fakeuser2->ccnote. "\n\n". $alltext . "\n" .
-                get_string('alert_emailappendix', 'forumng' );
-        if (!email_to_user($fakeuser2, $from, $subject, $alltext2)) {
-            print_error('error_sendalert', 'forumng', $url, $fakeuser2->email);
         }
     }
     // Log it after senting out

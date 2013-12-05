@@ -21,13 +21,13 @@
  * @copyright 2011 The Open University
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-$string['forward'] = 'Transf&eacute;rer par courriel';
+$string['forward'] = 'Transférer par courriel';
 $string['forward_intro'] = 'Introduction optionnelle';
 $string['forward_email'] = 'Adresse du destinataire';
 $string['forward_ccme'] = 'Recevoir une copie';
-$string['forward_preface'] = '<p>Ces messages du forum vous ont &eacute;t&eacute; envoy&eacute;s par {$a->name}.</p>';
-$string['forward_done'] = 'Le courriel a bien &eacute;t&eacute; envoy&eacute; .';
-$string['forward_info_selected'] = 'Les messages s&eacute;lectionn&eacute;s (voir en bas du formulaire) seront envoy&eacute;s &agrave; l\'adresse ou aux adresses indiqu&eacute;es. Le courriel sera envoy&eacute; sous votre nom <strong>{$a->fullname}</strong> depuis votre adresse de courriel <strong>{$a->email}</strong>.';
-$string['forward_info_all'] = 'Cette discussion sera envoy&eacute;e &agrave; l\'adresse ou aux adresses indiqu&eacute;es. Le courriel sera envoy&eacute; sous votre nom <strong>{$a->fullname}</strong> depuis votre adresse de courriel <strong>{$a->email}</strong>.';
-$string['forward_email_help'] = 'Entrez une ou plusieurs adresses de courriel s&eacute;par&eacute;es par des espaces ou des points-virgules.';
+$string['forward_preface'] = '<p>Ces messages du forum vous ont été envoyés par {$a->name}.</p>';
+$string['forward_done'] = 'Le courriel a bien été envoyé.';
+$string['forward_info_selected'] = 'Les messages sélectionnés (voir en bas du formulaire) seront envoyés à l\'adresse ou aux adresses indiquées. Le courriel sera envoyé sous votre nom <strong>{$a->fullname}</strong> depuis votre adresse de courriel <strong>{$a->email}</strong>.';
+$string['forward_info_all'] = 'Cette discussion sera envoyée à l\'adresse ou aux adresses indiquées. Le courriel sera envoyé sous votre nom <strong>{$a->fullname}</strong> depuis votre adresse de courriel <strong>{$a->email}</strong>.';
+$string['forward_email_help'] = 'Entrez une ou plusieurs adresses de courriel séparées par des espaces ou des points-virgules.';
 $string['pluginname'] = 'Transfert par courriel';

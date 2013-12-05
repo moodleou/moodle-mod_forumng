@@ -24,7 +24,7 @@
 $string['copy_discussion'] = 'Copier';
 $string['copy_info'] = 'Pour copier cette discussion vers un autre forum :<ol>
 <li>Cliquer sur <strong>Commencer la copie</strong> pour activer le porcessus.</li>
-<li>Aller vers le forum de destination. Cela peut &ecirc;tre dans le m&ecirc;mme forum (mais pour un groupe diff&eacute;rent), dans un autre forum du m&ecirc;me cours, ou un autre forum d\'un autre cours.</li>
+<li>Aller vers le forum de destination. Cela peut être dans le mêmme forum (mais pour un groupe différent), dans un autre forum du même cours, ou un autre forum d\'un autre cours.</li>
 <li>Cliquer sur <strong>Copier la discussion</strong> pour finir la copie, ou <strong>Annuler</strong> pour annuler le processus..</li>
 </ol>';
 $string['copy_begin'] = 'Commencer la copie';

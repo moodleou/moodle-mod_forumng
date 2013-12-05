@@ -40,6 +40,11 @@ class mod_forumng_mod_form extends moodleform_mod {
         // If this is a clone, don't show the normal form
         if ($this->clone) {
             $mform->addElement('hidden', 'name', $forumng->name);
+            if (!empty($CFG->formatstringstriptags)) {
+                $mform->setType('name', PARAM_TEXT);
+            } else {
+                $mform->setType('name', PARAM_NOTAGS);
+            }
             $mform->addElement('static', 'sharedthing', '', get_string(
                     'sharedinfo', 'forumng',
                     $CFG->wwwroot . '/course/modedit.php?update=' .
@@ -56,7 +61,7 @@ class mod_forumng_mod_form extends moodleform_mod {
         if (!empty($CFG->formatstringstriptags)) {
             $mform->setType('name', PARAM_TEXT);
         } else {
-            $mform->setType('name', PARAM_CLEAN);
+            $mform->setType('name', PARAM_NOTAGS);
         }
         $mform->addRule('name', null, 'required', null, 'client');
         $mform->addRule('name', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
@@ -86,13 +91,12 @@ class mod_forumng_mod_form extends moodleform_mod {
             // Hidden element contains default value (not used anyhow)
             $mform->addElement('hidden', 'subscription',
                 mod_forumng::SUBSCRIPTION_PERMITTED);
+            $mform->setType('subscription', PARAM_INT);
         }
 
         // Max size of attachments
         $choices = get_max_upload_sizes($CFG->maxbytes, $COURSE->maxbytes);
         $choices[-1] = get_string('uploadnotallowed');
-        $choices[0] = get_string('courseuploadlimit') . ' (' .
-            display_size($COURSE->maxbytes) . ')';
         $mform->addElement('select', 'attachmentmaxbytes',
             get_string('attachmentmaxbytes', 'forumng'), $choices);
         $mform->addHelpButton('attachmentmaxbytes', 'attachmentmaxbytes', 'forumng');
@@ -100,9 +104,13 @@ class mod_forumng_mod_form extends moodleform_mod {
 
         // Email address for reporting unacceptable post for this forum, default is blank.
         $mform->addElement('text', 'reportingemail', get_string('reportingemail', 'forumng'),
-            array('size'=>48));
+            array('size'=> 64));
         $mform->setType('reportingemail', PARAM_NOTAGS);
+        $mform->addRule('reportingemail',
+                get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
         $mform->addHelpButton('reportingemail', 'reportingemail', 'forumng');
+        $mform->addElement('checkbox', 'canpostanon', get_string('canpostanon', 'forumng'));
+        $mform->addHelpButton('canpostanon', 'canpostanon', 'forumng');
         // Atom/RSS feed on/off/discussions-only
         if ($CFG->enablerssfeeds && !empty($CFG->forumng_enablerssfeeds)) {
             if ($CFG->forumng_feedtype == -1 || $CFG->forumng_feeditems == -1) {
@@ -246,6 +254,7 @@ class mod_forumng_mod_form extends moodleform_mod {
                 $sharegroup = array();
                 $sharegroup[] = $mform->createElement('checkbox', 'useshared', '');
                 $sharegroup[] = $mform->createElement('text', 'originalcmidnumber', '');
+                $mform->setType('usesharedgroup[originalcmidnumber]', PARAM_RAW);
                 $mform->addGroup($sharegroup, 'usesharedgroup',
                         get_string('useshared', 'forumng'));
                 $mform->disabledIf('usesharedgroup[originalcmidnumber]',
@@ -271,6 +280,17 @@ class mod_forumng_mod_form extends moodleform_mod {
         $this->add_action_buttons();
     }
 
+    private function validate_emails($emails) {
+        // Loop through string looking for ';' as seperators.
+        $emailarray = explode(';' , $emails);
+        foreach ($emailarray as $email) {
+            if (!validate_email($email) ) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public function validation($data, $files) {
         global $COURSE, $CFG, $DB;
         $errors = parent::validation($data, $files);
@@ -279,7 +299,7 @@ class mod_forumng_mod_form extends moodleform_mod {
             !preg_match('/^[0-9]{1,9}$/', $data['limitgroup']['maxpostsblock'])) {
             $errors['limitgroup'] = get_string('err_numeric', 'form');
         }
-        if (!empty($data['reportingemail']) && !validate_email($data['reportingemail'])) {
+        if (!empty($data['reportingemail']) && !$this->validate_emails($data['reportingemail'])) {
             $errors['reportingemail'] = get_string('invalidemail', 'forumng');
         }
 
@@ -440,6 +460,10 @@ class mod_forumng_mod_form extends moodleform_mod {
         // Set the reportingemail to null if empty so that they are consistency
         if (empty($data->reportingemail)) {
             $data->reportingemail = null;
+        }
+        // Set the canpostanon to 0 if empty so that they are consistency
+        if (empty($data->canpostanon)) {
+            $data->canpostanon = 0;
         }
         // Set the removeto to null if the default option 'Delete permanently' was select
         if (empty($data->removeto)) {

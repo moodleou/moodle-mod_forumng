@@ -98,6 +98,12 @@ function forumng_get_results_for_this_forum($forum, $groupid, $author=null, $dat
         $where .= " AND (d.groupid = ? OR d.groupid IS NULL)";
         $params[] = $groupid;
     }
+    if (!is_null($author)) {
+        if (($forum->get_can_post_anon() == true ) && ($forum->can_post_anonymously() ==false)) {
+            $where .= " AND p.asmoderator != ? ";
+            $params[] = mod_forumng::ASMODERATOR_ANON;
+        }
+    }
 
     $sql = "SELECT p.modified, p.id, p.discussionid, p.userid, p.parentpostid,
             p.subject AS title, p.message AS summary, u.username, u.firstname,
@@ -206,6 +212,14 @@ function forumng_get_results_for_all_forums($course, $author=null, $daterangefro
     // Exclude older post versions.
     $where .= " AND p.oldversion = 0 ";
     $where .= " AND d.deleted = 0 AND p.deleted = 0 ";
+
+    if (!is_null($author)) {
+        $coursecontext = context_course::instance($course->id);
+        if (!has_capability('moodle/forumng:postanon', $coursecontext)) {
+            $where .= " AND p.asmoderator != ? ";
+            $params[] = mod_forumng::ASMODERATOR_ANON;
+        }
+    }
 
     if ($author) {
         list($morewhere, $moreparams) = forumng_get_author_sql($author);

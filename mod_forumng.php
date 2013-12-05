@@ -160,6 +160,13 @@ class mod_forumng {
      */
     const CLONE_GUESS = -2;
 
+    /** Discussion moderator post identity: standard post.*/
+    const ASMODERATOR_NO = 0;
+    /** Discussion moderator post identity: self as moderator.*/
+    const ASMODERATOR_IDENTIFY = 1;
+    /** Discussion moderator post identity: anonymously as moderator.*/
+    const ASMODERATOR_ANON = 2;
+
     // Static methods
     /*///////////////*/
 
@@ -380,6 +387,11 @@ class mod_forumng {
             return $info->forumtype;
         }
         return $info->get_custom_data()->type;
+    }
+
+    /** @return bool True if anonymous moderator posts enabled */
+    public function get_can_post_anon() {
+        return $this->forumfields->canpostanon;
     }
 
     // Object variables and accessors
@@ -646,6 +658,25 @@ WHERE
     /** @return reporting email of form */
     public function get_reportingemail() {
         return $this->forumfields->reportingemail;
+    }
+
+    /** @return array of reporting emails of forum */
+    public function get_reportingemails() {
+        global $CFG;
+        $recipients = $this->get_reportingemail();
+        if (!empty($recipients)) {
+            $recipients = explode(';', $recipients);
+        } else {
+            $recipients = array();
+        }
+        if (!empty($CFG->forumng_reportunacceptable)) {
+            // Check to see whether global forum report e-mail is already in recipients.
+            if (!in_array($recipients, $CFG->forumng_reportunacceptable)) {
+                // Add global recipient address to recipents array.
+                $recipients[] = $CFG->forumng_reportunacceptable;
+            }
+        }
+        return $recipients;
     }
 
     /** @return posting from of form */
@@ -1368,12 +1399,13 @@ WHERE $conditions AND m.name = 'forumng' AND $restrictionsql",
      * @param bool $sticky True if discussion should be sticky
      * @param int $userid User ID or 0 for current user
      * @param bool $log True to log this
+     * @param int $asmoderator values are ASMODERATOR_NO, ASMODERATOR_IDENTIFY or ASMODERATOR_ANON
      * @return array Array with 2 elements ($discussionid, $postid)
      */
     public function create_discussion($groupid,
             $subject, $message, $format, $attachments=false, $mailnow=false,
             $timestart=0, $timeend=0, $locked=false, $sticky=false,
-            $userid=0, $log=true) {
+            $userid=0, $log=true, $asmoderator = self::ASMODERATOR_NO) {
         global $DB;
         $userid = mod_forumng_utils::get_real_userid($userid);
 
@@ -1396,9 +1428,9 @@ WHERE $conditions AND m.name = 'forumng' AND $restrictionsql",
         $discussionobj->id = $DB->insert_record('forumng_discussions', $discussionobj);
         $newdiscussion = new mod_forumng_discussion($this, $discussionobj, false, -1);
 
-        // Create initial post
+        // Create initial post.
         $postid = $newdiscussion->create_root_post(
-            $subject, $message, $format, $attachments, $mailnow, $userid);
+            $subject, $message, $format, $attachments, $mailnow, $userid, $asmoderator);
 
         // Update discussion so that it contains the post id
         $changes = new StdClass;
@@ -2666,6 +2698,30 @@ WHERE
             $userid);
     }
 
+    /**
+     * @param int $userid User ID or 0 for current
+     * @return True if user can set posts as moderator
+     */
+    public function can_indicate_moderator($userid = 0) {
+        $userid = mod_forumng_utils::get_real_userid($userid);
+        return has_capability('mod/forumng:postasmoderator', $this->get_context(), $userid);
+    }
+
+    /**
+     * @param int $userid User ID or 0 for current
+     * @return True if user can set posts as anonymous
+     */
+    public function can_post_anonymously($userid = 0) {
+        $userid = mod_forumng_utils::get_real_userid($userid);
+        if ($this->get_can_post_anon() && has_capability('mod/forumng:postanon',
+                $this->get_context(), $userid)) {
+            return true;
+        } else {
+            return false;
+        }
+
+    }
+
     // Forum type
     /*///////////*/
 
@@ -3305,8 +3361,10 @@ WHERE
                 $root->search_update();
                 $root->search_update_children();
                 $root = null;
-                print '. ';
-                flush();
+                if ($feedback) {
+                    echo '. ';
+                    flush();
+                }
             }
 
             $transaction->allow_commit();
@@ -4413,7 +4471,7 @@ WHERE
                             mod_forumng_utils::copy("$oldfolder/$attachment",
                                 "$newfolder/$attachment");
                             $filesok ++;
-                        } catch (mod_forumng_exception $e) {
+                        } catch (moodle_exception $e) {
                             if ($progress) {
                                 print "[<strong>Warning</strong>: file copy failed for post " .
                                         $recp->id . " => " . $newp->id .
@@ -4962,6 +5020,23 @@ ORDER BY
         }
         $transaction->allow_commit();
     }
+
+    /*
+    * Call to check if search plugin exists.  If so, includes
+    * the library suppport, otherwise return false.
+    *
+    * @return bool True if OU search extension is installed.
+    */
+    public function oualerts_enabled() {
+        global $CFG;
+
+        if (file_exists($CFG->dirroot.'/report/oualerts/locallib.php')) {
+            @include_once($CFG->dirroot.'/report/oualerts/locallib.php');
+            return oualerts_enabled();
+        }
+        return false;
+    }
+
 }
 
 /**

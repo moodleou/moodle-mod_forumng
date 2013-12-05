@@ -118,6 +118,9 @@ a.forumng-iconlink:hover {
 #page-mod-forumng-feature-deletedposts-list .generaltable th {
     text-align: left;
 }
+.forumng-startedby td {
+     overflow: hidden;
+}
 .forumng-startedby a,
 .forumng-startedby img {
     vertical-align:middle;
@@ -269,6 +272,33 @@ form.forumng-flag div {
     text-decoration: none;
 }
 
+.forumng-startedby-wrapper {
+    margin-left: 51px;
+    overflow: hidden;
+}
+
+.forumng-startedbyimage {
+    display: inline;
+    float: left;
+    margin-right: 5px;
+    overflow: hidden;
+}
+
+.forumng-startedbyuser {
+    display: inline;
+    vertical-align:middle;
+    text-align: left;
+    width: 355px;
+    overflow: hidden;
+}
+
+.forumng-moderator {
+    display: block;
+}
+.forumng-moderator-flag {
+    font-weight: bold;
+}
+
 /*
 // Discussion page styles
 /////////////////////////
@@ -378,6 +408,7 @@ h2.forumng-author {
 }
 .forumng-subject {
     margin-top:0.5em;
+    word-break: break-word;
 }
 h3.forumng-subject {
     font-size:1em;
@@ -709,6 +740,9 @@ form.markread input {
 }
 .safari .forumng-confirmdialog {
     width: 375px;
+}
+.ie8 .forumng-confirmdialog {
+    width: 400px;
 }
 
 .forumng-confirmdialog .forumng-message {

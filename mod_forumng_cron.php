@@ -220,7 +220,7 @@ $mainquery", $mainparams);
                 if (count($subscribers)==0) {
                     continue;
                 }
-            } catch (mod_forumng_exception $e) {
+            } catch (coding_exception $e) {
                 // If an error occurs while getting subscribers, continue
                 // to next forum
                 mtrace(' Exception while getting subscribers for forum ' .
@@ -286,6 +286,12 @@ $mainquery", $mainparams);
                                         $plaintext, $html, $emailtype & 1,
                                         $emailtype & 2, $emailtype & 4, $lang,
                                         $timezone);
+
+                                    if ($post->get_asmoderator() == mod_forumng::ASMODERATOR_ANON) {
+                                        $from->maildisplay = false;
+                                        $from->firstname = get_string('moderator', 'forumng');
+                                        $from->lastname = '';
+                                    }
 
                                     $beforemail = microtime(true);
                                     if ($CFG->forumng_usebcc) {

@@ -299,7 +299,9 @@ try {
                 $fromform->timeend = strtotime('23:59:59', $fromform->timeend);
             }
         }
-
+        if (!isset($fromform->asmoderator)) {
+            $fromform->asmoderator = 0;
+        }
         $hasattachments = false;
         if (isset($fromform->attachments)) {
             $usercontext = context_user::instance($USER->id);
@@ -320,6 +322,9 @@ try {
             if (isset($fromform->sticky)) {
                 $options->sticky = $fromform->sticky;
             }
+            if (isset($fromform->asmoderator)) {
+                $options->asmoderator = $fromform->asmoderator;
+            }
             if (isset($fromform->mailnow)) {
                 $options->mailnow = $fromform->mailnow;
             }
@@ -333,8 +338,10 @@ try {
                 $transaction = $DB->start_delegated_transaction();
 
                 // Save any changes to files
-                file_save_draft_area_files($fromform->attachments, $filecontext->id, 'mod_forumng',
-                        'draft', $draft->get_id(), $fileoptions);
+                if (isset($fromform->attachments)) {
+                    file_save_draft_area_files($fromform->attachments, $filecontext->id, 'mod_forumng',
+                            'draft', $draft->get_id(), $fileoptions);
+                }
                 if (!empty($fromform->message['itemid'])) {
                     $fromform->message['text'] = file_save_draft_area_files($fromform->message['itemid'],
                             $filecontext->id, 'mod_forumng', 'draftmessage',
@@ -366,8 +373,10 @@ try {
                     $hasattachments, $options);
 
                 // Save any attachments
-                file_save_draft_area_files($fromform->attachments, $filecontext->id, 'mod_forumng',
-                        'draft', $newdraftid, $fileoptions);
+                if (isset($fromform->attachments)) {
+                    file_save_draft_area_files($fromform->attachments, $filecontext->id, 'mod_forumng',
+                            'draft', $newdraftid, $fileoptions);
+                }
                 if (!empty($fromform->message['itemid'])) {
                     $newtext = file_save_draft_area_files($fromform->message['itemid'],
                             $filecontext->id, 'mod_forumng', 'draftmessage', $newdraftid, $fileoptions,
@@ -413,11 +422,14 @@ try {
                     $forum->create_discussion($groupid,
                             $fromform->subject, $fromform->message['text'],
                             $fromform->message['format'], $hasattachments, !empty($fromform->mailnow),
-                            $fromform->timestart, $fromform->timeend, false, $fromform->sticky);
+                            $fromform->timestart, $fromform->timeend, false, $fromform->sticky,
+                            null, null, $fromform->asmoderator);
 
                 // Save attachments
-                file_save_draft_area_files($fromform->attachments, $filecontext->id, 'mod_forumng',
-                        'attachment', $postid, $fileoptions);
+                if (isset($fromform->attachments)) {
+                    file_save_draft_area_files($fromform->attachments, $filecontext->id, 'mod_forumng',
+                            'attachment', $postid, $fileoptions);
+                }
                 $newtext = file_save_draft_area_files($fromform->message['itemid'],
                         $filecontext->id, 'mod_forumng', 'message', $postid, $fileoptions,
                         $fromform->message['text']);
@@ -439,11 +451,14 @@ try {
                 // Create a new lock post
                 $transaction = $DB->start_delegated_transaction();
                 $postid = $discussion->lock($fromform->subject, $fromform->message['text'],
-                        $fromform->message['format'], $hasattachments, !empty($fromform->mailnow));
+                        $fromform->message['format'], $hasattachments, !empty($fromform->mailnow),
+                        '', '', $fromform->asmoderator);
 
                 // Save attachments
-                file_save_draft_area_files($fromform->attachments, $filecontext->id, 'mod_forumng',
-                        'attachment', $postid, $fileoptions);
+                if (isset($fromform->attachments)) {
+                    file_save_draft_area_files($fromform->attachments, $filecontext->id, 'mod_forumng',
+                            'attachment', $postid, $fileoptions);
+                }
                 $newtext = file_save_draft_area_files($fromform->message['itemid'],
                         $filecontext->id, 'mod_forumng', 'message', $postid, $fileoptions,
                         $fromform->message['text']);
@@ -462,11 +477,13 @@ try {
 
                 $postid = $replyto->reply($fromform->subject, $fromform->message['text'],
                         $fromform->message['format'], $hasattachments, !empty($fromform->setimportant),
-                        !empty($fromform->mailnow));
+                        !empty($fromform->mailnow), '', '', $fromform->asmoderator);
 
                 // Save attachments
-                file_save_draft_area_files($fromform->attachments, $filecontext->id, 'mod_forumng',
-                        'attachment', $postid, $fileoptions);
+                if (isset($fromform->attachments)) {
+                    file_save_draft_area_files($fromform->attachments, $filecontext->id, 'mod_forumng',
+                            'attachment', $postid, $fileoptions);
+                }
                 if (!empty($fromform->message['itemid'])) {
                     $newtext = file_save_draft_area_files($fromform->message['itemid'],
                             $filecontext->id, 'mod_forumng', 'message', $postid, $fileoptions,
@@ -496,10 +513,13 @@ try {
             // 1. Edit post if applicable
             if ($ispost) {
                 $gotsubject = $post->edit_start($fromform->subject, $hasattachments,
-                        !empty($fromform->setimportant), !empty($fromform->mailnow));
+                        !empty($fromform->setimportant), !empty($fromform->mailnow),
+                        '', '', $fromform->asmoderator);
 
-                file_save_draft_area_files($fromform->attachments, $filecontext->id, 'mod_forumng',
-                        'attachment', $post->get_id(), $fileoptions);
+                if (isset($fromform->attachments)) {
+                    file_save_draft_area_files($fromform->attachments, $filecontext->id, 'mod_forumng',
+                            'attachment', $post->get_id(), $fileoptions);
+                }
                 // itemid is not present when using text-only editor
                 if (!empty($fromform->message['itemid'])) {
                     $fromform->message['text'] = file_save_draft_area_files($fromform->message['itemid'],
@@ -518,7 +538,7 @@ try {
                     : $discussion->get_group_id();
                 $discussion->edit_settings($groupid, $fromform->timestart,
                     $fromform->timeend, $discussion->is_locked(),
-                    !empty($fromform->sticky));
+                    !empty($fromform->sticky), !empty($fromform->asmoderator));
             }
 
             // Redirect to view discussion
@@ -595,6 +615,7 @@ try {
             file_prepare_draft_area($draftitemid, $filecontext->id, 'mod_forumng',
                     'attachment', $post->get_id(), $fileoptions);
             $initialvalues->attachments = $draftitemid;
+            $initialvalues->asmoderator = $post->get_asmoderator();
 
             $messagedraftitemid = file_get_submitted_draft_itemid('message');
             $initialvalues->message['text'] = file_prepare_draft_area($messagedraftitemid,

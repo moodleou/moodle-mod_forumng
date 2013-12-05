@@ -25,8 +25,15 @@ $string['viewpostsbyuser'] = 'Afficher les messages par utilisateur';
 $string['userposts'] = 'Messages de l\'utilisateur';
 $string['showallpostsby'] = 'Afficher tous les messages de {$a}';
 $string['allpostsby'] = 'Tous les message de : {$a}';
-$string['notforsharedforum'] = 'Non pris en charge pour les forums partag&eacute;s';
-$string['replyin'] = 'R&eacute;ponse &agrave; la discussion : {$a}';
+$string['notforsharedforum'] = 'Non pris en charge pour les forums partagés';
+$string['replyin'] = 'Réponse à la discussion : {$a}';
 $string['userposts:view'] = 'Afficher la liste des messages de l\'utilisateur';
 $string['pluginname'] = 'Affichage des messages par utilisateur';
 $string['action'] = 'Action';
+$string['viewownposts'] = 'Mes messages';
+$string['nopostsby'] = 'Aucun message de {$a}';
+
+// User participation.
+$string['savegrades'] = 'Enregistrer les évaluations';
+$string['usergrade'] = 'Evaluation de l\'utilisateur';
+$string['gradesupdated'] = 'Evaluations mises à jour';

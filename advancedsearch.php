@@ -35,16 +35,21 @@ class advancedsearch_form extends moodleform {
         $mform->addElement('header', 'heading', get_string('advancedsearch', 'forumng'));
 
         $mform->addElement('hidden', 'course', $this->_customdata['course']);
+        $mform->setType('course', PARAM_INT);
         $mform->addElement('hidden', 'id', $this->_customdata['id']);
+        $mform->setType('id', PARAM_INT);
         if (isset($this->_customdata['cloneid'])) {
             $mform->addElement('hidden', 'clone', $this->_customdata['cloneid']);
+            $mform->setType('clone', PARAM_INT);
         }
 
         // Words to be searched.
         $mform->addElement('text', 'query', get_string('words', 'forumng'), 'size="40"');
+        $mform->setType('query', PARAM_TEXT);
 
         // Author name or OUCU to be filtered.
         $mform->addElement('text', 'author', get_string('authorname', 'forumng'), 'size="40"');
+        $mform->setType('author', PARAM_ALPHANUMEXT);
 
         // Date range_from to be filtered
         $mform->addElement('date_time_selector', 'datefrom',

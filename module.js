@@ -212,7 +212,7 @@ M.mod_forumng = {
 
         // Get post id listed as URL anchor, if any (initial run only)
         var expandposts = new Object;
-        if (this.Y.Node.getDOMNode(node) == document) {
+        if (this.Y.Node.getDOMNode(node) == document || node.get('id') == 'forumng-main') {
             // Post from location bar
             if (window.location.hash) {
                 var match = window.location.hash.match(/p([0-9]+)$/);
@@ -1246,15 +1246,14 @@ M.mod_forumng = {
                 M.mod_forumng.simulate_click(targetpost2.expandlink);
                 targetpost2.focushandler = focuser;
             }
+            var targetpost3 = this.Y.one('#' + id).get('parentNode');
+            // If post has already been expanded, focus it now
+            if (!targetpost3.focushandler) {
+                focuser();
+            }
 
             // Scroll to it
-            this.scroll_page(targetpost2, function() {
-                var targetpost3 = this.Y.one('#' + id).get('parentNode');
-                // If post has already been expanded, focus it now
-                if (!targetpost3.focushandler) {
-                    focuser();
-                }
-            });
+            this.scroll_page(targetpost2);
         }, this);
     },
 

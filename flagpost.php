@@ -70,7 +70,7 @@ try {
             '#p' . $post->get_id());
     }
 
-} catch (mod_forumng_exception $e) {
+} catch (coding_exception $e) {
     header('Content-Type: text/plain', true, 500);
     print $e->getMessage();
 }

@@ -101,7 +101,9 @@ function forumng_delete_instance($id) {
                 notify("Could not delete the Clone forumng (id) $clone->cloneforumngid ");
                 return false;
             }
-            if (!delete_course_module($clone->context->instanceid)) {
+            try {
+                course_delete_module($clone->context->instanceid);
+            } catch (moodle_exception $e) {
                 notify("Could not delete the Clone
                         forumng (coursemoduleid) $clone->context->instanceid ");
                 return false;
@@ -185,7 +187,7 @@ function forumng_ousearch_add_visible_module($cm, $course) {
  */
 function forumng_get_extra_capabilities() {
     return array('moodle/site:accessallgroups', 'moodle/site:viewfullnames',
-            'moodle/site:trustcontent');
+            'moodle/site:trustcontent', 'report/oualerts:managealerts');
 }
 
 /**
@@ -229,15 +231,17 @@ function forumng_get_file_info($browser, $areas, $course, $cm, $context, $filear
     if (!in_array($filearea, $fileareas)) {
         return null;
     }
+    //echo "$filearea :: $itemid:: $filepath :: $filename";
     try {
         // This will not work for users who can only access the clone forum but cannot access
         // the origin forumng. The ideal way is to pass in the real cloneid instead of using
         // CLONE_DIRECT which means always get the origin forum.
         // But we cannot get the cloneid in here without doing expensive querys such as get all
         // the clone forums and check them one by one.
+        //error_log("POSTID=$itemid");
         $post = mod_forumng_post::get_from_id($itemid, mod_forumng::CLONE_DIRECT);
 
-    } catch (mod_forumng_exception $e) {
+    } catch (coding_exception $e) {
         return null;
     }
 
@@ -279,8 +283,12 @@ function forumng_print_overview($courses, &$htmlarray) {
 
     foreach ($courses as $course) {
         $str = "";
-        $forums = mod_forumng::get_course_forums($course,
-                $USER->id, mod_forumng::UNREAD_DISCUSSIONS);
+        $forums = array();
+        // Read tracking is for real users only.
+        if (mod_forumng::enabled_read_tracking() && !isguestuser() && isloggedin()) {
+            $forums = mod_forumng::get_course_forums($course,
+                    $USER->id, mod_forumng::UNREAD_DISCUSSIONS);
+        }
         if (!empty($forums)) {
             foreach ($forums as $forum) {
                 // note like all mymoodle, there's no check current user can see each forum
@@ -372,6 +380,24 @@ function forumng_user_outline($course, $user, $mod, $forum) {
     }
 }
 
+/**
+ * List of view style log actions
+ * @return array
+ */
+function forumng_get_view_actions() {
+    return array('view', 'view all', 'view discussion');
+}
+
+/**
+ * List of update style log actions
+ * @return array
+ */
+function forumng_get_post_actions() {
+    return array('update', 'add', 'add discussion', 'add reply', 'delete post', 'edit post',
+            'delete discussion', 'undelete post', 'undelete discussion', 'lock discussion');
+}
+
+
 function mod_forumng_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload) {
     global $CFG, $USER;
     require_once($CFG->dirroot . '/mod/forumng/mod_forumng.php');
@@ -446,5 +472,70 @@ function mod_forumng_cm_info_dynamic(cm_info $cm) {
             context_module::instance($cm->id))) {
         $cm->uservisible = false;
         $cm->set_available(false);
+    }
+}
+
+/**
+ * Returns an array of recipients for OU alerts
+ * @param char $type
+ * @param int $id
+ * @returns array
+ */
+function forumng_oualerts_additional_recipients($type, $id) {
+    global $CFG;
+    require_once($CFG->dirroot . '/mod/forumng/mod_forumng.php');
+    require_once($CFG->dirroot . '/mod/forumng/mod_forumng_discussion.php');
+
+    $recipents = array();
+    if ($type == 'post') {
+        $discussion = mod_forumng_discussion::get_from_post_id($id, mod_forumng::CLONE_DIRECT);
+        $forum = $discussion->get_forum();
+        $recipients = $forum->get_reportingemails();
+    }
+    return($recipients);
+}
+
+/**
+ * Return post subject or current discussion title
+ * @param char $item
+ * @param int $id
+ * @returns string
+ */
+function forumng_oualerts_custom_info($item, $id) {
+    global $CFG;
+    require_once($CFG->dirroot . '/mod/forumng/mod_forumng.php');
+    require_once($CFG->dirroot . '/mod/forumng/mod_forumng_post.php');
+
+    $title = '';
+    if ($item == 'post') {
+        $post = mod_forumng_post::get_from_id($id, mod_forumng::CLONE_DIRECT);
+    }
+
+    if ($post) {
+        $title = $post->get_subject();
+        if ($title == null) {
+            // We need to get the last previous post that has a subject field.
+            $title = $post->get_effective_subject(true);
+        }
+    }
+    return $title;
+}
+
+/**
+ * Provides a link for managing OU alerts reports
+ * @param settings_navigation $settings
+ * @param navigation_node $node
+ */
+function forumng_extend_settings_navigation(settings_navigation $settings, navigation_node $node) {
+    global $PAGE, $CFG, $COURSE;
+    require_once($CFG->dirroot . '/mod/forumng/mod_forumng.php');
+
+    $forum = mod_forumng::get_from_cmid($PAGE->cm->id, mod_forumng::CLONE_DIRECT);
+    $context = $forum->get_context();
+    if ($forum->oualerts_enabled() && has_capability('report/oualerts:managealerts', $PAGE->cm->context)
+            && ((count($forum->get_reportingemails()) > 0)) ) {
+        $managelevelnode = $node->add(get_string('managepostalerts', 'forumng'),
+            new moodle_url( '/report/oualerts/manage.php',
+            array('coursename' => $COURSE->id, 'contextcourseid' => $COURSE->id, 'cmid' => $PAGE->cm->id)));
     }
 }

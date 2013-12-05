@@ -174,7 +174,12 @@ if (isset($discussions)) {
 
         // Remaining details straightforward
         $data->description = $post->get_formatted_message();
-        $data->author = $forum->display_user_name($post->get_user());
+        if ($post->get_asmoderator() == mod_forumng::ASMODERATOR_NO ||
+                $forum->can_post_anonymously()) {
+            $data->author = $forum->display_user_name($post->get_user());
+        } else {
+            $data->author = get_string('moderator', 'forumng');
+        }
         $data->link = $post->get_url();
         $data->pubdate = $post->get_modified();
 

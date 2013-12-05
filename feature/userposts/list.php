@@ -94,6 +94,9 @@ $users = get_enrolled_users($context, '', $groupid > 0 ? $groupid : 0,
         'u.id, u.lastname, u.firstname, u.username, u.picture, u.imagealt, u.email');
 
 if (!$ptable->is_downloading()) {
+    if ($perpage > count($users)) {
+        $perpage = count($users);
+    }
     $ptable->pagesize($perpage, count($users));
     $offset = $page * $perpage;
     $endposition = $offset + $perpage;

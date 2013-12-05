@@ -79,5 +79,31 @@ function xmldb_forumng_upgrade($oldversion=0) {
         upgrade_mod_savepoint(true, 2013082000, 'forumng');
     }
 
+    if ($oldversion < 2013100801) {
+        // Define field canpostanon to be added to forumng.
+        $table = new xmldb_table('forumng');
+        $field = new xmldb_field('canpostanon', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'gradingscale');
+
+        // Launch add field canpostanon.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Define field asmoderator to be added to forumng_posts.
+        $table = new xmldb_table('forumng_posts');
+        $field = new xmldb_field('asmoderator', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'attachments');
+
+        // Launch add field asmoderator.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Changed format of modinfo cache, so need to rebuild all courses.
+        rebuild_course_cache(0, true);
+
+        // ForumNG savepoint reached.
+        upgrade_mod_savepoint(true, 2013100801, 'forumng');
+    }
+
     return true;
 }

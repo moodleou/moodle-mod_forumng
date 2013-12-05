@@ -21,7 +21,7 @@
  * @copyright 2011 The Open University
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class mod_mod_forumng_file_exception extends moodle_exception {
+class mod_forumng_file_exception extends moodle_exception {
     /**
      * Constructor.
      * @param string $error Actual error message (not displayed to user unless debug is turned on)

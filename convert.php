@@ -56,6 +56,7 @@ class mod_forumng_convert_form extends moodleform {
         $this->add_action_buttons(true, get_string('convert_title', 'forumng'));
 
         $mform->addElement('hidden', 'course', $this->_customdata->id);
+        $mform->setType('course', PARAM_INT);
     }
 }
 

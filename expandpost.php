@@ -51,7 +51,7 @@ try {
     } else {
         mod_forumng_post::print_for_ajax_and_exit($post);
     }
-} catch (mod_forumng_exception $e) {
+} catch (coding_exception $e) {
     header('Content-Type: text/plain', true, 500);
     print $e->getMessage();
 }

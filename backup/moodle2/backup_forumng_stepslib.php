@@ -45,7 +45,7 @@ class backup_forumng_activity_structure_step extends backup_activity_structure_s
             'reportingemail', 'subscription', 'feedtype', 'feeditems',
             'maxpostsperiod', 'maxpostsblock', 'postingfrom', 'postinguntil',
             'typedata', 'magicnumber', 'completiondiscussions', 'completionreplies',
-            'completionposts', 'removeafter', 'removeto', 'shared', 'originalcmid', 'gradingscale'));
+            'completionposts', 'removeafter', 'removeto', 'shared', 'originalcmid', 'gradingscale', 'canpostanon'));
 
         $discussions = new backup_nested_element('discussions');
 
@@ -57,7 +57,7 @@ class backup_forumng_activity_structure_step extends backup_activity_structure_s
         $post = new backup_nested_element('post', array('id'), array(
             'parentpostid', 'userid', 'created', 'modified', 'deleted', 'deleteuserid',
             'important', 'mailstate', 'oldversion', 'edituserid',
-            'subject', 'message', 'messageformat', 'attachments'));
+            'subject', 'message', 'messageformat', 'attachments', 'asmoderator'));
 
         $ratings = new backup_nested_element('ratings');
 
@@ -78,7 +78,7 @@ class backup_forumng_activity_structure_step extends backup_activity_structure_s
 
         $draft = new backup_nested_element('draft', array('id'), array(
             'userid', 'groupid', 'parentpostid',
-            'subject', 'message', 'messageformat', 'attachments', 'saved', 'options'));
+            'subject', 'message', 'messageformat', 'attachments', 'saved', 'options', 'asmoderator'));
 
         $flags = new backup_nested_element('flags');
 
