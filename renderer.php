@@ -1694,4 +1694,13 @@ class mod_forumng_renderer extends plugin_renderer_base {
         return html_writer::tag('div', htmlentities($messagehtml, ENT_QUOTES),
                 array('id' => 'delete-form-html'));
     }
+
+    /**
+     * Display 'Skip sticky discussions' link.
+     * @return string HTML for the jump link.
+     */
+    public function render_skip_link($id) {
+        return html_writer::tag('a', get_string('skipstickydiscussions', 'forumng'),
+                array('href' => '#discrow_' . $id, 'class' => 'skip'));
+    }
 }

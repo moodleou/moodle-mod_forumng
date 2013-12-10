@@ -157,6 +157,11 @@ class forumngtype_general extends forumngtype {
         // Post button - temporarily disabled when in all-groups mode
         print ($groupid == null) ? '':$forum->display_post_button($groupid);
 
+        // Provide link to skip sticky discussions.
+        if (count($sticky) > 0 && count($normal) > 0) {
+            print $out->render_skip_link(key($normal));
+        }
+
         print $list->display_paging_bar($baseurl);
 
         if (count($sticky) + count($normal) > 0) {
