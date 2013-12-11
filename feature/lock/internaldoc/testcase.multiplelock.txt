@@ -66,7 +66,7 @@ BLD Basic lock discussions usage   (non-JS).
 
 BLD01 / admin
    Click F.LD to enter the first ForumNG.
--  Confim that the forum view page shows all three discussions, and that they can be ordered by the
+-  Confirm that the forum view page shows all three discussions, and that they can be ordered by the
    column headings.
 
 BLD02 / admin
@@ -79,9 +79,9 @@ BLD03 / admin
    Click 'All discussions shown'.
    Confirm that a 'Lock discussion(s)' form is displayed on the page, that the Subject has a default
    entry, "This discussion is now closed"
-   Confirm that there are two file addition areas, the second labeled Attachments.
+   Confirm that there are two file addition areas, the second labelled Attachments.
    Confirm that there is a 'Mail soon' check box, with help.
-   Finally, confirm three buttons 'Lock discussion', 'Cancel', and 'Save as draft'.
+   Finally, confirm two buttons 'Lock discussion' and 'Cancel'.
 
 BLD04 / admin
    Enter a message regarding locking all discussions.
@@ -108,7 +108,7 @@ BLD07 / admin
   Return to the forum view page.
 
 BLD08 / admin
--  Confim that the forum view page shows all three discussions, and that none are now locked.
+-  Confirm that the forum view page shows all three discussions, and that none are now locked.
 
 BLD09 / admin
    Click 'Lock'.
@@ -133,7 +133,7 @@ BLD11 / admin
 BLD12 / admin
 -   Confirm that a 'Lock discussion(s)' form is displayed as before, the Subject has a default entry,
    "This discussion is now closed".
--   Confirm that there are two file addition areas, the second labeled Attachments.
+-   Confirm that there are two file addition areas, the second labelled Attachments.
 -   Confirm two further areas, Display period and Discussion options
 -   Confirm three buttons 'Lock discussion', 'Cancel', and 'Save as draft'.
 
@@ -177,7 +177,7 @@ BJD03 / admin
    Click 'All discussions shown'.
 -  Confirm that a 'Lock discussion(s)' form is displayed on the page, that the Subject has a default
    entry, "This discussion is now closed".
--  Confirm that there is a box labeled Attachments split into three rows, with links 'Add', 'Files'
+-  Confirm that there is a box labelled Attachments split into three rows, with links 'Add', 'Files'
    and a large area below. Except in IE8, this area may have a caption 'You can drag and drop files
    here to add them'.
 -  Confirm that thee are two further areas below, Display period and Discussion options
@@ -217,7 +217,7 @@ BJD07 / admin
   Click F.LD to return to the forum view page.
 
 BJD08 / admin
--  Confim that the forum view page shows all three discussions,and that discussion 3 is shown as
+-  Confirm that the forum view page shows all three discussions,and that discussion 3 is shown as
    'deleted' and greyed out.
 
 BJD09 / admin
@@ -270,7 +270,7 @@ BJD16 / admin
    Enter discussion 2.
 -  Verify that the top discussion post is high-lighted and contains the title,
    'This discussion is now closed' and the message entered 'Regarding locking all discussions,
-   with added attachment provided', and that the uploaded files link ios displayed to the
+   with added attachment provided', and that the uploaded files link is displayed to the
    right of the text.
    Scroll to the bottom of the posts.
 -   Verify that there is an 'Unlock' button on the left.
