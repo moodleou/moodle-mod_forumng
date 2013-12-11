@@ -72,8 +72,8 @@ BLD01 / admin
 BLD02 / admin
    Click 'Lock'.
 -  Confirm that the Lock page opens with the text 'Do you want to include all
-   discussions listed on this page, or only selected discussions?' and two buttons beneath:
-   'All discussions shown' and 'Selected discussions'.
+   discussions listed on this page, or only selected discussions?' and three buttons beneath:
+   'All discussions shown', 'Selected discussions' and 'Cancel'.
 
 BLD03 / admin
    Click 'All discussions shown'.
@@ -180,7 +180,7 @@ BJD03 / admin
 -  Confirm that there is a box labelled Attachments split into three rows, with links 'Add', 'Files'
    and a large area below. Except in IE8, this area may have a caption 'You can drag and drop files
    here to add them'.
--  Confirm that thee are two further areas below, Display period and Discussion options
+-  Confirm that there are two further areas below, Display period and Discussion options
 -  Confirm three buttons 'Lock discussion', 'Cancel', and 'Save as draft'.
 
 BJD04 / admin

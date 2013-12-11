@@ -134,6 +134,8 @@ abstract class forumngfeature_discussion_selector extends forumngfeature_post_se
                         'type' => 'submit', 'value' => get_string('selectoralldisc', 'forumng')));
                 print html_writer::empty_tag('input', array('name' => 'select',
                         'type' => 'submit', 'value' => get_string('selectorselecteddisc', 'forumng')));
+                print html_writer::empty_tag('input', array('name' => 'cancel',
+                        'type' => 'submit', 'value' => get_string('cancel')));
                 print html_writer::end_tag('div');
                 print html_writer::end_tag('div');
                 print html_writer::end_tag('form');
