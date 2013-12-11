@@ -603,7 +603,7 @@ EXP05 / U.ET
    does not include the message above the post,
    'This is an anonymous post created by moderator uet username'
 -  Verify that in HTML output, the post 'Teacher UET anonymous moderator discussion 2' does not include
-   the moderator name, or the detail of the editing and the history link.
+   the moderator name, or the editing history link.
 
 Test complete.
 ==============
