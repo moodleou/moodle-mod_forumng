@@ -400,8 +400,6 @@ DRP01 / U.S1
 DRP02 / U.S1
   Go into discussion (DRP01). Click Reply. Enter some text into the message,
   but instead of posting the reply, click 'Save as draft'.
-  - Verify that URL is editpost.php (it should be if you are using the
-    correct user).
   - Verify that form reloads with message above it that says draft is saved.
   Return to main forum page.
   - Verify that draft is present.
@@ -482,7 +480,7 @@ ATT01 / U.S1 [change]
   - Discussion should appear.
   - Attachment should be shown in top right of post.
   Click on attachment.
-  - Browser should offer download prompt for you to save attachment.
+  - Browser should load the attachment.
 
 ATT02 / U.S1
   Click Reply against the post. On the resulting form, add two attachments,
@@ -786,10 +784,6 @@ DEL02 / U.ET
   - Options form should appear.
   Change show from date to set it to a time in the future e.g. 2020. Save
   changes.
-  NOTE: The date selector behaviour has an astonishingly poor user interface -
-  it pops up a calendar window underneath the dropdown. This is not a forum
-  bug but is a general Moodle problem. Please bear with it and try to select
-  the dates despite this added challenge.
   - Should return to discussion.
   Go to F.SH main page.
   - Discussion should now show in grey (but not crossed out) with a clock icon
@@ -909,7 +903,7 @@ DEP05 / U.ET [Change]
 DEP06 / U.ET
 -  Confirm that you are returned to the discussion.
 -  Confirm that the post 'DEP03 user two response' is now visible as deleted by uet {username}.
--  Confirm that user2 has recieved an email 'Your post has been deleted'.
+-  Confirm that user2 has received an email 'Your post has been deleted'.
 -  Verify that the above message is reproduced in the email.
 
 DEP07 / U.ET
@@ -932,8 +926,8 @@ DEP07 / U.ET
 DEP08 / U.ET
 -  Confirm that you are returned to the discussion.
 -  Confirm that the post 'DEP04 user two response two' is now visible as deleted by uet {username}.
--  Confirm that user U.S2 has recieved an email 'Your post has been deleted'.
--  Confirm that user U.ET has recieved an email 'Copy - Your post has been deleted'.
+-  Confirm that user U.S2 has received an email 'Your post has been deleted'.
+-  Confirm that user U.ET has received an email 'Copy - Your post has been deleted'.
 -  Verify that the above form message is reproduced in the emails, followed by the deleted post.
 
 DEP08A / U.ET
@@ -957,9 +951,9 @@ DEP08A / U.ET
 DEP08B / U.ET
 -  Confirm that you are returned to the discussion.
 -  Confirm that the post 'DEP04A user two response three' is now visible as deleted by uet {username}.
--  Confirm that user U.S2 has recieved an email 'Your post has been deleted'.
--  Confirm that user U.ET has recieved an email 'Copy - Your post has been deleted'.
--  Confirm that the other users have recieved an email 'Copy - Your post has been deleted'.
+-  Confirm that user U.S2 has received an email 'Your post has been deleted'.
+-  Confirm that user U.ET has received an email 'Copy - Your post has been deleted'.
+-  Confirm that the other users have received an email 'Copy - Your post has been deleted'.
 -  Verify that the above form message is reproduced in the emails, followed by the deleted post.
 
 EML Email
@@ -1085,12 +1079,9 @@ EML08 / U.ET [change]
 AREAS THAT SHOULD BE TESTED BUT HAVE NOT BEEN
 =============================================
 
-These areas will probably totally not work (except backup/restore; there isn't
-a test case, but I did test it while I rewrote it).
-
 * Backup/restore
 
-* Email digest (this always breaks because we never test it)
+* Email digest
 
 * Atom/RSS feeds
 
@@ -1099,8 +1090,6 @@ a test case, but I did test it while I rewrote it).
 * Forward by email
 
 * Print
-
-* Report/alert feature
 
 * Show readers
 
