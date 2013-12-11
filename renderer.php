@@ -951,7 +951,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
             'title = "' . get_string('important', 'forumng') . '"/>' : '';
             if ($export) {
                 if (!$options[mod_forumng_post::OPTION_IS_ANON]) {
-                    $out .=  $by->name;
+                    $out .=  $by->name . ' ';
                 }
             } else {
                 if (!$options[mod_forumng_post::OPTION_IS_ANON]) {
