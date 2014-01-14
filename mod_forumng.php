@@ -2240,7 +2240,8 @@ WHERE
                 if (!$allowedusers) {
                     // Obtain the list of users who are allowed to see the forum.
                     // As get_users_by_capability can be expensive, we only do this
-                    // once we know there actually are subscribers.
+                    // once we know there actually are subscribers (and force rasing memory).
+                    raise_memory_limit(MEMORY_EXTRA);
                     $allowedusers = get_users_by_capability($context,
                         'mod/forumng:viewdiscussion', 'u.id', '', '', '',
                         $groups, '', 0, 0, true);
@@ -2301,6 +2302,7 @@ WHERE
             }
         }
         $rs->close();
+        $allowedusers = null;
 
         // 1. loop through array and clear the discussions/groupids array if wholeforum is true.
         // 2. Find any user unsubscribed from initial subscribed forum. If the user has been
