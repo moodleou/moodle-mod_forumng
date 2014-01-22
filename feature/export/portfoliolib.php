@@ -208,8 +208,9 @@ class forumng_all_portfolio_caller extends forumng_portfolio_caller_base {
     }
 
     public function get_return_url() {
-        return new moodle_url('/mod/forumng/discuss.php',
+        $url = new moodle_url('/mod/forumng/discuss.php',
                 array('d' => $this->discussionid, 'clone' => $this->cloneid));
+        return $url->out(false);
     }
 
     public function prepare_package() {
@@ -402,8 +403,9 @@ class forumng_discussions_portfolio_caller extends forumng_all_portfolio_caller 
     }
 
     public function get_return_url() {
-        return new moodle_url('/mod/forumng/view.php',
+       $url = new moodle_url('/mod/forumng/view.php',
                 array('id' => $this->cm->id, 'clone' => $this->cloneid));
+       return $url->out(false);
     }
 
     public function prepare_package() {
