@@ -4749,10 +4749,11 @@ WHERE
     /**
      * Gets all user post counts.
      * @param int $groupid Group ID or NO_GROUPS/ALL_GROUPS
+     * @param bool $ignoreanon Ignore posts marked as anonymous
      * @return array An associative array of $userid => (info object)
      *   where info object has ->discussions and ->replies values
      */
-    public function get_all_user_post_counts($groupid) {
+    public function get_all_user_post_counts($groupid, $ignoreanon = false) {
         global $DB;
 
         if ($groupid != self::NO_GROUPS && $groupid != self::ALL_GROUPS) {
@@ -4761,6 +4762,13 @@ WHERE
         } else {
             $groupwhere = '';
             $groupparams = array();
+        }
+
+        $anonparams = array();
+        $anonwhere = '';
+        if ($ignoreanon) {
+            $anonwhere = 'AND fp.asmoderator != ?';
+            $anonparams[] = self::ASMODERATOR_ANON;
         }
 
         $results = array();
@@ -4779,11 +4787,12 @@ WHERE
     WHERE
         fd.forumngid = ?
         $groupwhere
+        $anonwhere
         AND fd.deleted = 0
         AND fp.deleted = 0
         AND fp.oldversion = 0
     GROUP BY
-        fp.userid", array_merge(array($this->get_id()), $groupparams));
+        fp.userid", array_merge(array($this->get_id()), $groupparams, $anonparams));
 
             // Store in results
             foreach ($rs as $rec) {
