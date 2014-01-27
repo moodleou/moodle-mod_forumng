@@ -1,0 +1,162 @@
+This file contains a sequence of test cases for the auto locking ForumNG feature.
+
+
+Each section has a unique (within this test case) three letter code and the
+steps are numbered so that the location where a failure occurs can be reported.
+
+Steps are shown in the following format:
+
+XXX01 / U.S1 [change]
+  Do something
+  - Check something
+
+The unique step number is followed by the user that you should be logged
+in as for that step. If the user changes from the previous step, the word
+[Change] will be noted.
+
+Some steps don't have specific items to check. In that case, the check
+'passes' if there are no errors or warnings while completing the task.
+
+When told to create a discussion or reply, you may wish to use the code number
+for that step inside the text of the discussion/reply. Occasionally, later
+steps might refer to the reply UNR03 or whatever.
+
+
+Initial setup
+=============
+
+Site Administration > Plugins > Activity modules > ForumNG
+
+check 'Show ID numbers'
+check 'Enable advanced features'
+click 'Save changes'
+
+Please set up a standard test course as follows.
+
+Course short name
+-----------------
+Create course (OU Website)
+Create Module website
+Set Module code to CR100
+Set Pres code to 13K
+Under Unapproved modules
+click against 'Allow modules that are not yet approved in CIRCE'
+click against 'Add to vl_v_crs_version_pres (developers only)'
+Create website
+
+CRE Creating ForumNG for Course CR100
+===================================
+
+CRE01 / admin
+ In course week 1, from the add activity dropdown, choose 'ForumNG'.
+
+ Create a forumNG MST1 (title and description)
+ Check against Forum sharing 'Allow forum to be shared'
+ Set 'Group mode' to 'No groups'
+ Enter an ID number MST1
+ Click against 'Save and display'
+
+Note : Equally the MST1 forumNG ID number can be set by
+ Navigation > course code > Reports > ID Numbers
+ to set an ID number for the forum
+
+CRE02 / admin
+ Open Forum MST1
+ Add discussion D1 (subject)
+ In Message type 'D1
+ Post Discussion
+
+CRE03 / admin
+ Add discussion D2 (subject)
+ In Message type 'D2
+ Post Discussion
+
+CRE04 / admin
+ In course week 2, from the add activity dropdown, choose 'ForumNG'.
+ Create forumNG Clone 1 (title and description)
+ Under 'Forum Sharing'
+ Tick check box against 'Clone existing forum'
+ Enter 'MST1' in the text field next to the check box.
+ Save and Display
+
+CRE05 / admin
+ This should display the D1 and D2 discussions.
+ Return to main course page
+
+CRE06 / admin
+ In course week 2, from the add activity dropdown, choose 'ForumNG'.
+
+ Create a forumNG MST2 (title and description)
+ Check against Forum sharing 'Allow forum to be shared'
+ Set 'Group mode' to 'No groups'
+ Enter an ID number AUTO_MST2
+ Click against 'Save and display'
+
+CRE07 / admin
+ Open Forum MST2
+ Add discussion D3 (subject)
+ In Message type D3
+ Post Discussion
+
+CRE08 / admin
+ Add discussion D4 (subject)
+ In Message type D4
+ Post Discussion
+
+CRE09 / admin
+ In course week 3, from the add activity dropdown, choose 'ForumNG'.
+ Create forumNG Clone 2 (title and description)
+ Under 'Forum Sharing'
+ Tick check box against 'Clone existing forum'
+ Enter 'AUTO_MST2' in the text field next to the check box.
+ Save and Display
+
+CRE10 / admin
+ This should display the D3 and D4 discussions.
+
+Testing Improved ForumNG Master/clone Restoring
+===============================================
+
+TST01 / admin
+ Return to main course page
+ Under 'Course Administration'
+ Click against 'Backup'
+ Perform the backup
+
+TST02 / admin
+ Once the course has been backed up
+ Return to main course page
+ Under 'Course Administration'
+ Click against 'Restore'
+ Choose the backup file in the 'Course backup area' by clicking on the 'Restore' link by the file's name
+ Restore has a new course choosing a category to place the course in.
+ When prompted to enter a shortname type in 'CR200-13K'
+ Perform restore.
+
+TST03 / admin
+ Click against MST1 in week 1
+ This should contain discussions D1 and D2
+ Check MST 1 does not have any clones, and carries an id of MST1_1
+
+TST04 / admin
+ Click against MST1 in week 2
+ Check that MST1 Clone points to MST1 on course CR100 - and we can alter/add discussions.
+
+TST05 / admin
+ Click against MST2 in week 2
+ Check MST2 points to MST2 clone on this course CR200 and carries an id of AUTO_MST2_1
+ Click against the link on
+ 'This forum is shared under the name AUTO_MST2_1 for use in other courses. It is included in the following: CR200-13K(_n).'
+ or click against MST2 in week 3
+
+TST06 / admin
+ Check MST2 Clone points to MST2 on this course CR200
+ Add a discussion D6
+ Click on the original forum link which should take you to MST2 in week 2
+ Check that MST2 in week 2 has D6 added to it.
+
+TST07 / admin
+Repeat TST01 through TST06
+Backup course CR200-13K and restore as CR300-13K
+Check all suffix have been incremented to _2
+Check we can add discussions to all forums as per the tests above and that the discussions should appear in their correct forums.

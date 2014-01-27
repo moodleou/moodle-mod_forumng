@@ -451,6 +451,12 @@ $string['shared'] = 'Allow forum to be shared';
 $string['shared_help'] = 'Tick this box, and set the ID number field below, to enable this forum
 to be shared.
 
+If you prefix the ID number with the prefix of AUTO_ it means that any clone forums will automatically look
+for the latest version of a master forum on restore.
+
+If the forum is backed up and restored if not unique it will add _1 to end
+(if already has _number at end then increment that number e.g. _2).
+
 This forum will become the original forum. You can then create one or more copies of this forum
 by choosing <strong>Use existing shared forum</strong>, and typing in the same ID number, when
 creating each copy.';

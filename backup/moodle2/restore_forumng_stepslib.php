@@ -31,7 +31,7 @@ class restore_forumng_activity_structure_step extends restore_activity_structure
      * ID of forum processed in this step
      * @var int
      */
-    private $forumngid;
+    private $forumngid, $shared, $type;
 
     protected function define_structure() {
         $paths = array();
@@ -55,7 +55,7 @@ class restore_forumng_activity_structure_step extends restore_activity_structure
                     '/activity/forumng/drafts/draft');
         }
 
-        // Return the paths wrapped into standard activity structure
+        // Return the paths wrapped into standard activity structure.
         return $this->prepare_activity_structure($paths);
     }
 
@@ -78,6 +78,8 @@ class restore_forumng_activity_structure_step extends restore_activity_structure
         $newitemid = $DB->insert_record('forumng', $data);
         $this->apply_activity_instance($newitemid);
         $this->forumngid = $newitemid;
+        $this->shared = $data->shared;
+        $this->type = $data->type;
     }
 
     protected function process_forumng_discussion($data) {
@@ -235,5 +237,172 @@ UPDATE {forumng_discussions} SET lastpostid=(
         if ($this->get_setting_value('userinfo') && mod_forumng::search_installed()) {
             mod_forumng::search_update_all(false, $this->get_courseid(), $this->task->get_moduleid());
         }
+
+        // See what $this->task->get_moduleid() contains, then check master|clone.
+        // If we have the module id we can use that to get the cm.
+        if ($cmid = $this->task->get_moduleid()) {
+            // Check to see whether forum is shared or a clone.
+            if ($this->shared) {
+                // Master.
+                // Get the ID number - probably from the course_modules table using $this->task->get_moduleid() in a query.
+                $cm = $DB->get_record('course_modules', array('id' => $cmid), '*', MUST_EXIST);
+                $idnumber = $cm->idnumber;
+                // Check for any other forumng module instances using the same ID number - .
+                // if any then add _1 to end (if already has _number at end then increment that number e.g. _2).
+                $newidnumber = $this->get_new_idnumber($idnumber);
+                // Set new idnumber.
+                $cm->idnumber = $newidnumber;
+                $DB->update_record('course_modules', $cm);
+            } else if ($this->type === 'clone') {
+                // Clone.
+                $cm = $DB->get_record('course_modules', array('id' => $cmid), '*', MUST_EXIST);
+                $forumng = $DB->get_record('forumng', array('id' => $cm->instance), '*', MUST_EXIST);
+                // If clone get original cmid ID number, if exists and has AUTO_ prefix,
+                // If exists and has AUTO_ prefix.
+                if (!empty($forumng->originalcmid)) {
+                    $originalcm = $DB->get_record_sql('select * from {course_modules} where module =
+                            (select id from {modules} where name = ?) and id = ?', array('forumng', $forumng->originalcmid));
+                    $strippedidnumber = $originalcm->idnumber;
+                    // If exists and has AUTO_ prefix.
+                    $idnumber = $this->strip_auto_from_idnumber($originalcm->idnumber);
+                    if ($idnumber != $originalcm->idnumber) {
+                        $strippedidnumber = $idnumber;
+                        // We have an AUTO_ prefix.
+                        // Do we have a valid suffix.
+                        $suffix = $this->get_possible_suffix($originalcm->idnumber, '_');
+                        if ($suffix != 0) {
+                            // We have a valid suffix.
+                            // Remove the suffix from the idnumber by getting the last '_' .
+                            $strippedidnumber = $this->remove_suffix($idnumber, '_');
+                        }
+                        // Place auto back in.
+                        $strippedidnumber = 'AUTO_'.$strippedidnumber;
+                        // Get cmid for all forumng module instances (joining to forumng table to ensure we get only master forums)
+                        // that have matching idnumber (regardless of their _number suffix).
+                        $cms = $DB->get_records_sql('select cm.id as cmid, cm.idnumber from {course_modules} cm
+                                inner join {forumng} f on cm.instance = f.id where cm.idnumber like ?
+                                and f.shared = ?
+                                and cm.module = (select id from {modules} where name = ?)
+                                order by cmid desc', array($strippedidnumber.'%', 1, 'forumng'));
+                        // Set originalcmid field.
+                        $forumng->originalcmid = $this->get_cmid_for_forumng_idnumbers($strippedidnumber, $cms);
+                        if ($forumng->originalcmid) {
+                            $DB->update_record('forumng', $forumng);
+                        }
+                    }
+                }
+            }
+        }
+
     }
+
+    protected function get_new_idnumber($idnumber) {
+        global $DB;
+
+        // Check for any other forumng module instances using the same ID number.
+        $cms = $DB->get_records_sql('select * from {course_modules} where module =
+                (select id from {modules} where name = ?) and idnumber = ?', array('forumng', $idnumber));
+
+        if (!empty($cms) && (count($cms) == 1)) {
+            return $idnumber;
+        }
+        // If any then add _1 to end (if already has _number at end then increment that number e.g. _2).
+        // Check new ID number doesn't exist and repeat as needed.
+
+        // Do we have a valid suffix.
+        $strippedidnumber = 0;
+        $suffix = $this->get_possible_suffix($idnumber, '_');
+        if ($suffix != 0) {
+            // We have a valid suffix.
+            // Remove the suffix from the idnumber by getting the last '_' .
+            $idnum = $this->remove_suffix($idnumber, '_');
+            $strippedidnumber = $idnum;
+        } else {
+            $idnum = $idnumber;
+        }
+
+        $cms = $DB->get_records_sql('select * from {course_modules} where module =
+                (select id from {modules} where name = ?) and idnumber like ?
+                 order by id desc', array('forumng', $idnum.'%'));
+
+        $newidnumber = 0;
+
+        if (!empty($cms) && (count($cms) > 1)) {
+            // Current record is the new record, so get next record  which should contain the highest increment of the idnumber.
+            $cm = next($cms);
+            // Do we have a valid suffix.
+            $suffix = $this->get_possible_suffix($cm->idnumber, '_');
+            if ($suffix != 0) {
+                $strippedidnumber = $this->remove_suffix($cm->idnumber, '_');
+            }
+
+            if ($strippedidnumber === $idnum) {
+                // Increment suffix by 1 prior to adding to make a new idnumber.
+                $suffix++;
+                // Create the new idnumber.
+                $newidnumber = $strippedidnumber.'_'.$suffix;
+            } else {
+                $newidnumber = $idnum.'_1';
+            }
+
+        } else {
+            $newidnumber = $idnumber;
+        }
+        return $newidnumber;
+    }
+
+    protected function get_cmid_for_forumng_idnumbers($strippedidnumber, $cms) {
+        $cmid = 0;
+        if (!empty($cms) && (count($cms) > 0)) {
+            // We are in a search for the cmid.
+            reset($cms);
+            // Get top record which should contain the highest increment of the idnumber.
+            foreach ($cms as $cm) {
+                // Strip suffix from cm idnumber.
+                $idnum = $this->remove_suffix($cm->idnumber, '_');
+                if ($idnum === $strippedidnumber) {
+                    return $cm->cmid;
+                }
+            }
+        }
+        return $cmid;
+    }
+
+    protected function remove_suffix($str, $suffixexp) {
+        $id = '';
+        if (strrchr ($str, $suffixexp)) {
+            $chunks = explode($suffixexp, $str);
+            $suffix =  array_pop($chunks);
+            $id = implode('_', $chunks);
+        } else {
+            $id = $str;
+        }
+        return $id;
+    }
+
+    protected function strip_auto_from_idnumber($cmidnumber) {
+        $id = '';
+        $pos = strrpos($cmidnumber, 'AUTO_');
+        if ($pos !== false) {
+            // Strip out the AUTO.
+            $pos = 5;
+            $id = substr($cmidnumber, $pos);
+        } else {
+            $id = $cmidnumber;
+        }
+        return $id;
+    }
+
+    protected function get_possible_suffix($str, $suffixexp) {
+        $suffix = substr(strrchr($str, $suffixexp), 1);
+        if (is_numeric($suffix)) {
+            $suffix = $suffix + 0; // Force conversion to relevant numeric type.
+        }
+        if (is_int($suffix)) {
+            return $suffix;
+        } else {
+            return 0;
+        }
+    }
+
 }
