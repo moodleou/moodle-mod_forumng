@@ -32,24 +32,104 @@ class mod_forumng_group_form extends moodleform {
         $mform = $this->_form;
         $forum = $this->_customdata->targetforum;
 
-        // Informational paragraph
+        // Informational paragraph.
         $mform->addElement('static', '', '',
             get_string('move_group_info', 'forumngfeature_move', $forum->get_name()));
 
-        // Get list of allowed groups
+        // Get list of allowed groups.
         $groups = $this->_customdata->groups;
         $mform->addElement('select', 'group', get_string('group'), $groups);
         reset($groups);
         $mform->setDefault('group', key($groups));
 
-        // Hidden fields
+        // Hidden fields.
         $mform->addElement('hidden', 'd', $this->_customdata->discussionid);
         $mform->setType('d', PARAM_INT);
         $mform->addElement('hidden', 'clone', $this->_customdata->cloneid);
         $mform->setType('clone', PARAM_INT);
         $mform->addElement('hidden', 'target', $forum->get_course_module_id());
         $mform->setType('target', PARAM_INT);
-
         $this->add_action_buttons(true, get_string('move'));
+
     }
+}
+
+
+class mod_forumng_moveall_form extends moodleform {
+
+    public function definition() {
+        global $CFG, $USER;
+
+        $mform = $this->_form;
+        $params = $this->_customdata['params'];
+
+        // Informational paragraph.
+        $mform->addElement('static', '', '',
+                get_string('movediscussionsto', 'forumngfeature_move'));
+
+        // Get current forum.
+        $forum = $this->_customdata['forum'];
+        // Get array of forums excluding current forum.
+        $forums = get_other_course_forums($forum);
+
+        $mform->addElement('select', 'forum', get_string('movediscussionsto', 'forumngfeature_move'), $forums);
+
+        // Hidden fields.
+        foreach ($params as $param => $value) {
+            $mform->addElement('hidden', $param, $value);
+            $mform->setType($param, PARAM_INT);
+        }
+
+        $this->add_action_buttons(true, get_string('movediscussions', 'forumngfeature_move'));
+
+    }
+}
+
+class mod_forumng_moveall_groups_form extends moodleform {
+
+    public function definition() {
+        global $CFG, $USER;
+        $mform = $this->_form;
+
+        $pageparams = $this->_customdata['params'];
+        $target = $this->_customdata['params']['target'];
+        $forumngid = $this->_customdata['params']['id'];
+        $cloneid = $this->_customdata['params']['clone'];
+        $multigroups = $this->_customdata['params']['multigroups'];
+        $targetgroupmode = $this->_customdata['params']['targetgroupmode'];
+
+        $targetforum = $this->_customdata['targetforum'];
+
+        $pageparams = $this->_customdata['params'];
+        foreach ($pageparams as $param => $value) {
+            $mform->addElement('hidden', $param, $value);
+            $mform->setType($param, PARAM_INT);
+        }
+
+        $selectedids = array();
+        foreach ($pageparams as $field => $value) {
+            $matches = array();
+            if (!is_array($value) && (string)$value !== '0' &&
+                    preg_match('~^selectd([0-9]+)$~', $field, $matches)) {
+                $selectedids[] = ($matches[1]);
+            }
+        }
+
+        // Get list of allowed groups.
+        $options = array();
+        // Check to see whether target forum uses group mode.
+        if ($targetgroupmode) {
+            $options = get_allowed_groups($targetforum, false);
+        }
+        // Informational paragraph.
+        $mform->addElement('static', '', '',
+                get_string('move_discussions_group_info', 'forumngfeature_move', $targetforum->get_name()));
+        // Get group from user.
+        $mform->addElement('select', 'chosengroup', get_string('group'), $options);
+        reset($options);
+        $mform->setDefault('group', key($options));
+        $this->add_action_buttons(true, get_string('movediscussions', 'forumngfeature_move'));
+
+    }
+
 }
