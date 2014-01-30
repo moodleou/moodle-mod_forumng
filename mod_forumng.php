@@ -4872,8 +4872,7 @@ WHERE
             throw new coding_exception('This forum is not a clone');
         }
         $viewhiddenforums = array();
-        if (has_capability('mod/forumng:viewallposts', get_context_instance(
-                CONTEXT_MODULE, $cmid))) {
+        if (has_capability('mod/forumng:viewallposts', context_module::instance($cmid))) {
             $viewhiddenforums[] = $DB->get_field(
                     'course_modules', 'instance', array('id' => $cmid));
         }

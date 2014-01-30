@@ -47,7 +47,7 @@ if (!$cm = $forum->get_course_module()) {
 $PAGE->set_cm($cm);
 
 $course = $forum->get_course();
-$context = get_context_instance(CONTEXT_MODULE, $cm->id);
+$context = context_module::instance($cm->id);
 require_course_login($course, true, $cm);
 
 // Grading capability check.
