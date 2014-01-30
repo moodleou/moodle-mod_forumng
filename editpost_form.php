@@ -91,10 +91,6 @@ class mod_forumng_editpost_form extends moodleform {
                     get_string('locksubject', 'forumngfeature_lock'));
             }
 
-            // Special field just to tell javascript that we're trying to use the
-            // html editor.
-            $mform->addElement('hidden', 'tryinghtmleditor', can_use_html_editor() ? 1 : 0);
-            $mform->setType('tryinghtmleditor', PARAM_BOOL);
             $editorattributes = array('id' => 'id_message',
                     'cols' => 50, 'rows' => !empty($params['iframe']) ? 15 : 30);
             $editoroptions = array('maxfiles' => EDITOR_UNLIMITED_FILES,

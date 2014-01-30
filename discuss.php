@@ -97,7 +97,7 @@ if ($draftid) {
 print '<div id="forumng-main" class="forumng-discuss forumng-nojs' .
     ($discussion->is_deleted() ? ' forumng-deleted-discussion' : '' ) . '">';
 print $out->render_switch_link($forum);
-print skip_main_destination();
+print $OUTPUT->skip_link_target();
 
 // Get forum type to display main part of page
 $type = $forum->get_type();

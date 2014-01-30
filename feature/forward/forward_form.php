@@ -60,10 +60,6 @@ class mod_forumng_forward_form extends moodleform {
         $mform->addRule('subject', get_string('required'), 'required', null, 'client');
         $mform->setDefault('subject', $this->_customdata->subject);
 
-        // Special field just to tell javascript that we're trying to use the
-        // html editor
-        $mform->addElement('hidden', 'tryinghtmleditor', can_use_html_editor() ? 1 : 0);
-        $mform->setType('tryinghtmleditor', PARAM_BOOL);
         // Email message
         $mform->addElement('editor', 'message',
             get_string('forward_intro', 'forumngfeature_forward'), array('cols'=>50, 'rows'=> 15));

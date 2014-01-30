@@ -287,11 +287,13 @@ class mod_forumng_utils {
      * @return array List of all field names in mdl_user to include
      */
     public static function get_username_fields($includemailfields=false) {
+        // Get core user name fields, for use with fullname etc.
+        $namefields = get_all_user_name_fields();
         return $includemailfields
-            ? array('id', 'username', 'firstname', 'lastname', 'picture', 'url',
+            ? $namefields + array('id', 'username', 'picture', 'url',
                 'imagealt', 'email', 'maildisplay', 'mailformat', 'maildigest',
                 'emailstop', 'deleted', 'auth', 'timezone', 'lang', 'idnumber')
-            :  array('id', 'username', 'firstname', 'lastname', 'picture', 'url',
+            :  $namefields + array('id', 'username', 'picture', 'url',
                 'imagealt', 'idnumber', 'email');
     }
 

@@ -575,7 +575,7 @@ try {
         $out = mod_forumng_utils::get_renderer();
         print $out->header();
 
-        print skip_main_destination();
+        print $out->skip_link_target();
 
         // If replying, print original post here
         if (!$isdiscussion && !$edit && !$islock && !$iframe) {

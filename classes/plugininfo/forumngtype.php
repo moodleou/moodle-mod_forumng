@@ -15,16 +15,18 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version.
+ * Subplugin info class.
  *
  * @package mod_forumng
- * @copyright 2012 The Open University
+ * @copyright 2014 The Open University
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+namespace mod_forumng\plugininfo;
 
-$module->version  = 2014013000;
-$module->requires = 2013040500;
-$module->cron     = 60;
+use core\plugininfo\base;
 
-// Note: This should be replaced with standard ->maturity and other options.
-$module->displayversion = 'Unstable development version (use at own risk)';
+defined('MOODLE_INTERNAL') || die();
+
+
+class forumngtype extends base {
+}
