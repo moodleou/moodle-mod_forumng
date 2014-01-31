@@ -97,19 +97,11 @@ function forumng_delete_instance($id) {
         $clones = $forum->get_clone_details();
         $transaction = $DB->start_delegated_transaction();
         foreach ($clones as $clone) {
-            if (!forumng_delete_instance($clone->cloneforumngid)) {
-                notify("Could not delete the Clone forumng (id) $clone->cloneforumngid ");
-                return false;
-            }
             try {
                 course_delete_module($clone->context->instanceid);
             } catch (moodle_exception $e) {
                 notify("Could not delete the Clone
                         forumng (coursemoduleid) $clone->context->instanceid ");
-                return false;
-            }
-            if (!delete_mod_from_section($clone->context->instanceid, $clone->sectionid)) {
-                notify("Could not delete the sectionid $clone->sectionid from that section");
                 return false;
             }
             rebuild_course_cache($clone->courseid, true);
