@@ -462,7 +462,7 @@ function mod_forumng_cm_info_view(cm_info $cm) {
 function mod_forumng_cm_info_dynamic(cm_info $cm) {
     if (!has_capability('mod/forumng:view',
             context_module::instance($cm->id))) {
-        $cm->uservisible = false;
+        $cm->set_user_visible(false);
         $cm->set_available(false);
     }
 }
