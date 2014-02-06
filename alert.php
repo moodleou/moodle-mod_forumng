@@ -111,7 +111,7 @@ if ($fromform = $mform->get_data()) {
         $fakeuser = (object)array(
             'email' => $forumemail,
             'mailformat' => 1,
-            'id' => 0
+            'id' => -1
              );
         $from = $USER;
         $subject = get_string('alert_emailsubject', 'forumng', $customdata);

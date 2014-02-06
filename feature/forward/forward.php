@@ -83,7 +83,7 @@ class forward_post_selector extends forumngfeature_post_selector {
             $fakeuser = (object)array(
                 'email' => $email,
                 'mailformat' => 1,
-                'id' => 0
+                'id' => -1
             );
 
             $from = $USER;
