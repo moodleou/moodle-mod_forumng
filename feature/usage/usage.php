@@ -81,11 +81,11 @@ echo html_writer::start_div('forumng_usage_contrib');
 echo html_writer::start_div('forumng_usage_contrib_cont');
 $toplist = array();
 $totaltoshow = $contribcount > count($posts) ? count($posts) : $contribcount;
+$userfields = user_picture::fields();
 for ($a = 0; $a < $totaltoshow; $a++) {
     // Create list of most posts.
     if ($mostposts[$postkeys[$a]]->replies > 0) {
-        if ($user = $DB->get_record('user', array('id' => $postkeys[$a]),
-                'id, picture, firstname, lastname, imagealt, email')) {
+        if ($user = $DB->get_record('user', array('id' => $postkeys[$a]), $userfields)) {
             $toplist[] = $renderer->render_usage_list_item($forum,
                     $mostposts[$postkeys[$a]]->replies, $user,
                     html_writer::div($forum->display_user_link($user), 'fng_userlink'));
@@ -101,8 +101,7 @@ $totaltoshow = $contribcount > count($posts) ? count($posts) : $contribcount;
 for ($a = 0; $a < $totaltoshow; $a++) {
     if ($mostdiscussions[$discusskeys[$a]]->discussions > 0) {
         // Add to list of most new discussions.
-        if ($user = $DB->get_record('user', array('id' => $discusskeys[$a]),
-                'id, picture, firstname, lastname, imagealt, email')) {
+        if ($user = $DB->get_record('user', array('id' => $discusskeys[$a]), $userfields)) {
                 $toplist[] = $renderer->render_usage_list_item($forum,
                         $mostdiscussions[$discusskeys[$a]]->discussions, $user,
                         html_writer::div($forum->display_user_link($user), 'fng_userlink'));
