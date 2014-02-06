@@ -395,8 +395,8 @@ M.mod_forumng = {
             // Check size and enlarge iframe if required.
             var fix_height = function() {
                 if(doc.body.scrollHeight > Number(iframe.get('height'))) {
-                    iframe.set('height', (doc.body.scrollHeight));
-                    iframecon.set('height', (doc.body.scrollHeight));
+                    iframe.set('height', (doc.body.scrollHeight + 2));
+                    iframecon.set('height', (doc.body.scrollHeight + 2));
                 }
 
                 // Check if the mobile view is activated, if so, then we align the

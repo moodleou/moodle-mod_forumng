@@ -630,17 +630,18 @@ ul.forumng-commands li.forumng-replylink {
 .forumng-iframe#page-mod-forumng-editpost #fitem_id_subject .felement,
 .forumng-iframe#page-mod-forumng-editpost #fitem_id_attachments .felement {
     clear: left;
-    margin-left: 6em;
+    margin-left: 0;
 }
 .forumng-iframe#page-mod-forumng-editpost #fgroup_id_buttonar .felement {
     clear: left;
-    margin-left: 5.3em;
+    margin-left: 0;
 }
 .forumng-iframe#page-mod-forumng-editpost #fitem_id_subject .fitemtitle,
 .forumng-iframe#page-mod-forumng-editpost #fitem_id_message .fitemtitle,
 .forumng-iframe#page-mod-forumng-editpost #fitem_id_attachments .fitemtitle {
-    margin-left: 6em;
+    margin-left: 0;
     text-align: left;
+    font-weight: bold;
 }
 .mobiletheme.forumng-iframe#page-mod-forumng-editpost #fitem_id_subject .felement,
 .mobiletheme.forumng-iframe#page-mod-forumng-editpost #fitem_id_message .felement.feditor,
