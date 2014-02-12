@@ -20,9 +20,22 @@ Choose GR2
 Create 2 discussions called GR2 D1, and GR2 D2 for GR2
 
 Create a forum GFR3 under week 4, set Group mode to 'Visible Groups'
-Create group GR3 and add to grouping for for forum GFR3
+Create group GR3 and add to grouping for forum GFR3
 Create 2 discussions called GR3 D1, and GR3 D2 for GR3
 
+Create a forum GFR4 under week 5, set Group mode to 'Visible Groups'
+Create group GR4 and add to grouping for forum GFR4
+Add GR2 to grouping for forum GFR4
+
+Create a a forum GFR5 under week 6, set Group mode to 'Separate groups'
+Choose GR1
+Create 1 discussions called GT1
+Choose GR2
+Create 1 discussions called GT2
+Choose GR3
+Create 1 discussions called GT3
+Choose GR4
+Create 1 discussions called GT4
 
 MTD Move Multiple Discussions
 =============================
@@ -54,7 +67,7 @@ MTD 04/ admin
   Choose to view discussions for GR1
   Click on 'Move' button
   When prompted choose G1 D2
-  Choose to move to forum GFR2 under group GR1
+  Choose to move to forum GFR2
   Check to make sure that it has been put into GR1
 
 MTD 05/ admin
@@ -79,6 +92,9 @@ MTD 07/ admin
   Click on 'Move' button
   When prompted choose G1 D1
   Choose to move to forum FR1
+  Check to see that you see the following warning.
+  'You have moved discussions to a non-group forum. All discussions will be allocated to all participants
+  and group details will be lost'
   Check to make sure that it has been put into FR1
 
 MTD 08/ admin
@@ -93,4 +109,18 @@ MTD 09/ admin
   Click on 'Move' button
   When prompted choose all discussions excluding D1
   Choose to move to forum FR1
+  Check to see that you see the following warning.
+  'You have moved discussions to a non-group forum. All discussions will be allocated to all participants
+  and group details will be lost'
   Check to make sure that it has been put into FR1
+
+MTD 10/ admin
+  Goto forum GFR5
+  Choose to move all discussions to forum GFR4
+  Check to see that you see the following warning.
+  'You appear to have moved discussions to a forum that has groups for which some but not all of your moved discussions belong,
+   any discussions that do not have matching groups within that forum will be allocated to all participants and will need to be
+   allocated to groups manually.'
+  Check to make sure that discission GT2 is allocated to G2
+  Check to make sure that discission GT4 is allocated to G4
+  Check to make sure that discissions GT1 and GT3 are allocated to 'all participants'

@@ -27,7 +27,7 @@ require_once(dirname(__FILE__) . '/lib.php');
 
 $d = required_param('d', PARAM_INT);
 $target = required_param('target', PARAM_INT);
-$pageparams = array('d'=>$d, 'target'=>$target);
+$pageparams = array('d' => $d, 'target' => $target);
 $cloneid = optional_param('clone', 0, PARAM_INT);
 if ($cloneid) {
     $pageparams['clone'] = $cloneid;
@@ -67,7 +67,7 @@ $groupmode = $targetforum->get_group_mode();
 
 if ((!$targetgroup) && ($groupmode > 0)) {
     // User needs to choose one from form.
-    $targetgroup= get_target_group_from_user($targetforum, $cloneid, $d,  $pageparams, $discussion, $options);
+    $targetgroup = get_target_group_from_user($targetforum, $cloneid, $d,  $pageparams, $discussion, $options);
 }
 
 // Perform move.

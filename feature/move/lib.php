@@ -84,9 +84,7 @@ function get_target_group($discussion, $targetforum, $aag = true) {
             if (count($groupids) == 1) {
                 $targetgroup = key($groupids);
             } else {
-                if (array_key_exists($targetgroup, $groupids)) {
-                    $targetgroup = key($groupids);
-                } else {
+                if (!array_key_exists($targetgroup, $groupids)) {
                     $targetgroup = null;
                 }
             }

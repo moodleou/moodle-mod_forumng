@@ -48,7 +48,9 @@ $targetforum = mod_forumng::get_from_cmid($target, mod_forumng::CLONE_DIRECT);
 
 // Sets up chosen target group.
 $chosentargetgroup = optional_param('chosengroup', 0, PARAM_INT);
-$targetgroup = $chosentargetgroup;
+if (!$targetgroup) {
+    $targetgroup = $chosentargetgroup;
+}
 // Security check against user and their capabilities.
 $forum->require_view($forum::ALL_GROUPS);
 check_move_permissions($forum, $targetforum);
