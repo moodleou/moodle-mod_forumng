@@ -47,6 +47,8 @@ if ($groupid != mod_forumng::NO_GROUPS && $groupid != mod_forumng::ALL_GROUPS) {
     $groupparams = array();
 }
 
+$ajaxparams = $pageparams;
+
 // Check access.
 $forum->require_view($groupid);
 require_capability('forumngfeature/usage:view', $forum->get_context());
@@ -220,7 +222,7 @@ if (has_capability('forumngfeature/usage:viewusage', $forum->get_context())) {
             );
     // There are 11 day labels shown by default on chart - if less available update axis.
     $startdate = new DateTime($data[0]->$datelabel);
-    $enddate = new DateTime($data[count($data)-1]->$datelabel);
+    $enddate = new DateTime($data[count($data) - 1]->$datelabel);
     $interval = $startdate->diff($enddate);
     $totaldays = $interval->days + 1;// Add 1 to day diff as we always show start and end days.
     if ($totaldays < 11) {
@@ -287,24 +289,9 @@ if ($forum->can_view_subscribers()) {
     $usageoutput .= html_writer::end_div();
 }
 if (has_capability('mod/forumng:viewreadinfo', $forum->get_context())) {
-    // View discussions read.
-    $readers = $DB->get_recordset_sql("
-        SELECT count(fr.id), fd.id
-        from {forumng_read} fr
-        inner join {forumng_discussions} fd on fd.id = fr.discussionid
-        where fd.forumngid = ?
-        and fd.deleted = 0
-        $groupwhere
-        group by fd.id
-        order by count desc, fd.id desc", array_merge(array($forum->get_id()), $groupparams), 0, 5);
-    $readerlist = array();
-    foreach ($readers as $discuss) {
-        $discussion = mod_forumng_discussion::get_from_id($discuss->id, $cloneid);
-        list($content, $user) = $renderer->render_usage_discussion_info($forum, $discussion);
-        $readerlist[] = $renderer->render_usage_list_item($forum, $discuss->count, $user, $content);
-    }
     $usageoutput .= html_writer::start_div('forumng_usage_readers');
-    $usageoutput .= $renderer->render_usage_list($readerlist, 'mostreaders');
+    $usageoutput .= $renderer->render_usage_list_heading('mostreaders');
+    $usageoutput .= $renderer->render_usage_dynamicarea('mostreaders', $forum, $ajaxparams);
     $usageoutput .= html_writer::end_div();
 }
 if (has_capability('forumngfeature/usage:viewflagged', $forum->get_context())) {

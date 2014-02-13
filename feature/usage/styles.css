@@ -35,9 +35,13 @@ ol.forumng_usage_list li {
     width: 90%;
     height: 400px;
 }
+.forumng_usage_usagechart .skip {
+    top: -10000px;
+}
 .forumng_usage_usagechart .skip:focus {
     position: relative;
     left: 0;
+    top: 0;
 }
 .forumng_usage_subscribers {
     margin-top: 1em;
@@ -52,8 +56,13 @@ ol.forumng_usage_list li {
 }
 .forumng_usage_flagged, .forumng_usage_readers {
     float: left;
-}
-.forumng_usage_readers ol,
-.forumng_usage_readers p {
     margin-right: 1em;
+}
+.jsenabled .forumngusage_loader_noscript {
+    display: none;
+}
+.forumngusage_loader .ajaxworking {
+    width: 20px;
+    height: 20px;
+    background: url([[pix:i/ajaxloader]]) no-repeat;
 }

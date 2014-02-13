@@ -56,18 +56,27 @@ class forumngfeature_usage_renderer extends plugin_renderer_base {
      * Output array of list_items
      * @param array $content
      * @param string $stringname - name of string to use for title and no content
+     * @param bool $heading - include a heading with help?
      * @return string
      */
-    public function render_usage_list($content, $stringname) {
-        global $OUTPUT;
-        $help = $this->help_icon($stringname, 'forumngfeature_usage');
-        $toreturn = $OUTPUT->heading(get_string($stringname, 'forumngfeature_usage') . '' . $help,
-                4, 'forumng_usage_listhead');
+    public function render_usage_list($content, $stringname, $heading = true) {
+        $toreturn = '';
+        if ($heading) {
+            $toreturn .= $this->render_usage_list_heading($stringname);
+        }
         if (!empty($content)) {
             $toreturn .= html_writer::alist($content, array('class' => 'forumng_usage_list'), 'ol');
         } else {
             $toreturn .= html_writer::tag('p', get_string($stringname . '_none', 'forumngfeature_usage'));
         }
+        return $toreturn;
+    }
+
+    public function render_usage_list_heading($stringname) {
+        global $OUTPUT;
+        $help = $this->help_icon($stringname, 'forumngfeature_usage');
+        $toreturn = $OUTPUT->heading(get_string($stringname, 'forumngfeature_usage') . '' . $help,
+                4, 'forumng_usage_listhead');
         return $toreturn;
     }
 
@@ -126,5 +135,39 @@ class forumngfeature_usage_renderer extends plugin_renderer_base {
         }
         $content .= html_writer::end_div();
         return array($content, $user);
+    }
+
+    /**
+     * Renders a dynamic loading (ajax) div container - with alternative for non-js.
+     * Calls yui/usageloader.
+     * Name of loading area must match a forumngfeature_usage_show... function in locallib
+     * @param string $name Unique name used to identify area and load content using related function
+     * @param object $forum Used for non-ajax call to function to save query
+     * @param array $params key value parameters to send, must include cmid, cloneid and groupid
+     */
+    public function render_usage_dynamicarea($name, $forum, $params) {
+        global $PAGE;
+        $content = '';
+        if (optional_param('showdynamic', 0, PARAM_BOOL)) {
+            // Non ajax - load and display now.
+            $funcname = 'forumngfeature_usage_show_' . $name;
+            if (function_exists($funcname)) {
+                $content .= $funcname($params, $forum);
+            }
+        } else {
+            $params['sesskey'] = sesskey();
+            $params['name'] = $name;
+            $params = http_build_query($params, '', '&');
+            // Noscript text + loader yui etc.
+            $url = $PAGE->url;
+            $url->param('showdynamic', true);
+            $noscript = html_writer::link($url, get_string('noscript', 'forumngfeature_usage'));
+            $content = html_writer::start_div('forumngusage_loader forumngusageshow' . $name);
+            $content .= html_writer::div($noscript, 'forumngusage_loader_noscript');
+            $PAGE->requires->yui_module('moodle-forumngfeature_usage-usageloader',
+                    'M.mod_forumng.forumngfeature_usage_loader.init', array($name, $params));
+            $content .= html_writer::end_div();
+        }
+        return $content;
     }
 }
