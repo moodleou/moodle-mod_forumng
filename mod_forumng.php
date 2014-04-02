@@ -2938,7 +2938,8 @@ WHERE fd.forumngid = ?";
 
         $userid = mod_forumng_utils::get_real_userid($userid);
         $result = array();
-        $modinfo = get_fast_modinfo($course);
+        // Added $userid parameter to obtain modinfo for specific user rather than current user.
+        $modinfo = get_fast_modinfo($course, $userid);
 
         // Obtains extra information needed only when acquiring unread data
         $aagforums = array();
@@ -4863,20 +4864,21 @@ WHERE
     /**
      * Gets unread data from original forum.
      * @param int $unread UNREAD_xx constant
+     * @param int $userid User id.
      * @throws mod_forumng_exception If this is not a clone forum
      */
-    public function init_unread_from_original($unread) {
+    public function init_unread_from_original($unread, $userid = 0) {
         global $DB;
         $cmid = $this->forumfields->originalcmid;
         if (!$cmid) {
             throw new coding_exception('This forum is not a clone');
         }
         $viewhiddenforums = array();
-        if (has_capability('mod/forumng:viewallposts', context_module::instance($cmid))) {
+        if (has_capability('mod/forumng:viewallposts', context_module::instance($cmid), $userid)) {
             $viewhiddenforums[] = $DB->get_field(
                     'course_modules', 'instance', array('id' => $cmid));
         }
-        $rows = self::query_forums(array($cmid), null, 0, $unread,
+        $rows = self::query_forums(array($cmid), null, $userid, $unread,
                 array(), array(), $viewhiddenforums);
         if (count($rows) != 1) {
             throw new coding_exception('Unexpected data extracting base forum');

@@ -14,17 +14,32 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+defined('MOODLE_INTERNAL') || die();
+
 /**
- * Version.
- *
+ * Forum services declarations.
+ * 
  * @package mod_forumng
  * @copyright 2014 The Open University
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$module->version  = 2014021200;
-$module->requires = 2013040500;
-$module->cron     = 60;
+$services = array(
+        'Forum list service' => array(
+                'shortname' => 'forumlist',
+                'functions' => array ('mod_forumng_get_forum_list'),
+                'requiredcapability' => '',
+                'restrictedusers' => 0,
+                'enabled' => 1
+        )
+);
 
-// Note: This should be replaced with standard ->maturity and other options.
-$module->displayversion = 'Unstable development version (use at own risk)';
+$functions = array(
+        'mod_forumng_get_forum_list' => array(
+                'classname'   => 'mod_forumng_external',
+                'methodname'  => 'get_forum_list',
+                'classpath'   => 'mod/forumng/externallib.php',
+                'description' => 'Lists forums for user on course',
+                'type'        => 'read'
+        ),
+);
