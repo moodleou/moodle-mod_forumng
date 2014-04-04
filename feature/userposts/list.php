@@ -90,7 +90,7 @@ if ($groupid != -1 && !empty($download)) {
 }
 $ptable->is_downloading($download, $filename, get_string('userposts', 'forumngfeature_userposts'));
 
-$users = get_enrolled_users($context, '', $groupid > 0 ? $groupid : 0, user_picture::fields('u'));
+$users = get_enrolled_users($context, '', $groupid > 0 ? $groupid : 0, user_picture::fields('u', array('username')));
 
 if (!$ptable->is_downloading()) {
     if ($perpage > count($users)) {
