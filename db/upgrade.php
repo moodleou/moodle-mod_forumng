@@ -105,5 +105,43 @@ function xmldb_forumng_upgrade($oldversion=0) {
         upgrade_mod_savepoint(true, 2013100801, 'forumng');
     }
 
+    if ($oldversion < 2014031200) {
+        global $DB;
+        set_time_limit(0);
+        // Fix issue with read table having duplicate entries.
+        $select = 'id in(select distinct r1.id from {forumng_read} r1
+            join {forumng_read} r2 on r2.discussionid = r1.discussionid and r2.userid = r1.userid
+            and r2.id != r1.id and (r2.time > r1.time or (r2.time = r1.time and r2.id > r1.id)))';
+        $result = $DB->delete_records_select('forumng_read', $select);
+
+        if (!CLI_SCRIPT) {
+            echo 'Updating read table index (may take some time).';
+            flush();
+        }
+
+        // Drop then add index as don't seem to be able to update...
+
+        // Define index userid-discussionid (not unique) to be dropped form forumng_read.
+        $table = new xmldb_table('forumng_read');
+        $index = new xmldb_index('userid-discussionid', XMLDB_INDEX_NOTUNIQUE, array('userid', 'discussionid'));
+
+        // Conditionally launch drop index userid-discussionid.
+        if ($dbman->index_exists($table, $index)) {
+            $dbman->drop_index($table, $index);
+        }
+
+        // Define index userid-discussionid (unique) to be added to forumng_read.
+        $table = new xmldb_table('forumng_read');
+        $index = new xmldb_index('userid-discussionid', XMLDB_INDEX_UNIQUE, array('userid', 'discussionid'));
+
+        // Conditionally launch add index userid-discussionid.
+        if (!$dbman->index_exists($table, $index)) {
+            $dbman->add_index($table, $index);
+        }
+
+        // Forumng savepoint reached.
+        upgrade_mod_savepoint(true, 2014031200, 'forumng');
+    }
+
     return true;
 }

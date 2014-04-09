@@ -1518,7 +1518,7 @@ WHERE $conditions AND m.name = 'forumng' AND $restrictionsql",
                 if ($discussion->is_currently_visible() ||
                         has_capability('mod/forumng:viewallposts',
                         $this->get_context(), $userid)) {
-                    $discussions[] = $discussion;
+                    $discussions[$discussion->get_id()] = $discussion;
                     $discussionids[] = $discussion->get_id();
                 }
             }
