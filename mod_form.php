@@ -497,6 +497,13 @@ class mod_forumng_mod_form extends moodleform_mod {
         if (empty($data->completionpostsenabled) || !$autocompletion) {
             $data->completionposts = 0;
         }
+
+        // Add in fake form data for clone forums, so core functions expecting it works OK.
+        if ($this->clone && !isset($data->introeditor)) {
+            // Add fake intro text - is ignored anyway for clones as master is shown.
+            $data->introeditor = array('itemid' => 0, 'text' => '', 'format' => FORMAT_MOODLE);
+        }
+
         return $data;
     }
 
