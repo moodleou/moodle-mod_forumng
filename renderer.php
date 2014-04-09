@@ -951,7 +951,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
             'title = "' . get_string('important', 'forumng') . '"/>' : '';
             if ($export) {
                 if (!$options[mod_forumng_post::OPTION_IS_ANON]) {
-                    $out .=  $by->name;
+                    $out .=  $by->name . ' ';
                 }
             } else {
                 if (!$options[mod_forumng_post::OPTION_IS_ANON]) {
@@ -1693,5 +1693,14 @@ class mod_forumng_renderer extends plugin_renderer_base {
     public function delete_form_html($messagehtml) {
         return html_writer::tag('div', htmlentities($messagehtml, ENT_QUOTES),
                 array('id' => 'delete-form-html'));
+    }
+
+    /**
+     * Display 'Skip sticky discussions' link.
+     * @return string HTML for the jump link.
+     */
+    public function render_skip_link($id) {
+        return html_writer::tag('a', get_string('skipstickydiscussions', 'forumng'),
+                array('href' => '#discrow_' . $id, 'class' => 'skip'));
     }
 }

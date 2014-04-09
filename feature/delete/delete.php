@@ -39,14 +39,14 @@ $forum = $discussion->get_forum();
 $cm = $forum->get_course_module();
 $course = $forum->get_course();
 
+// Check permission for change
+$discussion->require_edit();
+
 // Set up page
 $pagename = get_string(
         $delete ? 'deletediscussion' : 'undeletediscussion', 'forumngfeature_delete');
 $url = new moodle_url('/mod/forumng/feature/delete/delete.php', $pageparams);
 $out = $discussion->init_page($url, $pagename);
-
-// Check permission for change
-$discussion->require_edit();
 
 // Is this the actual delete?
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {

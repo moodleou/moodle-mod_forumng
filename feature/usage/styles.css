@@ -1,0 +1,68 @@
+.forumng_usage_sectitle {
+    text-align: center;
+}
+.forumng_usage_contrib_cont {
+    float: left;
+    margin-right: 1em;
+    margin-bottom: 1em;
+}
+ol.forumng_usage_list {
+    list-style: none;
+    margin-left: 0;
+}
+ol.forumng_usage_list li {
+    clear: left;
+}
+.forumng_usage_list .forumng_usage_list_tot {
+    float: left;
+    min-width: 2em;
+    text-align: center;
+    margin-top: .75em;
+}
+.forumng_usage_list .forumng_usage_list_pic {
+    float: left;
+    margin-left: .5em;
+}
+.forumng_usage_list .forumng_usage_list_info {
+    float: left;
+    margin-left: .5em;
+}
+.forumng_usage_list .forumng_usage_list_info .fng_userlink {
+    margin-top: .75em;
+}
+.forumng_usage_chart {
+    margin: 10px;
+    width: 90%;
+    height: 400px;
+}
+.forumng_usage_usagechart .skip {
+    top: -10000px;
+}
+.forumng_usage_usagechart .skip:focus {
+    position: relative;
+    left: 0;
+    top: 0;
+}
+.forumng_usage_subscribers {
+    margin-top: 1em;
+}
+.forumng_usage_subscribers table {
+    margin-top: .5em;
+}
+.forumng_usage_readers .forumng_usage_list .forumng_usage_list_info .fng_userlink,
+.forumng_usage_flagged .forumng_usage_list .forumng_usage_list_info .fng_userlink {
+    margin-top: 0;
+    margin-bottom: .5em;
+}
+.forumng_usage_flagged, .forumng_usage_readers {
+    float: left;
+    margin-right: 1em;
+}
+.jsenabled .forumngusage_loader_noscript {
+    display: none;
+}
+.forumngusage_loader .ajaxworking {
+    width: 20px;
+    height: 20px;
+    background: url([[pix:i/ajaxloader]]) no-repeat;
+}

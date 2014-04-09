@@ -23,4 +23,12 @@
  */
 $string['movethisdiscussionto'] = 'Move this discussion to ...';
 $string['move_group_info'] = 'You are moving this discussion to the forum <strong>{$a}</strong>. That forum uses groups. Please select the group you would like to move the message into.';
+$string['move_discussions_group_info'] = 'You are moving discussions to the forum <strong>{$a}</strong>. That forum uses groups. Please select the group you would like to move the messages into.';
 $string['pluginname'] = 'Move discussion';
+$string['move'] = 'Move';
+$string['movealltitle'] = 'Move discussion(s)';
+$string['movediscussionsto'] = 'Move discussions to';
+$string['movediscussions'] = 'Move discussions';
+$string['group_info'] = 'You appear to have moved discussions to a forum that has groups for which some but not all of your moved discussions belong,
+                         any discussions that do not have matching groups within that forum will be allocated to all participants and will need to be allocated to groups manually.';
+$string['nogroup_info'] = 'You have moved discussions to a non-group forum. All discussions will be allocated to all participants and group details will be lost';

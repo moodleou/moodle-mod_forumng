@@ -244,7 +244,7 @@ class mod_forumng_mod_form extends moodleform_mod {
         $mform->addHelpButton('removeto', 'withremoveddiscussions', 'forumng');
 
         // Sharing options are advanced and for administrators only
-        if ($CFG->forumng_enableadvanced && has_capability('moodle/site:config', $coursecontext)) {
+        if ($CFG->forumng_enableadvanced && has_capability('mod/forumng:addinstance', context_system::instance())) {
             $mform->addElement('header', '', get_string('sharing', 'forumng'));
             $mform->addElement('advcheckbox', 'shared', get_string('shared', 'forumng'));
             $mform->addHelpButton('shared', 'shared', 'forumng');

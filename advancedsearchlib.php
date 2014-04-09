@@ -215,7 +215,7 @@ function forumng_get_results_for_all_forums($course, $author=null, $daterangefro
 
     if (!is_null($author)) {
         $coursecontext = context_course::instance($course->id);
-        if (!has_capability('moodle/forumng:postanon', $coursecontext)) {
+        if (!has_capability('mod/forumng:postanon', $coursecontext)) {
             $where .= " AND p.asmoderator != ? ";
             $params[] = mod_forumng::ASMODERATOR_ANON;
         }

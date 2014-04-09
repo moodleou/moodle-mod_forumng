@@ -1,0 +1,126 @@
+This file contains a sequence of test cases for the ForumNG move and multiple move feature.
+
+Initial setup
+=============
+
+See testcase.txt for a description of the format of these tests and the initial
+site and ForumNG setup. Only one forum is required.
+
+Create 2 groups GR1 and GR2
+
+Create a forum FR1 under Week 1, leave Group mode set to 'No groups'
+Create 4 discussions called D1, D2, D3 and D4
+
+Create a forum GFR1 under week 2, set Group mode to 'Separate groups'
+Choose GR1
+Create 2 discussions called GR1 D1, and GR1 D2 for GR1
+
+Create a forum GFR2 under week 3, set Group mode to 'Separate groups'
+Choose GR2
+Create 2 discussions called GR2 D1, and GR2 D2 for GR2
+
+Create a forum GFR3 under week 4, set Group mode to 'Visible Groups'
+Create group GR3 and add to grouping for forum GFR3
+Create 2 discussions called GR3 D1, and GR3 D2 for GR3
+
+Create a forum GFR4 under week 5, set Group mode to 'Visible Groups'
+Create group GR4 and add to grouping for forum GFR4
+Add GR2 to grouping for forum GFR4
+
+Create a a forum GFR5 under week 6, set Group mode to 'Separate groups'
+Choose GR1
+Create 1 discussions called GT1
+Choose GR2
+Create 1 discussions called GT2
+Choose GR3
+Create 1 discussions called GT3
+Choose GR4
+Create 1 discussions called GT4
+
+MTD Move Multiple Discussions
+=============================
+
+MTD 01/ admin
+  Return to forum FR1
+  Click on 'Move' button
+  When prompted choose D1
+  Choose to move to forum GFR1 under group GR1
+  Check to make sure that it has been put into GR1
+
+MTD 02/ admin
+  Return to forum FR1
+  Click on  D2 discussion
+  Choose to move discussion to forum GFR2
+  When prompted choose to move to group GR2
+  Check to make sure that it has been put into GR2
+  This replaces MOD03 and MOD04 in testcase.txt
+
+MTD 03/ admin
+  Return to forum FR1
+  Click on  D3 discussion
+  Choose to move discussion to forum GFR3
+  Check to make sure that it has been put into GR3
+  This replaces MOD03 and MOD04 in testcase.txt
+
+MTD 04/ admin
+  Goto to forum GFR1
+  Choose to view discussions for GR1
+  Click on 'Move' button
+  When prompted choose G1 D2
+  Choose to move to forum GFR2
+  Check to make sure that it has been put into GR1
+
+MTD 05/ admin
+  Goto to forum GFR2
+  Choose to view discussions for GR2
+  Click on 'Move' button
+  When prompted choose G2 D2
+  Choose to move to forum GFR3
+  Check to make sure that it has been put into GR3
+
+MTD 06/ admin
+  Goto to forum GFR3
+  Choose to view discussions for GR3
+  Click on 'Move' button
+  When prompted choose G3 D2
+  Choose to move to forum GFR1 under group GR3
+  Check to make sure that it has been put into GR3
+
+MTD 07/ admin
+  Goto to forum GFR1
+  Choose to view discussions for GR1
+  Click on 'Move' button
+  When prompted choose G1 D1
+  Choose to move to forum FR1
+  Check to see that you see the following warning.
+  'You have moved discussions to a non-group forum. All discussions will be allocated to all participants
+  and group details will be lost'
+  Check to make sure that it has been put into FR1
+
+MTD 08/ admin
+  Goto Forum FR1
+  Choose to move all discussions to forum FGR1
+  Choose to move to forum GFR1 under group GR1
+  Check to make sure that it has been put into GR1
+
+MTD 09/ admin
+  Goto to forum GFR1
+  Choose to view discussions for GR1
+  Click on 'Move' button
+  When prompted choose all discussions excluding D1
+  Choose to move to forum FR1
+  Check to see that you see the following warning.
+  'You have moved discussions to a non-group forum. All discussions will be allocated to all participants
+  and group details will be lost'
+  Check to make sure that it has been put into FR1
+
+MTD 10/ admin
+  Goto forum GFR5
+  Choose to move all discussions to forum GFR4
+  Check to see that you see the following warning.
+  'You appear to have moved discussions to a forum that has groups for which some but not all of your moved discussions belong,
+   any discussions that do not have matching groups within that forum will be allocated to all participants and will need to be
+   allocated to groups manually.'
+  Check to make sure that discission GT2 is allocated to G2
+  Check to make sure that discission GT4 is allocated to G4
+  Check to make sure that discissions GT1 and GT3 are allocated to 'all participants'

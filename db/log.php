@@ -49,5 +49,6 @@ $logs = array(
     array('module' => 'forumng', 'action' => 'unlock discussion', 'mtable' => 'forumng', 'field' => 'name'),
     array('module' => 'forumng', 'action' => 'view', 'mtable' => 'forumng', 'field' => 'name'),
     array('module' => 'forumng', 'action' => 'view all', 'mtable' => 'forumng', 'field' => 'name'),
-    array('module' => 'forumng', 'action' => 'view discussion', 'mtable' => 'forumng', 'field' => 'name')
+    array('module' => 'forumng', 'action' => 'view discussion', 'mtable' => 'forumng', 'field' => 'name'),
+    array('module' => 'forumng', 'action' => 'view usageinfo', 'mtable' => 'forumng', 'field' => 'name')
 );

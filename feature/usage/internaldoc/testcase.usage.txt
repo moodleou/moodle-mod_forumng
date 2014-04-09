@@ -1,0 +1,175 @@
+This script describes the steps to test the usage information display feature.
+It is intended to cover only this single feature. As this feature displays usage statistics
+for a forum a full independent test using a large 'real-world' data set is recommended to be carried out in
+addition to this specific functional test.
+
+NOTE: In this test case, the word 'forum' always refers to the OU ForumNG.
+
+Initial setup
+=============
+
+This test case requires:
+
+Student user (S1)
+Admin/Manager/Teacher user (Admin) - Must be able to create activities, have access all groups, create anonymous posts etc
+
+Test course with multiple (2+) groups, user S1 must be a member of at least 1 group
+
+The test server must have debugging set to DEVELOPER level and to display
+errors; during all parts of the test script, there should be no debugging warnings.
+
+US - Usage creation
+===================
+
+US01 / Admin
+ Enter course to be used for testing
+ Turn on course editing and add a new forum[ng] activity into any course section
+ Create the activity with the following options changed from default:
+ Forum name: US01
+ Enable anonymous moderator posts: Checked
+ Group mode: Separate groups
+ Select 'Save and display'
+- Verify forum activity is showing with group 'All participants' currently selected.
+- Verify 'Show usage' button available.
+
+US02 / Admin
+ In forum US01 select a group forum to use for all tests (user S1 must be a member)
+ Ensure 'Manually marking discussions read' is shown - if not select 'change' link
+ Select 'Start a new discussion' button
+ Create a new discussion with title 'US02 - admin', any content, all other options as default
+ Select 'Post discussion'
+ Return to Forum discussion list.
+
+US03 / Admin
+ Repeat US02 - naming discussion 'US03 - admin moderator', for this step:
+ Set the Post as? option to 'Identify self as moderator'.
+
+US04 / Admin
+ Repeat US02 - naming discussion 'US04 - admin anon', for this step:
+ Set the Post as? option to 'Identify self as moderator (name hidden from students)'.
+
+US05 / Admin
+ Enter discussion 'US02 - admin'
+ Select 'Reply' against first post, leave subject as blank, enter any text for message
+ Select 'Post reply'.
+
+US06 / Admin
+ In forum US01 select a alternate group forum to use for this step only
+ Select 'Start a new discussion' button
+ Create a new discussion with title 'US06 - admin - Other group', any content, all other options as default
+ Select 'Post discussion'
+ Return to Forum discussion list and select original group forum.
+
+US06 / S1 (change)
+ Enter forum US01, select group forum used in these tests (if not already selected by default)
+- Verify 'Show usage' button is not shown
+ Ensure 'Manually marking discussions read' is shown - if not select 'change' link
+ Enter discussion 'US02 - admin'
+ Select 'Reply' against first post, set subject to 'New subject', enter any text for message
+ Select 'Post reply'.
+
+PDUS - Test Post/Discussion usage
+=================================
+
+PDUS01 / Admin (change)
+ Enter forum US01, select group forum used in these tests (if not already selected by default)
+ Select 'Show usage' button
+- Verify 'Usage' screen shown with selected group shown in group selector
+- Verify 'Contribution' and 'Usage' section headings showing
+- Verify 'Most posts' lists user S1 and user Admin with 1 post each
+- Verify 'Most discussions' lists user Admin with 2 discussions (Anonymous discussions are not counted)
+- Verify 'Post history - 5 posts' is displayed
+- Verify that a graph/chart is displayed showing post history over time (from course start date to today).
+
+PDUS02 / Admin
+ Select enable against From and To date selectors.
+ Select two dates spanning 5 days and encompassing days where posts were made e.g 1 Sep - 5 Sep.
+ Select 'Update post history'
+- Verify usage page shows with all other information other than post history as before
+- Verify correct number of posts is shown in post history title (posts made within date range)
+- Verify dates selected appear in To and From date selectors
+- Verify chart/graph shows 5 days on x axis and contains correct information for number of posts.
+
+PDUS03 / Admin
+ Select enable against From and To date selectors.
+ Select two dates the same and encompassing a day where posts were made e.g 1 Sep - 1 Sep.
+ Select 'Update post history'
+- Verify correct number of posts is shown in post history title (posts made on that day)
+- Verify table is shown instead of graph (graph cannot show a single date)
+ Update To date to a day prior to From date e.g. 1 Sep - 1 Aug.
+- Verify table is shown instead of graph with data for From day (single day).
+
+PDUS04 / Admin
+ Select 'All participants' from the group selector
+- Verify usage page updates and date selectors are reset
+- Verify discussion added to alternate group is included in data shown
+(3 discussion for Admin user, 6 posts total)
+
+SUS - Subscriber usage
+======================
+
+SUS01 / Admin
+ Return to US01 forum main discussion page
+ Select 'All participants' from the group selector drop-down
+ Select discussion 'US02 -admin'
+ Select 'Subscribe to discussion' button
+ Return to US01 forum main discussion page and select 'Show usage'
+- Verify under Subscribers, information is as follows:
+- Total subscribers 1
+- Discussion subscribers 1
+ Return to US01 forum main discussion page
+ Select 'Subscribe to whole forum'.
+
+SUS02 / S1 (change)
+ Enter forum US01, select group forum used in these tests (if not already selected by default)
+ Select 'Subscribe to this group'.
+
+SUS03 / Admin (change)
+ Enter forum US01, select 'All participants' from the group selector drop-down
+ Select 'Show usage'
+- Verify under Subscribers, information is as follows:
+- Total subscribers 2
+- Whole forum subscribers 1
+- Group forum subscribers 1
+- Discussion subscribers 0
+
+MRD - Most read discussions
+===========================
+
+MRD01 / Admin
+ Enter forum US01, select group forum used in these tests
+ Select 'Mark all posts read' button
+- Verify number of unread posts in unread column is 0 for all discussions.
+
+MRD02 / S1 (change)
+ Enter forum US01, select group forum used in these tests (if not already selected by default)
+ Select discussion 'US02 - admin'
+ Select 'Mark discussion read'
+- Verify Unread column is 0 against discussion 'US02 - admin'.
+
+MRD03 / Admin (change)
+ Enter forum US01, select group forum used in these tests (if not already selected by default)
+ Select 'Show usage' button
+- Verify Most read discussions contains following information:
+- 'US02 - admin' discussion listed as 2 users read
+- US04 and US03 discussions listed as 1 user read
+- US04 anonymous discussion has Admin user name listed
+- US04 and US03 have text 'Moderator' following Admin user name.
+
+MFP - Most flagged posts
+========================
+
+MFP01 / Admin
+ Enter forum US01, select group forum used in these tests (if not already selected by default)
+ Select discussion 'US02 - admin'
+ Select the expand [+] icon against the two replies shown
+ Select the flag icon (under user details) for all three posts
+ Return to US01 forum discussion list page
+- Verify the three posts are now listed in the 'Flagged posts' section.
+
+MFP02 / Admin
+ Select 'Show usage' button
+- Verify under 'Most flagged posts' section the following is displayed:
+- 'New subject' post [S1 user details] (1 user flagged)
+- 'Re: US02 - admin' post [Admin user details] (1 user flagged)
+- 'US02 - admin' post [Admin user details] (1 user flagged).

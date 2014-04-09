@@ -16,9 +16,9 @@
 
 /**
  * Version.
- * @package forumngfeature
- * @subpackage move
- * @copyright 2011 The Open University
+ *
+ * @package forumngfeature_usage
+ * @copyright 2013 The Open University
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-$plugin->version  = 2014012800;
+$plugin->version  = 2014021300;

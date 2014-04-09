@@ -2240,7 +2240,8 @@ WHERE
                 if (!$allowedusers) {
                     // Obtain the list of users who are allowed to see the forum.
                     // As get_users_by_capability can be expensive, we only do this
-                    // once we know there actually are subscribers.
+                    // once we know there actually are subscribers (and force rasing memory).
+                    raise_memory_limit(MEMORY_EXTRA);
                     $allowedusers = get_users_by_capability($context,
                         'mod/forumng:viewdiscussion', 'u.id', '', '', '',
                         $groups, '', 0, 0, true);
@@ -2301,6 +2302,7 @@ WHERE
             }
         }
         $rs->close();
+        $allowedusers = null;
 
         // 1. loop through array and clear the discussions/groupids array if wholeforum is true.
         // 2. Find any user unsubscribed from initial subscribed forum. If the user has been
@@ -4747,10 +4749,11 @@ WHERE
     /**
      * Gets all user post counts.
      * @param int $groupid Group ID or NO_GROUPS/ALL_GROUPS
+     * @param bool $ignoreanon Ignore posts marked as anonymous
      * @return array An associative array of $userid => (info object)
      *   where info object has ->discussions and ->replies values
      */
-    public function get_all_user_post_counts($groupid) {
+    public function get_all_user_post_counts($groupid, $ignoreanon = false) {
         global $DB;
 
         if ($groupid != self::NO_GROUPS && $groupid != self::ALL_GROUPS) {
@@ -4759,6 +4762,13 @@ WHERE
         } else {
             $groupwhere = '';
             $groupparams = array();
+        }
+
+        $anonparams = array();
+        $anonwhere = '';
+        if ($ignoreanon) {
+            $anonwhere = 'AND fp.asmoderator != ?';
+            $anonparams[] = self::ASMODERATOR_ANON;
         }
 
         $results = array();
@@ -4777,11 +4787,12 @@ WHERE
     WHERE
         fd.forumngid = ?
         $groupwhere
+        $anonwhere
         AND fd.deleted = 0
         AND fp.deleted = 0
         AND fp.oldversion = 0
     GROUP BY
-        fp.userid", array_merge(array($this->get_id()), $groupparams));
+        fp.userid", array_merge(array($this->get_id()), $groupparams, $anonparams));
 
             // Store in results
             foreach ($rs as $rec) {

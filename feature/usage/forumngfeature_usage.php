@@ -15,10 +15,30 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version.
- * @package forumngfeature
- * @subpackage move
- * @copyright 2011 The Open University
+ * Forum feature: forum usage stats.
+ * @package forumngfeature_usage
+ * @copyright 2013 The Open University
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-$plugin->version  = 2014012800;
+
+require_once(dirname(__FILE__).'/../forumngfeature_discussion_list.php');
+
+class forumngfeature_usage extends forumngfeature_discussion_list {
+    public function get_order() {
+        return 400;
+    }
+
+    public function should_display($forum) {
+        if (has_capability('forumngfeature/usage:view', $forum->get_context())) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public function display($forum) {
+        $name = get_string('button', 'forumngfeature_usage');
+        $script = 'feature/usage/usage.php';
+        return parent::get_button($forum, $name, $script);
+    }
+}
