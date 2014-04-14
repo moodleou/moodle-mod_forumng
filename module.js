@@ -388,6 +388,7 @@ M.mod_forumng = {
             Y.one('window').detach('scroll');
         }
         this.nowediting = false;
+        this.scroll_page(parent.get('parentNode'));
         this.links_enable(document.body);
     },
 
