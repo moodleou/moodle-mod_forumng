@@ -956,6 +956,104 @@ DEP08B / U.ET
 -  Confirm that the other users have received an email 'Copy - Your post has been deleted'.
 -  Verify that the above form message is reproduced in the emails, followed by the deleted post.
 
+DED Delete and email discussions
+================================
+
+DED01 / Admin
+   Ensure the email addresses of the users U.S2 and Admin are set to usable local accounts
+   that are accessible by the tester, so that they can be checked during testing.
+   Note that the email address for these users should be unique, though they can refer to the same mail account.
+
+DED02 / Admin
+   Create a forum called FR1.
+   Create a discussion called D1.
+   From within D1 discussion choose Delete button to delete the discussion.
+   -  Check that only Delete and Cancel buttons appear as options.
+   Select the Delete button.
+   -  Go to forum FR1 and check that the discussion D1 has been deleted (name is greyed out and struck through).
+   Select discussion D1.
+   Undelete the discussion by selecting 'Undelete' button.
+   -  Verify Undelete and Cancel buttons shown.
+   Select Undelete.
+   -  Check the discussion D1 is no longer deleted (name appears normally).
+
+DED03 / U.S2 [change]
+   Go to the forum FR1.
+   Select the discussion D1.
+   Reply to the initial post made by Admin.
+   Save post.
+
+DED04 / Admin [change]
+   Go to forum FR1.
+   Select the discussion D1.
+   Select 'Delete' button to delete the discussion.
+   -  Check that Delete, Delete and email and Cancel buttons appear on a pop up.
+   Choose the Delete and email button.
+   -  This should bring up the delete and email screen with form.
+   -  The top Message text area should display:
+    'This is a notification to advise you that a discussion you have
+    started with the following details has been deleted by {firstname} {lastname}:
+
+    Subject: {subject}
+    Forum: {forum}
+    Module: {course}'
+
+  Select checkbox marked 'Send a copy to yourself'.
+  In the text area marked 'Email address of other recipients' enter valid email address (should not be same as U.S2's email address).
+  Select checkbox marked 'Notify other contributors'
+  - That notification message should display:
+   'This is a notification to advise you that a discussion you have contributed to
+   with the following details has been deleted by {firstname} {lastname}:
+
+   Subject: {subject}
+   Forum: {forum}
+   Module: {$course}'
+
+  Select the 'Send and delete' button.
+  - Check that the discussion has been deleted.
+  - Check that four emails have been sent/received:
+   An email to Admin informing them that a discussion that they started has been deleted.
+   A COPY email to Admin informing them that a discussion has been deleted.
+   Another COPY email to the email address entered into the area marked 'Email address of other recipients'.
+   An email to U.S2 informing them that a discussion they contributed to has been deleted.
+  Select discussion D1.
+  Undelete the discussion.
+
+DED05 / Admin
+  Go to forum FR1.
+  Select discussion D1.
+  Select the Delete button to delete the discussion.
+  - Check that Delete, Delete and email and Cancel buttons appear on the pop up.
+  Choose the Delete and email button.
+  - This should bring up the delete and email screen.
+  Select the 'Send and delete' button.
+  - Check that the discussion has been deleted.
+  - Check that one email has been sent/received:
+   An email to admin informing them that a discussion that they started has been deleted.
+  Click against the discussion.
+  Undelete the discussion.
+
+DE06 / U.S2 [change]
+  Go to forum FR1.
+  Create a discussion D2 with a single post.
+
+DED07 / Admin [change]
+  Go to forum FR1.
+  Select discussion D2.
+  Choose to delete the discussion.
+  - Check that Delete, Delete and email and Cancel buttons appear on the pop up.
+  Choose the Delete button.
+  - Verify Delete and Cancel buttons appear.
+  Select Delete button.
+  - Verify discussion D2 is shown as deleted.
+  Select discussion D2.
+  Select Undelete and undelete the discussion.
+
+DED08 / Admin
+  Re-test the above with JS switched off using the forum and discussions already created.
+  There is no need to recreate the forum or discussions or the posts.
+  Note Delete popup is replaced with a physical screen when JS is disabled.
+
 EML Email
 =========
 

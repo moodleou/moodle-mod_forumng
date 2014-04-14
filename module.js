@@ -158,6 +158,11 @@ M.mod_forumng = {
             form.remove();
         }
 
+        var div1 = this.Y.one('.forumng_deldiscussion');
+        if (div1) {
+            this.init_deldiscussion(div1);
+        }
+
         // Set up magic links
         this.forumng_expirelinks = [];
         this.init_content(this.Y.one('#forumng-main'));
@@ -196,6 +201,31 @@ M.mod_forumng = {
             var messagehtml = msg.getContent();
             this.Y.one('#id_forumng_delete_msg').set('innerHTML', messagehtml);
         }
+    },
+
+    init_deldiscussion : function(div) {
+        var form = div.get('parentNode').get('parentNode');
+        form.on('submit', function(e) {
+            e.preventDefault();
+           var deletebuttons = new Array(
+                   M.str.forumng.deleteemailpostbutton,
+                   M.str.forumng.deletepostbutton
+                   );
+            this.confirm(M.str.forumng.confirmdeletediscuss,
+                deletebuttons,
+                M.str.moodle.cancel,
+                null, [
+                       function() {
+                           location.href = form.get('action') + '?d=' +
+                           M.mod_forumng.discussionid + '&delete=1' +
+                           '&email=1' + '&clone=' + M.mod_forumng.cloneid;
+                       }, function() {
+                           location.href = form.get('action') + '?d=' +
+                           M.mod_forumng.discussionid + '&delete=1' +
+                           '&email=0' + '&notdeleted=1' + '&clone=' + M.mod_forumng.cloneid;
+                       }]);
+        }, this);
+
     },
 
     /**

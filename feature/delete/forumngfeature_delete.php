@@ -27,15 +27,24 @@ class forumngfeature_delete extends forumngfeature_discussion {
     }
 
     public function should_display($discussion) {
-        // Display even if deleted
+        // Display even if deleted.
         return $discussion->can_manage();
     }
 
     public function display($discussion) {
+        global $USER;
+
+        $childposts = $discussion->get_root_post()->has_children();
+        $creator = $discussion->get_poster();
+        $deleted = $discussion->is_deleted();
+        $extrahtml = '';
+        if (!$deleted && ($childposts || $creator->id != $USER->id)) {
+            $extrahtml = '<div class="forumng_deldiscussion"></div>';
+        }
         return parent::get_button($discussion,
             $discussion->is_deleted() ? get_string('undelete', 'forumng')
                 : get_string('delete'),
             'feature/delete/delete.php', false,
-            array('delete'=>($discussion->is_deleted() ? 0 : 1)));
+            array('delete' => ($discussion->is_deleted() ? 0 : 1)), $extrahtml);
     }
 }

@@ -3786,6 +3786,7 @@ WHERE
             'jserr_attachments' => null,
             'confirmdelete' => null,
             'confirmundelete' => null,
+             'confirmdeletediscuss' => null,
             'deleteemailpostbutton' => null,
             'deletepostbutton' => null,
             'undeletepostbutton' => null,

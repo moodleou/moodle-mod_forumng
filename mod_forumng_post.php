@@ -1038,18 +1038,20 @@ ORDER BY
      * child posts.
      * @param array &$userids Associative array from id=>true that receives
      *   all user IDs
+     * @param $ignoredeleted Set true to discount posts that are deleted
      */
-    public function list_all_user_ids(&$userids) {
+    public function list_all_user_ids(&$userids, $ignoredeleted = false) {
         $this->require_children();
-
-        // Add current ID
-        $userid = $this->get_user()->id;
-        if (!array_key_exists($userid, $userids)) {
-            $userids[$userid] = true;
+        // Add current ID.
+        if (!$ignoredeleted || !$this->get_deleted()) {
+            $userid = $this->get_user()->id;
+            if (!array_key_exists($userid, $userids)) {
+                $userids[$userid] = true;
+            }
         }
 
         foreach ($this->children as $post) {
-            $post->list_all_user_ids($userids);
+            $post->list_all_user_ids($userids, $ignoredeleted);
         }
     }
 

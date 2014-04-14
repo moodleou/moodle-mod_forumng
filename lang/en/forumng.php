@@ -299,6 +299,7 @@ $string['expandall'] = 'Expand all posts';
 $string['deletepost'] = 'Delete post: {$a}';
 $string['undeletepost'] = 'Undelete post: {$a}';
 $string['confirmdelete'] = 'Are you sure you want to delete this post?';
+$string['confirmdeletediscuss'] = 'Delete discussion';
 $string['confirmdelete_notdiscussion'] = 'Deleting this post will not delete the discussion. If
 you want to delete the discussion, use the controls at bottom of the discussion page.';
 $string['confirmundelete'] = 'Are you sure you want to undelete this post?';
