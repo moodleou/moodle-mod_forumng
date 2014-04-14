@@ -73,6 +73,50 @@ function finish($postid, $cloneid, $url, $fromform, $ajaxdata='', $iframeredirec
     redirect($url);
 }
 
+function send_edit_email($formdata, $post) {
+    global $USER, $SITE;
+
+    // Set up the email.
+    $user = $post->get_user();
+    // Always send HTML version.
+    $user->mailformat = 1;
+    $from = $SITE->fullname;
+    $subject = get_string('editedforumpost', 'forumng');
+    $messagetext = $formdata->emailmessage['text'];
+
+    // Send an email to the author of the post.
+    if (!email_to_user($user, $from, $subject, '', $messagetext)) {
+        print_error(get_string('emailerror', 'forumng'));
+    }
+
+    // Prepare for copies.
+    $emails = $selfmail = array();
+    if ($formdata->emailself) {
+        $selfmail[] = $USER->email;
+    }
+
+    // Addition of 'Email address of other recipients'.
+    if (!empty($formdata->emailadd)) {
+        $emails = preg_split('~[; ]+~', $formdata->emailadd);
+    }
+    $emails = array_merge($emails, $selfmail);
+
+    // If there are any recipients listed send them a copy.
+    if (!empty($emails[0])) {
+        $subject = strtoupper(get_string('copy')) . ' - '. $subject;
+        foreach ($emails as $email) {
+            $fakeuser = (object)array(
+                    'email' => $email,
+                    'mailformat' => 1,
+                    'id' => -1
+            );
+            if (!email_to_user($fakeuser, $from, $subject, '', $messagetext)) {
+                print_error(get_string('emailerror', 'forumng'));
+            }
+        }
+    }
+}
+
 try {
     // Get type of action/request and check security
     $isdiscussion = false;
@@ -95,6 +139,7 @@ try {
     $cmid = 0;
     $groupid = 0;
     $forum = null;
+    $post = null;
     if ($draftid = optional_param('draft', 0, PARAM_INT)) {
         $pageparams['draft'] = $draftid;
         $draft = mod_forumng_draft::get_from_id($draftid);
@@ -255,6 +300,25 @@ try {
             'timelimit' => $ispost && $edit && !$post->can_ignore_edit_time_limit()
                 ? $post->get_edit_time_limit() : 0,
             'draft'=>$draft));
+
+    if (is_object($post)) {
+        // Not a new discussion/post so we are editing a pre-existing post.
+        $formdata = new stdClass();
+        // Use the html message.
+        $discussion = $post->get_discussion();
+        // Prepare the object for the get_string.
+        $emailmessage = new stdClass();
+        $emailmessage->subject = $post->get_effective_subject(true);
+        $emailmessage->editinguser = fullname($USER);
+        $emailmessage->course = $COURSE->fullname;
+        $emailmessage->forum = $forum->get_name();
+        $emailmessage->editurl = $CFG->wwwroot . '/mod/forumng/discuss.php?'
+                . $discussion->get_link_params(mod_forumng::PARAM_PLAIN)
+                . '#p' . $post->get_id();
+        // Use the html text.
+        $formdata->emailmessage['text'] = get_string('emaileditedcontenthtml', 'forumng', $emailmessage);
+        $mform->set_data($formdata);
+    }
 
     if ($mform->is_cancelled()) {
         if ($edit) {
@@ -529,6 +593,10 @@ try {
 
                 $post->edit_finish($fromform->message['text'], $fromform->message['format'],
                         $gotsubject);
+
+                if (!empty($fromform->emailauthor)) {
+                    send_edit_email($fromform, $post);
+                }
             }
 
             // 2. Edit discussion settings if applicable

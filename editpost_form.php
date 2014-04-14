@@ -136,6 +136,29 @@ class mod_forumng_editpost_form extends moodleform {
                 $mform->addElement('hidden', 'asmoderator', 0);
                 $mform->setType('asmoderator', PARAM_INT);
             }
+
+            if ($edit && ($post->get_user()->id != $USER->id)) {
+                // Email author.
+                $mform->addElement('header', 'id_emailauthor', get_string('emailauthor', 'forumng'));
+                $mform->addElement('checkbox', 'emailauthor',
+                        get_string('emailauthor', 'forumng'));
+                $mform->addHelpButton('emailauthor', 'emailauthor', 'forumng');
+
+                // Message box.
+                $mform->addElement('editor', 'emailmessage', get_string('emailmessage', 'forumng'),
+                        array('size' => '64', 'id' => 'id_forumng_edit_msg'));
+                $mform->setType('emailmessage', PARAM_RAW);
+
+                $mform->addElement('checkbox', 'emailself', get_string('copytoself', 'forumng'));
+                $mform->disabledIf('emailself', 'emailauthor', 'notchecked');
+
+                // Adding optional text field 'Email address of other recipients'.
+                $mform->addElement('text', 'emailadd', get_string('extra_emails', 'forumng'),
+                        array('size' => '48'));
+                $mform->addHelpButton('emailadd', 'extra_emails', 'forumng');
+                $mform->setType('emailadd', PARAM_RAW);
+                $mform->disabledIf('emailadd', 'emailauthor', 'notchecked');
+            }
         }
 
         // Additional options apply only to discussion.
@@ -263,6 +286,19 @@ class mod_forumng_editpost_form extends moodleform {
             && ($data['timeend']!=0) && ($data['timestart']!=0)
             && ($data['timeend'] < $data['timestart'])) {
             $errors['timeend'] = get_string('timestartenderror', 'forumng');
+        }
+        if (!empty($data['emailadd'])) {
+            $emails = preg_split('~[; ]+~', $data['emailadd']);
+            if (count($emails) < 1) {
+                $errors['emailadd'] = get_string('invalidemails', 'forumng');
+            } else {
+                foreach ($emails as $email) {
+                    if (!validate_email($email)) {
+                        $errors['emailadd'] = get_string('invalidemails', 'forumng');
+                        break;
+                    }
+                }
+            }
         }
         return $errors;
     }

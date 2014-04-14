@@ -423,6 +423,13 @@ M.mod_forumng = {
             // confused.
             var doc = innerwin.document;
             var counter = 0;
+
+            // Roll up edit author fieldset in edit post (do here so height correct).
+            var editemailhead = innerwin.document.getElementById('id_id_emailauthor');
+            if (editemailhead) {
+                editemailhead.className += ' collapsed';
+            }
+
             // Check size and enlarge iframe if required.
             var fix_height = function() {
                 if(doc.body.scrollHeight > Number(iframe.get('height'))) {

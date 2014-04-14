@@ -853,3 +853,14 @@ $string['managepostalerts'] = 'Manage reported post alerts';
 $string['extra_emails'] = 'Email address of other recipients';
 $string['extra_emails_help'] = 'Enter one or more email address(es) separated by spaces or semicolons.';
 $string['skipstickydiscussions'] = 'Skip sticky discussions';
+$string['emailauthor'] = 'Email author';
+$string['emaileditedcontenthtml'] = 'This is a notification to advise you that your forum post with the
+following details has been edited by \'{$a->editinguser}\':<br />
+<br />
+Subject: {$a->subject}<br />
+Forum: {$a->forum}<br />
+Module: {$a->course}<br/>
+<br/>
+<a href="{$a->editurl}" title="view deleted post">View the discussion</a>';
+$string['emailauthor_help'] = 'Send an email to the post\'s author informing them that you have edited their post';
+$string['editedforumpost'] = 'Your post has been edited';

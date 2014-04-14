@@ -226,6 +226,73 @@ BSJ07 / U.S2
 
 ** PASSED 2011-02-21
 
+EEP Edit and email
+==================
+
+NOTE: Before starting this section, check that both users (U.S2, U.ET)
+have email addresses set up that go to an email address that you can read.
+When testing within the OU, note that developer servers will only send email
+to OU (@open.ac.uk) addresses.
+
+EEP01 / admin [change]
+  Go to the course, click into F.SH, click the 'Start discussion' button.
+  Type in a subject and a message and hit the 'Post discussion' button.
+  - Verify that you are taken to the new discussion page and your message
+    is shown.
+
+EEP02 / U.S2 [change]
+  Click the 'Reply' link next to admins message.
+  - A form should appear on the same page (without changing URL, i.e. the
+    URL should still be discuss.php) below the message.
+  Type in a message (no subject) and hit the 'Post reply' button.
+  - After a possible brief delay indicated by a spinny thingy, your reply
+    should appear on the discussion page, already expanded.
+
+EEP03 / admin [change]
+  Click the 'Reply' link next to the post written above by U.S2.
+  - A form should appear on the same page (without changing URL, i.e. the
+    URL should still be discuss.php) below the message.
+  Type in a message (no subject) and hit the 'Post reply' button.
+  - After a possible brief delay indicated by a spinny thingy, your reply
+    should appear on the discussion page, already expanded.
+
+EEP04 / admin
+  Click the 'Edit' link next to the reply to your original message by U.S2 (middle post).
+  - A form should appear on the same page (discuss.php) below the message.
+  - Verify that the form contains the text of the message.
+    Type some text into the subject and change the message text.
+  - Verify that the form contains a label 'Email author' containing a checkbox entitled 'Email author'
+    an e-mail author message text field, a 'send copy to yourself' checkbox and a text box for adding
+    'Email addresses of other recipients'
+-  Verify that the message displayed in the form is:
+
+   'This is a notification to advise you that your forum post with the following details has been
+    edited by '{username}':'
+
+   Subject: DEP03 user two response
+   Forum: F.SH
+   Module: FORUMTEST
+
+  View the discussion
+
+  Click against the 'Email author' checkbox
+  Type some text into the email text field and change the email message text.
+  Click 'Send a copy to yourself'.
+-  Verify that there is a text entry field 'Email address of other recipients'.
+-  Enter multiple checkable user email addresses which you have access to.
+  Click 'Save changes'.
+
+EEP05 / admin
+-  Confirm that you are returned to the discussion.
+  - Verify that the form disappears and the main post text updates to show
+    your new message and subject.
+-  Confirm that user U.S2 has received an email 'Your post has been edited'.
+-  Confirm that user admin has received an email 'Copy - Your post has been edited'.
+-  Confirm that the other users have received an email 'Copy - Your post has been edited'.
+-  Verify that the above form message is reproduced in the emails.
+
+Retest BSJ01 - BSJ04 above
+
 
 GRP Basic group support
 =======================
