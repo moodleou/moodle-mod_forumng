@@ -34,7 +34,7 @@ class mod_forumng_convert_form extends moodleform {
         $mform = $this->_form;
         $course = $this->_customdata;
 
-        // Query for supported forums
+        // Query for supported forums.
         $forums = mod_forumng_utils::get_convertible_forums($course);
 
         $forumoptions = array();
@@ -63,36 +63,34 @@ class mod_forumng_convert_form extends moodleform {
 $courseid = required_param('course', PARAM_INT);
 $course = $DB->get_record('course', array('id' => $courseid), '*', MUST_EXIST);
 require_login($course);
+$pagename = get_string('convert_title', 'forumng');
+$PAGE->set_url(new moodle_url('/mod/forumng/convert.php'), array('course' => $courseid));
+$PAGE->set_title($pagename);
+$PAGE->navbar->add($pagename);
 require_capability('moodle/course:manageactivities',
     context_course::instance($courseid));
-
-$pagename = get_string('convert_title', 'forumng');
-$navigation = array();
-$navigation[] = array(
-    'name'=>$pagename, 'type'=>'forumng');
-
-print_header_simple($pagename,
-    "", build_navigation($navigation), "", "", true, '', navmenu($course));
 
 $mform = new mod_forumng_convert_form('convert.php', $course);
 if ($mform->is_cancelled()) {
     redirect($CFG->wwwroot . '/course/view.php?id=' . $courseid);
-} else if ($fromform = $mform->get_data()) {
-    print_heading($pagename);
-    if (empty($fromform->forums) || count($fromform->forums)==0) {
+}
+echo $OUTPUT->header();
+if ($fromform = $mform->get_data()) {
+    echo $OUTPUT->heading($pagename);
+    if (empty($fromform->forums) || count($fromform->forums) == 0) {
         print '<p>' . get_string('convert_noneselected', 'forumng') . '</p>';
-        print_continue($CFG->wwwroot . '/mod/forumng/convert.php?course=' . $course->id);
+        echo $OUTPUT->continue_button($CFG->wwwroot . '/mod/forumng/convert.php?course=' . $course->id);
     } else {
         foreach ($fromform->forums as $forumid) {
             mod_forumng::create_from_old_forum($course, $forumid, true,
                 optional_param('hide', 0, PARAM_INT) ? true : false,
                 optional_param('nodata', 0, PARAM_INT) ? true : false);
         }
-        print_continue($CFG->wwwroot . '/course/view.php?id=' . $course->id);
+        echo $OUTPUT->continue_button($CFG->wwwroot . '/course/view.php?id=' . $course->id);
     }
 } else {
     $mform->display();
 }
 
-// Display footer
-print_footer($course);
+// Display footer.
+echo $OUTPUT->footer($course);

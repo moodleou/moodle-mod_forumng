@@ -4218,7 +4218,7 @@ WHERE
      */
     public static function create_from_old_forum($course, $forumcmid, $progress, $hide,
             $nodata, $insection=true) {
-        global $CFG, $DB;
+        global $CFG, $DB, $OUTPUT;
 
         // Start the clock and a database transaction
         $starttime = microtime(true);
@@ -4229,7 +4229,7 @@ WHERE
         $cm = $DB->get_record('course_modules', array('id' => $forumcmid), '*', MUST_EXIST);
         $forum = $DB->get_record('forum', array('id' => $cm->instance), '*', MUST_EXIST);
         if ($progress) {
-            print_heading(s($forum->name), '', 3);
+            echo $OUTPUT->heading(s($forum->name), 3);
             print '<ul><li>' . get_string('convert_process_init', 'forumng');
             flush();
         }
@@ -4270,6 +4270,7 @@ WHERE
         if (!($newforumngid = forumng_add_instance($forumng))) {
             throw new coding_exception("Failed to add forumng instance");
         }
+        $forumng->id = $newforumngid;
 
         // Create and add course-modules entry
         $newcm = new stdClass;
@@ -4298,7 +4299,10 @@ WHERE
         // Add
         $newcm->id = $DB->insert_record('course_modules', $newcm);
 
-        // Update section
+        $oldcontext = context_module::instance($cm->id);
+        $newcontext = context_module::instance($newcm->id);
+
+        // Update section.
         if ($insection) {
             $section = $DB->get_record('course_sections', array('id' => $newcm->section),
                     '*', MUST_EXIST);
@@ -4327,8 +4331,8 @@ WHERE
                             'convert_process_subscriptions_normal', 'forumng');
                         flush();
                     }
-                    // Standard subscription - just copy subscriptions
-                    $rs = $DB->get_recordset('mod_forumng_subscriptions',
+                    // Standard subscription - just copy subscriptions.
+                    $rs = $DB->get_recordset('forum_subscriptions',
                             array('forum' => $forum->id));
                     foreach ($rs as $rec) {
                         $DB->insert_record('forumng_subscriptions', (object)array(
@@ -4353,8 +4357,8 @@ WHERE
                         flush();
                     }
 
-                    // Get list of those subscribed on old forum
-                    $rs = $DB->get_recordset('mod_forumng_subscriptions',
+                    // Get list of those subscribed on old forum.
+                    $rs = $DB->get_recordset('forum_subscriptions',
                             array('forum' => $forum->id));
                     $subscribedbefore = array();
                     foreach ($rs as $rec) {
@@ -4390,7 +4394,7 @@ WHERE
                 flush();
             }
             $rsd = $DB->get_recordset(
-                'mod_forumng_discussions', array('forum' => $forum->id));
+                'forum_discussions', array('forum' => $forum->id));
             $count = 0;
             foreach ($rsd as $recd) {
                 // Convert discussion options
@@ -4414,10 +4418,10 @@ WHERE
                 // Convert posts
                 $lastposttime = -1;
                 $discussionupdate = (object)array('id' => $newd->id);
-                $postids = array(); // From old post id to new post id
-                $parentposts = array(); // From new post id to old parent id
-                $subjects = array(); // From new id to subject text (no slashes)
-                $rsp = $DB->get_recordset('mod_forumng_posts', array('discussion' => $recd->id));
+                $postids = array(); // From old post id to new post id.
+                $parentposts = array(); // From new post id to old parent id.
+                $subjects = array(); // From new id to subject text (no slashes).
+                $rsp = $DB->get_recordset('forum_posts', array('discussion' => $recd->id));
                 foreach ($rsp as $recp) {
                     // Convert post
                     $newp = (object)array(
@@ -4432,7 +4436,7 @@ WHERE
                         'edituserid' => null,
                         'subject' => $recp->subject,
                         'message' => $recp->message,
-                        'format' => $recp->format,
+                        'messageformat' => $recp->messageformat,
                         'important' => 0);
 
                     // Are there any attachments?
@@ -4458,45 +4462,33 @@ WHERE
                     }
                     $subjects[$newp->id] = $recp->subject;
 
-                    // Copy attachments
-                    $oldfolder = $CFG->dataroot .
-                        "/{$course->id}/{$CFG->moddata}/forum/{$forum->id}/{$recp->id}";
-                    $newfolder = mod_forumng_post::get_any_attachment_folder(
-                        $course->id, $forumng->id, $newd->id, $newp->id);
+                    // Copy attachments.
+                    $fo = get_file_storage();
                     $filesok = 0;
                     $filesfailed = 0;
-                    foreach ($attachments as $attachment) {
-                        // Create folder if it isn't there
-                        $attachment = clean_filename($attachment);
-                        check_dir_exists($newfolder, true, true);
-
-                        // Copy file
-                        try {
-                            mod_forumng_utils::copy("$oldfolder/$attachment",
-                                "$newfolder/$attachment");
-                            $filesok ++;
-                        } catch (moodle_exception $e) {
-                            if ($progress) {
-                                print "[<strong>Warning</strong>: file copy failed for post " .
-                                        $recp->id . " => " . $newp->id .
-                                        ", file " . s($attachment) . "]";
-                            }
-                            $filesfailed ++;
-                        }
+                    $oldattachs = $fo->get_area_files($oldcontext->id, 'mod_forum', 'attachment', $recp->id, 'itemid', false);
+                    foreach ($oldattachs as $attachment) {
+                        $filerecord = array(
+                                'component' => 'mod_forumng',
+                                'itemid' => $newp->id,
+                                'contextid' => $newcontext->id
+                        );
+                        $fo->create_file_from_storedfile($filerecord, $attachment);
+                    }
+                    $oldimgs = $fo->get_area_files($oldcontext->id, 'mod_forum', 'message', $recp->id, 'itemid', false);
+                    foreach ($oldimgs as $attachment) {
+                        $filerecord = array(
+                                'component' => 'mod_forumng',
+                                'itemid' => $newp->id,
+                                'contextid' => $newcontext->id
+                        );
+                        $fo->create_file_from_storedfile($filerecord, $attachment);
                     }
 
-                    // If all files failed, clean up
-                    if ($filesfailed && !$filesok) {
-                        rmdir($newfolder);
-                        $noattachments = (object)array(
-                            'id'=>$newp->id, 'attachments'=>0);
-                        $DB->update_record(
-                        'forumng_posts', $noattachments);
-                    }
-
-                    // Convert ratings
-                    if ($forumng->ratingscale) {
-                        $rsr = $DB->get_recordset('mod_forumng_ratings',
+                    // Convert ratings.
+                    /*if ($forumng->ratingscale) {
+                        // TODO: Support grades -> ratings.
+                        $rsr = $DB->get_recordset('forum_ratings',
                                 array('post' => $recp->id));
                         foreach ($rsr as $recr) {
                             $DB->insert_record('forumng_ratings', (object)array(
@@ -4506,7 +4498,7 @@ WHERE
                                 'rating' => $recr->rating));
                         }
                         $rsr->close();
-                    }
+                    }*/
                 }
                 $rsp->close();
 
@@ -4550,7 +4542,7 @@ WHERE
 SELECT
     userid, MAX(lastread) AS lastread
 FROM
-    {mod_forumng_read}
+    {forum_read}
 WHERE
     discussionid = ?
 GROUP BY
@@ -4596,8 +4588,6 @@ GROUP BY
         }
 
         // Transfer role assignments
-        $oldcontext = context_module::instance($cm->id);
-        $newcontext = context_module::instance($newcm->id);
         $roles = $DB->get_records('role_assignments', array('contextid' => $oldcontext->id));
         if ($roles) {
             if ($progress) {
@@ -4626,7 +4616,7 @@ GROUP BY
             'mod/forum:replypost' => 'mod/forumng:replypost',
             'mod/forum:viewrating' => 'mod/forumng:viewrating',
             'mod/forum:viewanyrating' => 'mod/forumng:viewanyrating',
-            'mod/forum:rate'=> 'mod/forumng:rate',
+            'mod/forum:rate' => 'mod/forumng:rate',
             'mod/forum:createattachment' => 'mod/forumng:createattachment',
             'mod/forum:deleteanypost' => 'mod/forumng:deleteanypost',
             'mod/forum:splitdiscussions' => 'mod/forumng:splitdiscussions',
@@ -4683,7 +4673,7 @@ GROUP BY
 
         if ($progress) {
             $a = (object)array(
-                'seconds' => round(microtime(true)-$starttime, 1),
+                'seconds' => round(microtime(true) - $starttime, 1),
                 'link' => '<a href="view.php?id=' . $newcm->id . '">' .
                     get_string('convert_newforum', 'forumng') . '</a>');
             print '</ul><p>' . get_string('convert_process_complete', 'forumng',
