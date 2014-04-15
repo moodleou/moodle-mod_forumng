@@ -307,7 +307,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
                 '<input type="hidden" name="back" value="view" />' .
                 '<input type="image" title="' .
                     get_string('markdiscussionread', 'forumng') .
-                    '" src="' . $this->pix_url('t/clear') . '" ' .
+                    '" src="' . $this->pix_url('clear', 'mod_forumng') . '" ' .
                     'class="iconsmall" alt="' .
                     get_string('markdiscussionread', 'forumng') .
                 '" /></div></form>';
