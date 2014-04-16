@@ -280,14 +280,12 @@ function forumng_print_overview($courses, &$htmlarray) {
         if (mod_forumng::enabled_read_tracking() && !isguestuser() && isloggedin()) {
             $forums = mod_forumng::get_course_forums($course,
                     $USER->id, mod_forumng::UNREAD_DISCUSSIONS);
+            $modinfo = get_fast_modinfo($course);
         }
         if (!empty($forums)) {
             foreach ($forums as $forum) {
-                // note like all mymoodle, there's no check current user can see each forum
-                // ok for openlearn & vital but might need addressing if VLE ever use it
-
-                // only listing unread, not new & unread for performance
-                if ($forum->has_unread_discussions()) {
+                // Only listing unread, not new & unread for performance.
+                if ($modinfo->get_cm($forum->get_course_module_id(true))->uservisible && $forum->has_unread_discussions()) {
                     $str .= '<div class="overview forumng"><div class="name">' .
                         $strforum . ':' . ' <a title="' . $strforum . '" href="' .
                         $forum->get_url(mod_forumng::PARAM_HTML).'">' .
