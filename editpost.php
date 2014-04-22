@@ -91,7 +91,7 @@ function send_edit_email($formdata, $post) {
 
     // Prepare for copies.
     $emails = $selfmail = array();
-    if ($formdata->emailself) {
+    if (!empty($formdata->emailself)) {
         $selfmail[] = $USER->email;
     }
 
