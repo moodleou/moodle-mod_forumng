@@ -51,8 +51,9 @@ $aag = permission_to_move($discussion, $targetforum);
 
 // Work out target group for move.
 $targetgroup = get_target_group($discussion, $targetforum, $aag);
+$groupmode = $targetforum->get_group_mode();
 $options = array();
-if (!$targetgroup) {
+if ($groupmode && !$targetgroup) {
     $options = get_allowed_groups($targetforum, $aag);
     // If there's only one then we'll use it.
     if (count($options) == 1) {
@@ -62,8 +63,6 @@ if (!$targetgroup) {
         print_error('move_nogroups', 'forumng');
     }
 }
-
-$groupmode = $targetforum->get_group_mode();
 
 if ((!$targetgroup) && ($groupmode > 0)) {
     // User needs to choose one from form.
