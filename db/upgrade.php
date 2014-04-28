@@ -109,14 +109,29 @@ function xmldb_forumng_upgrade($oldversion=0) {
         global $DB;
         set_time_limit(0);
         // Fix issue with read table having duplicate entries.
-        $select = 'id in(select distinct r1.id from {forumng_read} r1
-            join {forumng_read} r2 on r2.discussionid = r1.discussionid and r2.userid = r1.userid
-            and r2.id != r1.id and (r2.time > r1.time or (r2.time = r1.time and r2.id > r1.id)))';
-        $result = $DB->delete_records_select('forumng_read', $select);
-
-        if (!CLI_SCRIPT) {
-            echo 'Updating read table index (may take some time).';
-            flush();
+        $select = "SELECT r.userid, r.discussionid
+                     FROM {forumng_read} r
+                 GROUP BY r.userid, r.discussionid
+                   HAVING COUNT(1) > 1";
+        $duplicates = $DB->get_records_sql($select);
+        if ($duplicates) {
+            $pbar = new progress_bar('mod_forumng_fixread', 500, true);
+            $cur = 1;
+            $total = count($duplicates);
+            foreach ($duplicates as $duplicate) {
+                // Find other records with user and discussion - keep latest time or lowest id.
+                $select = "id IN(
+                        SELECT DISTINCT r1.id FROM {forumng_read} r1
+                          JOIN {forumng_read} r2 ON r2.discussionid = r1.discussionid
+                           AND r2.userid = r1.userid AND r2.id != r1.id
+                           AND (r2.time > r1.time OR (r2.time = r1.time AND r2.id > r1.id))
+                         WHERE r1.userid = ? AND r1.discussionid = ?
+                        )";
+                $result = $DB->delete_records_select('forumng_read', $select,
+                        array($duplicate->userid, $duplicate->discussionid));
+                $pbar->update($cur, $total, 'Remove duplicate ForumNG read rows');
+                $cur++;
+            }
         }
 
         // Drop then add index as don't seem to be able to update...
