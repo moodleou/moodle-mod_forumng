@@ -520,6 +520,79 @@ SUM02 / UET  [change]
 [Note this test shows that the uet teacher user is able to identify 'Anonymous' posters by
 searching for usernames.]
 
+The next set of tests are to test the new 'Posted as moderator' search check box.
+Please note that since UET may have added other discussions within forum 'F.AME' this may also show up in the results.
+
+Return to course main page.
+
+SUM03 / UET
+   Enter forum 'F.AME''.
+   Create a discussion called 'Standard post'.
+   In the message enter the following text 'Standard post. test words are reply and edit'.
+   In the 'Post as?' drop down box select 'Standard post'.
+   Post discussion.
+
+SUM04 / UET
+   Enter forum 'F.AME''.
+   Create a discussion called 'Identify as moderator'.
+   In the message enter the following text 'Not hidden from students. test words are reply and edit'.
+   In the 'Post as?' drop down box select 'Identify as moderator'.
+   Post discussion.
+
+SUM05 / UET
+   Enter forum 'F.AME''.
+   Create a discussion called 'Identify as moderator but hide from students'.
+   In the message enter the following text 'Identify as moderator but hide from students. test words are reply and edit'.
+   In the 'Post as?' drop down box select 'Identify as moderator but hide from students'.
+   Post discussion.
+
+SUM06 / US.1 [change]
+   Enter the forum 'F.AME'.
+   Click the arrow beside 'Search this forum'.
+-  Confirm that the 'Advanced search' page opens with the form containing search options.
+   Click in to 'Search for' search box and enter 'reply'.
+   Click 'Search this forum'.
+   Verify that three recently created discussions are shown and the word 'reply' is emboldened in the post text.
+   Click against each of the discussion titles and verify that all,
+      but the 'Identify as moderator but hide from students' shows UET as the author.
+   The 'Identify as moderator but hide from students' discussion does not name the author but just says 'Moderator'.
+
+SUM07 / US.1
+   Enter the forum 'F.AME'.
+   Click the arrow beside 'Search this forum'.
+-  Confirm that the 'Advanced search' page opens with the form containing search options.
+   Click in to 'Search for' search box and enter 'reply'.
+   Check the 'Posted as Moderator' check box.
+   Click 'Search this forum'.
+   Verify that just the two discussions that UET posted as Moderator are shown.
+
+SUM08 / US.1
+   Enter the forum 'F.AME'.
+   Click the arrow beside 'Search this forum'.
+-  Confirm that the 'Advanced search' page opens with the form containing search options.
+   Check the 'Posted as Moderator' check box.
+   Click 'Search this forum'.
+   Verify that just the two discussions that UET posted as Moderator are shown.
+
+SUM09 / US.1
+   Enter the forum 'F.AME'.
+   Click the arrow beside 'Search this forum'.
+   Confirm that the 'Advanced search' page opens with the form containing search options.
+   Click in to 'author' search box and enter 'UET'.
+   Click 'Search this forum'.
+   Verify that just the two discussions entitled : 'Standard post' and 'Identify as moderator' are shown.
+   Verify the discussion entitled 'Identify as moderator but hide from students' is not shown.
+
+SUM10 / US.1
+   Enter the forum 'F.AME'.
+   Click the arrow beside 'Search this forum'.
+   Confirm that the 'Advanced search' page opens with the form containing search options.
+   Click in to 'author' search box and enter 'UET'.
+   Check the 'Posted as Moderator' check box.
+   Click 'Search this forum'.
+   Verify that just the discussion entitled : 'Identify as moderator' is shown.
+   Verify the discussions entitled 'Standard post' and 'Identify as moderator but hide from students' are not shown.
+
 EML Email
 =========
 NOTE: Before starting this section, check that both users (U.S1, U.ET)

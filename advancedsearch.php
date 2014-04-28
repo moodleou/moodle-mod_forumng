@@ -51,6 +51,9 @@ class advancedsearch_form extends moodleform {
         $mform->addElement('text', 'author', get_string('authorname', 'forumng'), 'size="40"');
         $mform->setType('author', PARAM_TEXT);
 
+        // Posted as moderator.
+        $mform->addElement('checkbox', 'asmoderator', get_string('postedasmoderator', 'forumng'));
+
         // Date range_from to be filtered
         $mform->addElement('date_time_selector', 'datefrom',
                 get_string('daterangefrom', 'forumng'),
@@ -66,6 +69,7 @@ class advancedsearch_form extends moodleform {
         // Add help buttons
         $mform->addHelpButton('query', 'words', 'forumng');
         $mform->addHelpButton('author', 'authorname', 'forumng');
+        $mform->addHelpButton('asmoderator', 'postedasmoderator', 'forumng');
         $mform->addHelpButton('datefrom', 'daterangefrom', 'forumng');
 
         // Add "Search all forums"/"Search this forum" and "Cancel" buttons
@@ -80,13 +84,18 @@ class advancedsearch_form extends moodleform {
         $errors = parent::validation($data, $files);
         $datefrom = $data['datefrom'];
         $dateto = $data['dateto'];
+        if (isset($data['asmoderator'])) {
+            $asmoderator = $data['asmoderator'];
+        } else {
+            $asmoderator = 0;
+        }
         if ($datefrom > time()) {
             $errors['datefrom'] = get_string('inappropriatedateortime', 'forumng');
         }
         if (($datefrom > $dateto) && $dateto) {
             $errors['dateto'] = get_string('daterangemismatch', 'forumng');
         }
-        if (($data['query'] == '') && ($data['author'] == '') && !$datefrom && !$dateto) {
+        if ((($data['query'] == '') && ($data['author'] == '') && !$datefrom && !$dateto) && (!$asmoderator)) {
             $errors['query'] = get_string('nosearchcriteria', 'forumng');
         }
         return $errors;
@@ -116,6 +125,10 @@ if ($cloneid) {
     // clone is used to mark shared forums
     $url->param('clone', $cloneid);
 }
+
+$asmoderator = optional_param('asmoderator', 0, PARAM_INT);
+$url->param('asmoderator', $asmoderator);
+
 $datefrom = optional_param_array('datefrom', 0, PARAM_INT);
 if (!empty($datefrom)) {
     foreach ($datefrom as $key => $value) {
@@ -256,7 +269,8 @@ if ($data) {
         // Pass necessary data to filter function using ugly global.
         global $forumngfilteroptions;
         $forumngfilteroptions = (object)array('author' => trim($data->author),
-                'datefrom' => $data->datefrom, 'dateto' => $data->dateto);
+                'datefrom' => $data->datefrom, 'dateto' => $data->dateto,
+                'asmoderator' => !empty($data->asmoderator));
         $result->set_filter('forumng_exclude_words_filter');
         print $result->display_results($url, $searchtitle);
     } else {
@@ -268,10 +282,10 @@ if ($data) {
         // Get result from database query.
         if ($allforums) {
             $results = forumng_get_results_for_all_forums($course, trim($data->author),
-                    $data->datefrom, $data->dateto, $page);
+                    $data->datefrom, $data->dateto, $page, !empty($data->asmoderator));
         } else {
             $results = forumng_get_results_for_this_forum($forum, $groupid, trim($data->author),
-                    $data->datefrom, $data->dateto, $page);
+                    $data->datefrom, $data->dateto, $page, !empty($data->asmoderator));
         }
         $nextpage = $page + FORUMNG_SEARCH_RESULTSPERPAGE;
 

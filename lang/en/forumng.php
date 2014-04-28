@@ -864,3 +864,6 @@ Module: {$a->course}<br/>
 <a href="{$a->editurl}" title="view deleted post">View the discussion</a>';
 $string['emailauthor_help'] = 'Send an email to the post\'s author informing them that you have edited their post';
 $string['editedforumpost'] = 'Your post has been edited';
+
+$string['postedasmoderator'] = 'Posted as moderator';
+$string['postedasmoderator_help'] = 'Search for posts that have been identified as being created by a moderator';

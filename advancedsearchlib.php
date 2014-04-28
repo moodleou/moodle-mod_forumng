@@ -35,17 +35,22 @@ function forumng_exclude_words_filter($result) {
     $daterangefrom = $forumngfilteroptions->datefrom;
     $daterangeto = $forumngfilteroptions->dateto;
 
-    // Filter the output based on the input string for "Author name" field
+    // Filter the output based on the input string for "Author name" field.
     if (!forumng_find_this_user($result->intref1, $author)) {
         return false;
     }
 
-    // Filter the output based on input date for "Date range from" field
+    // Filter the output based on the input value for 'Posted as Moderator' field.
+    if (!forumng_check_asmoderator($result->intref1, $forumngfilteroptions->asmoderator)) {
+        return false;
+    }
+
+    // Filter the output based on input date for "Date range from" field.
     if ($daterangefrom && $daterangefrom > $result->timemodified) {
         return false;
     }
 
-    // Filter the output based on input date for "Date range to" field
+    // Filter the output based on input date for "Date range to" field.
     if ($daterangeto && $daterangeto < $result->timemodified) {
         return false;
     }
@@ -64,7 +69,7 @@ function forumng_exclude_words_filter($result) {
  * @return object
  */
 function forumng_get_results_for_this_forum($forum, $groupid, $author=null, $daterangefrom=0,
-        $daterangeto=0, $page, $resultsperpage=FORUMNG_SEARCH_RESULTSPERPAGE) {
+        $daterangeto=0, $page, $asmoderator = false, $resultsperpage=FORUMNG_SEARCH_RESULTSPERPAGE) {
 
     $before = microtime(true);
 
@@ -98,11 +103,15 @@ function forumng_get_results_for_this_forum($forum, $groupid, $author=null, $dat
         $where .= " AND (d.groupid = ? OR d.groupid IS NULL)";
         $params[] = $groupid;
     }
-    if (!is_null($author)) {
-        if (($forum->get_can_post_anon() == true ) && ($forum->can_post_anonymously() ==false)) {
+    if (!empty($author)) {
+        if (($forum->get_can_post_anon() == true ) && ($forum->can_post_anonymously() == false)) {
             $where .= " AND p.asmoderator != ? ";
             $params[] = mod_forumng::ASMODERATOR_ANON;
         }
+    }
+    if ($asmoderator) {
+        $where .= " AND p.asmoderator > ? ";
+        $params[] = mod_forumng::ASMODERATOR_NO;
     }
 
     $sql = "SELECT p.modified, p.id, p.discussionid, p.userid, p.parentpostid,
@@ -154,7 +163,7 @@ function forumng_get_results_for_this_forum($forum, $groupid, $author=null, $dat
  * @return object
  */
 function forumng_get_results_for_all_forums($course, $author=null, $daterangefrom=0,
-        $daterangeto=0, $page, $resultsperpage=FORUMNG_SEARCH_RESULTSPERPAGE) {
+        $daterangeto=0, $page, $asmoderator = false, $resultsperpage=FORUMNG_SEARCH_RESULTSPERPAGE) {
 
     $before = microtime(true);
 
@@ -213,9 +222,18 @@ function forumng_get_results_for_all_forums($course, $author=null, $daterangefro
     $where .= " AND p.oldversion = 0 ";
     $where .= " AND d.deleted = 0 AND p.deleted = 0 ";
 
-    if (!is_null($author)) {
+    if (!empty($author)) {
         $coursecontext = context_course::instance($course->id);
-        if (!has_capability('mod/forumng:postanon', $coursecontext)) {
+        $seeanon = has_capability('mod/forumng:postanon', $coursecontext);
+        if ($asmoderator) {
+            if ($seeanon) {
+                $where .= " AND p.asmoderator > ? ";
+                $params[] = mod_forumng::ASMODERATOR_NO;
+            } else {
+                $where .= " AND p.asmoderator = ? ";
+                $params[] = mod_forumng::ASMODERATOR_IDENTIFY;
+            }
+        } else if (!$seeanon) {
             $where .= " AND p.asmoderator != ? ";
             $params[] = mod_forumng::ASMODERATOR_ANON;
         }
@@ -275,8 +293,8 @@ function forumng_get_results_for_all_forums($course, $author=null, $daterangefro
 }
 
 /**
- * Find this usr.
- * @param int $groupid
+ * Find this user.
+ * @param int $postid
  * @param string $author
  * @return boolean
  */
@@ -286,8 +304,8 @@ function forumng_find_this_user($postid, $author=null) {
     if (!$author) {
         return true;
     }
-    $where = "WHERE p.id = ? ";
-    $params = array($postid);
+    $where = "WHERE p.id = ? AND p.asmoderator != ?";
+    $params = array($postid, mod_forumng::ASMODERATOR_ANON);
     list($morewhere, $moreparams) = forumng_get_author_sql($author);
     $where .= $morewhere;
     $params = array_merge($params, $moreparams);
@@ -295,6 +313,25 @@ function forumng_find_this_user($postid, $author=null) {
             FROM {forumng_posts} p
             INNER JOIN {user} u ON p.userid = u.id
             $where";
+    return $DB->record_exists_sql($sql, $params);
+}
+
+/**
+ * Find user if a moderator.
+ * @param int $postid
+ * @param boolean $asmoderator
+ * @return boolean
+ */
+function forumng_check_asmoderator($postid, $asmoderator = false) {
+    global $CFG, $DB;
+    if (!$asmoderator) {
+        return true;
+    }
+    $where = "WHERE p.id = ? AND p.asmoderator > ?";
+    $params = array($postid, mod_forumng::ASMODERATOR_NO);
+    $sql = "SELECT p.id
+    FROM {forumng_posts} p
+    $where";
     return $DB->record_exists_sql($sql, $params);
 }
 
