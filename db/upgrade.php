@@ -109,9 +109,9 @@ function xmldb_forumng_upgrade($oldversion=0) {
         global $DB;
         set_time_limit(0);
         // Fix issue with read table having duplicate entries.
-        $select = "SELECT r.userid, r.discussionid
+        $select = "SELECT " . $DB->sql_concat('r.userid', "'|'", 'r.discussionid') . ", r.userid, r.discussionid
                      FROM {forumng_read} r
-                 GROUP BY r.userid, r.discussionid
+                 GROUP BY " . $DB->sql_concat('r.userid', "'|'", 'r.discussionid') . ", r.userid, r.discussionid
                    HAVING COUNT(1) > 1";
         $duplicates = $DB->get_records_sql($select);
         if ($duplicates) {
