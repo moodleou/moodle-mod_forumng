@@ -1486,7 +1486,7 @@ WHERE
         } else {
             $postid = $this->postfields->id;
         }
-        add_to_log($this->get_forum()->get_course_id(), 'forumng',
+        add_to_log($this->get_forum()->get_course()->id, 'forumng',
             $action,
             $this->discussion->get_log_url() . '#p' . $postid,
             $this->postfields->id,

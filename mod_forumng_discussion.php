@@ -1615,7 +1615,7 @@ ORDER BY
         if ($replaceinfo !== '') {
             $info = $replaceinfo;
         }
-        add_to_log($this->get_forum()->get_course_id(), 'forumng',
+        add_to_log($this->get_forum()->get_course()->id, 'forumng',
             $action, $this->get_log_url(), $info,
             $this->get_forum()->get_course_module_id());
     }
