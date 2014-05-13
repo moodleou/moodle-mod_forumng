@@ -119,7 +119,7 @@ $table = new forumng_participation_table('mod-forumng-participation');
 $table->set_attribute('class', 'flexible generaltable');
 $table->set_attribute('width', '100%');
 $table->define_columns(array('c1', 'c2', 'c3'));
-$table->define_headers(array('In reply to', 'Post subject', 'Post message'));
+$table->define_headers(array('In reply to', 'Post date', 'Post subject', 'Post message'));
 $table->define_baseurl($pageurl);
 $filename = "$course->shortname-" . format_string($forum->get_name(), true) . "-" . $USER->username;
 $table->is_downloading($download, $filename, get_string('userposts', 'forumngfeature_userposts'));
@@ -168,8 +168,9 @@ foreach ($posts as $postid => $post) {
         if (empty($download)) {
             print $post->display(true, $options);
         } else {
-            $row[1] = $post->get_subject();
-            $row[2] = $post->get_formatted_message();
+            $row[1] = userdate($post->get_created(), get_string('strftimedatetime', 'langconfig'));
+            $row[2] = $post->get_subject();
+            $row[3] = $post->get_formatted_message();
             $data[] = $row;
         }
     }
