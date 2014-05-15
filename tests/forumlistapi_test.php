@@ -26,7 +26,7 @@ defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 require($CFG->dirroot . '/mod/forumng/externallib.php');
-require($CFG->dirroot . '/course/lib.php');
+require_once($CFG->dirroot . '/course/lib.php');
 
 /**
  * PHPUnit forum list api testcase.
