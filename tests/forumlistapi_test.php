@@ -25,8 +25,8 @@
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
-require($CFG->dirroot . '/mod/forumng/externallib.php');
-require($CFG->dirroot . '/course/lib.php');
+require_once($CFG->dirroot . '/mod/forumng/externallib.php');
+require_once($CFG->dirroot . '/course/lib.php');
 
 /**
  * PHPUnit forum list api testcase.
@@ -38,7 +38,7 @@ require($CFG->dirroot . '/course/lib.php');
 class mod_forumng_forumlist_testcase extends advanced_testcase {
     /**
      * Tests the get_forum_list() function. This funcion is the meat of the web service but we cannot
-     * check it as a web service so we just call the function. 
+     * check it as a web service so we just call the function.
      */
     public function test_forumlistapi() {
         global $DB;
