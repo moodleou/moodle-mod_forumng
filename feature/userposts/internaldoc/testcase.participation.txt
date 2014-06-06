@@ -45,8 +45,8 @@ UPD03 / U.ET
 UPD04 / U.ET  new bit
    Click the 'Download' button.
    In IE this should result in a file save dialogue - save the file and then open in Excel (or another spreadsheet package).
--  Verify that the same data as in the web view is shown in four columns,
-   'In reply to', 'Post date', 'Post subject' and 'Post message'.  (Except hyperlinks titles are removed).
+-  Verify that the same data as in the web view is shown in three columns,
+   'In reply to', 'Post subject' and 'Post message'.  (Except hyperlinks titles are removed).
 
 
 SUPD Download as student
@@ -66,8 +66,8 @@ SUPD03 / U.S2
 SUPD04 / U.S2
    Click the 'Download' button.
    In IE this should result in a file save dialogue - save the file and then open in Excel (or another spreadsheet package).
--  Verify that the same data as in the web view is shown in four columns,
-   'In reply to', 'Post date', 'Post subject' and 'Post message'.  (Except hyperlinks titles are removed).
+-  Verify that the same data as in the web view is shown in three columns,
+   'In reply to', 'Post subject' and 'Post message'.  (Except hyperlinks titles are removed).
 
 Test complete
 =============

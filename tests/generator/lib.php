@@ -33,15 +33,6 @@ defined('MOODLE_INTERNAL') || die();
  */
 class mod_forumng_generator extends testing_module_generator {
 
-    private $forumdiscussioncount = 0;
-    private $forumpostcount = 0;
-
-    public function reset() {
-        $this->forumdiscussioncount = 0;
-        $this->forumpostcount = 0;
-        return parent::reset();
-    }
-
     /**
      * Creates new forumng module instance.
      *
