@@ -850,7 +850,6 @@ WHERE
         $postobj->parentpostid = $parentpost ? $parentpost->get_id() : null;
         $postobj->userid = $userid;
         $postobj->created = time();
-        $postobj->modified = $postobj->created;
         $postobj->deleted = 0;
         $postobj->mailstate = $mailnow
             ? mod_forumng::MAILSTATE_NOW_NOT_MAILED
@@ -863,6 +862,11 @@ WHERE
         $postobj->messageformat = $format;
         $postobj->attachments = $attachments ? 1 : 0;
         $postobj->asmoderator = $asmoderator;
+        if ($parentpost == null && $this->get_time_start() && $this->get_time_start() > time()) {
+            // When $parentpost is null and get_time_start() has a value that $postobj->created is the value of get_time_start().
+            $postobj->created = $this->get_time_start();
+        }
+        $postobj->modified = $postobj->created;
 
         $transaction = $DB->start_delegated_transaction();
 
@@ -964,6 +968,18 @@ WHERE
         }
         if ($timestart != $this->discussionfields->timestart) {
             $update->timestart = $timestart;
+            $root = $this->get_root_post();
+            // When $timestart is not the same as $this->discussionfields->timestart
+            // and the discussion root post ($root) has no children.
+            if (!$root->has_children()) {
+                // Then the root post created and modified times are set to $timestart.
+                // Note will need to do this using DB function as no method to do this in classes.
+                $revisedroot = new stdClass();
+                $revisedroot->created = $timestart;
+                $revisedroot->modified = $timestart;
+                $revisedroot->id = $root->get_id();
+                $DB->update_record('forumng_posts', $revisedroot);
+            }
         }
         if ($timeend != $this->discussionfields->timeend) {
             $update->timeend = $timeend;

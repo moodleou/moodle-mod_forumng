@@ -132,12 +132,16 @@ class mod_forumng_generator extends testing_module_generator {
             $record['format'] = FORMAT_MOODLE;
         }
 
+        if (!isset($record['timestart'])) {
+            $record['timestart'] = 0;
+        }
+
         // Get a forum object.
         $forum = mod_forumng::get_from_id($record['forum'], 0);
 
         // Create the discussion.
         $discussionid = $forum->create_discussion($record['groupid'], $record['subject'],
-                $record['message'], $record['format']);
+                $record['message'], $record['format'], false, false, $record['timestart']);
 
         return $discussionid;
     }
