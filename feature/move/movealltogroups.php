@@ -51,8 +51,14 @@ $chosentargetgroup = optional_param('chosengroup', 0, PARAM_INT);
 if (!$targetgroup) {
     $targetgroup = $chosentargetgroup;
 }
+
+if (!$targetgroup) {
+    $cm = $forum->get_course_module();
+    $targetgroup = mod_forumng::get_activity_group($cm, false);
+}
+
 // Security check against user and their capabilities.
-$forum->require_view($forum::ALL_GROUPS);
+$forum->require_view($targetgroup);
 check_move_permissions($forum, $targetforum);
 
 // If it is a clone, find the original.
