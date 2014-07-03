@@ -487,7 +487,7 @@ try {
                             $fromform->subject, $fromform->message['text'],
                             $fromform->message['format'], $hasattachments, !empty($fromform->mailnow),
                             $fromform->timestart, $fromform->timeend, false, $fromform->sticky,
-                            null, null, $fromform->asmoderator);
+                            0, true, $fromform->asmoderator);
 
                 // Save attachments
                 if (isset($fromform->attachments)) {
@@ -516,7 +516,7 @@ try {
                 $transaction = $DB->start_delegated_transaction();
                 $postid = $discussion->lock($fromform->subject, $fromform->message['text'],
                         $fromform->message['format'], $hasattachments, !empty($fromform->mailnow),
-                        '', '', $fromform->asmoderator);
+                        0, true, $fromform->asmoderator);
 
                 // Save attachments
                 if (isset($fromform->attachments)) {
@@ -541,7 +541,7 @@ try {
 
                 $postid = $replyto->reply($fromform->subject, $fromform->message['text'],
                         $fromform->message['format'], $hasattachments, !empty($fromform->setimportant),
-                        !empty($fromform->mailnow), '', '', $fromform->asmoderator);
+                        !empty($fromform->mailnow), 0, true, $fromform->asmoderator);
 
                 // Save attachments
                 if (isset($fromform->attachments)) {
@@ -578,7 +578,7 @@ try {
             if ($ispost) {
                 $gotsubject = $post->edit_start($fromform->subject, $hasattachments,
                         !empty($fromform->setimportant), !empty($fromform->mailnow),
-                        '', '', $fromform->asmoderator);
+                        0, true, $fromform->asmoderator);
 
                 if (isset($fromform->attachments)) {
                     file_save_draft_area_files($fromform->attachments, $filecontext->id, 'mod_forumng',
