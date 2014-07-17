@@ -1580,7 +1580,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
     }
 
     public function render_unread_skip_link() {
-        $out = '<div id="forumng-unread-skip"><a href="#firstunread" class="skip">';
+        $out = '<div id="forumng-unread-skip"><a href="#firstunread">';
         $out .= get_string('skiptofirstunread', 'forumng');
         $out .= '</a></div>';
         return $out;
