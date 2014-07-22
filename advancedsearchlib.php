@@ -34,6 +34,9 @@ function forumng_exclude_words_filter($result) {
     $author = $forumngfilteroptions->author;
     $daterangefrom = $forumngfilteroptions->datefrom;
     $daterangeto = $forumngfilteroptions->dateto;
+    if (!isset($forumngfilteroptions->asmoderator)) {
+        $forumngfilteroptions->asmoderator = false;
+    }
 
     // Filter the output based on the input string for "Author name" field.
     if (!forumng_find_this_user($result->intref1, $author)) {
