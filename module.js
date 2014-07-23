@@ -2049,9 +2049,9 @@ M.mod_forumng = {
         // about current rating.
         var selects = div.all('select');
         if (selects.size() > 0) {
-            div.select = selects.item(0);
-            div.postid = parseInt(div.select.get('name').replace(/^rating/, ''));
-            div.userrating = div.select.get('value');
+            div.selector = selects.item(0);
+            div.postid = parseInt(div.selector.get('name').replace(/^rating/, ''));
+            div.userrating = div.selector.get('value');
             div.canrate = true;
             div.hasuserrating = div.userrating != 999;
         }
@@ -2095,13 +2095,13 @@ M.mod_forumng = {
             this.set_stars(div);
         } else {
             // No stars, just add AJAX to dropdown
-            if (!div.select) {
+            if (!div.selector) {
                 return;
             }
 
             var newbutton = this.Y.Node.create('<input type="button"/>');
             newbutton.set('value', M.str.forumng.rate);
-            div.select.get('parentNode').insertBefore(newbutton, div.select.get('nextSibling'));
+            div.selector.get('parentNode').insertBefore(newbutton, div.selector.get('nextSibling'));
 
             newbutton.on('click', function() {
                 newbutton.disabled = true;
@@ -2109,7 +2109,7 @@ M.mod_forumng = {
                 var cfg = {
                     method: 'POST',
                     data: 'p=' + div.postid  + M.mod_forumng.cloneparam + '&rating=' +
-                        div.select.get('value') + '&ajax=1',
+                        div.selector.get('value') + '&ajax=1',
                     timeout: 10000,
                     context: this,
                     arguments: div,
@@ -2122,9 +2122,9 @@ M.mod_forumng = {
                 this.links_disable(div.post);
 
                 div.loader = this.Y.Node.create('<img alt="" style="position:absolute"/>');
-                div.loader.set('src', this.loaderPix);
+                div.loader.set('src', this.loaderpix);
                 div.get('parentNode').appendChild(div.loader);
-                var byregion = this.Y.DOM.region(newbutton);
+                var byregion = this.Y.DOM.region(newbutton.getDOMNode());
                 div.loader.setXY([byregion.right + 3, byregion.top + 2]);
             }, this);
         }
