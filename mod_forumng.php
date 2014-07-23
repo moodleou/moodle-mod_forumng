@@ -1728,7 +1728,7 @@ WHERE $conditions AND m.name = 'forumng' AND $restrictionsql",
      * @return bool True if user can be subscribed
      */
     private function can_be_subscribed($userid=0) {
-        global $USER;
+        global $USER, $CFG;
         $userid = mod_forumng_utils::get_real_userid($userid);
         $cm = $this->get_course_module();
         $course = $this->get_course();
@@ -1766,6 +1766,7 @@ WHERE $conditions AND m.name = 'forumng' AND $restrictionsql",
                     break;
                 }
             } else {
+                require_once($CFG->libdir . '/conditionlib.php');
                 $visible = $cm->visible;
                 // Note: It is pretty terrible that this code is placed here.
                 // Shouldn't there be a function in cm_info to do this? :(
@@ -1899,12 +1900,19 @@ WHERE
             }
         }
 
-        // Check user has role in subscribe roles
-        if (!isset($USER->forumng_enrolcourses)) {
-            // Note: This always makes a query the first time in the session :(
-            $USER->forumng_enrolcourses = enrol_get_my_courses('id');
+        // Check user has role in subscribe roles.
+        if (!isset($USER->forumng_enrolcourses[$userid])) {
+            if (!isset($USER->forumng_enrolcourses)) {
+                $USER->forumng_enrolcourses = array();
+            }
+            if (isset($USER) && $userid == $USER->id) {
+                // Note: This always makes a query the first time in the session :(
+                $USER->forumng_enrolcourses[$userid] = enrol_get_my_courses('id');
+            } else {
+                $USER->forumng_enrolcourses[$userid] = enrol_get_users_courses($userid, true, 'id');
+            }
         }
-        return array_key_exists($this->get_course_id(), $USER->forumng_enrolcourses);
+        return array_key_exists($this->get_course_id(), $USER->forumng_enrolcourses[$userid]);
     }
 
     /**
@@ -2533,7 +2541,7 @@ WHERE
         return (($this->forumfields->postingfrom > $now) ||
             ($this->forumfields->postinguntil &&
                 $this->forumfields->postinguntil <= $now)) &&
-            !has_capability('mod/forumng:ignorepostlimits', $this->get_context());
+            !has_capability('mod/forumng:ignorepostlimits', $this->get_context(), $userid);
     }
 
     /**
@@ -2545,7 +2553,7 @@ WHERE
     public function has_post_quota($userid = 0) {
         $userid = mod_forumng_utils::get_real_userid($userid);
         return ($this->forumfields->maxpostsblock &&
-            !has_capability('mod/forumng:ignorepostlimits', $this->get_context()))
+            !has_capability('mod/forumng:ignorepostlimits', $this->get_context(), $userid))
             ? true : false;
     }
 

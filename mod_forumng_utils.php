@@ -462,6 +462,7 @@ class mod_forumng_utils {
         } else {
             $user = $USER;
         }
+        return $user;
     }
 
     static private $scales = array();
