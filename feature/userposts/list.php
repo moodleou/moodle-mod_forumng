@@ -126,19 +126,29 @@ if ($groupid != -1 && !empty($download)) {
 }
 $ptable->is_downloading($download, $filename, get_string('userposts', 'forumngfeature_userposts'));
 
-$users = get_enrolled_users($context, '', $groupid > 0 ? $groupid : 0, user_picture::fields('u', array('username')));
-
 if (!$ptable->is_downloading()) {
-    if ($perpage > count($users)) {
-        $perpage = count($users);
-    }
-    $ptable->pagesize($perpage, count($users));
     $offset = $page * $perpage;
-    $endposition = $offset + $perpage;
 } else {
     // Always export all users.
-    $endposition = count($users);
     $offset = 0;
+    $perpage = 0;
+}
+
+$users = get_enrolled_users($context, '', $groupid > 0 ? $groupid : 0, user_picture::fields('u', array('username')),
+        null, $offset, $perpage);
+
+if (!$ptable->is_downloading()) {
+    $total = count($users);
+    if ($perpage == count($users)) {
+        // We may have more users as limited to $perpage, so work out how many.
+        list($esql, $params) = get_enrolled_sql($context, '', $groupid > 0 ? $groupid : 0);
+        $sql = "SELECT count(1) as count
+                  FROM {user} u
+                  JOIN ($esql) je ON je.id = u.id
+                 WHERE u.deleted = 0";
+        $total = $DB->count_records_sql($sql, $params);
+    }
+    $ptable->pagesize($perpage, $total);
 }
 
 if (empty($download)) {
@@ -191,7 +201,7 @@ foreach ($users as $id => $u) {
     if (isset($counts[$id])) {
         $count = $counts[$id];
     } else {
-        $count = (object)array('discussions'=>0, 'replies'=>0);
+        $count = (object) array('discussions' => 0, 'replies' => 0);
     }
     $span = '';
     $postspan = '';
@@ -280,8 +290,8 @@ if (empty($download)) {
 }
 $ptable->downloadable = false;
 $ptable->setup();
-for ($datacount = count($data); $offset < $endposition && $offset < $datacount; $offset++) {
-    $ptable->add_data($data[$offset]);
+foreach ($data as $record) {
+    $ptable->add_data($record);
 }
 $ptable->finish_output();
 
