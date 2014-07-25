@@ -4728,12 +4728,21 @@ WHERE
      *   the same second
      * @return array Array of mod_forumng_post objects
      */
-    public function get_all_posts_by_user($userid, $groupid, $order = 'fp.id') {
+    public function get_all_posts_by_user($userid, $groupid, $order = 'fp.id', $start = null, $end = null) {
         $where = 'fd.forumngid = ? AND fp.userid = ? AND fp.oldversion = 0 AND fp.deleted = 0';
         $whereparams = array($this->get_id(), $userid);
         if ($groupid != self::NO_GROUPS && $groupid != self::ALL_GROUPS) {
             $where .= ' AND (fd.groupid = ? OR fd.groupid IS NULL)';
             $whereparams[] = $groupid;
+        }
+        if (!empty($start)) {
+            $where .= 'AND fp.created >= ?';
+            $whereparams[] = $start;
+        }
+
+        if (!empty($end)) {
+            $where .=  'AND fp.created <= ?';
+            $whereparams[] = $end;
         }
         $result = array();
         $posts = mod_forumng_post::query_posts($where, $whereparams, $order, false, false, true,
@@ -4753,7 +4762,7 @@ WHERE
      * @return array An associative array of $userid => (info object)
      *   where info object has ->discussions and ->replies values
      */
-    public function get_all_user_post_counts($groupid, $ignoreanon = false) {
+    public function get_all_user_post_counts($groupid, $ignoreanon = false, $start = null, $end = null) {
         global $DB;
 
         if ($groupid != self::NO_GROUPS && $groupid != self::ALL_GROUPS) {
@@ -4769,6 +4778,19 @@ WHERE
         if ($ignoreanon) {
             $anonwhere = 'AND fp.asmoderator != ?';
             $anonparams[] = self::ASMODERATOR_ANON;
+        }
+
+        $timewhere = '';
+        $timeparams = array();
+
+        if (!empty($start)) {
+            $timewhere = 'AND fp.created >= ?';
+            $timeparams[] = $start;
+        }
+
+        if (!empty($end)) {
+            $timewhere .= 'AND fp.created <= ?';
+            $timeparams[] = $end;
         }
 
         $results = array();
@@ -4788,11 +4810,12 @@ WHERE
         fd.forumngid = ?
         $groupwhere
         $anonwhere
+        $timewhere
         AND fd.deleted = 0
         AND fp.deleted = 0
         AND fp.oldversion = 0
     GROUP BY
-        fp.userid", array_merge(array($this->get_id()), $groupparams, $anonparams));
+        fp.userid", array_merge(array($this->get_id()), $groupparams, $anonparams, $timeparams));
 
             // Store in results
             foreach ($rs as $rec) {

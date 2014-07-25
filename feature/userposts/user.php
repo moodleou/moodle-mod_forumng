@@ -39,7 +39,7 @@ $download = optional_param('download', '', PARAM_TEXT);
 $student = false;
 $groupid = -1;
 
-$pageparams = array('id' => $cmid, 'user'=>$userid, 'download' => $download);
+$pageparams = array('id' => $cmid, 'user' => $userid, 'download' => $download);
 if ($cloneid) {
     $pageparams['clone'] = $cloneid;
 }
@@ -71,7 +71,7 @@ if ($student) {
 } else {
     // Check group mode and get group id.
     if ($forum->get_group_mode()) {
-        $groupid = required_param('group', PARAM_INT);
+        $groupid    = optional_param('group', 0, PARAM_INT);
     }
     // Check access.
     $forum->require_view($groupid);
@@ -87,22 +87,16 @@ if ($student) {
     }
 }
 
-$posts = $forum->get_all_posts_by_user($userid, $groupid, 'fd.forumngid');
-
-// Set pagename.
-$postsfound = true;
-if ($posts) {
-    $post = reset($posts);
-    $user = $post->get_user();
-} else {
-    $user = $DB->get_record('user', array('id' => $userid), '*', MUST_EXIST);
-    $postsfound = false;
-}
+$user = $DB->get_record('user', array('id' => $userid), '*', MUST_EXIST);
 $pagename = fullname($user, has_capability('moodle/site:viewfullnames', $context));
 $pagename .= $CFG->forumng_showusername ? ' (' . $user->username . ')' : '';
-
+$start = null;
+$end = null;
 $prevpage = '';
 $prevurl = '';
+$pageparams['group'] = $groupid;
+$pageparams['start'] = $start;
+$pageparams['end'] = $end;
 $pageurl = new moodle_url('/mod/forumng/feature/userposts/user.php', $pageparams);
 $out = '';
 
@@ -110,10 +104,48 @@ if (!$student) {
     $prevpage = get_string('userposts', 'forumngfeature_userposts');
     $prevurl = new moodle_url('/mod/forumng/feature/userposts/list.php',
         $forum->get_link_params_array());
-    $out = $forum->init_page($pageurl, $pagename, array($prevpage=>$prevurl));
+    $out = $forum->init_page($pageurl, $pagename, array($prevpage => $prevurl));
 } else {
     $out = $forum->init_page($pageurl, $pagename);
 }
+
+$timeparts = getdate($course->startdate);
+// Create time filter options form.
+$customdata = array(
+        'options' => array(),
+        'cmid' => $cmid,
+        'user' => $userid,
+        'group' => $groupid,
+        'download' => $download,
+        'startyear' => $timeparts['year'],
+        'params' => array()
+);
+$timefilter = new forumng_participation_table_form(null, $customdata);
+
+$start = $end = 0;
+// If data has been received from this form.
+if ($submitted = $timefilter->get_data()) {
+    if ($submitted->start) {
+        $start = strtotime('00:00:00', $submitted->start);
+    }
+    if ($submitted->end) {
+        $end = strtotime('23:59:59', $submitted->end);
+    }
+} else if (!$timefilter->is_submitted()) {
+    // Recieved via post back.
+    if ($start = optional_param('start', null, PARAM_INT)) {
+        $start = strtotime('00:00:00', $start);
+    }
+    if ($end = optional_param('end', null, PARAM_INT)) {
+        $end = strtotime('23:59:59', $end);
+    }
+}
+
+$posts = $forum->get_all_posts_by_user($userid, $groupid, 'fd.forumngid', $start, $end);
+
+// Add collected start and end UNIX formated dates to moodle url.
+$pageurl->param('start', $start);
+$pageurl->param('end', $end);
 
 $table = new forumng_participation_table('mod-forumng-participation');
 $table->set_attribute('class', 'flexible generaltable');
@@ -126,7 +158,15 @@ $table->is_downloading($download, $filename, get_string('userposts', 'forumngfea
 
 if (empty($download)) {
     print $out->header();
-    print $table->download_buttons();
+    // Display time filter options form.
+    if ($start || $end) {
+        $timefilter->set_data(array('start' => $start, 'end' => $end));
+    }
+    $timefilter->display();
+    // Display the download button only if we have posts to download.
+    if ($posts) {
+        print $table->download_buttons();
+    }
 }
 
 $data = array();
@@ -176,7 +216,7 @@ foreach ($posts as $postid => $post) {
     }
 }
 
-if (!$postsfound) {
+if (!$posts) {
     // Should only occur if student because list.php won't let us get here if no posts available.
     $username = fullname($user);
     if (empty($download)) {

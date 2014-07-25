@@ -23,7 +23,8 @@ personal membership).
 
 For Admin and non-students
 
-From the foum page the button to access the grading screens is 'view posts by user' which takes you to the user list screen.
+From the foum page the button to access the grading screens is 'Participation by user', formerly labled 'View posts by user'
+which takes you to the user list screen.
 
 To view an individual user's participation click on the link 'Show all posts by <name>'. This will take you to a screen containing
 that user's posts including replies and any discussion start posts if they started a discussion.
@@ -31,5 +32,6 @@ that user's posts including replies and any discussion start posts if they start
 
 For Students
 
-From the foum page the button to access the grading screens is 'view own posts' which takes you to the user screen  containing
-that user's posts including replies and any discussion start posts if they started a discussion.
+From the foum page the button to access the grading screens is  'My participation', formerly 'View own posts'
+which takes you to the user screen containing that user's posts including replies
+and any discussion start posts if they started a discussion.

@@ -77,12 +77,48 @@ $grade = '';
 if ($viewgrade) {
     $grade = get_string('grade', 'forumng');
 }
+
+$timeparts = getdate($course->startdate);
+// Create time filter options form.
+$customdata = array(
+        'options' => array(),
+        'cmid' => $cmid,
+        'group' => $groupid,
+        'download' => $download,
+        'startyear' => $timeparts['year'],
+        'params' => array()
+);
+$timefilter = new forumng_participation_table_form(null, $customdata);
+
+$start = $end = 0;
+// If data has been received from this form.
+if ($submitted = $timefilter->get_data()) {
+    if ($submitted->start) {
+        $start = strtotime('00:00:00', $submitted->start);
+    }
+    if ($submitted->end) {
+        $end = strtotime('23:59:59', $submitted->end);
+    }
+} else if (!$timefilter->is_submitted()) {
+    // Recieved via post back.
+    if ($start = optional_param('start', null, PARAM_INT)) {
+        $start = strtotime('00:00:00', $start);
+    }
+    if ($end = optional_param('end', null, PARAM_INT)) {
+        $end = strtotime('23:59:59', $end);
+    }
+}
+
+// Add collected start and end UNIX formated dates to moodle url.
+$thisurl->param('start', $start);
+$thisurl->param('end', $end);
+
 $ptable = new forumng_participation_table('mod-forumng-participation');
 $ptable->set_attribute('class', 'flexible generaltable');
 $ptable->set_attribute('width', '100%');
 $ptable->define_columns(array('c1', 'c2', 'c3', 'c4', 'c5'));
 $ptable->define_headers(array($userstr, $discussions, $replies, $action, $grade));
-$ptable->define_baseurl($PAGE->url);
+$ptable->define_baseurl($thisurl);
 $filename = "$course->shortname-".format_string($forum->get_name(), true);
 if ($groupid != -1 && !empty($download)) {
     $groupname = $DB->get_field('groups', 'name', array('id' => $groupid));
@@ -127,7 +163,8 @@ if (empty($download)) {
         return;
     }
 }
-$counts = $forum->get_all_user_post_counts($groupid);
+
+$counts = $forum->get_all_user_post_counts($groupid, false, $start, $end);
 
 // Is grading enabled and available for the current user?
 $grades = array();
@@ -166,6 +203,12 @@ foreach ($users as $id => $u) {
                 "/mod/forumng/feature/userposts/user.php?" .
                 $forum->get_link_params(mod_forumng::PARAM_HTML) .
                 '&amp;user=' . $id;
+        if ($start) {
+            $url .= '&amp;start=' . $start;
+        }
+        if ($end) {
+            $url .= '&amp;end=' . $end;
+        }
         if ($groupid != mod_forumng::NO_GROUPS) {
             $url .= '&amp;group=' . (int)$groupid;
         }
@@ -226,6 +269,9 @@ foreach ($users as $id => $u) {
 if (empty($download)) {
     // Display heading.
     print $out->heading(get_string('userposts', 'forumngfeature_userposts'));
+    // Display time filter dropdown.
+    $timefilter->display();
+
     echo $ptable->download_buttons();
     // Print out participation form.
     if ($cangrade) {
