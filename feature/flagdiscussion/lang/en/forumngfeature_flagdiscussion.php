@@ -15,16 +15,12 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version.
- *
- * @package mod_forumng
+ * Lang strings.
+ * @package forumngfeature_flagdiscussion
  * @copyright 2014 The Open University
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
-$module->version  = 2014072800;
-$module->requires = 2013111800;
-$module->cron     = 60;
-
-// Note: This should be replaced with standard ->maturity and other options.
-$module->displayversion = 'Unstable development version (use at own risk)';
+$string['flagdiscussion'] = 'Flag discussion';
+$string['removeflag'] = 'Remove flag';
+$string['pluginname'] = 'Flag discussion';
+$string['flaggingnotallowed'] = 'You not allowed to flag discussions';

@@ -44,6 +44,10 @@ class mod_forumng_discussion_testcase  extends advanced_testcase {
         edit_settings()
         create_discussion()
         get_time_start()
+        can_flag()
+        set_flagged()
+        get_flagged_discussions()
+        is_flagged()
     */
 
     public function test_showfrom () {
@@ -120,5 +124,60 @@ class mod_forumng_discussion_testcase  extends advanced_testcase {
         $this->assertEquals($futuretime, $roota->get_created());
         $this->assertEquals($futuretime, $roota->get_modified());
 
+    }
+
+    public function test_flag_discussion() {
+        global $DB, $USER, $SITE;
+
+        $this->resetAfterTest(true);
+        $this->setAdminUser();
+
+        // Create the generator object and do standard checks.
+        $generator = self::getDataGenerator()->get_plugin_generator('mod_forumng');
+
+        // Create forum.
+        $forumrecord = $generator->create_instance(array('course' => $SITE->id));
+
+        // Start a discussion in forum.
+        $record = new stdClass();
+        $record->course = $SITE->id;
+        $record->forum = $forumrecord->id;
+        $record->userid = $USER->id;
+
+        $record->timestart = time();
+        $ids = $generator->create_discussion($record);
+
+        $discussionid = $ids[0];
+        $rootpostid = $ids[1];
+        $discussion = mod_forumng_discussion::get_from_id($discussionid, 0);
+        $this->assertFalse($discussion->is_flagged());
+        // Set flagged discussion.
+        $this->assertTrue($discussion->can_flag());
+        $discussion->set_flagged(true, $USER->id);
+
+        $forum = mod_forumng::get_from_id($forumrecord->id, mod_forumng::CLONE_DIRECT, false);
+
+        $flagged = $forum->get_flagged_discussions($USER->id);
+        $this->assertCount(1, $flagged);
+        foreach ($flagged as $flagdiscussion) {
+            $this->assertEquals($discussion->get_id(), $flagdiscussion->get_id());
+        }
+        $this->assertTrue($discussion->is_flagged());
+
+        $discussion->delete(false);
+        $this->assertTrue($discussion->can_flag());// Can flag if deleted and flagged already.
+
+        // Remove flag from discussion.
+        $discussion->set_flagged(false);
+        $flagged = $forum->get_flagged_discussions($USER->id);
+        $this->assertCount(0, $flagged);
+        $this->assertFalse($discussion->is_flagged());
+
+        $this->assertFalse($discussion->can_flag());
+        $discussion->undelete(false);
+
+        // Test can flag as guest user.
+        $this->setGuestUser();
+        $this->assertFalse($discussion->can_flag());
     }
 }

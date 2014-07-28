@@ -85,6 +85,11 @@ class backup_forumng_activity_structure_step extends backup_activity_structure_s
         $flag = new backup_nested_element('flag', array('id'), array(
             'userid', 'flagged'));
 
+        $flagsd = new backup_nested_element('flagsd');
+
+        $flagd = new backup_nested_element('flagd', array('id'), array(
+            'userid', 'flagged'));
+
         // Build the tree
         $forumng->add_child($discussions);
         $discussions->add_child($discussion);
@@ -100,6 +105,9 @@ class backup_forumng_activity_structure_step extends backup_activity_structure_s
 
         $discussion->add_child($readdiscussions);
         $readdiscussions->add_child($read);
+
+        $discussion->add_child($flagsd);
+        $flagsd->add_child($flagd);
 
         $post->add_child($ratings);
         $ratings->add_child($rating);
@@ -130,6 +138,8 @@ class backup_forumng_activity_structure_step extends backup_activity_structure_s
             $rating->set_source_table('forumng_ratings', array('postid' => backup::VAR_PARENTID));
 
             $flag->set_source_table('forumng_flags', array('postid' => backup::VAR_PARENTID));
+
+            $flagd->set_source_table('forumng_flags', array('discussionid' => backup::VAR_PARENTID));
         }
 
         // Define id annotations

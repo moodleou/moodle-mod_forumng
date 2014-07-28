@@ -4102,6 +4102,33 @@ WHERE
     }
 
     /**
+     * Obtain all flagged discussions in the forum by the given or current user,
+     * The results should be ordered by the last post modified date (fplast.modified DESC)
+     * @param int $userid User whose flags will be retrieved; 0 = current
+     * @return array Array of mod_forumng_discussion objects
+     */
+    public function get_flagged_discussions($userid = 0) {
+        global $USER;
+
+        if ($userid != -1) {
+            if ($userid == 0) {
+                $userid = $USER->id;
+            }
+            $records = mod_forumng_discussion::query_discussions(
+                'fd.forumngid = ? AND ff.flagged IS NOT NULL AND ff.discussionid = fd.id AND ff.userid = ?',
+                 array($this->get_id(), $userid), $userid, 'x.flagged DESC', '', '', $this, true);
+        }
+
+        $result = array();
+        foreach ($records as $record) {
+            // Get discussion details from record and create discussionfields.
+            $discussion = new mod_forumng_discussion($this, $record, true, $userid);
+            $result[$record->id] = $discussion;
+        }
+        return $result;
+    }
+
+    /**
      * @param bool $mustusecounter True if this function should return false
      *   unless one or more of the three types of post counters are in use
      * @return bool True if automatic completion is enabled for this forum

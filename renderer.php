@@ -168,6 +168,81 @@ class mod_forumng_renderer extends plugin_renderer_base {
     }
 
     /**
+     * Renders discussion author details in the list item
+     * @param mod_forumng_discussion $discussion object
+     * @param int $courseid of the course
+     * @return string td html tag containing the discussion last post details
+     */
+    public function render_discussion_list_item_author($discussion, $courseid) {
+        $posteranon = $discussion->get_poster_anon();
+        $poster = $discussion->get_poster();
+        $userimage = $this->user_picture($poster, array('courseid' => $courseid));
+        $defaultimage = html_writer::empty_tag('img',
+                array('src' => $this->pix_url('u/f2'), 'alt' => ''));
+        if ($discussion->get_forum()->is_shared()) {
+            // Strip course id if shared forum.
+            $userimage = str_replace('&amp;course=' . $courseid, '', $userimage);
+        }
+
+        $result = "<td class='forumng-startedby cell c1'>";
+        $wrapper = html_writer::start_tag('div', array('class' => 'forumng-startedby-wrapper'));
+        $user = $discussion->get_forum()->display_user_link($poster);
+        $br = html_writer::empty_tag('br', array());
+        $moderator = get_string('moderator', 'forumng');
+        $userpicture = html_writer::tag('div', $userimage,
+                array('class' => 'forumng-startedbyimage'));
+        $defaultpicture = html_writer::tag('div', $defaultimage,
+                array('class' => 'forumng-startedbyimage'));
+        $userlink = html_writer::tag('div', $user ,
+                array('class' => 'forumng-startedbyuser'));
+        $moderated = html_writer::tag('div', $moderator,
+                array('class' => 'forumng-moderator'));
+        $endwrapper = html_writer::end_tag('div');
+        if ($posteranon == mod_forumng::ASMODERATOR_IDENTIFY) {
+            $startedby = $userpicture . $wrapper . $userlink . $moderated . $endwrapper;
+        } else if ($posteranon == mod_forumng::ASMODERATOR_ANON) {
+            if ($discussion->get_forum()->can_post_anonymously()) {
+                $startedby = $userpicture . $wrapper . $userlink .  $moderated . $endwrapper;
+            } else {
+                $startedby = $defaultimage . $moderator;
+            }
+        } else {
+            $startedby = $userimage . $user;
+        }
+        $result .= $startedby . "</td>";
+        return $result;
+    }
+
+    /**
+     * renders last post details for a discussion
+     * @param mod_forumng_discussion $discussion object
+     * @param int $lastpostanon boolen if last post was anon
+     * @param int $num value for specifying the position the last post details are rendered to in the item list
+     * @returns string the td html tag containing the last post details
+     */
+    public function render_discussion_list_item_lastpost($discussion, $lastposteranon, $num) {
+        $br = html_writer::empty_tag('br', array());
+        $result = '<td class="cell c' . $num .' lastcol forumng-lastpost">';
+        $lastposter = $discussion->get_last_post_user();
+        $lastuserlink = $discussion->get_forum()->display_user_link($lastposter);
+        $timestr = mod_forumng_utils::display_date($discussion->get_time_modified());
+        $moderator = get_string('moderator', 'forumng');
+        if ($lastposteranon == mod_forumng::ASMODERATOR_IDENTIFY) {
+            $lastpostcell = $timestr . $br . $lastuserlink . $br . $moderator;
+        } else if ($lastposteranon == mod_forumng::ASMODERATOR_ANON) {
+            if ($discussion->get_forum()->can_post_anonymously()) {
+                $lastpostcell = $timestr . $br . $lastuserlink .$br . $moderator;
+            } else {
+                $lastpostcell = $timestr .$br . $moderator;
+            }
+        } else {
+            $lastpostcell = $timestr . $br . $lastuserlink;
+        }
+        $result .= $lastpostcell . "</td>";
+        return $result;
+    }
+
+    /**
      * Displays a short version (suitable for including in discussion list)
      * of this discussion including a link to view the discussion and to
      * mark it read (if enabled).
@@ -176,8 +251,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
      * @param bool $last True if this is the last item in the list
      * @return string HTML code to print out for this discussion
      */
-    public function render_discussion_list_item(mod_forumng_discussion $discussion,
-            $groupid, $last) {
+    public function render_discussion_list_item(mod_forumng_discussion $discussion, $groupid, $last) {
         global $CFG, $USER;
         $showgroups = $groupid == mod_forumng::ALL_GROUPS;
 
@@ -241,44 +315,8 @@ class mod_forumng_renderer extends plugin_renderer_base {
                 $discussion->get_link_params(mod_forumng::PARAM_HTML) . "'>" .
                 format_string($discussion->get_subject(true), true, $courseid) . "</a></td>";
 
-        // Author
-        $posteranon = $discussion->get_poster_anon();
-        $poster = $discussion->get_poster();
-        $lastposteranon = $discussion->get_last_post_anon();
-        $userimage = $this->user_picture($poster, array('courseid' => $courseid));
-        $defaultimage = html_writer::empty_tag('img',
-                array('src' => $this->pix_url('u/f2'), 'alt' => ''));
-        if ($discussion->get_forum()->is_shared()) {
-            // Strip course id if shared forum.
-            $userimage = str_replace('&amp;course=' . $courseid, '', $userimage);
-        }
-
-        $result .= "<td class='forumng-startedby cell c1'>";
-        $wrapper = html_writer::start_tag('div', array('class'=>'forumng-startedby-wrapper'));
-        $user = $discussion->get_forum()->display_user_link($poster);
-        $br = html_writer::empty_tag('br', array());
-        $moderator = get_string('moderator', 'forumng');
-        $userpicture = html_writer::tag('div', $userimage,
-                array('class' => 'forumng-startedbyimage'));
-        $defaultpicture = html_writer::tag('div', $defaultimage,
-                array('class' => 'forumng-startedbyimage'));
-        $userlink = html_writer::tag('div', $user ,
-                array('class' => 'forumng-startedbyuser'));
-        $moderated = html_writer::tag('div', $moderator,
-                array('class' => 'forumng-moderator'));
-        $endwrapper = html_writer::end_tag('div');
-        if ($posteranon == mod_forumng::ASMODERATOR_IDENTIFY) {
-            $startedby = $userpicture . $wrapper . $userlink . $moderated;
-        } else if ($posteranon == mod_forumng::ASMODERATOR_ANON) {
-            if ($discussion->get_forum()->can_post_anonymously()) {
-                $startedby = $userpicture . $wrapper . $userlink .  $moderated;
-            } else {
-                $startedby = $defaultimage . $moderator;
-            }
-        } else {
-            $startedby = $userimage . $user;
-        }
-        $result .= $startedby . $endwrapper . "</td>";
+        // Author.
+        $result .= $this->render_discussion_list_item_author($discussion, $courseid);
 
         $num = 2;
 
@@ -320,23 +358,8 @@ class mod_forumng_renderer extends plugin_renderer_base {
         }
         // Update last post user profile link.
         // Last post.
-        $result .= '<td class="cell c' . $num .' lastcol forumng-lastpost">';
-        $lastposter = $discussion->get_last_post_user();
-        $lastuserlink = $discussion->get_forum()->display_user_link($lastposter);
-        $timestr = mod_forumng_utils::display_date($discussion->get_time_modified());
-        if ($lastposteranon == mod_forumng::ASMODERATOR_IDENTIFY) {
-            $lastpostcell =  $timestr . $br . $lastuserlink . $br . $moderator;
-        } else if ($lastposteranon == mod_forumng::ASMODERATOR_ANON) {
-            if ($discussion->get_forum()->can_post_anonymously()) {
-                $lastpostcell = $timestr . $br . $lastuserlink .$br . $moderator;
-            } else {
-                $lastpostcell = $timestr .$br . $moderator;
-            }
-        } else {
-            $lastpostcell = $timestr . $br . $lastuserlink;
-        }
-
-        $result .= $lastpostcell . "</td></tr>";
+        $lastpostcell = $this->render_discussion_list_item_lastpost($discussion, $discussion->get_last_post_anon(), $num);
+        $result .= $lastpostcell . "</tr>";
         return $result;
     }
 
@@ -453,15 +476,21 @@ class mod_forumng_renderer extends plugin_renderer_base {
      * @param $flagged array of $flagged posts
      * @return string HTML for link and wrapper or '' if no flagged posts
      */
-    public function render_flagged_list_link($flagged) {
+    public function render_flagged_list_link($flagged, $discuss = false) {
         $numberflagged = count($flagged);
         if ($numberflagged == 0) {
             return '';
         }
 
-        $flaggedtxt = get_string('flaggedpostslink', 'forumng', $numberflagged);
+        if ($discuss) {
+            $flaggedtxt = get_string('flaggeddiscussionslink', 'forumng', $numberflagged);
+            $forumngflagged = 'forumng-flaggeddiscussions';
+        } else {
+            $flaggedtxt = get_string('flaggedpostslink', 'forumng', $numberflagged);
+            $forumngflagged = 'forumng-flaggedposts';
+        }
 
-        return '<div class="forumng-flagged-link"><a href="#forumng-flaggedposts">' .
+        return '<div><a href="#' . $forumngflagged . '">' .
             '<img src="' . $this->pix_url('flag.on', 'mod_forumng'). '" alt="' .
             get_string('flagon', 'forumng') . '"/> ' . $flaggedtxt. '</a></div>';
     }
@@ -471,20 +500,36 @@ class mod_forumng_renderer extends plugin_renderer_base {
      * render_flagged_list_item() a bunch of times.
      * @return string HTML code for start of table
      */
-    public function render_flagged_list_start() {
+    public function render_flagged_list_start($discuss = false) {
         global $CFG;
+        $result = '';
 
-        $result = '<div class="forumng-flagged" id="forumng-flaggedposts">
-            <div class="forumng-heading"><h3>' .
-            get_string('flaggedposts', 'forumng') . '</h3>';
-        $result .= $this->help_icon('flaggedposts', 'forumng') . '</div>';
+        if ($discuss) {
+            $flagid = 'forumng-flaggeddiscussions';
+            $title = get_string('flaggeddiscussions', 'forumng');
+            $th0 = get_string('discussion', 'forumng');
+            $th1 = get_string('startedby', 'forumng');
+            $th2 = get_string('lastpost', 'forumng');
+            $helptext = $this->help_icon('flaggeddiscussions', 'forumng');
+        } else {
+            $flagid = 'forumng-flaggedposts';
+            $title = get_string('flaggedposts', 'forumng');
+            $th0 = get_string('post', 'forumng');
+            $th1 = get_string('discussion', 'forumng');
+            $th2 = get_string('date');
+            $helptext = $this->help_icon('flaggedposts', 'forumng');
+        }
+
+        $result = '<div class="forumng-flagged" id="' .$flagid .'">
+            <div class="forumng-heading"><h3>' . $title . '</h3>';
+        $result .= $helptext . '</div>';
 
         $th = "<th scope='col' class='header c";
 
         $result .= "<table class='generaltable'><tr>" .
-            "{$th}0'>" . get_string('post', 'forumng') .
-            "</th>{$th}1'>" . get_string('discussion', 'forumng') .
-            "</th>{$th}2 lastcol'>" . get_string('date') . '</th></tr>';
+                    "{$th}0'>" . $th0 .
+                    "</th>{$th}1'>" . $th1 .
+                    "</th>{$th}2 lastcol'>" . $th2 . '</th></tr>';
 
         return $result;
     }
@@ -511,6 +556,17 @@ class mod_forumng_renderer extends plugin_renderer_base {
         // Post cell
         $result .= '<td class="cell c0">';
 
+        // Show flag icon. (Note: I tried to use &nbsp; before this so the
+        // icon never ends up on a line of its own, but it does not work.)
+        $result .= ' <form class="forumng-flag" action="flagpost.php" method="post"><div>' .
+                '<input type="hidden" name="p" value="' . $post->get_id() . '" />'.
+                '<input type="hidden" name="back" value="view" />'.
+                '<input type="hidden" name="flag" value="0" />'.
+                '<input type="image" title="' . get_string('clearflag', 'forumng') .
+                '" src="' . $this->pix_url('flag.on', 'mod_forumng'). '" alt="' .
+                get_string('flagon', 'forumng') .
+                '" /></div></form>&nbsp;';
+
         // Get post URL
         $discussion = $post->get_discussion();
         $link = '<a href="discuss.php?' .
@@ -523,27 +579,80 @@ class mod_forumng_renderer extends plugin_renderer_base {
 
         $result .= '<small> ' . get_string('postby', 'forumng',
             $post->get_forum()->display_user_link($post->get_user())) .
-            '</small>';
+            '</small></td>';
 
-        // Show flag icon. (Note: I tried to use &nbsp; before this so the
-        // icon never ends up on a line of its own, but it does not work.)
-        $result .= ' <form class="forumng-flag" action="flagpost.php" method="post"><div>' .
-            '<input type="hidden" name="p" value="' . $post->get_id() . '" />'.
-            '<input type="hidden" name="back" value="view" />'.
-            '<input type="hidden" name="flag" value="0" />'.
-            '<input type="image" title="' . get_string('clearflag', 'forumng') .
-            '" src="' . $this->pix_url('flag.on', 'mod_forumng'). '" alt="' .
-            get_string('flagon', 'forumng') .
-            '" /></div></form></td>';
-
-        // Discussion cell
+        // Discussion cell.
         $result .= '<td class="cell c1"><a href="discuss.php?' .
                 $discussion->get_link_params(mod_forumng::PARAM_HTML) . '">' .
                 format_string($discussion->get_subject()) . '</a></td>';
 
-        // Date cell
+        // Date cell.
         $result .= '<td class="cell c2 lastcol">' .
             mod_forumng_utils::display_date($post->get_created()) . '</td></tr>';
+        return $result;
+    }
+
+    /**
+     * Renders flagged discussion list details
+     * @param object $discussion
+     * @param boolean $last
+     * @return string
+     */
+    public function render_flagged_discuss_list_item($discussion, $last) {
+        global $CFG, $USER;
+
+        $result = '';
+        // Work out CSS classes to use for discussion.
+        $classes = '';
+        $alts = array();
+        $icons = array();
+        if ($discussion->is_deleted()) {
+            $classes .= ' forumng-deleted';
+            $alts[] = get_string('alt_discussion_deleted', 'forumng');
+            $icons[] = array(); // No icon, text will be output on its own.
+        }
+
+        // Classes for Moodle table styles.
+        static $rownum = 0;
+        $classes .= ' r' . $rownum;
+        $rownum = 1 - $rownum;
+        if ($last) {
+            $classes .= ' lastrow';
+        }
+
+        $courseid = $discussion->get_forum()->get_course_id();
+
+        // Start row.
+        $result = "<tr id='discrow_{$discussion->get_id()}' class='forumng-discussion-short$classes'>";
+
+        // Subject, with icons.
+        $result .= "<td class='forumng-subject cell c0'>";
+
+        // Show flag icon.
+        $result .= ' <form class="forumng-flag" action="feature/flagdiscussion/flag.php" method="post"><div>' .
+                '<input type="hidden" name="d" value="' . $discussion->get_id() . '" />'.
+                '<input type="hidden" name="back" value="view" />'.
+                '<input type="hidden" name="flag" value="0" />'.
+                '<input type="image" title="' . get_string('clearflag', 'forumng') .
+                '" src="' . $this->pix_url('flag.on', 'mod_forumng'). '" alt="' .
+                get_string('flagon', 'forumng') .
+                '" /></div></form>&nbsp;';
+
+        $result .= "<a href='discuss.php?" .
+                $discussion->get_link_params(mod_forumng::PARAM_HTML) . "'>" .
+                format_string($discussion->get_subject(true), true, $courseid) . "</a>";
+        $result .= '</td>';
+
+        // Author.
+        $lastposteranon = $discussion->get_last_post_anon();
+        $result .= $this->render_discussion_list_item_author($discussion, $courseid);
+        $num = 2;
+
+        // Update last post user profile link.
+        // Last post.
+        $lastpostcell = $this->render_discussion_list_item_lastpost($discussion, $lastposteranon, $num);
+        $result .= $lastpostcell . "</tr>";
+
         return $result;
     }
 

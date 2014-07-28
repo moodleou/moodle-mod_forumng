@@ -156,6 +156,28 @@ function xmldb_forumng_upgrade($oldversion=0) {
 
         // Forumng savepoint reached.
         upgrade_mod_savepoint(true, 2014031200, 'forumng');
+
+    }
+
+    if ($oldversion < 2014072800) {
+
+        // Define field discussionid to be added to forumng_flags.
+        $table = new xmldb_table('forumng_flags');
+        $field = new xmldb_field('discussionid', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'flagged');
+
+        // Conditionally launch add field discussionid.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Define key discussionid (foreign) to be added to forumng_flags.
+        $key = new xmldb_key('discussionid', XMLDB_KEY_FOREIGN, array('discussionid'), 'forumng_discussion', array('id'));
+
+        // Launch add key discussionid.
+        $dbman->add_key($table, $key);
+
+        // Forumng savepoint reached.
+        upgrade_mod_savepoint(true, 2014072800, 'forumng');
     }
 
     return true;
