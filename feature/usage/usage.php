@@ -317,6 +317,25 @@ if (has_capability('forumngfeature/usage:viewflagged', $forum->get_context())) {
     $usageoutput .= html_writer::start_div('forumng_usage_flagged');
     $usageoutput .= $renderer->render_usage_list($flaggedlist, 'mostflagged');
     $usageoutput .= html_writer::end_div();
+    // View discussions that have been flagged.
+    $flagged = $DB->get_recordset_sql("
+            SELECT COUNT(ff.id) AS count, fd.id
+            FROM {forumng_flags} ff
+            INNER JOIN {forumng_discussions} fd ON fd.id = ff.discussionid
+            WHERE fd.forumngid = ?
+            AND fd.deleted = 0
+            $groupwhere
+            GROUP BY fd.id
+            ORDER BY count desc, fd.id desc", array_merge(array($forum->get_id()), $groupparams), 0, 5);
+    $flaggedlist = array();
+    foreach ($flagged as $adiscuss) {
+        $discuss = mod_forumng_discussion::get_from_id($adiscuss->id, $cloneid, 0, true);
+        list($content, $user) = $renderer->render_usage_discussion_info($forum, $discuss);
+        $flaggedlist[] = $renderer->render_usage_list_item($forum, $adiscuss->count, $user, $content);
+    }
+    $usageoutput .= html_writer::start_div('forumng_usage_flagged');
+    $usageoutput .= $renderer->render_usage_list($flaggedlist, 'mostflaggeddiscussions');
+    $usageoutput .= html_writer::end_div();
 }
 
 if (!empty($usageoutput)) {

@@ -97,3 +97,12 @@ TFD07 / U.ET
 TFD08 / U.S [change]
   Go to forum CRE01.
   - Verify that there is no list of flagged discussions.
+
+TFU Test flag discussions usage
+===============================
+
+TFU01 / U.ET [change]
+  Go to forum CRE01.
+  Select the 'Show usage' button.
+  - Verify the 'Most flagged discussions' section is shown.
+  - Verify discussion D2, with count of 1 is listed under 'Most flagged discussions' (as flagged in step TFD08).
