@@ -754,6 +754,9 @@ try {
             $PAGE->requires->js_init_code('window.parent.iframe_has_loaded(window);', true);
         }
 
+        $PAGE->requires->strings_for_js(array('savefailtitle', 'savefailnetwork'), 'forumng');
+        $PAGE->requires->yui_module('moodle-mod_forumng-savecheck', 'M.mod_forumng.savecheck.init');
+
         // Display footer
         print $out->footer();
     }
