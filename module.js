@@ -466,7 +466,11 @@ M.mod_forumng = {
                     }
                     iframe.setStyle('height', '100%');
                     iframe.setStyle('width', '100%');
-                    iframe.set('scrolling', 'no');
+                    iframe.setStyle('overflowX', 'hidden');
+                    if (iframe.get('clientHeight') >= iframe.get('contentWindow.document').one('#page').get('clientHeight')) {
+                        // If iframe size larger than content then hide scroll.
+                        iframe.set('scrolling', 'no');
+                    }
                     doc.body.focus();
                     window.scrollTo(0, 0);
                 } else {
