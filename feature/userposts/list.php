@@ -138,16 +138,13 @@ $users = get_enrolled_users($context, '', $groupid > 0 ? $groupid : 0, user_pict
         null, $offset, $perpage);
 
 if (!$ptable->is_downloading()) {
-    $total = count($users);
-    if ($perpage == count($users)) {
-        // We may have more users as limited to $perpage, so work out how many.
-        list($esql, $params) = get_enrolled_sql($context, '', $groupid > 0 ? $groupid : 0);
-        $sql = "SELECT count(1) as count
-                  FROM {user} u
-                  JOIN ($esql) je ON je.id = u.id
-                 WHERE u.deleted = 0";
-        $total = $DB->count_records_sql($sql, $params);
-    }
+    // We may have more users as limited to $perpage, so work out how many.
+    list($esql, $params) = get_enrolled_sql($context, '', $groupid > 0 ? $groupid : 0);
+    $sql = "SELECT count(1) as count
+              FROM {user} u
+              JOIN ($esql) je ON je.id = u.id
+             WHERE u.deleted = 0";
+    $total = $DB->count_records_sql($sql, $params);
     $ptable->pagesize($perpage, $total);
 }
 
