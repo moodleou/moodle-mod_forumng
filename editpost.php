@@ -30,7 +30,7 @@
 if (isset($_REQUEST['ajax'])) {
     define('AJAX_SCRIPT', true);
 }
-require('../../config.php');
+require_once('../../config.php');
 require_once('mod_forumng.php');
 
 $pageparams = array();

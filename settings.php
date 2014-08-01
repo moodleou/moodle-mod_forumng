@@ -27,7 +27,7 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot . '/mod/forumng/settingslib.php');
 
 $module = new stdClass;
-require($CFG->dirroot.'/mod/forumng/version.php');
+require_once($CFG->dirroot.'/mod/forumng/version.php');
 
 $settings->add(new admin_setting_heading('forumng_version', '',
     get_string('displayversion', 'forumng', $module->displayversion)));

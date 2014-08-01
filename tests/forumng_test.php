@@ -25,8 +25,8 @@
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
-require($CFG->dirroot . '/mod/forumng/tests/forumng_test_lib.php');
-require($CFG->dirroot . '/mod/forumng/mod_forumng.php');
+require_once($CFG->dirroot . '/mod/forumng/tests/forumng_test_lib.php');
+require_once($CFG->dirroot . '/mod/forumng/mod_forumng.php');
 
 /**
  * PHPUnit main forum class testcase.
