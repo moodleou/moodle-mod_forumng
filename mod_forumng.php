@@ -386,7 +386,7 @@ class mod_forumng {
             // Only set when using get_modinfo_special for shared activity modules.
             return $info->forumtype;
         }
-        return $info->get_custom_data()->type;
+        return $info->customdata->type;
     }
 
     /** @return bool True if anonymous moderator posts enabled */
@@ -4327,9 +4327,6 @@ WHERE
         $newcm->completion = $cm->completion;
         $newcm->completiongradeitemnumber = $cm->completiongradeitemnumber;
         $newcm->completionview = $cm->completionview;
-        $newcm->availablefrom = $cm->availablefrom;
-        $newcm->availableuntil = $cm->availableuntil;
-        $newcm->showavailability = $cm->showavailability;
 
         // Add
         $newcm->id = $DB->insert_record('course_modules', $newcm);

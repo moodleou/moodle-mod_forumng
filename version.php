@@ -22,9 +22,9 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$module->version  = 2014073000;
-$module->requires = 2013111800;
-$module->cron     = 60;
-
-// Note: This should be replaced with standard ->maturity and other options.
-$module->displayversion = 'Unstable development version (use at own risk)';
+$plugin->version  = 2014073000;
+$plugin->requires = 2014051200;
+$plugin->cron     = 60;
+$plugin->component = 'mod_forumng';
+$plugin->maturity = MATURITY_STABLE;
+$plugin->release = '2.7 r1';

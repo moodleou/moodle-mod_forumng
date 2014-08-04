@@ -317,8 +317,7 @@ class mod_forumng_utils {
             'added', 'score', 'indent', 'visible', 'visibleold', 'groupmode',
             'groupingid', 'idnumber', 'groupmembersonly', 'completion',
               'completiongradeitemnumber', 'completionview',
-              'completionexpected', 'availablefrom', 'availableuntil',
-              'showavailability');
+              'completionexpected');
 
         return self::select_fields($fields, $alias);
     }
