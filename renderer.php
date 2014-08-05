@@ -1591,9 +1591,6 @@ class mod_forumng_renderer extends plugin_renderer_base {
      */
     public function render_ajax_forms($forum) {
         global $CFG;
-        if (!ajaxenabled()) {
-            return '';
-        }
 
         require_once($CFG->dirroot . '/mod/forumng/editpost_form.php');
         // Reply form
