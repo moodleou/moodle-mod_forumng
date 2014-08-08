@@ -304,7 +304,16 @@ if (empty($download)) {
     // Display footer.
     print $out->footer();
 
-    add_to_log($course->id, 'forumng', 'view', 'list.php?' . $thisurl->get_query_string(false));
+    $params = array(
+            'context' => $forum->get_context(),
+            'objectid' => $forum->get_id(),
+            'other' => array('url' => 'list.php?' . $thisurl->get_query_string(false))
+    );
+
+    $event = \forumngfeature_userposts\event\participation_viewed::create($params);
+    $event->add_record_snapshot('course_modules', $forum->get_course_module());
+    $event->add_record_snapshot('course', $forum->get_course());
+    $event->trigger();
 }
 /**
  * Creates save grades form tag and relevant hidden id tags.

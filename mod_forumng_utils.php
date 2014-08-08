@@ -147,7 +147,16 @@ class mod_forumng_utils {
         // Add entry to Moodle log (using root file in action)
         $cmid = $cmid ? $cmid : 0;
         $courseid = $courseid ? $courseid : 0;
-        add_to_log($courseid, 'forumng', 'error ' . $file, '', $info, $cmid);
+        $params = array(
+                'context' => context_module::instance($cmid),
+                'other' => array('info' => $info, 'url' => $_SERVER['REQUEST_URI'])
+        );
+        switch ($file) {
+            case 'editpost':
+                $event = \mod_forumng\event\post_updated_failed::create($params);
+                break;
+        }
+        $event->trigger();
     }
 
     // Renderer

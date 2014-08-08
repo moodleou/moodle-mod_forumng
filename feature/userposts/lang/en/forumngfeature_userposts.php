@@ -21,6 +21,7 @@
  * @copyright 2011 The Open University
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+$string['event:viewed'] = 'View participation';
 $string['viewpostsbyuser'] = 'Participation by user';
 $string['userposts'] = 'User participation';
 $string['showallpostsby'] = 'Show all posts by {$a}';

@@ -15,10 +15,25 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version.
+ * The mod_forumng instance list viewed event.
  *
- * @package forumngfeature_userposts
- * @copyright 2013 The Open University
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    mod_forumng
+ * @copyright  2014 The Open University
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-$plugin->version  = 2014080800;
+
+namespace mod_forumng\event;
+
+defined('MOODLE_INTERNAL') || die();
+
+/**
+ * The mod_forumng instance list viewed event class.
+ *
+ * @package    mod_forumng
+ * @since      Moodle 2.7
+ * @copyright  2014 The Open University
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+class course_module_instance_list_viewed extends \core\event\course_module_instance_list_viewed {
+    // No need for any code here as everything is handled by the parent class.
+}

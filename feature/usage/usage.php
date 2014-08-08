@@ -347,4 +347,13 @@ if (!empty($usageoutput)) {
 }
 echo $OUTPUT->footer();
 // Log usage view.
-$forum->log('view usageinfo');
+$params = array(
+    'context' => $forum->get_context(),
+    'objectid' => $forum->get_id(),
+    'other' => array('url' => $thisurl->out_as_local_url())
+);
+
+$event = \forumngfeature_usage\event\usage_viewed::create($params);
+$event->add_record_snapshot('course_modules', $forum->get_course_module());
+$event->add_record_snapshot('course', $forum->get_course());
+$event->trigger();

@@ -24,6 +24,7 @@ $string['pluginname'] = 'Forum statistics view';
 $string['usage:view'] = 'View forum usage statistics';
 $string['usage:viewusage'] = 'View the forum usage statistics information';
 $string['usage:viewflagged'] = 'View forum flagged posts';
+$string['event:viewed'] = 'View usage info';
 $string['button'] = 'Show usage';
 $string['title'] = 'Usage';
 $string['contribution'] = 'Contribution';

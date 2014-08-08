@@ -425,14 +425,8 @@ class mod_forumng_forumng_testcase extends forumng_test_lib {
         $forum1->subscribe($user1->id, $group2->id);
         $this->assertArrayHasKey($group1->id, $forum1->get_subscription_info($user1->id)->groupids);
         $this->assertArrayHasKey($group2->id, $forum1->get_subscription_info($user1->id)->groupids);
-        $infolike = $DB->sql_like('info', '?');
-        $log = $DB->get_records_select('log', "action = ? and $infolike", array('subscribe', "$user1->id%"));
-        $this->assertNotEmpty($log);
         $this->assertCount(1, $forum1->get_subscribers());
         $forum1->unsubscribe($user1->id, $group1->id, true);
-        $this->assertArrayNotHasKey($group1->id, $forum1->get_subscription_info($user1->id)->groupids);
-        $log = $DB->get_records_select('log', "action = ? and $infolike", array('unsubscribe', "$user1->id%"));
-        $this->assertNotEmpty($log);
         $forum1->subscribe($user1->id);
         $this->assertEmpty($forum1->get_subscription_info($user1->id)->groupids);
         $this->assertTrue($forum1->get_subscription_info($user1->id)->wholeforum);

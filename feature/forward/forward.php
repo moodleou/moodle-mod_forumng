@@ -96,7 +96,17 @@ class forward_post_selector extends forumngfeature_post_selector {
         }
 
         // Log that it was sent
-        $discussion->log('forward discussion', $formdata->email);
+        $params = array(
+            'context' => $discussion->get_forum()->get_context(),
+            'objectid' => $discussion->get_id(),
+            'other' => array('logurl' => $discussion->get_log_url(), 'info' => $formdata->email)
+        );
+
+        $event = \forumngfeature_forward\event\discussion_forwarded::create($params);
+        $event->add_record_snapshot('course_modules', $discussion->get_course_module());
+        $event->add_record_snapshot('course', $discussion->get_course());
+        $event->trigger();
+
         if (!empty($formdata->ccme)) {
             if (!email_to_user($USER, $from, $subject, $alltext, $allhtml)) {
                 print_error('error_forwardemail', 'forumng',

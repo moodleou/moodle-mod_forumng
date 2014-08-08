@@ -341,9 +341,10 @@ $mainquery", $mainparams);
                 count($subscribers) . " subscribers";
             mtrace("Forum ".$forum->get_name() .
                 ": sent $counts");
-            add_to_log($forum->get_course_id(), 'forumng', 'mail ok',
-                'view.php?' . $forum->get_link_params(mod_forumng::PARAM_PLAIN),
-                $counts);
+            $params = array('other' => array('type' => 'sub', 'count' => $counts),
+                'context' => $forum->get_context());
+            $event = \mod_forumng\event\mail_sent::create($params);
+            $event->trigger();
             $totalemailcount += $emailcount;
         }
         $queryinfo = '';
@@ -666,8 +667,10 @@ $mainquery", $mainparams);
         // Trace and log information
         $counts = count($userdigests) . ' digests';
         mtrace("Course ".$course->shortname . ": sent $counts");
-        add_to_log($course->id, 'forumng', 'digest ok',
-            'index.php?id=' . $course->id, $counts);
+        $params = array('other' => array('type' => 'digest', 'count' => $counts),
+                'context' => context_course::instance($course->id));
+        $event = \mod_forumng\event\mail_sent::create($params);
+        $event->trigger();
 
         // Clear users ready for new course
         $userdigests = array();
@@ -863,16 +866,15 @@ $mainquery", $mainparams);
                         '": "'. $mail->ErrorInfo . '" (' . $showerrortext .
                         '). Users affected: ' . $users);
                 }
-                add_to_log(SITEID, 'forumng', 'mail error',
-                    '', 'ERROR: '. $mail->ErrorInfo);
             } else {
                 // Mail send successful; log all users
                 foreach ($batch as $user) {
                     // Note this log entry is in the same format as the
                     // main mail function
-                    add_to_log(SITEID, 'library', 'mailer',
-                            'cron', 'emailsent ' . $user->id . ' (' .
-                            $user->username . '): ' . $subject);
+                    $params = array('other' => array('username' => $user->username, 'subject' => $subject),
+                            'context' => context_system::instance(), 'relateduserid' => $user->id);
+                    $event = \mod_forumng\event\mail_sent::create($params);
+                    $event->trigger();
                 }
             }
         }

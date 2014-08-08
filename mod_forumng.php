@@ -1191,9 +1191,32 @@ WHERE
         if ($replaceinfo !== '') {
             $info = $replaceinfo;
         }
-        add_to_log($this->get_course()->id, 'forumng',
-            $action, $this->get_log_url(), $info,
-            $this->get_course_module_id());
+        $params = array(
+            'context' => $this->get_context(),
+            'objectid' => $this->forumfields->id,
+            'other' => array('info' => $info, 'logurl' => $this->get_log_url())
+        );
+        switch ($action) {
+            case 'subscribe':
+                $classname = 'subscription_created';
+                $params['relateduserid'] = substr($info, 0, strpos($info, ' '));
+                unset($params['objectid']);// Unset forum id as event for subscriptions table.
+                break;
+            case 'unsubscribe':
+                $classname = 'subscription_deleted';
+                $params['relateduserid'] = substr($info, 0, strpos($info, ' '));
+                unset($params['objectid']);// Unset forum id as event for subscriptions table.
+                break;
+            default:
+                $classname = 'course_module_viewed';
+                break;
+        }
+        $class = '\\mod_forumng\\event\\' . $classname;
+        $event = $class::create($params);
+        $event->add_record_snapshot('course_modules', $this->get_course_module());
+        $event->add_record_snapshot('course', $this->get_course());
+        $event->add_record_snapshot('forumng', $this->forumfields);
+        $event->trigger();
     }
 
     /**
@@ -1772,9 +1795,9 @@ WHERE $conditions AND m.name = 'forumng' AND $restrictionsql",
                 // Shouldn't there be a function in cm_info to do this? :(
                 // Unfortunately I didn't think of that when redesigning
                 // cm_info, it can only work for current user.
-                $conditioninfo = new condition_info($cm);
+                $info = new \core_availability\info_module($cm);
                 $visible = $visible &&
-                    $conditioninfo->is_available($crap, false, $userid);
+                    $info->is_available($crap, false, $userid);
                 if (!$visible && !has_capability(
                     'moodle/site:viewhiddenactivities', $context, $userid)) {
                     $result = false;

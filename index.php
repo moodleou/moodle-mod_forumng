@@ -131,7 +131,9 @@ foreach ($forums as $forum) {
     // Get name and intro
     $row[] =   "<a href='view.php?id={$cm->id}' $style>" .
         format_string($forum->get_name()) . '</a>';
-    $row[] = format_text($forum->get_intro(true), FORMAT_HTML);
+    $activity = (object) array('intro' => $forum->get_intro(),
+            'introformat' => FORMAT_HTML);
+    $row[] = format_module_intro('forumng', $activity, $forum->get_course_module_id(true));
 
     // Get discussion count
     $discussions = $forum->get_num_discussions();
@@ -216,5 +218,12 @@ if ($canmaybesubscribe) {
 
     print '</div>';
 }
+
+$params = array(
+        'context' => $coursecontext
+);
+$event = \mod_forumng\event\course_module_instance_list_viewed::create($params);
+$event->add_record_snapshot('course', $course);
+$event->trigger();
 
 print $out->footer();

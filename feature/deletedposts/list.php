@@ -93,7 +93,16 @@ print $out->container_end();
 print '</div>';
 
 // Log request.
-$forum->log('listdeleteddiscussions');
+$params = array(
+    'context' => $forum->get_context(),
+    'objectid' => $forum->get_id(),
+    'other' => array('url' => $pageurl->out_as_local_url())
+);
+
+$event = \forumngfeature_deletedposts\event\deleteddiscussions_viewed::create($params);
+$event->add_record_snapshot('course_modules', $forum->get_course_module());
+$event->add_record_snapshot('course', $forum->get_course());
+$event->trigger();
 
 // Display footer.
 print $out->footer($course);

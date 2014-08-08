@@ -235,7 +235,16 @@ print $out->container_end();
 echo '</div>'; // To deal with the tabs.
 
 // Log request.
-$forum->log('listdeletedposts');
+$params = array(
+    'context' => $forum->get_context(),
+    'objectid' => $forum->get_id(),
+    'other' => array('url' => $pageurl->out_as_local_url())
+);
+
+$event = \forumngfeature_deletedposts\event\deletedposts_viewed::create($params);
+$event->add_record_snapshot('course_modules', $forum->get_course_module());
+$event->add_record_snapshot('course', $forum->get_course());
+$event->trigger();
 
 // Display footer.
 print $out->footer($course);

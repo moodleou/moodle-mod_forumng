@@ -33,3 +33,5 @@ $string['nodeletedpostsfound'] = 'No deleted posts found that were created by {$
 $string['nodeleteddiscussions'] = 'There are no deleted discussions for this forum';
 $string['anyone'] = 'Anyone';
 $string['all'] = 'All';
+$string['event:vieweddiscuss'] = 'View deleted discussions';
+$string['event:viewed'] = 'View deleted posts';

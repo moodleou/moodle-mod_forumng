@@ -1702,9 +1702,62 @@ ORDER BY
         if ($replaceinfo !== '') {
             $info = $replaceinfo;
         }
-        add_to_log($this->get_forum()->get_course()->id, 'forumng',
-            $action, $this->get_log_url(), $info,
-            $this->get_forum()->get_course_module_id());
+        $params = array(
+                'context' => $this->get_forum()->get_context(),
+                'objectid' => $this->get_id(),
+                'other' => array('info' => $info, 'logurl' => $this->get_log_url())
+        );
+        switch ($action) {
+            case 'add discussion':
+                $classname = 'discussion_created';
+                break;
+            case 'delete discussion':
+                $classname = 'discussion_deleted';
+                break;
+            case 'undelete discussion':
+                $classname = 'discussion_undeleted';
+                break;
+            case 'permdelete discussion':
+                $classname = 'discussion_permdeleted';
+                break;
+            case 'lock discussion':
+                $classname = 'discussion_locked';
+                break;
+            case 'unlock discussion':
+                $classname = 'discussion_unlocked';
+                break;
+            case 'auto lock discussion':
+                $params['other']['auto'] = true;
+                $classname = 'discussion_locked';
+                break;
+            case 'unlock auto locked discussion':
+                $params['other']['auto'] = true;
+                $classname = 'discussion_unlocked';
+                break;
+            case 'subscribe':
+                $classname = 'subscription_created';
+                $params['relateduserid'] = substr($info, 0, strpos($info, ' '));
+                unset($params['objectid']);// Unset discuss id as event for subscriptions table.
+                break;
+            case 'unsubscribe':
+                $classname = 'subscription_deleted';
+                $params['relateduserid'] = substr($info, 0, strpos($info, ' '));
+                unset($params['objectid']);// Unset discuss id as event for subscriptions table.
+                break;
+            case 'merge discussion':
+                $params['other']['newid'] = substr($info, strpos($info, 'into d') + 6);
+                $classname = 'discussion_merged';
+                break;
+            default:
+                $classname = 'discussion_viewed';
+                break;
+        }
+        $class = '\\mod_forumng\\event\\' . $classname;
+        $event = $class::create($params);
+        $event->add_record_snapshot('course_modules', $this->get_course_module());
+        $event->add_record_snapshot('course', $this->get_course());
+        $event->add_record_snapshot('forumng_discussions', $this->discussionfields);
+        $event->trigger();
     }
 
     /**

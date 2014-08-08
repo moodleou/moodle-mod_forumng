@@ -1486,11 +1486,37 @@ WHERE
         } else {
             $postid = $this->postfields->id;
         }
-        add_to_log($this->get_forum()->get_course()->id, 'forumng',
-            $action,
-            $this->discussion->get_log_url() . '#p' . $postid,
-            $this->postfields->id,
-            $this->get_forum()->get_course_module_id());
+        $params = array(
+                'context' => $this->get_forum()->get_context(),
+                'objectid' => $postid,
+                'other' => array('logurl' => $this->discussion->get_log_url() . '#p' . $postid,
+                    'discussid' => $this->get_discussion()->get_id())
+        );
+        if ($action == 'add reply') {
+            $classname = 'post_created';
+            $params['other']['parent'] = $this->get_id();
+        } else if ($action == 'edit post') {
+            $classname = 'post_updated';
+        } else if ($action == 'delete post') {
+            $classname = 'post_deleted';
+        } else if ($action == 'undelete post') {
+            $classname = 'post_undeleted';
+        } else if ($action == 'split post') {
+            $classname = 'post_split';
+        } else if ($action == 'report post') {
+            $classname = 'post_reported';
+        } else {
+            throw new coding_exception('Unknown forumng post log event.');
+        }
+        $class = '\\mod_forumng\\event\\' . $classname;
+        $event = $class::create($params);
+        $event->add_record_snapshot('course_modules', $this->get_forum()->get_course_module());
+        $event->add_record_snapshot('course', $this->get_forum()->get_course());
+        if (empty($replyid)) {
+            // Only add snapshot when talking about this post, not new reply.
+            $event->add_record_snapshot('forumng_posts', $this->postfields);
+        }
+        $event->trigger();
     }
 
     // Permissions

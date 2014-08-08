@@ -21,6 +21,25 @@
  * @copyright 2011 The Open University
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+$string['event:discussioncreated'] = 'Add discussion';
+$string['event:discussiondeleted'] = 'Delete discussion';
+$string['event:discussionlocked'] = 'Lock discussion';
+$string['event:discussionmerged'] = 'Merge discussion';
+$string['event:discussionpermdeleted'] = 'Permanently delete discussion';
+$string['event:discussionundeleted'] = 'Undelete discussion';
+$string['event:discussionunlocked'] = 'Unlock discussion';
+$string['event:discussionviewed'] = 'View discussion';
+$string['event:mailsent'] = 'Mail sent ok';
+$string['event:postcreated'] = 'Add reply';
+$string['event:postdeleted'] = 'Delete post';
+$string['event:postundeleted'] = 'Undelete post';
+$string['event:postupdated'] = 'Edit post';
+$string['event:postreported'] = 'Report post';
+$string['event:postsplit'] = 'Split post';
+$string['event:subscriptioncreated'] = 'Subscription created';
+$string['event:subscriptiondeleted'] = 'Subscription removed';
+
 $string['replytouser'] = 'Use email address in reply';
 $string['configreplytouser'] = 'When a forum post is mailed out, should it contain the user\'s
 email address so that recipients can reply personally rather than via the forum? Even if set to
