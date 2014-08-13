@@ -276,9 +276,12 @@ foreach ($users as $id => $u) {
 if (empty($download)) {
     // Display heading.
     print $out->heading(get_string('userposts', 'forumngfeature_userposts'));
-    // Display time filter dropdown.
-    $timefilter->display();
 
+    if ($start || $end) {
+        $timefilter->set_data(array('start' => $start, 'end' => $end));
+    }
+    // Display time filter options form.
+    $timefilter->display();
     echo $ptable->download_buttons();
     // Print out participation form.
     if ($cangrade) {
