@@ -414,6 +414,7 @@ M.mod_forumng = {
         iframecon.addClass('iframecon');
         var iframe = this.Y.one(document.createElement('iframe'));
         iframe.set('className', 'forumng-inlineform');
+        iframe.set('name', 'forumng-post-iframe');
         iframe.set('height', 500);
         src += '&iframe=1';
         iframe.set('src', src);
