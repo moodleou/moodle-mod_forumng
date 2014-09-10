@@ -1042,6 +1042,9 @@ WHERE
             if (!$root->has_children()) {
                 // Then the root post created and modified times are set to $timestart.
                 // Note will need to do this using DB function as no method to do this in classes.
+                if ($timestart == 0) {
+                    $timestart = time();
+                }
                 $revisedroot = new stdClass();
                 $revisedroot->created = $timestart;
                 $revisedroot->modified = $timestart;
