@@ -291,6 +291,62 @@ class mod_forumng_discussion {
                 ? mod_forumng::ASMODERATOR_NO : $this->discussionfields->lastasmoderator;
     }
 
+    /*
+     * @return int boolean 0 or 1 flagged
+     */
+    public function get_flagged() {
+        return $this->discussionfields->flagged;
+    }
+
+    /**
+     * @return bool True if can flag
+     */
+    public function can_flag() {
+        // The guest user cannot flag.
+        if (isguestuser()) {
+            return false;
+        }
+        // Cannot flag for deleted discussion unless already flagged.
+        if ($this->is_deleted() && (!$this->is_flagged())) {
+            return false;
+        }
+        return true;
+    }
+
+    /** @return bool True if post is flagged by current user */
+    public function is_flagged() {
+        if (!property_exists($this->discussionfields, 'flagged')) {
+            throw new coding_exception('Flagged information not available here');
+        }
+        return $this->discussionfields->flagged ? true : false;
+    }
+
+    /**
+     * @param bool $flag True to set flag
+     * @param int $userid User ID or 0 for current
+     */
+    public function set_flagged($flag, $userid = 0) {
+        global $DB;
+
+        $userid = mod_forumng_utils::get_real_userid($userid);
+        if ($flag) {
+            // Check there is not already a row.
+            if (!$DB->record_exists('forumng_flags',
+                    array('discussionid' => $this->get_id(), 'userid' => $userid))) {
+                // Insert new row.
+                $newflag = (object) array('discussionid' => $this->get_id(),
+                        'userid' => $userid, 'postid' => 0, 'flagged' => time());
+                $DB->insert_record('forumng_flags', $newflag);
+                $this->discussionfields->flagged = 1;
+            }
+        } else {
+            $DB->delete_records('forumng_flags',
+                    array('discussionid' => $this->get_id(), 'userid' => $userid));
+            $this->discussionfields->flagged = 0;
+        }
+
+    }
+
     // Factory method
     /*///////////////*/
 
@@ -368,7 +424,7 @@ class mod_forumng_discussion {
             $userid = -1;
         }
         // Get discussion data (including read status)
-        $rs = self::query_discussions($where, $whereparams, $userid, 'id', 0, 1);
+        $rs = self::query_discussions($where, $whereparams, $userid, 'id', 0, 1, null, true);
         $discussionfields = false;
         if (!$rs->valid()) {
             throw new dml_exception('Unable to retrieve relevant discussion');
@@ -672,10 +728,11 @@ class mod_forumng_discussion {
      * @param int $limitnum Limit on results
      * @param mod_forumng $typeforum If set, this forum is used to potentially restrict
      *   the results based on forum type limits
+     * @param boolean $flags set to indicate that flagged discussions are to be returned
      * @return adodb_recordset Database query results
      */
     public static function query_discussions($conditions, $conditionparams, $userid, $orderby,
-        $limitfrom='', $limitnum='', $typeforum=null) {
+        $limitfrom='', $limitnum='', $typeforum=null, $flags = false) {
         global $USER, $DB;
 
         // For read tracking, we get a count of total number of posts in
@@ -714,6 +771,9 @@ class mod_forumng_discussion {
         // Handle forum type restriction
         $typejoin = '';
         $typeparams = array();
+        $flagsjoin = '';
+        $flagsquery = '';
+        $flagparams = array();
         if ($typeforum && $userid != -1) {
             $type = $typeforum->get_type();
             if ($type->has_unread_restriction()) {
@@ -731,6 +791,12 @@ class mod_forumng_discussion {
                 $conditions .= " AND m.name = 'forumng' AND $restrictionsql";
                 $conditionparams = array_merge($conditionparams, $restrictionparams);
             }
+        }
+
+        if ($flags && $userid != -1) {
+            $flagsjoin = "LEFT JOIN {forumng_flags} ff ON ff.discussionid = fd.id AND ff.userid = ?";
+            $flagsquery = ', ff.flagged';
+            $flagparams = array($userid);
         }
 
         // Main query. This retrieves:
@@ -756,6 +822,7 @@ SELECT * FROM (SELECT
         AS numposts,
     g.name AS groupname
     $readtracking
+    $flagsquery
 FROM
     {forumng_discussions} fd
     INNER JOIN {forumng_posts} fpfirst ON fd.postid = fpfirst.id
@@ -765,10 +832,11 @@ FROM
     LEFT JOIN {groups} g ON g.id = fd.groupid
     $readtrackingjoin
     $typejoin
+    $flagsjoin
 WHERE
     $conditions) x $order
 ",
-                array_merge($readtrackingparams, $readtrackingjoinparams, $conditionparams),
+                array_merge($readtrackingparams, $readtrackingjoinparams, $flagparams, $conditionparams),
                 $limitfrom, $limitnum);
         return $rs;
     }
@@ -850,7 +918,6 @@ WHERE
         $postobj->parentpostid = $parentpost ? $parentpost->get_id() : null;
         $postobj->userid = $userid;
         $postobj->created = time();
-        $postobj->modified = $postobj->created;
         $postobj->deleted = 0;
         $postobj->mailstate = $mailnow
             ? mod_forumng::MAILSTATE_NOW_NOT_MAILED
@@ -863,6 +930,11 @@ WHERE
         $postobj->messageformat = $format;
         $postobj->attachments = $attachments ? 1 : 0;
         $postobj->asmoderator = $asmoderator;
+        if ($parentpost == null && $this->get_time_start() && $this->get_time_start() > time()) {
+            // When $parentpost is null and get_time_start() has a value that $postobj->created is the value of get_time_start().
+            $postobj->created = $this->get_time_start();
+        }
+        $postobj->modified = $postobj->created;
 
         $transaction = $DB->start_delegated_transaction();
 
@@ -964,6 +1036,21 @@ WHERE
         }
         if ($timestart != $this->discussionfields->timestart) {
             $update->timestart = $timestart;
+            $root = $this->get_root_post();
+            // When $timestart is not the same as $this->discussionfields->timestart
+            // and the discussion root post ($root) has no children.
+            if (!$root->has_children()) {
+                // Then the root post created and modified times are set to $timestart.
+                // Note will need to do this using DB function as no method to do this in classes.
+                if ($timestart == 0) {
+                    $timestart = time();
+                }
+                $revisedroot = new stdClass();
+                $revisedroot->created = $timestart;
+                $revisedroot->modified = $timestart;
+                $revisedroot->id = $root->get_id();
+                $DB->update_record('forumng_posts', $revisedroot);
+            }
         }
         if ($timeend != $this->discussionfields->timeend) {
             $update->timeend = $timeend;
@@ -1294,6 +1381,9 @@ WHERE
 
         // Deleting the relevant posts in this discussion in the forumng_posts table.
         $DB->delete_records('forumng_posts', array('discussionid' => $this->get_id()));
+
+        // Delete the relevant discussion in the forumng_flags table.
+        $DB->delete_records('forumng_flags', array('discussionid' => $this->get_id()));
 
         // Finally deleting this discussion in the forumng_discussions table.
         $DB->delete_records('forumng_discussions', array('id' => $this->get_id()));

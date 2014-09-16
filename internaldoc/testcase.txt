@@ -1240,6 +1240,40 @@ EML08 / U.ET [change]
 
 ** PASSED 2011-02-24
 
+SAV - Post save checking
+========================
+
+SAV01 / U.ET
+  Use any existing form where U.ET can post to, or alternatively create a new course/forum for this test.
+  Acccess the test form, and select the 'Start a new discussion' button (selecting group if necessary)
+  Enter text 'Save check' into Subject field and any text into Message field.
+  Select to Sign out of SAMS from the OU top bar by opening link in a new tab.
+  (For non-SAMS sites such as ttdev open a new tab and access /login/logout.php instead)
+  Close the new (once signed-out) tab.
+  Select 'Post discussion' button.
+  - Verify a warning popup appears notifying that saving the post will fail due to network issues.
+  Select 'Ok' to close the popup.
+  - Verify 'Post discussion' and 'Save as draft' buttons become disabled.
+  Select the 'Cancel' button.
+  - Verify login takes place and you are redirected back to the forum 'Start discussion' page.
+  - If group forum, verify correct group is selected in Group drop-down.
+  Enter text 'Save check' into Subject field and any text into Message field.
+  Select 'Post discussion' button.
+  - Verfiy discussion created and you are redirected to discussion page.
+
+SAV02 / U.ET
+  Select the 'Reply' button against discussion start post.
+  Enter any text into the Message field.
+  Select to Sign out of SAMS from the OU top bar by opening link in a new tab.
+  (For non-SAMS sites such as ttdev open a new tab and access /login/logout.php instead)
+  Close the new (once signed-out) tab.
+  Select 'Save as draft' button.
+  - Verify a warning popup appears notifying that saving the post will fail due to network issues.
+  Select 'Ok' to close the popup.
+  - Verify 'Post discussion' and 'Save as draft' buttons become disabled.
+  Select 'Cancel' button.
+  - Verify new post is removed, to leave just discussion showing.
+
 
 AREAS THAT SHOULD BE TESTED BUT HAVE NOT BEEN
 =============================================

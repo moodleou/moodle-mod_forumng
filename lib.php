@@ -179,7 +179,9 @@ function forumng_ousearch_add_visible_module($cm, $course) {
  */
 function forumng_get_extra_capabilities() {
     return array('moodle/site:accessallgroups', 'moodle/site:viewfullnames',
-            'moodle/site:trustcontent', 'report/oualerts:managealerts');
+            'moodle/site:trustcontent', 'report/oualerts:managealerts',
+            'report/restrictuser:view', 'report/restrictuser:restrict',
+            'report/restrictuser:removerestrict');
 }
 
 /**

@@ -4,7 +4,12 @@ student user perspective. It is intended to cover only this single feature.
 
 NOTE: In this test case, the word 'forum' always refers to the OU ForumNG.
 
-The test steps in this script follow on from those in testcase.grading and aren't independent.
+The test steps in this script can be used independently so long as there is an
+existing setup, such as after completing textcase.grading.txt. This script is also
+a follow on from testcase.grading and if you are testing testcase.grading
+then this script is a necessary part of that testing process and isn't independent.
+
+In order to test this feature accurately there needs to be historical data covering an extended time period.
 
 Initial setup
 =============
@@ -21,53 +26,114 @@ ERE Existing forums and data
 
 ERE01 / U.ET [change]
   Go to forum CRE01.
-  Click against 'Participation by user', formerly labled 'View posts by user'.
+  Click against 'Participation by user'.
 
 UPD Userposts download
-=====================
+======================
 
 UPD01 / U.ET
- This should bring up a screen entitled 'User participation', formerly 'User posts'.
- It should show the student user.
- The number of Discussions started by that user.
- The number of Replies to posts.
- Grades per user.
- Click any link that says 'Show all posts by <name>'.
+   This should bring up a screen entitled 'User participation'.
+   It should show the student user.
+   The number of Discussions started by that user.
+   The number of Replies to posts.
+   Grades per user.
+-  Verify that the page has 2 time filter dropdowns and a button entitled 'Update'.
+-  Verify that the page has a 'Download table data as' dropdown and a 'Download' button.
 
 UPD02 / U.ET
- This opens a screen screen entitled 'User participation > <name>', showing all posts by the user
- (including replies and discussions started).
+   Click the 'Download' button.
+   In IE this should result in a file save dialogue - save the file and then open in Excel (or another spreadsheet package).
+-  Verify that the same data as in the web view is shown in four columns,
+   'User', 'Discussion', 'Replies' and 'Action' (Except hyperlinks titles are removed).
+   Close the file.
 
 UPD03 / U.ET
--  Verify that the page has a 'Download table data as' form, with the single option
-   'Comma seperated values text file' and 'Download' button, above the first user post.
+   Enable time filter dates.
+   Check both Enable checkboxes.
+   Set 'From' date to today's date assuming that U.S2 has carried out some action today,
+   otherwise set the 'From' date to date you know that U.S2 carried out some actions on.
+   Leave the 'To' date set to today's date.
+   Click the 'Update' button.
+-  Verify that the data on the web page reflects those dates.
 
-UPD04 / U.ET  new bit
+UPD04 / U.ET
    Click the 'Download' button.
    In IE this should result in a file save dialogue - save the file and then open in Excel (or another spreadsheet package).
--  Verify that the same data as in the web view is shown in three columns,
-   'In reply to', 'Post subject' and 'Post message'.  (Except hyperlinks titles are removed).
+-  Verify that the same data as in the web view is shown in four columns,
+   'User', 'Discussion', 'Replies' and 'Action' (Except hyperlinks titles are removed).
+   Close the file.
+   Click any link that says 'Show all posts by <name>'.
 
+UPD05 / U.ET
+ -  Verify that the page has 2 time filter dropdowns and a button entitled 'Update'.
+ -  Verify that the time filter 'Enable' checkboxes are checked,
+    and the 'From' and 'To' dates are the same has the dates from the previous page.
+
+UPD06 / U.ET
+ -  Verify that the page has a 'Download table data as' form, with the single option
+   'Comma separated values text file' and 'Download' button, above the first user post.
+
+UPD07 / U.ET
+   Click the 'Download' button.
+   In IE this should result in a file save dialogue - save the file and then open in Excel (or another spreadsheet package).
+-  Verify that the same data as in the web view is shown in four columns,
+   'In reply to', 'Post date', 'Post subject' and 'Post message' (Except hyperlinks titles are removed).
+   Close the file.
+
+UPD08 / U.ET
+   Disable time filter dates.
+   Uncheck both Enable checkboxes.
+   Click the 'Update' button.
+-  Verify that the data on the web page reflects all dates.
+
+UPD09 / U.ET
+   Click the 'Download' button.
+   In IE this should result in a file save dialogue - save the file and then open in Excel (or another spreadsheet package).
+-  Verify that the same data as in the web view is shown in four columns,
+   'In reply to', 'Post date', 'Post subject' and 'Post message' (Except hyperlinks titles are removed).
+   Close the file.
 
 SUPD Download as student
-=====================
+========================
 
 SUPD01 / U.S2 [change]
-  Go to forum CRE01 (you should be in group G2).
-  Click against 'My participation', formerly 'View own posts'.
+   Go to forum CRE01 (you should be in group G2 - if continuing testing from textcase.grading.txt).
+   Click against 'My participation'.
 
 SUPD02 / U.S2
- This opens a screen showing all posts by <name> (including replies and discussions started).
+   This opens a screen showing all posts by <name> (including replies and discussions started).
 
 SUPD03 / U.S2
--  Verify that the page has a 'Download table data as' form, with the single option
-   'Comma seperated values text file' and 'Download' button, above the first user post.
+   Verify that the page has 2 time filter dropdowns and a button entitled 'Update'.
 
 SUPD04 / U.S2
+-  Verify that the page has a 'Download table data as' form, with the single option.
+   'Comma separated values text file' and 'Download' button, above the first user post.
+
+SUPD05 / U.S2
    Click the 'Download' button.
    In IE this should result in a file save dialogue - save the file and then open in Excel (or another spreadsheet package).
--  Verify that the same data as in the web view is shown in three columns,
-   'In reply to', 'Post subject' and 'Post message'.  (Except hyperlinks titles are removed).
+-  Verify that the same data as in the web view is shown in four columns,
+   'In reply to', 'Post date', 'Post subject' and 'Post message' (Except hyperlinks titles are removed).
+   Close the file.
+
+SUPD06 / U.S2
+   Enable time filter dates.
+   Check both Enable checkboxes.
+   Set 'From' date to today's date assuming that U.S2 has carried out some action today,
+   otherwise set the 'From' date to date you know that U.S2 carried out some actions on.
+   Leave the 'To' set to today's date.
+   Click the 'Update' button.
+-  Verify that the data on the web page reflects those dates.
+
+SUPD07 / U.S2
+   Click the 'Download' button.
+   In IE this should result in a file save dialogue - save the file and then open in Excel (or another spreadsheet package).
+-  Verify that the same data as in the web view is shown in four columns,
+   'In reply to', 'Post subject' and 'Post message' (Except hyperlinks titles are removed).
+   Close the file.
 
 Test complete
 =============
+
+To accurately test the date filter functionality it is necessary to test against historical data

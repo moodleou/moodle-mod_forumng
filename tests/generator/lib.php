@@ -33,6 +33,15 @@ defined('MOODLE_INTERNAL') || die();
  */
 class mod_forumng_generator extends testing_module_generator {
 
+    private $forumdiscussioncount = 0;
+    private $forumpostcount = 0;
+
+    public function reset() {
+        $this->forumdiscussioncount = 0;
+        $this->forumpostcount = 0;
+        return parent::reset();
+    }
+
     /**
      * Creates new forumng module instance.
      *
@@ -45,8 +54,7 @@ class mod_forumng_generator extends testing_module_generator {
         require_once($CFG->dirroot . '/mod/forumng/lib.php');
 
         // Count generated modules.
-        $this->instancecount++;
-        $i = $this->instancecount;
+        $i = $this->instancecount + 1;
 
         // Ensure the record can be modified without affecting calling code.
         $record = (object)(array)$record;
@@ -70,14 +78,10 @@ class mod_forumng_generator extends testing_module_generator {
 
         if (isset($options['idnumber'])) {
             $record->cmidnumber = $options['idnumber'];
-        } else {
-            $record->cmidnumber = '';
         }
 
         // Now actually add the instance.
-        $record->coursemodule = $this->precreate_course_module($record->course, $options);
-        $id = forumng_add_instance($record, null);
-        return $this->post_add_instance($id, $record->coursemodule);
+        return parent::create_instance($record, $options);
     }
 
     /**
@@ -123,12 +127,17 @@ class mod_forumng_generator extends testing_module_generator {
             $record['format'] = FORMAT_MOODLE;
         }
 
+        if (!isset($record['timestart'])) {
+            $record['timestart'] = 0;
+        }
+
         // Get a forum object.
-        $forum = mod_forumng::get_from_id($record['forum'], 0);
+        $forum = mod_forumng::get_from_id($record['forum'], mod_forumng::CLONE_DIRECT);
 
         // Create the discussion.
         $discussionid = $forum->create_discussion($record['groupid'], $record['subject'],
-                $record['message'], $record['format']);
+                $record['message'], $record['format'], false, false, $record['timestart'], 0, false,
+                false, $record['userid']);
 
         return $discussionid;
     }
@@ -186,6 +195,11 @@ class mod_forumng_generator extends testing_module_generator {
 
         // Add the post.
         $record->id = $DB->insert_record('forumng_posts', $record);
+
+        $updatedis = new stdClass();
+        $updatedis->id = $record->discussionid;
+        $updatedis->lastpostid = $record->id;
+        $DB->update_record('forumng_discussions', $updatedis);
 
         return $record;
     }

@@ -423,6 +423,8 @@ $string['selectdiscintro'] = 'Tick the box beside each discussion you want to in
 scroll to the bottom and click &lsquo;Confirm selection&rsquo;.';
 $string['setimportant'] = 'Mark posts as important';// Used by moderators, highlight important posts.
 $string['important'] = 'Important post'; // alt text for important icon
+$string['flaggeddiscussions'] = 'Flagged discussions';
+$string['flaggeddiscussionslink'] = '{$a} flagged discussions';
 $string['flaggedposts'] = 'Flagged posts';
 $string['flaggedpostslink'] = '{$a} flagged posts';
 $string['post'] = 'Post';
@@ -807,6 +809,12 @@ $string['flaggedposts_help'] = 'Flagged posts appear in this list. To jump to a 
 click on it.
 
 To remove the flag from a post, click on the flag icon (here or in the post).';
+
+$string['flaggeddiscussions_help'] = 'Flagged discussions appear in this list. To jump to a flagged discussion,
+click on it.
+
+To remove the flag from a discussion, click on the flag icon (here or the \'Remove flag\' button in the discussion).';
+
 $string['searchthisforum_help'] = 'Type your search term and press Enter or click the button.
 
 To search for exact phrases use quote marks.
@@ -867,3 +875,8 @@ $string['editedforumpost'] = 'Your post has been edited';
 
 $string['postedasmoderator'] = 'Posted as moderator';
 $string['postedasmoderator_help'] = 'Search for posts that have been identified as being created by a moderator';
+
+$string['savefailtitle'] = 'Post save failed';
+$string['savefailnetwork'] = '<p>Unfortunately, your changes cannot be saved at this time. This is due to a
+network error; the website is temporarily unavailable or you have been signed out. </p><p>Saving has been disabled
+on this page. In order to retain any changes you must copy the post content, access this page again and then paste in your changes.</p>';

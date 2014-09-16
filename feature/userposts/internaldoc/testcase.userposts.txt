@@ -52,7 +52,7 @@ CRE04 / U.S2 [change]
 
 CRE04 / U.ET [change]
   Go to forum CRE01.
-  Click against 'View posts by user'
+  Click against 'Participation by user', formerly labled 'View posts by user'.
 
 UP Userposts
 ===========
@@ -73,7 +73,7 @@ SUP Retest with student userposts
 
 SUP01 / U.S2 [change]
   Go to forum CRE01 (you should be in group G2).
-  Click against 'View own posts'
+  Click against 'My participation', formerly 'View own posts'.
 
 SUP02 / U.S2
 ============

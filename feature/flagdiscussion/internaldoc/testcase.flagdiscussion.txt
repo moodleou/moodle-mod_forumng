@@ -1,0 +1,108 @@
+This script describes steps to test the view flagged discussions facility from an user perspective.
+It is intended to cover most of the UI and features.
+
+NOTE: In this test case, the word 'forum' always refers to the OU ForumNG.
+
+The test steps in this script follow on from each other and aren't independent.
+
+Initial setup
+=============
+
+This test case requires:
+
+- a test course, with following users enrolled:
+- one test student user (U.S)
+- one editing teacher (U.ET)
+
+The test server must have debugging set to DEVELOPER level and to display
+errors; during all parts of the test script, there should be no debugging
+warnings.
+
+CRE Creating forums and data
+============================
+
+CRE01 / admin
+  In your test course, create a forum called CRE01.
+  Leave forum settings as default.
+  Click on 'Save and display' submit button.
+
+CRE02 / admin
+  Go into the forum you have just created and create 2 separate discussions - D1 and D2.
+  The post message can have any text.
+
+CRE03 / U.S [change]
+  Go to forum CRE01.
+  Reply to D1 discussion post created by admin user.
+
+TFD Test Flagging Discussions
+=============================
+
+TFD01 / U.ET [change]
+  Go to forum CRE01.
+  Enter discussion D1.
+  Select the 'Flag Discussion' button.
+  - Verify that 'Flag Discussion' button has changed to 'Remove flag'.
+
+TFD02 / U.ET
+  Return to the forum CRE01 main page.
+  - Below the discussion list, a list of flagged discussions should appear.
+  - The discussion you flagged should be listed (discussion name, started by (admin),
+    and date of last post and name of poster (U.S). It should have a flag icon next to it.
+  Select the discussion name D1 in the list of Flagged discussions.
+  - You should be taken to the correct discussion.
+
+TFD03 / U.ET
+  Select the 'Remove flag' button.
+  - Check that 'Remove flag' button has changed to 'Flag discussion'.
+
+TFD04 / U.ET
+  Return to the forum CRE01 main page.
+  - Verify that the the list of flagged discussions has gone.
+  Select discussion D1.
+
+TFD05 / U.ET
+  Select the 'Delete discussion' button and confirm.
+  Return to forum CRE01 main page.
+  - Verify discussion D1 has been deleted (discussion name D1 is struck through and greyed out).
+  Go to discussion D1.
+  - Verify the 'Flag discussion' button is not showing.
+  Select the 'Undelete' button and confirm.
+  - Verify that 'Flag discussion' button is showing.
+
+TFD06 / U.ET
+  Select the 'Flag Discussion' button.
+  Select the 'Delete discussion' button and confirm.
+  Return to forum CRE01 main page.
+  - Verify discussion D1 has been deleted (discussion name D1 is struck through and greyed out).
+  - Below the discussion list, a list of flagged discussions should appear.
+  - The discussion you flagged D1 should be listed (discussion name D1 greyed out and struck through,
+    started by (admin), and date of last post and name of poster (U.S). It should have a flag icon next to it.
+  Go to discussion D1.
+  - Verify that 'Remove flag' button is showing.
+  Select the 'Remove flag' button.
+  Return to forum CRE01 main page.
+  - Verify that there is no list of flagged discussions.
+
+TFD07 / U.ET
+  Enter discussion D2.
+  Select the 'Flag Discussion' button.
+  Return to forum CRE01 main page.
+  - Below the discussion list, a list of flagged discussions should appear.
+  - The discussion you flagged D2 should be listed. It should have a flag icon next to it.
+  Select the flag icon against discussion D2.
+  - Verify the flagged discussion list is removed.
+  Enter discussion D2.
+  Select the 'Flag Discussion' button.
+
+TFD08 / U.S [change]
+  Go to forum CRE01.
+  - Verify that there is no list of flagged discussions.
+
+TFU Test flag discussions usage
+===============================
+
+TFU01 / U.ET [change]
+  Go to forum CRE01.
+  Select the 'Show usage' button.
+  - Verify the 'Most flagged discussions' section is shown.
+  - Verify discussion D2, with count of 1 is listed under 'Most flagged discussions' (as flagged in step TFD08).

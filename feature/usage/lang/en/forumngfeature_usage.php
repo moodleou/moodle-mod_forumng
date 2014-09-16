@@ -59,4 +59,7 @@ $string['mostreaders_help'] = 'Discussions by number of users that have marked t
 $string['mostflagged'] = 'Most flagged posts';
 $string['mostflagged_none'] = 'No posts flagged.';
 $string['mostflagged_help'] = 'Posts by number of users that have them currently \'flagged\'.';
+$string['mostflaggeddiscussions'] = 'Most flagged discussions';
+$string['mostflaggeddiscussions_none'] = 'No discussions flagged.';
+$string['mostflaggeddiscussions_help'] = 'Discussions by number of users that have them currently \'flagged\'.';
 $string['noscript'] = 'Show all information not currently loaded.';

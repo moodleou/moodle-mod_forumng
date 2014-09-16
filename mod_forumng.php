@@ -1728,7 +1728,7 @@ WHERE $conditions AND m.name = 'forumng' AND $restrictionsql",
      * @return bool True if user can be subscribed
      */
     private function can_be_subscribed($userid=0) {
-        global $USER;
+        global $USER, $CFG;
         $userid = mod_forumng_utils::get_real_userid($userid);
         $cm = $this->get_course_module();
         $course = $this->get_course();
@@ -1766,6 +1766,7 @@ WHERE $conditions AND m.name = 'forumng' AND $restrictionsql",
                     break;
                 }
             } else {
+                require_once($CFG->libdir . '/conditionlib.php');
                 $visible = $cm->visible;
                 // Note: It is pretty terrible that this code is placed here.
                 // Shouldn't there be a function in cm_info to do this? :(
@@ -1899,12 +1900,19 @@ WHERE
             }
         }
 
-        // Check user has role in subscribe roles
-        if (!isset($USER->forumng_enrolcourses)) {
-            // Note: This always makes a query the first time in the session :(
-            $USER->forumng_enrolcourses = enrol_get_my_courses('id');
+        // Check user has role in subscribe roles.
+        if (!isset($USER->forumng_enrolcourses[$userid])) {
+            if (!isset($USER->forumng_enrolcourses)) {
+                $USER->forumng_enrolcourses = array();
+            }
+            if (isset($USER) && $userid == $USER->id) {
+                // Note: This always makes a query the first time in the session :(
+                $USER->forumng_enrolcourses[$userid] = enrol_get_my_courses('id');
+            } else {
+                $USER->forumng_enrolcourses[$userid] = enrol_get_users_courses($userid, true, 'id');
+            }
         }
-        return array_key_exists($this->get_course_id(), $USER->forumng_enrolcourses);
+        return array_key_exists($this->get_course_id(), $USER->forumng_enrolcourses[$userid]);
     }
 
     /**
@@ -2533,7 +2541,7 @@ WHERE
         return (($this->forumfields->postingfrom > $now) ||
             ($this->forumfields->postinguntil &&
                 $this->forumfields->postinguntil <= $now)) &&
-            !has_capability('mod/forumng:ignorepostlimits', $this->get_context());
+            !has_capability('mod/forumng:ignorepostlimits', $this->get_context(), $userid);
     }
 
     /**
@@ -2545,7 +2553,7 @@ WHERE
     public function has_post_quota($userid = 0) {
         $userid = mod_forumng_utils::get_real_userid($userid);
         return ($this->forumfields->maxpostsblock &&
-            !has_capability('mod/forumng:ignorepostlimits', $this->get_context()))
+            !has_capability('mod/forumng:ignorepostlimits', $this->get_context(), $userid))
             ? true : false;
     }
 
@@ -4094,6 +4102,33 @@ WHERE
     }
 
     /**
+     * Obtain all flagged discussions in the forum by the given or current user,
+     * The results should be ordered by the last post modified date (fplast.modified DESC)
+     * @param int $userid User whose flags will be retrieved; 0 = current
+     * @return array Array of mod_forumng_discussion objects
+     */
+    public function get_flagged_discussions($userid = 0) {
+        global $USER;
+
+        if ($userid != -1) {
+            if ($userid == 0) {
+                $userid = $USER->id;
+            }
+            $records = mod_forumng_discussion::query_discussions(
+                'fd.forumngid = ? AND ff.flagged IS NOT NULL AND ff.discussionid = fd.id AND ff.userid = ?',
+                 array($this->get_id(), $userid), $userid, 'x.flagged DESC', '', '', $this, true);
+        }
+
+        $result = array();
+        foreach ($records as $record) {
+            // Get discussion details from record and create discussionfields.
+            $discussion = new mod_forumng_discussion($this, $record, true, $userid);
+            $result[$record->id] = $discussion;
+        }
+        return $result;
+    }
+
+    /**
      * @param bool $mustusecounter True if this function should return false
      *   unless one or more of the three types of post counters are in use
      * @return bool True if automatic completion is enabled for this forum
@@ -4720,12 +4755,21 @@ WHERE
      *   the same second
      * @return array Array of mod_forumng_post objects
      */
-    public function get_all_posts_by_user($userid, $groupid, $order = 'fp.id') {
+    public function get_all_posts_by_user($userid, $groupid, $order = 'fp.id', $start = null, $end = null) {
         $where = 'fd.forumngid = ? AND fp.userid = ? AND fp.oldversion = 0 AND fp.deleted = 0';
         $whereparams = array($this->get_id(), $userid);
         if ($groupid != self::NO_GROUPS && $groupid != self::ALL_GROUPS) {
             $where .= ' AND (fd.groupid = ? OR fd.groupid IS NULL)';
             $whereparams[] = $groupid;
+        }
+        if (!empty($start)) {
+            $where .= 'AND fp.created >= ?';
+            $whereparams[] = $start;
+        }
+
+        if (!empty($end)) {
+            $where .=  'AND fp.created <= ?';
+            $whereparams[] = $end;
         }
         $result = array();
         $posts = mod_forumng_post::query_posts($where, $whereparams, $order, false, false, true,
@@ -4745,7 +4789,7 @@ WHERE
      * @return array An associative array of $userid => (info object)
      *   where info object has ->discussions and ->replies values
      */
-    public function get_all_user_post_counts($groupid, $ignoreanon = false) {
+    public function get_all_user_post_counts($groupid, $ignoreanon = false, $start = null, $end = null) {
         global $DB;
 
         if ($groupid != self::NO_GROUPS && $groupid != self::ALL_GROUPS) {
@@ -4761,6 +4805,19 @@ WHERE
         if ($ignoreanon) {
             $anonwhere = 'AND fp.asmoderator != ?';
             $anonparams[] = self::ASMODERATOR_ANON;
+        }
+
+        $timewhere = '';
+        $timeparams = array();
+
+        if (!empty($start)) {
+            $timewhere = 'AND fp.created >= ?';
+            $timeparams[] = $start;
+        }
+
+        if (!empty($end)) {
+            $timewhere .= 'AND fp.created <= ?';
+            $timeparams[] = $end;
         }
 
         $results = array();
@@ -4780,11 +4837,12 @@ WHERE
         fd.forumngid = ?
         $groupwhere
         $anonwhere
+        $timewhere
         AND fd.deleted = 0
         AND fp.deleted = 0
         AND fp.oldversion = 0
     GROUP BY
-        fp.userid", array_merge(array($this->get_id()), $groupparams, $anonparams));
+        fp.userid", array_merge(array($this->get_id()), $groupparams, $anonparams, $timeparams));
 
             // Store in results
             foreach ($rs as $rec) {

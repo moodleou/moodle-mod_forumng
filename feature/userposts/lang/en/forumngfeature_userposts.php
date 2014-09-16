@@ -37,3 +37,13 @@ $string['nopostsby'] = 'No posts by {$a}';
 $string['savegrades'] = 'Save grades';
 $string['usergrade'] = 'User grade';
 $string['gradesupdated'] = 'Grades updated';
+
+$string['start'] = 'From';
+$string['end'] = 'To';
+$string['displayperiod'] = 'Contribution selector From date - To date.';
+$string['displayperiod_help'] = '<p>The default selects all entries.</p>
+<p>You can select \'From\' a date until todays entries.</p>
+<p>You can select all entries between a \'From\' date and a \'To\' date.</p>
+<p>Or you can select from the first entry \'To\' a date</p>';
+$string['timestartenderror'] = 'Selection end date cannot be earlier than the start date';
+$string['timefilter_submit'] = 'Update';

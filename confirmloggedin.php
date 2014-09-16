@@ -15,10 +15,26 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version.
+ * This script is called through AJAX. It confirms that a user is still
+ * logged in and has a valid session before saving a post
  *
- * @package forumngfeature_userposts
- * @copyright 2013 The Open University
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    mod
+ * @subpackage forumng
+ * @copyright  2014 The Open University
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-$plugin->version  = 2014072500;
+define('AJAX_SCRIPT', true);
+require_once(dirname(__FILE__) . '/../../config.php');
+
+header('Content-Type: text/plain');
+
+try {
+    // Test session - These functions throw exceptions so trap and exit if they fail.
+    // This saves 404 errors and sends a smaller page.
+    require_login(null, true);
+    require_sesskey();
+} catch (moodle_exception $e) {
+    exit;
+}
+
+echo 'ok';

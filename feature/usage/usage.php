@@ -139,15 +139,15 @@ if (has_capability('forumngfeature/usage:viewusage', $forum->get_context())) {
     }
     // Get all valid posts - note includes anonymous posts.
     $allposts = $DB->get_recordset_sql("
-        SELECT fp.created from {forumng_posts} fp
-        inner join {forumng_discussions} fd on fd.id = fp.discussionid
-        where fd.forumngid = ?
-        and fp.deleted = 0
-        and fd.deleted = 0
-        and fp.oldversion = 0
-        and (fp.created >= ? and fp.created <= ?)
+        SELECT fp.created FROM {forumng_posts} fp
+    INNER JOIN {forumng_discussions} fd ON fd.id = fp.discussionid
+         WHERE fd.forumngid = ?
+           AND fp.deleted = 0
+           AND fd.deleted = 0
+           AND fp.oldversion = 0
+           AND (fp.created >= ? AND fp.created <= ?)
         $groupwhere
-        order by fp.created asc", array_merge(array($forum->get_id(), $starttime, $endtime), $groupparams));
+      ORDER BY fp.created asc", array_merge(array($forum->get_id(), $starttime, $endtime), $groupparams));
     $days = array();
     if ($starttime == 0) {
         $starttime = $COURSE->startdate;// Earliest start time.
@@ -297,17 +297,17 @@ if (has_capability('mod/forumng:viewreadinfo', $forum->get_context())) {
 if (has_capability('forumngfeature/usage:viewflagged', $forum->get_context())) {
     // View posts that have been flagged.
     $flagged = $DB->get_recordset_sql("
-            SELECT count(ff.id), fp.id
-            from {forumng_flags} ff
-            inner join {forumng_posts} fp on fp.id = ff.postid
-            inner join {forumng_discussions} fd on fd.id = fp.discussionid
-            where fd.forumngid = ?
-            and fd.deleted = 0
-            and fp.deleted = 0
-            and fp.oldversion = 0
+            SELECT COUNT(ff.id) AS count, fp.id
+              FROM {forumng_flags} ff
+        INNER JOIN {forumng_posts} fp ON fp.id = ff.postid
+        INNER JOIN {forumng_discussions} fd ON fd.id = fp.discussionid
+             WHERE fd.forumngid = ?
+               AND fd.deleted = 0
+               AND fp.deleted = 0
+               AND fp.oldversion = 0
             $groupwhere
-            group by fp.id
-            order by count desc, fp.id desc", array_merge(array($forum->get_id()), $groupparams), 0, 5);
+          GROUP BY fp.id
+          ORDER BY count desc, fp.id desc", array_merge(array($forum->get_id()), $groupparams), 0, 5);
     $flaggedlist = array();
     foreach ($flagged as $apost) {
         $post = mod_forumng_post::get_from_id($apost->id, $cloneid, true, true);
@@ -316,6 +316,25 @@ if (has_capability('forumngfeature/usage:viewflagged', $forum->get_context())) {
     }
     $usageoutput .= html_writer::start_div('forumng_usage_flagged');
     $usageoutput .= $renderer->render_usage_list($flaggedlist, 'mostflagged');
+    $usageoutput .= html_writer::end_div();
+    // View discussions that have been flagged.
+    $flagged = $DB->get_recordset_sql("
+            SELECT COUNT(ff.id) AS count, fd.id
+            FROM {forumng_flags} ff
+            INNER JOIN {forumng_discussions} fd ON fd.id = ff.discussionid
+            WHERE fd.forumngid = ?
+            AND fd.deleted = 0
+            $groupwhere
+            GROUP BY fd.id
+            ORDER BY count desc, fd.id desc", array_merge(array($forum->get_id()), $groupparams), 0, 5);
+    $flaggedlist = array();
+    foreach ($flagged as $adiscuss) {
+        $discuss = mod_forumng_discussion::get_from_id($adiscuss->id, $cloneid, 0, true);
+        list($content, $user) = $renderer->render_usage_discussion_info($forum, $discuss);
+        $flaggedlist[] = $renderer->render_usage_list_item($forum, $adiscuss->count, $user, $content);
+    }
+    $usageoutput .= html_writer::start_div('forumng_usage_flagged');
+    $usageoutput .= $renderer->render_usage_list($flaggedlist, 'mostflaggeddiscussions');
     $usageoutput .= html_writer::end_div();
 }
 

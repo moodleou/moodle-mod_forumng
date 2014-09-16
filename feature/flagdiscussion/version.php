@@ -16,9 +16,9 @@
 
 /**
  * Version.
- *
- * @package forumngfeature_userposts
- * @copyright 2013 The Open University
+ * @package forumngfeature_flagdiscussion
+ * @copyright 2014 The Open University
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-$plugin->version  = 2014072500;
+
+$plugin->version  = 2014072800;

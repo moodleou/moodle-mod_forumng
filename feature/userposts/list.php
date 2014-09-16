@@ -77,12 +77,48 @@ $grade = '';
 if ($viewgrade) {
     $grade = get_string('grade', 'forumng');
 }
+
+$timeparts = getdate($course->startdate);
+// Create time filter options form.
+$customdata = array(
+        'options' => array(),
+        'cmid' => $cmid,
+        'group' => $groupid,
+        'download' => $download,
+        'startyear' => $timeparts['year'],
+        'params' => array()
+);
+$timefilter = new forumng_participation_table_form(null, $customdata);
+
+$start = $end = 0;
+// If data has been received from this form.
+if ($submitted = $timefilter->get_data()) {
+    if ($submitted->start) {
+        $start = strtotime('00:00:00', $submitted->start);
+    }
+    if ($submitted->end) {
+        $end = strtotime('23:59:59', $submitted->end);
+    }
+} else if (!$timefilter->is_submitted()) {
+    // Recieved via post back.
+    if ($start = optional_param('start', null, PARAM_INT)) {
+        $start = strtotime('00:00:00', $start);
+    }
+    if ($end = optional_param('end', null, PARAM_INT)) {
+        $end = strtotime('23:59:59', $end);
+    }
+}
+
+// Add collected start and end UNIX formated dates to moodle url.
+$thisurl->param('start', $start);
+$thisurl->param('end', $end);
+
 $ptable = new forumng_participation_table('mod-forumng-participation');
 $ptable->set_attribute('class', 'flexible generaltable');
 $ptable->set_attribute('width', '100%');
 $ptable->define_columns(array('c1', 'c2', 'c3', 'c4', 'c5'));
 $ptable->define_headers(array($userstr, $discussions, $replies, $action, $grade));
-$ptable->define_baseurl($PAGE->url);
+$ptable->define_baseurl($thisurl);
 $filename = "$course->shortname-".format_string($forum->get_name(), true);
 if ($groupid != -1 && !empty($download)) {
     $groupname = $DB->get_field('groups', 'name', array('id' => $groupid));
@@ -90,19 +126,26 @@ if ($groupid != -1 && !empty($download)) {
 }
 $ptable->is_downloading($download, $filename, get_string('userposts', 'forumngfeature_userposts'));
 
-$users = get_enrolled_users($context, '', $groupid > 0 ? $groupid : 0, user_picture::fields('u', array('username')));
-
 if (!$ptable->is_downloading()) {
-    if ($perpage > count($users)) {
-        $perpage = count($users);
-    }
-    $ptable->pagesize($perpage, count($users));
     $offset = $page * $perpage;
-    $endposition = $offset + $perpage;
 } else {
     // Always export all users.
-    $endposition = count($users);
     $offset = 0;
+    $perpage = 0;
+}
+
+$users = get_enrolled_users($context, '', $groupid > 0 ? $groupid : 0, user_picture::fields('u', array('username')),
+        null, $offset, $perpage);
+
+if (!$ptable->is_downloading()) {
+    // We may have more users as limited to $perpage, so work out how many.
+    list($esql, $params) = get_enrolled_sql($context, '', $groupid > 0 ? $groupid : 0);
+    $sql = "SELECT count(1) as count
+              FROM {user} u
+              JOIN ($esql) je ON je.id = u.id
+             WHERE u.deleted = 0";
+    $total = $DB->count_records_sql($sql, $params);
+    $ptable->pagesize($perpage, $total);
 }
 
 if (empty($download)) {
@@ -127,7 +170,8 @@ if (empty($download)) {
         return;
     }
 }
-$counts = $forum->get_all_user_post_counts($groupid);
+
+$counts = $forum->get_all_user_post_counts($groupid, false, $start, $end);
 
 // Is grading enabled and available for the current user?
 $grades = array();
@@ -154,7 +198,7 @@ foreach ($users as $id => $u) {
     if (isset($counts[$id])) {
         $count = $counts[$id];
     } else {
-        $count = (object)array('discussions'=>0, 'replies'=>0);
+        $count = (object) array('discussions' => 0, 'replies' => 0);
     }
     $span = '';
     $postspan = '';
@@ -166,6 +210,12 @@ foreach ($users as $id => $u) {
                 "/mod/forumng/feature/userposts/user.php?" .
                 $forum->get_link_params(mod_forumng::PARAM_HTML) .
                 '&amp;user=' . $id;
+        if ($start) {
+            $url .= '&amp;start=' . $start;
+        }
+        if ($end) {
+            $url .= '&amp;end=' . $end;
+        }
         if ($groupid != mod_forumng::NO_GROUPS) {
             $url .= '&amp;group=' . (int)$groupid;
         }
@@ -226,6 +276,12 @@ foreach ($users as $id => $u) {
 if (empty($download)) {
     // Display heading.
     print $out->heading(get_string('userposts', 'forumngfeature_userposts'));
+
+    if ($start || $end) {
+        $timefilter->set_data(array('start' => $start, 'end' => $end));
+    }
+    // Display time filter options form.
+    $timefilter->display();
     echo $ptable->download_buttons();
     // Print out participation form.
     if ($cangrade) {
@@ -234,8 +290,8 @@ if (empty($download)) {
 }
 $ptable->downloadable = false;
 $ptable->setup();
-for ($datacount = count($data); $offset < $endposition && $offset < $datacount; $offset++) {
-    $ptable->add_data($data[$offset]);
+foreach ($data as $record) {
+    $ptable->add_data($record);
 }
 $ptable->finish_output();
 

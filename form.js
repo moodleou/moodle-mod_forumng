@@ -1,6 +1,6 @@
 M.mod_forumng_form = {
     Y : null,
-
+    finterval: null,
     /**
      * Main init function called from HTML.
      *
@@ -51,7 +51,7 @@ M.mod_forumng_form = {
         }
 
         // Periodic processing to enable/disable the submit button.
-        setInterval(function()
+        t.finterval = setInterval(function()
         {
             // Collect data for disabling buttons.
             var submit = t.Y.one('#id_submitbutton');

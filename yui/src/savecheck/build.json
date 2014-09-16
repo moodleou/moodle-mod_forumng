@@ -1,0 +1,10 @@
+{
+    "name": "moodle-mod_forumng-savecheck",
+    "builds": {
+        "moodle-mod_forumng-savecheck": {
+            "jsfiles": [
+                "savecheck.js"
+            ]
+        }
+    }
+}

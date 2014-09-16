@@ -1,0 +1,10 @@
+{
+    "moodle-mod_forumng-savecheck": {
+        "requires": [
+            "base",
+            "node",
+            "io",
+            "moodle-core-notification-alert"
+        ]
+    }
+}

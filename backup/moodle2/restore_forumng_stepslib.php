@@ -53,6 +53,8 @@ class restore_forumng_activity_structure_step extends restore_activity_structure
                     '/activity/forumng/discussions/discussion/readdiscussions/read');
             $paths[] = new restore_path_element('forumng_draft',
                     '/activity/forumng/drafts/draft');
+            $paths[] = new restore_path_element('forumng_flagd',
+                    '/activity/forumng/discussions/discussion/flagsd/flagd');
         }
 
         // Return the paths wrapped into standard activity structure.
@@ -169,6 +171,17 @@ class restore_forumng_activity_structure_step extends restore_activity_structure
         $DB->insert_record('forumng_ratings', $data);
     }
 
+    protected function process_forumng_flagd($data) {
+        global $DB;
+
+        $data = (object)$data;
+        $data->discussionid  = $this->get_new_parentid('forumng_discussion');
+        $data->userid = $this->get_mappingid_or_null('user', $data->userid);
+        $data->postid = 0;
+
+        $DB->insert_record('forumng_flags', $data);
+    }
+
     protected function process_forumng_flag($data) {
         global $DB;
 
@@ -176,6 +189,7 @@ class restore_forumng_activity_structure_step extends restore_activity_structure
 
         $data->postid = $this->get_new_parentid('forumng_post');
         $data->userid = $this->get_mappingid_or_null('user', $data->userid);
+        $data->discussionid = 0;
 
         $DB->insert_record('forumng_flags', $data);
     }

@@ -15,10 +15,12 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version.
- *
- * @package forumngfeature_userposts
- * @copyright 2013 The Open University
+ * Lang strings.
+ * @package forumngfeature_flagdiscussion
+ * @copyright 2014 The Open University
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-$plugin->version  = 2014072500;
+$string['flagdiscussion'] = 'Flag discussion';
+$string['removeflag'] = 'Remove flag';
+$string['pluginname'] = 'Flag discussion';
+$string['flaggingnotallowed'] = 'You not allowed to flag discussions';

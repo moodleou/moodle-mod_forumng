@@ -28,7 +28,7 @@ class forumngtype_general extends forumngtype {
      * @param int $groupid Group ID
      */
     public function print_view_page($forum, $groupid) {
-        global $SESSION, $PAGE;
+        global $SESSION, $PAGE, $USER;
         $out = mod_forumng_utils::get_renderer();
         $forumngid = $forum->get_id();
         $baseurl = 'view.php?' . $forum->get_link_params(mod_forumng::PARAM_PLAIN);
@@ -111,8 +111,25 @@ class forumngtype_general extends forumngtype {
         print $out->render_intro($forum);
 
         // Flagged posts skip link.
-        $flagged = $forum->get_flagged_posts();
-        print $out->render_flagged_list_link($flagged);
+        $flaggedposts = $forum->get_flagged_posts();
+        $flagdiscussions = $forum->get_flagged_discussions();
+        $flaggeddiscussions = array();
+
+        // Need to loop through flagged discussions removing any that can not be viewed by user.
+        foreach ($flagdiscussions as $discussion) {
+            if ($discussion->can_view($USER->id)) {
+                // Add to flagged discussions.
+                array_push($flaggeddiscussions, $discussion);
+            }
+        }
+
+        if ((count($flaggedposts) + count($flaggeddiscussions)) > 0) {
+            $output = html_writer::start_tag('div', array('class' => 'forumng-flagged-link'));
+            $output .= $out->render_flagged_list_link($flaggeddiscussions, true);
+            $output .= $out->render_flagged_list_link($flaggedposts);
+            $output .= html_writer::end_tag('div');
+            echo $output;
+        }
 
         // Draft posts
         $drafts = $forum->get_drafts();
@@ -188,14 +205,23 @@ class forumngtype_general extends forumngtype {
 
         print $forum->display_forumngfeature_discussion_lists($groupid);
 
-        // Flagged posts
-        if (count($flagged) > 0) {
-            print $out->render_flagged_list_start($forum);
-            foreach ($flagged as $post) {
-                print $out->render_flagged_list_item($post,
-                    $post===end($flagged));
+        // Flagged discussions.
+        if (count($flaggeddiscussions) > 0) {
+            print $out->render_flagged_list_start(true);
+            foreach ($flaggeddiscussions as $discussion) {
+                print $out->render_flagged_discuss_list_item($discussion, $discussion === end($flaggeddiscussions));
             }
-            print $out->render_flagged_list_end($forum);
+            print $out->render_flagged_list_end();
+        }
+
+        // Flagged posts.
+        if (count($flaggedposts) > 0) {
+            print $out->render_flagged_list_start();
+            foreach ($flaggedposts as $post) {
+                print $out->render_flagged_list_item($post,
+                    $post === end($flaggedposts));
+            }
+            print $out->render_flagged_list_end();
         }
 
         // Subscribe and view subscribers links
