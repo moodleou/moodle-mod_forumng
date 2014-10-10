@@ -4783,12 +4783,12 @@ WHERE
             $whereparams[] = $groupid;
         }
         if (!empty($start)) {
-            $where .= 'AND fp.created >= ?';
+            $where .= ' AND fp.created >= ?';
             $whereparams[] = $start;
         }
 
         if (!empty($end)) {
-            $where .=  'AND fp.created <= ?';
+            $where .= ' AND fp.created <= ?';
             $whereparams[] = $end;
         }
         $result = array();
