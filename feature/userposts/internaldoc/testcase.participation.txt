@@ -93,6 +93,38 @@ UPD09 / U.ET
    'In reply to', 'Post date', 'Post subject' and 'Post message' (Except hyperlinks titles are removed).
    Close the file.
 
+UPD10 / U.ET
+  Click on the 'Replies' column link.
+  Verify that it shows posters with the fewest number of posts first.
+
+UPD11 / U.ET
+  Click on the 'Replies' column link again.
+  Verify that it shows posters with the most number of posts first.
+
+UPD12 / U.ET
+   Click the 'Download' button.
+   In IE this should result in a file save dialogue - save the file and then open in Excel (or another spreadsheet package).
+-  Verify that the same data as in the web view is shown in four columns,
+   'User', 'Discussion', 'Replies' and 'Action' (Except hyperlinks titles are removed).
+   Close the file.
+
+UPD13 / U.ET
+   Enable time filter dates.
+   Check both Enable checkboxes.
+   Set 'From' date to today's date assuming that U.S2 has carried out some action today,
+   otherwise set the 'From' date to date you know that U.S2 carried out some actions on.
+   Leave the 'To' date set to today's date.
+   Click the 'Update' button.
+-  Verify that the data on the web page reflects those dates.
+   This should reflect the user order of the 'Replies' column.
+
+UPD14 / U.ET
+   Click the 'Download' button.
+   In IE this should result in a file save dialogue - save the file and then open in Excel (or another spreadsheet package).
+-  Verify that the same data as in the web view is shown in four columns,
+   'User', 'Discussion', 'Replies' and 'Action' (Except hyperlinks titles are removed).
+   Close the file.
+
 SUPD Download as student
 ========================
 

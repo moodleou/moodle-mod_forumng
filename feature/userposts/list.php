@@ -113,12 +113,27 @@ if ($submitted = $timefilter->get_data()) {
 $thisurl->param('start', $start);
 $thisurl->param('end', $end);
 
+$sort = '';
 $ptable = new forumng_participation_table('mod-forumng-participation');
 $ptable->set_attribute('class', 'flexible generaltable');
 $ptable->set_attribute('width', '100%');
-$ptable->define_columns(array('c1', 'c2', 'c3', 'c4', 'c5'));
+$ptable->define_columns(array('c1', 'numdiscussions', 'numposts', 'c4', 'c5'));
 $ptable->define_headers(array($userstr, $discussions, $replies, $action, $grade));
 $ptable->define_baseurl($thisurl);
+$ptable->sortable(true);
+$ptable->maxsortkeys = 1;
+$ptable->no_sorting('c4');
+$ptable->no_sorting('c5');
+$ptable->setup();
+$sort = flexible_table::get_sort_for_table('mod-forumng-participation');
+
+if (empty($sort)) {
+    $sort = 'c1 ASC';
+}
+
+// Need to check whether sort refers to column 'c1' and if it does get correct sql sort statement.
+$orderbyuser = stristr($sort, 'c1');
+
 $filename = "$course->shortname-".format_string($forum->get_name(), true);
 if ($groupid != -1 && !empty($download)) {
     $groupname = $DB->get_field('groups', 'name', array('id' => $groupid));
@@ -134,8 +149,63 @@ if (!$ptable->is_downloading()) {
     $perpage = 0;
 }
 
-$users = get_enrolled_users($context, '', $groupid > 0 ? $groupid : 0, user_picture::fields('u', array('username')),
-        null, $offset, $perpage);
+// Get users posts parameters.
+$params["fd_forumngid1"] = $forum->get_id();
+list($userwhere1, $userparams1) = get_all_user_post_counts_sql($groupid, false, $start, $end, '1');
+$params = array_merge($params, $userparams1);
+
+$params["fd_forumngid2"] = $forum->get_id();
+list($userwhere2, $userparams2) = get_all_user_post_counts_sql($groupid, false, $start, $end, '2');
+$params = array_merge($params, $userparams2);
+
+list($esql, $esqlparams) = get_enrolled_sql($context, '', $groupid > 0 ? $groupid : 0, false);
+$params = array_merge($params, $esqlparams);
+
+$userfields = user_picture::fields('u', array('username'));
+
+$sql = "SELECT $userfields, COALESCE(ta.numposts, 0) AS numposts, COALESCE(td.numdiscussions, 0) AS numdiscussions
+          FROM {user} u
+     LEFT JOIN (
+          SELECT fp.userid, COUNT (fp.userid) AS numposts
+            FROM {forumng_posts} fp
+      INNER JOIN {forumng_discussions} fd ON
+                 fd.id = fp.discussionid
+                 AND fd.postid <> fp.id
+           WHERE
+                 $userwhere1
+        GROUP BY (fp.userid)) ta
+            ON u.id = ta.userid
+
+     LEFT JOIN (
+          SELECT fp.userid, COUNT (fp.userid) AS numdiscussions
+            FROM {forumng_posts} fp
+      INNER JOIN {forumng_discussions} fd ON
+                 fd.postid = fp.id
+           WHERE
+                 $userwhere2
+        GROUP BY (fp.userid)) td
+            ON u.id = td.userid
+         WHERE u.id IN ($esql)";
+
+if (!$orderbyuser) {
+    $sql = "$sql ORDER BY $sort";
+} else {
+    list($usort, $sortparams) = users_order_by_sql('u');
+    // Need to check on sort order.
+    $sortorder = stristr($sort, 'ASC');
+    if (!$sortorder) {
+        // Sort order defaults to ASC.
+        $sortorder = 'DESC';
+    }
+    // Split usort into it relevant parts and add in sortorder.
+    $usersort = str_replace(',', ' '.$sortorder.',', $usort);
+    $usersort .= ' ' . $sortorder;
+    $sql = "$sql ORDER BY $usersort";
+}
+
+// Need to do the sql.
+global $DB;
+$users = $DB->get_records_sql($sql, $params, $offset, $perpage);
 
 if (!$ptable->is_downloading()) {
     // We may have more users as limited to $perpage, so work out how many.
@@ -171,8 +241,6 @@ if (empty($download)) {
     }
 }
 
-$counts = $forum->get_all_user_post_counts($groupid, false, $start, $end);
-
 // Is grading enabled and available for the current user?
 $grades = array();
 if ($viewgrade) {
@@ -194,15 +262,18 @@ foreach ($users as $id => $u) {
 
     $username .= $CFG->forumng_showusername ? ' (' . $u->username . ')' : '';
     $showallpostsby = null;
-
-    if (isset($counts[$id])) {
-        $count = $counts[$id];
-    } else {
-        $count = (object) array('discussions' => 0, 'replies' => 0);
+    // Number of discussions.
+    if (!isset($u->numdiscussions)) {
+        $u->numdiscussions = 0;
     }
+    // Number of replies/posts.
+    if (!isset($u->numposts)) {
+        $u->numposts = 0;
+    }
+
     $span = '';
     $postspan = '';
-    if (($count->discussions || $count->replies) && empty($download)) {
+    if (($u->numdiscussions || $u->numposts) && empty($download)) {
         $showallpostsby = get_string('showallpostsby', 'forumngfeature_userposts', $username);
 
         // Build url and the params.
@@ -231,8 +302,8 @@ foreach ($users as $id => $u) {
     } else {
         $row[0] = $span . $username . $postspan;
     }
-    $row[1] = $span . $count->discussions . $postspan;
-    $row[2] = $span . $count->replies . $postspan;
+    $row[1] = $span . $u->numdiscussions . $postspan;
+    $row[2] = $span . $u->numposts . $postspan;
     $row[3] = $showallpostsby;
 
     // Grades for all users regardless of whether they have participated or not.
@@ -289,7 +360,7 @@ if (empty($download)) {
     }
 }
 $ptable->downloadable = false;
-$ptable->setup();
+
 foreach ($data as $record) {
     $ptable->add_data($record);
 }
@@ -353,4 +424,37 @@ function forumngfeature_userposts_grade_form_footer() {
     $output = html_writer::tag('div', $savegrades, array('class' => 'savegradesbutton'));
     $output .= html_writer::end_tag('form');
     return $output;
+}
+
+
+function get_all_user_post_counts_sql($groupid, $ignoreanon = false, $start = null, $end = null, $suffix = '') {
+    // Get users posts parameters.
+    $getusersparams = array();
+
+    $getuserswhere = 'fd.forumngid = :fd_forumngid'.$suffix.'
+    AND fd.deleted = 0
+    AND fp.deleted = 0
+    AND fp.oldversion = 0';
+
+    if ($groupid != mod_forumng::NO_GROUPS && $groupid != mod_forumng::ALL_GROUPS) {
+        $getuserswhere .= 'AND (fd.groupid = :fd_groupid'.$suffix.'OR fd.groupid IS NULL)';
+        $getusersparams['fd_groupid'.$suffix] = $groupid;
+    }
+
+    if ($ignoreanon) {
+        $getuserswhere .= 'AND fp.asmoderator != :fp_moderator'.$suffix;
+        $getusersparams['fp_moderator'.$suffix] = mod_forumng::ASMODERATOR_ANON;
+    }
+
+    if (!empty($start)) {
+        $getuserswhere .= 'AND fp.created >= :fp_start'.$suffix;
+        $getusersparams['fp_start'.$suffix] = $start;
+    }
+
+    if (!empty($end)) {
+        $getuserswhere .= 'AND fp.created <= :fp_end'.$suffix;
+        $getusersparams['fp_end'.$suffix] = $end;
+    }
+
+    return array($getuserswhere, $getusersparams);
 }
