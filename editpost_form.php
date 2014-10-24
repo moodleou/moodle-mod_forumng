@@ -40,7 +40,7 @@ class mod_forumng_editpost_form extends moodleform {
             ? $this->_customdata['timelimit'] : 0;
         $draft = isset($this->_customdata['draft'])
             ? $this->_customdata['draft'] : null;
-
+        $tags = $this->_customdata['tags'];
         // Keeps track of whether we add a group selector box.
         $groupselector = false;
 
@@ -178,20 +178,35 @@ class mod_forumng_editpost_form extends moodleform {
                 $mform->addElement('date_selector', 'timeend',
                     get_string('timeend', 'forumng'), array('optional'=>true));
             }
+        }
 
-            // Discussion options...
+        // Discussion options...
+        if ($isdiscussion && ($forum->can_manage_discussions() || $forum->can_tag_discussion())) {
             $mform->addElement('header', 'id_stickyoptions',
                 get_string('discussionoptions', 'forumng'));
 
             // Sticky discussion.
-            $options = array();
-            $options[0] = get_string('sticky_no', 'forumng');
-            $options[1] = get_string('sticky_yes', 'forumng');
-            $mform->addElement('select', 'sticky',
-                get_string('sticky', 'forumng'), $options);
-            $mform->addHelpButton('sticky', 'sticky', 'forumng');
+            if ($forum->can_manage_discussions()) {
+                $options = array();
+                $options[0] = get_string('sticky_no', 'forumng');
+                $options[1] = get_string('sticky_yes', 'forumng');
+                $mform->addElement('select', 'sticky',
+                        get_string('sticky', 'forumng'), $options);
+                $mform->addHelpButton('sticky', 'sticky', 'forumng');
+            }
 
-            // Group.
+            // Tag discussion.
+            if ($forum->can_tag_discussion()) {
+                $mform->addElement('tags', 'tags', get_string('discussiontags', 'forumng'),
+                        array('display' => 'noofficial'));
+                $mform->setType('tags', PARAM_TAGLIST);
+                $mform->setDefault('tags', $tags);
+                $mform->addHelpButton('tags', 'discussiontags', 'forumng');
+            }
+        }
+
+        // Group.
+        if ($isdiscussion && $forum->can_manage_discussions()) {
             if ($forum->get_group_mode()) {
                 // Group ID comes from the post (if provided) or the params.
                 if ($post) {
@@ -200,7 +215,7 @@ class mod_forumng_editpost_form extends moodleform {
                     $groupid = $params['group'];
                 }
 
-                // Display as static or dropdown
+                // Display as static or dropdown.
                 if (has_capability('moodle/site:accessallgroups',
                     $forum->get_context())) {
                     // Users with 'access all groups' can move discussions, so

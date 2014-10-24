@@ -75,7 +75,7 @@ abstract class forumng_test_lib extends advanced_testcase {
     }
 
     /**
-     * Create new oublog instance using generator, returns instance record + cm
+     * Create new forumng instance using generator, returns instance record + cm
      * @param int $courseid
      * @param array $options
      * @return mod_forumng

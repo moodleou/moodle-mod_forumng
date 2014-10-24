@@ -32,6 +32,7 @@ if (isset($_REQUEST['ajax'])) {
 }
 require_once('../../config.php');
 require_once('mod_forumng.php');
+require_once($CFG->dirroot . '/tag/lib.php');
 
 $pageparams = array();
 
@@ -140,6 +141,7 @@ try {
     $groupid = 0;
     $forum = null;
     $post = null;
+    $tags = null;
     if ($draftid = optional_param('draft', 0, PARAM_INT)) {
         $pageparams['draft'] = $draftid;
         $draft = mod_forumng_draft::get_from_id($draftid);
@@ -246,6 +248,7 @@ try {
         $params = array('d'=>$discussionid);
         $pagename = get_string('editdiscussionoptions', 'forumng',
             $post->get_effective_subject(false));
+        $tags = $discussion->get_tags();
     } else {
         // To edit existing posts, p (forum post id) is required
         $postid = required_param('p', PARAM_INT);
@@ -299,7 +302,7 @@ try {
             'iframe' => $iframe ? true : false,
             'timelimit' => $ispost && $edit && !$post->can_ignore_edit_time_limit()
                 ? $post->get_edit_time_limit() : 0,
-            'draft'=>$draft));
+            'draft'=>$draft, 'tags' => $tags));
 
     if (is_object($post)) {
         // Not a new discussion/post so we are editing a pre-existing post.
@@ -356,6 +359,9 @@ try {
             }
             if (!isset($fromform->sticky)) {
                 $fromform->sticky = false;
+            }
+            if (!isset($fromform->tags)) {
+                $fromform->tags = null;
             }
             // The form time is midnight, but because we want it to be
             // inclusive, set it to 23:59:59 on that day.
@@ -487,7 +493,7 @@ try {
                             $fromform->subject, $fromform->message['text'],
                             $fromform->message['format'], $hasattachments, !empty($fromform->mailnow),
                             $fromform->timestart, $fromform->timeend, false, $fromform->sticky,
-                            0, true, $fromform->asmoderator);
+                            0, true, $fromform->asmoderator, $fromform->tags);
 
                 // Save attachments
                 if (isset($fromform->attachments)) {
@@ -606,7 +612,7 @@ try {
                     : $discussion->get_group_id();
                 $discussion->edit_settings($groupid, $fromform->timestart,
                     $fromform->timeend, $discussion->is_locked(),
-                    !empty($fromform->sticky), !empty($fromform->asmoderator));
+                    !empty($fromform->sticky), $fromform->tags);
             }
 
             // Redirect to view discussion

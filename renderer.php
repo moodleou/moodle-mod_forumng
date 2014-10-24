@@ -300,6 +300,19 @@ class mod_forumng_renderer extends plugin_renderer_base {
 
         $result = "<tr id='discrow_{$discussion->get_id()}' class='forumng-discussion-short$classes'>";
 
+        // Get any tags.
+        $tags = $discussion->get_tags();
+        $taglinks = '';
+        $linkparams = $discussion->get_forum()->get_link_params(mod_forumng::PARAM_HTML);
+        if ($tags) {
+            $taglinks = "<div class='forumng_discuss_tags'>Tags: ";
+            // Unlist them.
+            foreach ($tags as $key => $value) {
+                $taglinks .= "<a href='view.php?$linkparams&tag=$key'>$value</a>,&nbsp;";
+            }
+            $taglinks .= "</div>";
+        }
+
         // Subject, with icons
         $result .= "<td class='forumng-subject cell c0'>";
         foreach ($icons as $index => $icon) {
@@ -313,7 +326,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
         }
         $result .= "<a href='discuss.php?" .
                 $discussion->get_link_params(mod_forumng::PARAM_HTML) . "'>" .
-                format_string($discussion->get_subject(true), true, $courseid) . "</a></td>";
+                format_string($discussion->get_subject(true), true, $courseid) . "</a>$taglinks</td>";
 
         // Author.
         $result .= $this->render_discussion_list_item_author($discussion, $courseid);
@@ -1809,4 +1822,36 @@ class mod_forumng_renderer extends plugin_renderer_base {
         return html_writer::tag('a', get_string('skipstickydiscussions', 'forumng'),
                 array('href' => '#discrow_' . $id, 'class' => 'skip'));
     }
+
+    /**
+     * Display tag filter as a link or dropdown
+     * @param array $taglist is array of tags
+     * @param mod_forumng $forum
+     * @param string $selectid of tag if selected
+     * @return string for printing out
+     */
+    public function render_tag_filter($taglist, $forum, $selectid = null) {
+        $baseurl = 'view.php?' . $forum->get_link_params(mod_forumng::PARAM_HTML);
+        if (isset($selectid)) {
+            $tagname = $taglist[$selectid]->displayname;
+            $taglink = get_string('removefiltering', 'forumng', $tagname);
+            $taglink .= '&nbsp;(';
+            $taglink .= html_writer::tag('a', get_string('remove', 'forumng'), array('href' => $baseurl));
+            $taglink .= ')';
+            $out = html_writer::tag('div', $taglink, array('class' => 'forumng_discuss_tagfilter'));
+        } else {
+            // Display dropdown.
+            foreach ($taglist as $tag) {
+                $options[$tag->id] = $tag->displayname . '  (' . $tag->count .')';
+            }
+            $tagurl = new moodle_url('/mod/forumng/view.php?', $forum->get_link_params_array(mod_forumng::PARAM_PLAIN));
+            $select = new single_select($tagurl, 'tag', $options, '');
+            $select->label = get_string('filterdiscussions', 'forumng');
+            $select->set_help_icon('forumngdiscusstagfilter', 'forumng');
+            $output = $this->render($select);
+            $out = '<div class="forumng_discuss_tagfilter">'.$output.'</div>';
+        }
+        return $out;
+    }
+
 }

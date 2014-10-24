@@ -24,7 +24,11 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-class mod_forumng_discussion_testcase  extends advanced_testcase {
+global $CFG;
+require_once($CFG->dirroot . '/mod/forumng/tests/forumng_test_lib.php');
+
+
+class mod_forumng_discussion_testcase  extends forumng_test_lib {
 
     /**
      * ForumNG generator reference
@@ -48,6 +52,7 @@ class mod_forumng_discussion_testcase  extends advanced_testcase {
         set_flagged()
         get_flagged_discussions()
         is_flagged()
+        get_tags()
     */
 
     public function test_showfrom () {
@@ -179,5 +184,137 @@ class mod_forumng_discussion_testcase  extends advanced_testcase {
         // Test can flag as guest user.
         $this->setGuestUser();
         $this->assertFalse($discussion->can_flag());
+    }
+
+    public function test_tag_discussion() {
+        global $DB, $USER, $SITE, $CFG;
+
+        require_once($CFG->dirroot . '/tag/lib.php');
+
+        $this->resetAfterTest(true);
+        $this->setAdminUser();
+
+        // Create the generator object and do standard checks.
+        $generator = self::getDataGenerator()->get_plugin_generator('mod_forumng');
+
+        // Create course.
+        $record = new stdClass();
+        $record->shortname = 'testcourse';
+        $course = self::getDataGenerator()->create_course($record);
+
+        // Create groups.
+        $group1 = $this->get_new_group($course->id);
+        $group2 = $this->get_new_group($course->id);
+
+        // Create forum.
+        $forumrecord = $generator->create_instance(array('course' => $course->id, 'tags' => true,
+                'groupmode' => VISIBLEGROUPS));
+        $forum = mod_forumng::get_from_id($forumrecord->id, mod_forumng::CLONE_DIRECT, true);
+
+        // Set use tag.
+        $CFG->usetags = true;
+
+        // Set forum to tag enabling.
+        $this->assertTrue($CFG->usetags);
+        $this->assertEquals(true, $forum->get_tags_enabled());
+
+        // Start a discussion in forum (group1).
+        $record = new stdClass();
+        $record->course = $course->id;
+        $record->forum = $forum->get_id();
+        $record->groupid = $group1->id;
+        $record->userid = $USER->id;
+        $record->timestart = time();
+        $ids1 = $generator->create_discussion($record);
+
+        // Start a second discussion in forum (group1).
+        $record = new stdClass();
+        $record->course = $course->id;
+        $record->forum = $forum->get_id();
+        $record->groupid = $group1->id;
+        $record->userid = $USER->id;
+        $record->timestart = time();
+        $ids2 = $generator->create_discussion($record);
+
+        // Start a third discussion in forum (group2).
+        $record = new stdClass();
+        $record->course = $course->id;
+        $record->forum = $forum->get_id();
+        $record->groupid = $group2->id;
+        $record->userid = $USER->id;
+        $record->timestart = time();
+        $ids3 = $generator->create_discussion($record);
+
+        // Set up tags in each discussion.
+        $discussionid = $ids1[0];
+        $discussion = mod_forumng_discussion::get_from_id($discussionid , 0);
+        $this->assertEmpty($discussion->get_tags());
+        // Edit discussion settings.
+        $discussion->edit_settings($discussion::NOCHANGE, $discussion::NOCHANGE, $discussion::NOCHANGE, $discussion::NOCHANGE,
+                $discussion::NOCHANGE, array('tag1', 'tag2', 'tag3'));
+        $tags1 = $discussion->get_tags();
+        $this->assertCount(3, $tags1);
+
+        $discussionid = $ids2[0];
+        $discussion = mod_forumng_discussion::get_from_id($discussionid , 0);
+        $this->assertEmpty($discussion->get_tags());
+        // Edit discussion settings.
+        $discussion->edit_settings($discussion::NOCHANGE, $discussion::NOCHANGE, $discussion::NOCHANGE, $discussion::NOCHANGE,
+                $discussion::NOCHANGE, array('tag1', 'tag2'));
+        $tags2 = $discussion->get_tags();
+        $this->assertCount(2, $tags2);
+
+        $discussionid = $ids3[0];
+        $discussion = mod_forumng_discussion::get_from_id($discussionid , 0);
+        $this->assertEmpty($discussion->get_tags());
+        // Edit discussion settings.
+        $discussion->edit_settings($discussion::NOCHANGE, $discussion::NOCHANGE, $discussion::NOCHANGE, $discussion::NOCHANGE,
+                $discussion::NOCHANGE, array('tag1'));
+        $tags3 = $discussion->get_tags();
+        $this->assertCount(1, $tags3);
+
+        // Get id of 'tag1'.
+        $tagid = array_search('tag1', $tags3);
+
+        // Get all tags and check on numbers for each tag.
+        $tagsused = $forum->get_tags_used();
+        $this->assertCount(3, $tagsused);
+
+        $tagsused1 = $forum->get_tags_used($group1->id);
+        $this->assertCount(3, $tagsused1);
+
+        $tagsused2 = $forum->get_tags_used($group2->id);
+        $this->assertCount(1, $tagsused2);
+        $this->assertArrayHasKey($tagid, $tagsused2);
+        $this->assertObjectHasAttribute('displayname', $tagsused2[$tagid]);
+        $this->assertObjectHasAttribute('count', $tagsused2[$tagid]);
+        $this->assertEquals('tag1', $tagsused2[$tagid]->displayname);
+        $this->assertEquals(1, $tagsused2[$tagid]->count);
+
+        // Get all discussions featuring 'tag1'.
+        $list = $forum->get_discussion_list(mod_forumng::ALL_GROUPS, $forum->can_view_hidden(),
+                1, mod_forumng::SORT_DATE, false, 0, true,  $tagid);
+        $taggedlist = $list->get_normal_discussions();
+        $this->assertCount(3, $taggedlist);
+
+        // Get all discussions featuring 'tag1'.for group1.
+        $list1 = $forum->get_discussion_list($group1->id, $forum->can_view_hidden(),
+                1, mod_forumng::SORT_DATE, false, 0, true,  $tagid);
+        $taggedlist1 = $list1->get_normal_discussions();
+        $this->assertCount(2, $taggedlist1);
+
+        // Get all discussions featuring 'tag1'.for group2.
+        $list2 = $forum->get_discussion_list($group2->id, $forum->can_view_hidden(),
+                1, mod_forumng::SORT_DATE, false, 0, true,  $tagid);
+        $taggedlist2 = $list2->get_normal_discussions();
+        $this->assertCount(1, $taggedlist2);
+
+        // Get all discussions featuring 'tag3'.for group2 - which should be none.
+        $tagid = array_search('tag3', $tags1);
+        $list = $forum->get_discussion_list($group2->id, $forum->can_view_hidden(),
+                1, mod_forumng::SORT_DATE, false, 0, true,  $tagid);
+        $taggedlist = $list->get_normal_discussions();
+        $this->assertCount(0, $taggedlist);
+
     }
 }

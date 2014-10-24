@@ -1,0 +1,76 @@
+This file contains a sequence of test cases for the ForumNG Tag feature.
+
+Initial setup
+=============
+
+- two test student users U.S1 and U.S2.
+
+CRE Creating ForumNG
+====================
+
+CRE01 / admin
+  In any course week, from the add activity dropdown, choose 'ForumNG'.
+  Enable discussion tagging (check box).
+
+CRE02 / U.S1
+  Create discussion D1.
+  Set tags to 'adam, john, fred'.
+  Add post 'discussion post 1' and some text.
+  Create discussion 1A do not set/add tags.
+  Add post 'discussion post 1A' and some text.
+
+CRE03 / U.S2 (change)
+  Create discussion 2
+  Set tags to 'adam, jim'
+  Add post 'discussion post 2' and some text
+  Create discussion 2A add tags 'adam, jim, john, ted'
+  Add post 'discussion post 2A' and some text
+
+TTD Test discussions
+====================
+
+TTD01 / U.S2
+  Return to forum view page.
+  Check that 'Discussion 1' is shown as 'unread' in bold and the tags 'adam, john, fred' are shown in a smaller normal font.
+  Check that there is a drop down entitled 'View discussions with tag'
+   and the drop down shows a list of tags in alphabetical order with the correct number (sum) of tags for each tag.
+   If you have created the disccussions/tags as outlined above then the following should be in the dropdown list
+   adam (3)
+   fred (1)
+   jim  (2)
+   john (2)
+   ted  (1)
+
+TTD02 /U.S2
+  Choose one of the above.
+  Check that the correct number (n) of discussions are shown and that each discussion is tagged
+  with the tag chosen from the dropdown.
+  Check that the dropdown has been replaced with the wording 'Viewing discussions with tag <tagname>'
+  followed by a link with the word 'Remove'
+  Click on the 'Remove' link
+  Check that the full list of (4) discussions are shown and the dropdown box is again shown
+
+TTD03 / admin (change)
+  Goto discussion 1 and click on the button 'Discussion options'
+  In the 'discussion tags' text area remove the entry 'fred'
+  Save changes
+  Return to the forum
+  Check that 'discussion 1' no longer has the 'fred' tag
+  Check that the dropdown list no longer lists 'fred (1)'
+
+TTD04 / admin
+  Goto discussion 2 and click on the button 'Discussion options'
+  In the 'discussion tags' text area remove the entry 'jim'
+  Save changes
+  Return to the forum
+  Check that 'discussion 2' no longer has the 'jim' tag
+  Check that the dropdown list lists 'jim (1)'
+  Choose 'jim (1)' from the dropdown.
+  Check that only 'discussion 2A' with the 'jim' tag is shown
+  Click on the 'Remove' link next to the 'Viewing discussions with tag <tagname>' label
+  Check that it returns you to the forum discussion list.
+  If you have followed the test as outlined above then the following should be in the dropdown list
+   adam (3)
+   jim  (1)
+   john (2)
+   ted  (1)

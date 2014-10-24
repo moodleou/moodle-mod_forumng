@@ -180,5 +180,20 @@ function xmldb_forumng_upgrade($oldversion=0) {
         upgrade_mod_savepoint(true, 2014072800, 'forumng');
     }
 
+    if ($oldversion < 2014102400) {
+
+        // Define field tags to be added to forumng.
+        $table = new xmldb_table('forumng');
+        $field = new xmldb_field('tags', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'canpostanon');
+
+        // Conditionally launch add field tags.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Forumng savepoint reached.
+        upgrade_mod_savepoint(true, 2014102400, 'forumng');
+    }
+
     return true;
 }

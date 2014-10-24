@@ -89,8 +89,10 @@ class forumngtype_general extends forumngtype {
 
         $sort = mod_forumng::get_sort_code($sortchar);
 
+        // Get tagid if used.
+        $tag = optional_param('tag', null, PARAM_ALPHANUM);
         $list = $forum->get_discussion_list($groupid, $forum->can_view_hidden(),
-                $page, $sort, $sortreverse);
+                $page, $sort, $sortreverse, 0, true,  $tag);
         $sticky = $list->get_sticky_discussions();
         $normal = $list->get_normal_discussions();
 
@@ -173,6 +175,9 @@ class forumngtype_general extends forumngtype {
 
         // Post button - temporarily disabled when in all-groups mode
         print ($groupid == null) ? '':$forum->display_post_button($groupid);
+        if ($taglist = $forum->get_tags_used($groupid)) {
+            print $out->render_tag_filter($taglist, $forum, $tag);
+        }
 
         // Provide link to skip sticky discussions.
         if (count($sticky) > 0 && count($normal) > 0) {

@@ -133,6 +133,13 @@ class mod_forumng_mod_form extends moodleform_mod {
             }
         }
 
+        // Add tagging to discussions.
+        if ($CFG->usetags) {
+            $mform->addElement('header', '', get_string('tagging', 'forumng'));
+            $mform->addElement('checkbox', 'tags', get_string('enabletagging', 'forumng'));
+            $mform->addHelpButton('tags', 'tagging', 'forumng');
+        }
+
         // Ratings header
         /*///////////////*/
 
@@ -464,6 +471,10 @@ class mod_forumng_mod_form extends moodleform_mod {
         // Set the canpostanon to 0 if empty so that they are consistency
         if (empty($data->canpostanon)) {
             $data->canpostanon = 0;
+        }
+        // Set the tags to 0 if empty so that they are consistency.
+        if (empty($data->tags)) {
+            $data->tags = 0;
         }
         // Set the removeto to null if the default option 'Delete permanently' was select
         if (empty($data->removeto)) {

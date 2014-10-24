@@ -1144,7 +1144,8 @@ WHERE
      * not the actual forum record, delete_instance handles that).
      */
     public function delete_all_data() {
-        global $DB;
+        global $DB, $CFG;
+        require_once($CFG->dirroot . '/tag/lib.php');
 
         // Delete per-post data
         $postquery = "
@@ -1177,6 +1178,9 @@ WHERE
                     array('forumngid' => $this->forumfields->id));
         }
         $DB->delete_records('forumng_discussions', array('forumngid' => $this->forumfields->id));
+
+        // Delete tag instances.
+        tag_delete_instances('mod_forumng', $this->context->id);
     }
 
     /**
@@ -1235,20 +1239,22 @@ WHERE
      * @param int $sort Sort order (SORT_xx constant)
      * @param bool $sortreverse Reverses the chosen sort
      * @param int $userid User ID, 0 = default, -1 if unread count not required
+     * @param bool $ignoreinvalidpage true = default
+     * @param int $tagid tag id of tag to get discussions that contain that tag.
      * @return mod_forumng_discussion_list
      */
     public function get_discussion_list(
         $groupid=self::ALL_GROUPS, $viewhidden=false,
-        $page=1, $sort=self::SORT_DATE, $sortreverse=false, $userid=0, $ignoreinvalidpage=true) {
+        $page=1, $sort=self::SORT_DATE, $sortreverse=false, $userid=0, $ignoreinvalidpage=true, $tagid = null) {
         global $CFG, $DB, $USER;
         $userid = mod_forumng_utils::get_real_userid($userid);
 
         // Build list of SQL conditions
         /*/////////////////////////////*/
 
-        // Correct forum
+        // Correct forum.
         $conditionparams = array();
-        $conditions ="fd.forumngid = ?";
+        $conditions = "fd.forumngid = ?";
         $conditionparams[] = $this->forumfields->id;
 
         // Group restriction
@@ -1265,6 +1271,17 @@ WHERE
               " AND (fd.timeend = 0 OR fd.timeend > ?)";
             $conditionparams[] = $now;
             $conditionparams[] = $now;
+        }
+
+        // Tag join sql if needed.
+        $tagjoin = '';
+        $hastag = false;
+        if (!empty($tagid)) {
+            $hastag = true;
+            $tagjoin = "LEFT JOIN {tag_instance} ti ON ti.itemid = fd.id AND ti.itemtype = 'discussion'
+                    AND ti.component = 'mod_forumng'";
+            $conditions .= "AND ti.tagid = ?";
+            $conditionparams[] = $tagid;
         }
 
         // Count all discussions
@@ -1289,11 +1306,12 @@ FROM
     INNER JOIN {course} c ON c.id = f.course
     INNER JOIN {course_modules} cm ON cm.instance = f.id AND cm.course = f.course
     INNER JOIN {modules} m ON m.id = cm.module
+    $tagjoin
 WHERE $conditions AND m.name = 'forumng' AND $restrictionsql",
                 array_merge($conditionparams, $restrictionparams));
         } else {
             $count = $DB->count_records_sql(
-                    "SELECT COUNT(1) FROM {forumng_discussions} fd WHERE " . $conditions,
+                    "SELECT COUNT(1) FROM {forumng_discussions} fd $tagjoin WHERE " . $conditions,
                     $conditionparams);
         }
 
@@ -1386,7 +1404,7 @@ WHERE $conditions AND m.name = 'forumng' AND $restrictionsql",
 
         // Do query
         $rs = mod_forumng_discussion::query_discussions($conditions, $conditionparams, $userid,
-            $orderby, $limitfrom, $limitnum, $this);
+            $orderby, $limitfrom, $limitnum, $this, false, $hastag);
 
         $result = new mod_forumng_discussion_list($page, $pagecount, $count);
         foreach ($rs as $rec) {
@@ -1423,13 +1441,16 @@ WHERE $conditions AND m.name = 'forumng' AND $restrictionsql",
      * @param int $userid User ID or 0 for current user
      * @param bool $log True to log this
      * @param int $asmoderator values are ASMODERATOR_NO, ASMODERATOR_IDENTIFY or ASMODERATOR_ANON
+     * @param array $tags array of tags to add to a discussion
      * @return array Array with 2 elements ($discussionid, $postid)
      */
     public function create_discussion($groupid,
             $subject, $message, $format, $attachments=false, $mailnow=false,
             $timestart=0, $timeend=0, $locked=false, $sticky=false,
-            $userid=0, $log=true, $asmoderator = self::ASMODERATOR_NO) {
-        global $DB;
+            $userid=0, $log=true, $asmoderator = self::ASMODERATOR_NO, $tags = null) {
+        global $DB, $CFG;
+        require_once($CFG->dirroot . '/tag/lib.php');
+
         $userid = mod_forumng_utils::get_real_userid($userid);
 
         // Prepare discussion object
@@ -1467,6 +1488,11 @@ WHERE $conditions AND m.name = 'forumng' AND $restrictionsql",
         if (self::search_installed()) {
             mod_forumng_post::get_from_id($postid,
                     $this->get_course_module_id())->search_update();
+        }
+
+        // If tags add to tag_instance records.
+        if ($tags != null) {
+            tag_set('discussion', $discussionobj->id, $tags, 'mod_forumng', $this->context->id);
         }
 
         $transaction->allow_commit();
@@ -5116,6 +5142,119 @@ ORDER BY
             return oualerts_enabled();
         }
         return false;
+    }
+
+    /**
+     * Call to check that system and forumng have tags enabled.
+     *
+     * @return bool True if system use tags set and forum tags field is set.
+     */
+    public function get_tags_enabled() {
+        global $CFG;
+
+        if ($CFG->usetags) {
+            return $this->forumfields->tags;
+        } else {
+            return false;
+        }
+        return false;
+    }
+
+    /**
+     * Call to check that user has the capability to tag discussions
+     * and tagging has been set up for system and forumng.
+     *
+     * @return bool if user can tag discussions.
+     */
+    public function can_tag_discussion() {
+
+        if ($this->get_tags_enabled()) {
+            return has_capability('mod/forumng:addtag', $this->get_context());
+        } else {
+            return false;
+        }
+        return false;
+    }
+
+    /**
+     * Call to get tags used within a forum.
+     *
+     * @param int $groupid
+     * @return boolean|multitype:
+     */
+    public function get_tags_used($groupid = self::ALL_GROUPS) {
+        global $DB, $USER, $CFG;
+        require_once($CFG->dirroot . '/tag/lib.php');
+
+        if (!$this->get_tags_enabled()) {
+            return false;
+        } else {
+            // Build list of SQL conditions.
+            /*/////////////////////////////*/
+
+            // Correct forum.
+            $conditionparams = array();
+            $conditions = "fd.forumngid = ?";
+            $conditionparams[] = $this->forumfields->id;
+
+            // Correct tags.
+            $conditions .= "AND ti.component = 'mod_forumng'";
+            $conditions .= "AND ti.itemtype = 'discussion'";
+            $conditions .= "AND ti.contextid = ?";
+            $conditionparams[] = $this->get_context()->id;
+
+            // Group restriction.
+            if ($groupid) {
+                $conditions .= " AND (fd.groupid = ? OR fd.groupid IS NULL)";
+                $conditionparams[] = $groupid;
+            }
+
+            // View hidden posts.
+            if (!$this->can_view_hidden()) {
+                $now = time();
+                $conditions .= " AND fd.deleted = 0";
+                $conditions .= " AND (fd.timestart = 0 OR fd.timestart <= ?)" .
+                        " AND (fd.timeend = 0 OR fd.timeend > ?)";
+                $conditionparams[] = $now;
+                $conditionparams[] = $now;
+            }
+
+            // Forumng type read restrictions.
+            $typejoin = '';
+            if ($this->get_type()->has_unread_restriction()) {
+                list($restrictionsql, $restrictionparams) =
+                    $this->get_type()->get_unread_restriction_sql($this, $USER->id);
+            } else {
+                $restrictionsql = false;
+            }
+            if ($restrictionsql) {
+                $typejoin = "
+                    INNER JOIN {forumng_posts} fpfirst ON fpfirst.id = fd.postid
+                    INNER JOIN {forumng_posts} fplast ON fplast.id = fd.lastpostid
+                    INNER JOIN {forumng} f ON f.id = fd.forumngid
+                    INNER JOIN {course} c ON c.id = f.course
+                    INNER JOIN {course_modules} cm ON cm.instance = f.id AND cm.course = f.course
+                    INNER JOIN {modules} m ON m.id = cm.module";
+                        $conditions .= " AND m.name = 'forumng' AND $restrictionsql";
+                        $conditionparams = array_merge($conditionparams, $restrictionparams);
+            }
+
+            $rs = $DB->get_records_sql("
+                    SELECT t.*, count(t.id) AS count
+                      FROM {tag} t
+                INNER JOIN {tag_instance} ti ON t.id = ti.tagid
+                INNER JOIN {forumng_discussions} fd ON fd.id = ti.itemid
+                           $typejoin
+                     WHERE $conditions
+                  GROUP BY t.name, t.id
+                  ORDER BY t.name", $conditionparams);
+
+            foreach ($rs as $tag) {
+                $tag->displayname = tag_display_name($tag);
+            }
+
+            return $rs;
+        }
     }
 
 }

@@ -55,6 +55,7 @@ class restore_forumng_activity_structure_step extends restore_activity_structure
                     '/activity/forumng/drafts/draft');
             $paths[] = new restore_path_element('forumng_flagd',
                     '/activity/forumng/discussions/discussion/flagsd/flagd');
+            $paths[] = new restore_path_element('forumng_tag', '/activity/forumng/discussions/discussion/tags/tag');
         }
 
         // Return the paths wrapped into standard activity structure.
@@ -218,6 +219,24 @@ class restore_forumng_activity_structure_step extends restore_activity_structure
         $data->userid = $this->get_mappingid_or_null('user', $data->userid);
 
         $DB->insert_record('forumng_read', $data);
+    }
+
+    protected function process_forumng_tag($data) {
+        global $CFG, $DB;
+
+        $data = (object)$data;
+        $oldid = $data->id;
+
+        if (empty($CFG->usetags)) { // Tags disabled in server, nothing to process.
+            return;
+        }
+
+        $tag = $data->rawname;
+        $itemid = $this->get_new_parentid('forumng_discussion');
+        $forumid = $this->get_new_parentid('forumng');
+
+        $cm = get_coursemodule_from_instance('forumng', $forumid);
+        tag_set_add('discussion', $itemid, $tag, 'mod_forumng', context_module::instance($cm->id)->id);
     }
 
     protected function after_execute() {

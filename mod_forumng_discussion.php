@@ -729,10 +729,11 @@ class mod_forumng_discussion {
      * @param mod_forumng $typeforum If set, this forum is used to potentially restrict
      *   the results based on forum type limits
      * @param boolean $flags set to indicate that flagged discussions are to be returned
+     * @param boolean hastag set to indicate that tagged discussions are to be returned
      * @return adodb_recordset Database query results
      */
     public static function query_discussions($conditions, $conditionparams, $userid, $orderby,
-        $limitfrom='', $limitnum='', $typeforum=null, $flags = false) {
+        $limitfrom='', $limitnum='', $typeforum=null, $flags = false, $hastag = false) {
         global $USER, $DB;
 
         // For read tracking, we get a count of total number of posts in
@@ -799,6 +800,14 @@ class mod_forumng_discussion {
             $flagparams = array($userid);
         }
 
+        // Tag join sql if needed.
+        $tagjoin = '';
+        if ($hastag) {
+            $tagjoin = "LEFT JOIN {tag_instance} ti on ti.itemid = fd.id
+                            AND ti.itemtype = 'discussion'
+                            AND ti.component = 'mod_forumng'";
+        }
+
         // Main query. This retrieves:
         // * Basic discussion information.
         // * Information about the discussion that is obtained from the first and
@@ -833,6 +842,7 @@ FROM
     $readtrackingjoin
     $typejoin
     $flagsjoin
+    $tagjoin
 WHERE
     $conditions) x $order
 ",
@@ -986,9 +996,11 @@ WHERE
      *   it doesn't
      * @param bool $locked True if discussion should be locked
      * @param bool $sticky True if discussion should be sticky
+     * @param array $tags
      */
-    public function edit_settings($groupid, $timestart, $timeend, $locked, $sticky) {
-        global $DB;
+    public function edit_settings($groupid, $timestart, $timeend, $locked, $sticky, array $tags = null) {
+        global $DB, $CFG;
+        require_once($CFG->dirroot . '/tag/lib.php');
 
         // Apply defaults
         if ($groupid === self::NOCHANGE) {
@@ -1060,6 +1072,11 @@ WHERE
         }
         if ($sticky != $this->discussionfields->sticky) {
             $update->sticky = $sticky;
+        }
+        // Update tags if required.
+        if ($tags != null) {
+            $context = $this->get_forum()->get_context(true);
+            tag_set('discussion', $this->discussionfields->id, $tags, 'mod_forumng', $context->id);
         }
         if (count((array)$update)==0) {
             // No change
@@ -2473,5 +2490,28 @@ WHERE
             $completion->update_state($cm, $positive ? COMPLETION_COMPLETE : COMPLETION_INCOMPLETE,
                     $userid);
         }
+    }
+
+    // Tags.
+    /*//////*/
+
+    /**
+     * Get tags for this discussion.
+     * @return array of sorted tags or false if no tags are found.
+     */
+    public function get_tags() {
+        global $CFG;
+        require_once($CFG->dirroot . '/tag/lib.php');
+        $tags = null;
+        $forum = $this->get_forum();
+        if ($forum->get_tags_enabled()) {
+            $tags = tag_get_tags_array('discussion', $this->get_id());
+            // Sort tags keeping id.
+            asort($tags);
+            return $tags;
+        } else {
+            return false;
+        }
+
     }
 }

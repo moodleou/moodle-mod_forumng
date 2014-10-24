@@ -172,6 +172,7 @@ $string['forumng:copydiscussion'] = 'Copy discussion';
 $string['forumng:forwardposts'] = 'Forward posts';
 $string['forumng:postasmoderator'] = 'Indentify self as moderator in post';
 $string['forumng:postanon'] = 'Post as anonymous moderator';
+$string['forumng:addtag'] = 'Allow user to set tags for a discussion';
 $string['pluginadministration'] = 'ForumNG administration';
 $string['modulename'] = 'ForumNG';
 $string['pluginname'] = 'ForumNG';
@@ -899,3 +900,13 @@ $string['savefailtitle'] = 'Post save failed';
 $string['savefailnetwork'] = '<p>Unfortunately, your changes cannot be saved at this time. This is due to a
 network error; the website is temporarily unavailable or you have been signed out. </p><p>Saving has been disabled
 on this page. In order to retain any changes you must copy the post content, access this page again and then paste in your changes.</p>';
+$string['tagging'] = 'Tagging';
+$string['enabletagging'] = 'Enable discussion tagging';
+$string['tagging_help'] = 'Enable tagging in discussions for this forum';
+$string['discussiontags'] = 'Discussion tags';
+$string['discussiontags_help'] = 'To add tags to a discussion enter the tags separated by commas';
+$string['forumngdiscusstagfilter'] = 'View forum discussions by tag';
+$string['forumngdiscusstagfilter_help'] = 'Select a tag option to view/filter forum discussions by';
+$string['removefiltering'] = ' Viewing discussions with tag \'{$a}\'';
+$string['filterdiscussions'] = 'View discussions with tag';
+$string['remove'] = 'Remove';

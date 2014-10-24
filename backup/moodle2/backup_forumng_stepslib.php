@@ -45,7 +45,7 @@ class backup_forumng_activity_structure_step extends backup_activity_structure_s
             'reportingemail', 'subscription', 'feedtype', 'feeditems',
             'maxpostsperiod', 'maxpostsblock', 'postingfrom', 'postinguntil',
             'typedata', 'magicnumber', 'completiondiscussions', 'completionreplies',
-            'completionposts', 'removeafter', 'removeto', 'shared', 'originalcmid', 'gradingscale', 'canpostanon'));
+            'completionposts', 'removeafter', 'removeto', 'shared', 'originalcmid', 'gradingscale', 'canpostanon', 'tags'));
 
         $discussions = new backup_nested_element('discussions');
 
@@ -90,6 +90,10 @@ class backup_forumng_activity_structure_step extends backup_activity_structure_s
         $flagd = new backup_nested_element('flagd', array('id'), array(
             'userid', 'flagged'));
 
+        $tags = new backup_nested_element('tags');
+
+        $tag = new backup_nested_element('tag', array('id'), array('name', 'rawname'));
+
         // Build the tree
         $forumng->add_child($discussions);
         $discussions->add_child($discussion);
@@ -114,6 +118,9 @@ class backup_forumng_activity_structure_step extends backup_activity_structure_s
 
         $post->add_child($flags);
         $flags->add_child($flag);
+
+        $discussion->add_child($tags);
+        $tags->add_child($tag);
 
         // Define sources
         $forumng->set_source_table('forumng', array('id' => backup::VAR_ACTIVITYID));
@@ -140,6 +147,16 @@ class backup_forumng_activity_structure_step extends backup_activity_structure_s
             $flag->set_source_table('forumng_flags', array('postid' => backup::VAR_PARENTID));
 
             $flagd->set_source_table('forumng_flags', array('discussionid' => backup::VAR_PARENTID));
+
+            $tag->set_source_sql('SELECT t.id, t.name, t.rawname
+                                    FROM {tag} t
+                                    JOIN {tag_instance} ti ON ti.tagid = t.id
+                                   WHERE ti.itemtype = ?
+                                     AND ti.component = ?
+                                     AND ti.itemid = ?', array(
+                                                        backup_helper::is_sqlparam('discussion'),
+                                                        backup_helper::is_sqlparam('mod_forumng'),
+                                                        backup::VAR_PARENTID));
         }
 
         // Define id annotations
