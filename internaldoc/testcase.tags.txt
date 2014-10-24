@@ -74,3 +74,51 @@ TTD04 / admin
    jim  (1)
    john (2)
    ted  (1)
+
+TJD Testing Javascript Auto-Complete Tagging Dropdown
+=====================================================
+
+TJD01 / admin
+  Create discussion 3
+  Set tags to 'vulcan, borg, gorn'  // They must be new tags that have not been used in a discussion before
+  Add post 'discussion post 3' and some text
+  Save changes
+  Return to the forum
+
+TJD02 / admin
+  Create discussion 3A
+  Click in add tags text area
+  Check that a javascript dropdown/box appears containing the following
+   adam 3 discussions
+   borg 1 discussions
+   gorn 1 discussions
+   jim  1 discussions
+   john 2 discussions
+   ted  1 discussions
+   vulcan 1 discussions
+  Select the 'borg 1 discussions' from the javascript box
+  Check that it has added it to the text area and removed from the javascript box
+  Select the 'vulcan 1 discussion' from the javascript box
+  Check that it has added it to the text area and removed from the javascript box
+  Add 'tim' manually to the tags
+  Add post 'discussion post 3A' and some text
+  Save changes
+  Return to the forum
+  Check that discussion 3A has tags 'borg, tim, vulcan' listed
+
+TJD03 / admin
+  Goto discussion 3 and click on the button 'Discussion options'
+  In the 'discussion tags' text area remove the entry 'gorn'
+  Save changes
+  Return to the forum
+  Check that 'discussion 3' no longer has the 'gorn' tag
+
+TJD04 / admin
+  Goto discussion 3A and click on the button 'Discussion options'
+   Click in add tags text area
+   Check that a javascript dropdown/box appears does not contain an entry for the 'gorn'
+   It should show
+   adam 3 discussions
+   jim  1 discussions
+   john 2 discussions
+   ted  1 discussions

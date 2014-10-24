@@ -249,6 +249,10 @@ try {
         $pagename = get_string('editdiscussionoptions', 'forumng',
             $post->get_effective_subject(false));
         $tags = $discussion->get_tags();
+        // Add an empty element for editing tag purposes.
+        if (!empty($tags)) {
+            array_push($tags, '');
+        }
     } else {
         // To edit existing posts, p (forum post id) is required
         $postid = required_param('p', PARAM_INT);
@@ -760,7 +764,10 @@ try {
             $PAGE->requires->js_init_code('window.parent.iframe_has_loaded(window);', true);
         }
 
-        $PAGE->requires->strings_for_js(array('savefailtitle', 'savefailnetwork'), 'forumng');
+        $PAGE->requires->yui_module('moodle-mod_forumng-tagselector', 'M.mod_forumng.tagselector.init',
+                array('id_tags_othertags', $forum->get_tags_used($groupid)));
+
+        $PAGE->requires->strings_for_js(array('savefailtitle', 'savefailnetwork', 'numberofdiscussions'), 'forumng');
         $PAGE->requires->yui_module('moodle-mod_forumng-savecheck', 'M.mod_forumng.savecheck.init');
 
         // Display footer

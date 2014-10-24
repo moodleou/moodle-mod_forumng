@@ -1,0 +1,11 @@
+{
+    "moodle-mod_forumng-tagselector": {
+        "requires": [
+            "base",
+            "node",
+            "autocomplete",
+            "autocomplete-filters",
+            "autocomplete-highlighters"
+        ]
+    }
+}

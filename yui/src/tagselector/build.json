@@ -1,0 +1,10 @@
+{
+    "name": "moodle-mod_forumng-tagselector",
+    "builds": {
+        "moodle-mod_forumng-tagselector": {
+            "jsfiles": [
+                "tagselector.js"
+            ]
+        }
+    }
+}
