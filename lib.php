@@ -67,8 +67,10 @@ function forumng_add_instance($forumng) {
 }
 
 function forumng_update_instance($forumng) {
-    global $DB;
+    global $DB, $CFG;
     require_once(dirname(__FILE__).'/mod_forumng.php');
+    // Get the tag lib.php.
+    require_once($CFG->dirroot . '/tag/lib.php');
 
     $forumng->id = $forumng->instance;
     $previous = $DB->get_record('forumng', array('id' => $forumng->id), '*', MUST_EXIST);
@@ -76,6 +78,10 @@ function forumng_update_instance($forumng) {
 
     $forum = mod_forumng::get_from_id($forumng->id, mod_forumng::CLONE_DIRECT);
     $forum->updated($previous);
+    if (isset($forumng->settags)) {
+        $context = $forum->get_context(true);
+        tag_set('set', 0, $forumng->settags, 'mod_forumng', $context->id);
+    }
 
     return true;
 }

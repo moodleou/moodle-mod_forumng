@@ -122,3 +122,51 @@ TJD04 / admin
    jim  1 discussions
    john 2 discussions
    ted  1 discussions
+
+SFT Test Set Forum Tags
+=======================
+
+SFT01 / admin
+  Goto the forum you have created
+  In the admin panel on the left hand side of the webpage under 'Administration', 'ForumNG Adminstration'
+     click on 'Edit settings'
+  This should bring up the forum edit form.
+  Check that Enable discussion tagging checkbox is ticked as per instruction in CRE01.
+  In the 'Discussion tags' text area enter the following ' set 1, set 2, set 3,' making sure that the commas are correctly placed.
+  'Save and display'
+
+SFT02 / admin
+  Create a new discussion 'discussion 4'
+  Add a post to the discussion.
+  Click on the 'Discussion options' button.
+  This should bring up discussion options form.
+  Click in the 'Discussion tags' text area.
+  Check that a javascript dropdown/box appears which has the following entries in it.
+  Note: There maybe other entries as well, but we are just checking against the entries below.
+     set 1, Set, 0 discussions
+     set 2, Set, 0 discussions
+     set 3, Set, 0 discussions
+  Click on the entry for 'set 2' and 'Save changes'
+  Check that the 'Discussion tags' text area has 'set 2,' in it.
+  Click in the 'Discussion tags' text area.
+  Check that a javascript dropdown/box appears which has the following entries in it.
+  Note: There maybe other entries as well, but we are just checking against the entries below.
+     set 1, Set, 0 discussions
+     set 3, Set, 0 discussions
+
+SFT04 / admin
+  Return to forum view page.
+  Check that 'discussion 4' is shown with the tag 'set 2,' shown in a smaller normal font.
+  Check that there is a drop down entitled 'View discussions with tag'
+     and the drop down shows a list of tags in alphabetical order with the correct number (sum) of tags for each tag.
+  Check that there is a entry on the drop down list entitles 'set 2 (1)'
+  Check that there are no entries for
+     set 1, Set, 0 discussions
+     set 3, Set, 0 discussions
+
+SFT04 / admin
+  In the admin panel on the left hand side of the webpage under 'Administration', 'ForumNG Adminstration'
+     click on 'Edit settings'
+  This should bring up the forum edit form.
+  Check that Enable discussion tagging checkbox is ticked as per instruction in SFT01.
+  Check that the in 'Discussion tags' text area has set tags as previously entered, i.e. ' set 1, set 2, set 3' are shown.

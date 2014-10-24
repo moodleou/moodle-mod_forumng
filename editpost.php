@@ -765,7 +765,7 @@ try {
         }
 
         $PAGE->requires->yui_module('moodle-mod_forumng-tagselector', 'M.mod_forumng.tagselector.init',
-                array('id_tags_othertags', $forum->get_tags_used($groupid)));
+                array('id_tags_othertags', $forum->get_tags_used($groupid, true)));
 
         $PAGE->requires->strings_for_js(array('savefailtitle', 'savefailnetwork', 'numberofdiscussions'), 'forumng');
         $PAGE->requires->yui_module('moodle-mod_forumng-savecheck', 'M.mod_forumng.savecheck.init');

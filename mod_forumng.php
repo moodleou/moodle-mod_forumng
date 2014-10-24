@@ -5180,9 +5180,10 @@ ORDER BY
      * Call to get tags used within a forum.
      *
      * @param int $groupid
+     * @param Bool $showemptyset show any set tags for this forum
      * @return boolean|multitype:
      */
-    public function get_tags_used($groupid = self::ALL_GROUPS) {
+    public function get_tags_used($groupid = self::ALL_GROUPS, $showemptyset = false) {
         global $DB, $USER, $CFG;
         require_once($CFG->dirroot . '/tag/lib.php');
 
@@ -5249,12 +5250,86 @@ ORDER BY
                   GROUP BY t.name, t.id
                   ORDER BY t.name", $conditionparams);
 
+            $settags = self::get_set_tags($this->forumfields->id);
+
             foreach ($rs as $tag) {
                 $tag->displayname = tag_display_name($tag);
+                if (array_key_exists($tag->id, $settags)) {
+                    $tag->label = get_string('settag_label', 'forumng');
+                }
+            }
+
+            if ($showemptyset) {
+                $needsort = false;
+                // Need to check to see whether any 'set' tags are in tag result set.
+                foreach ($settags as $key => $value) {
+                    if (!array_key_exists($key, $rs)) {
+                        // Create a standard class object.
+                        $obj = new stdClass();
+                        $obj->id = $key;
+                        $obj->label = get_string('settag_label', 'forumng');
+                        $obj->name = $value;
+                        $obj->rawname = $value;
+                        $obj->tagtype = 'default';
+                        $obj->count = 0;
+                        $obj->displayname = $value;
+                        $rs[$key] = $obj;
+                        $needsort = true;
+                    }
+                }
+
+                // Sort on displayname.
+                if ($needsort) {
+                    usort($rs, function($a, $b){
+                        return strcmp($a->displayname, $b->displayname);
+                    });
+                }
             }
 
             return $rs;
         }
+    }
+
+    /**
+     * Call to get forum wide 'set' tags.
+     *
+     * @param int $forumid used to get context id
+     * @return array set tags for that forum
+     */
+    public static function get_set_tags($forumid) {
+        global $DB, $CFG;
+        require_once($CFG->dirroot . '/tag/lib.php');
+
+        $cm = get_coursemodule_from_instance('forumng', $forumid);
+        $context = context_module::instance($cm->id);
+
+        // Check to see whether tags have been set at forumng level.
+        $conditionparams = array();
+        $conditions = "ti.component = ?";
+        $conditions .= "AND ti.itemtype = ?";
+        $conditions .= "AND ti.itemid = ?";
+        $conditions .= "AND ti.contextid = ?";
+        $conditionparams[] = 'mod_forumng';
+        $conditionparams[] = 'set';
+        $conditionparams[] = 0;
+        $conditionparams[] = $context->id;
+
+        $rs = $DB->get_records_sql("
+            SELECT t.*
+              FROM {tag} t
+        INNER JOIN {tag_instance} ti
+                ON t.id = ti.tagid
+             WHERE $conditions
+          ORDER BY t.name", $conditionparams);
+
+        // Create tags associative array with tagid as key and tag name as value.
+        $tags = array();
+        foreach ($rs as $tag) {
+            $tags[$tag->id] = (tag_display_name($tag));
+        }
+
+        return $tags;
+
     }
 
 }

@@ -902,7 +902,7 @@ network error; the website is temporarily unavailable or you have been signed ou
 on this page. In order to retain any changes you must copy the post content, access this page again and then paste in your changes.</p>';
 $string['tagging'] = 'Tagging';
 $string['enabletagging'] = 'Enable discussion tagging';
-$string['tagging_help'] = 'Enable tagging in discussions for this forum';
+$string['tagging_help'] = 'Enable tagging in discussions for this forum and also allow forum wide tags to be enabled';
 $string['discussiontags'] = 'Discussion tags';
 $string['discussiontags_help'] = 'To add tags to a discussion enter the tags separated by commas';
 $string['forumngdiscusstagfilter'] = 'View forum discussions by tag';
@@ -910,3 +910,6 @@ $string['forumngdiscusstagfilter_help'] = 'Select a tag option to view/filter fo
 $string['removefiltering'] = ' Viewing discussions with tag \'{$a}\'';
 $string['filterdiscussions'] = 'View discussions with tag';
 $string['remove'] = 'Remove';
+$string['settags'] = 'Set discussion tags';
+$string['settags_help'] = 'Set forum wide tags for use in discussions by entering tags separated by commas';
+$string['settag_label'] = 'Set';

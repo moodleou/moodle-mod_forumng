@@ -109,6 +109,23 @@ Feature: Add forumng activity and test basic tagging functionality
     Then "two" "link" should exist in the "tr#discrow_2" "css_element"
     Then "two" "link" should exist in the "tr#discrow_3" "css_element"
     Then "threeA" "link" should not exist in the "tr#discrow_3" "css_element"
+    And "Remove" "link" should exist in the "div.forumng_discuss_tagfilter" "css_element"
+
+    # Check that we return to view page when the 'Remove' link is clicked on
+    When I click on "Remove" "link"
+
+    # Test forum wide 'set' tags
+    Then I navigate to "Edit settings" node in "ForumNG administration"
+    When I click on "Edit settings" "link"
+    Then the "Enable discussion tagging" "checkbox" should be enabled
+    Given I set the field "id_settags_othertags" to "setA, setB, setC"
+    And I click on "Save and display" "button"
+
+    # Check to see that 'set' tags are not showing up in forumng view tag dropdown
+    Given "tag" "select" should exist
+    Then the "tag" select box should not contain "setA (0)"
+    Then the "tag" select box should not contain "setB (0)"
+    Then the "tag" select box should not contain "setC (0)"
 
     # Exit from test
     And I log out
