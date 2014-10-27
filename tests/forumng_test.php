@@ -381,10 +381,12 @@ class mod_forumng_forumng_testcase extends forumng_test_lib {
 
         $course = $this->get_new_course();
         $user1 = $this->get_new_user('editingteacher', $course->id);
+        $user2 = $this->get_new_user('student', $course->id);
         $group1 = $this->get_new_group($course->id);
         $group2 = $this->get_new_group($course->id);
         $this->get_new_group_member($group1->id, $user1->id);
         $this->get_new_group_member($group2->id, $user1->id);
+        $this->get_new_group_member($group2->id, $user2->id);
         $forum1 = $this->get_new_forumng($course->id, array('groupmode' => VISIBLEGROUPS,
                 'subscription' => mod_forumng::SUBSCRIPTION_PERMITTED));
         $forum2 = $this->get_new_forumng($course->id, array('groupmode' => VISIBLEGROUPS,
@@ -409,16 +411,19 @@ class mod_forumng_forumng_testcase extends forumng_test_lib {
 
         $this->assertEmpty($forum1->get_auto_subscribers());
         $this->assertEmpty($forum4->get_auto_subscribers());
-        $this->assertCount(1, $forum2->get_auto_subscribers());
-        $this->assertCount(1, $forum3->get_auto_subscribers());
+        $this->assertCount(2, $forum2->get_auto_subscribers());
+        $this->assertCount(2, $forum3->get_auto_subscribers());
         $this->assertEmpty($forum1->get_subscribers());
         $this->assertEmpty($forum4->get_subscribers());
-        $this->assertCount(1, $forum2->get_subscribers());
-        $this->assertCount(1, $forum3->get_subscribers());
+        $this->assertCount(1, $forum2->get_subscribers($group1->id));
+        $this->assertCount(2, $forum2->get_subscribers());
+        $this->assertCount(2, $forum3->get_subscribers());
 
         $this->assertFalse($forum1->get_subscription_info($user1->id)->wholeforum);
         $this->assertTrue($forum2->get_subscription_info($user1->id)->wholeforum);
         $this->assertTrue($forum3->get_subscription_info($user1->id)->wholeforum);
+        $this->assertTrue($forum2->get_subscription_info($user2->id)->wholeforum);
+        $this->assertTrue($forum3->get_subscription_info($user2->id)->wholeforum);
         $this->assertFalse($forum4->get_subscription_info($user1->id)->wholeforum);
 
         $forum1->subscribe($user1->id, $group1->id, true);
