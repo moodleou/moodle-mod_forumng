@@ -913,3 +913,7 @@ $string['remove'] = 'Remove';
 $string['settags'] = 'Set discussion tags';
 $string['settags_help'] = 'Set forum wide tags for use in discussions by entering tags separated by commas';
 $string['settag_label'] = 'Set';
+$string['noratings'] = 'No ratings';
+$string['forumngratingsobsolete'] = 'Forumng ratings (obsolete)';
+$string['standardratings'] = 'Ratings (standard)';
+$string['forumng:viewallratings'] = 'View all raw ratings given by individuals';

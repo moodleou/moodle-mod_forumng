@@ -157,22 +157,26 @@ class mod_forumng_mod_form extends moodleform_mod {
         /*///////////////*/
 
         $mform->addElement('header', '', get_string('ratings', 'forumng'));
-        $mform->addElement('checkbox', 'enableratings', get_string('enableratings', 'forumng'));
+
+        $options = array(mod_forumng::FORUMNG_NO_RATING => get_string('noratings', 'forumng'),
+                        mod_forumng::FORUMNG_RATING_OBSOLETE => get_string('forumngratingsobsolete', 'forumng'),
+                        mod_forumng::FORUMNG_STANDARD_RATING => get_string('standardratings', 'forumng'));
+        $mform->addElement('select', 'enableratings', get_string('enableratings', 'forumng'), $options);
         $mform->addHelpButton('enableratings', 'enableratings', 'forumng');
 
         // Scale
         $mform->addElement('modgrade', 'ratingscale', get_string('scale'), null, true);
-        $mform->disabledIf('ratingscale', 'enableratings', 'notchecked');
+        $mform->disabledIf('ratingscale', 'enableratings', 'eq', 0);
         $mform->setDefault('ratingscale', 5);
 
         // From/until times
         $mform->addElement('date_time_selector', 'ratingfrom',
                 get_string('ratingfrom', 'forumng'), array('optional'=>true));
-        $mform->disabledIf('ratingfrom', 'enableratings', 'notchecked');
+        $mform->disabledIf('ratingfrom', 'enableratings', 'eq', 0);
 
         $mform->addElement('date_time_selector', 'ratinguntil',
                 get_string('ratinguntil', 'forumng'), array('optional'=>true));
-        $mform->disabledIf('ratinguntil', 'enableratings', 'notchecked');
+        $mform->disabledIf('ratinguntil', 'enableratings', 'eq', 0);
 
         $mform->addElement('text', 'ratingthreshold',
             get_string('ratingthreshold', 'forumng'));
@@ -182,7 +186,7 @@ class mod_forumng_mod_form extends moodleform_mod {
             get_string('error_ratingthreshold', 'forumng'),
             'regex', '/[1-9][0-9]*/', 'client');
         $mform->addHelpButton('ratingthreshold', 'ratingthreshold', 'forumng');
-        $mform->disabledIf('ratingthreshold', 'enableratings', 'notchecked');
+        $mform->disabledIf('ratingthreshold', 'enableratings', 'neq', mod_forumng::FORUMNG_RATING_OBSOLETE);
 
         // Grading.
         $mform->addElement('header', '', get_string('grading', 'forumng'));
@@ -376,7 +380,7 @@ class mod_forumng_mod_form extends moodleform_mod {
 
         // If grading is set to ratings and ratings not enabled.
         if (!empty($data['grading'])) {
-            if ( ($data['grading'] > 0 && $data['grading'] < 6) && (empty($data['enableratings'])) ) {
+            if (($data['grading'] > 0 && $data['grading'] < 6) && (empty($data['enableratings']))) {
                 // If grading between 1 and 5 (not = 6 and not = 0) and enableratings is empty (not checked).
                 $errors['enableratings'] = get_string('error_ratingrequired', 'forumng');
             }
@@ -386,13 +390,6 @@ class mod_forumng_mod_form extends moodleform_mod {
     }
 
     public function data_preprocessing(&$data) {
-        if (!empty($data['ratingscale'])) {
-            $data['enableratings'] = 1;
-        } else {
-            $data['enableratings'] = 0;
-            $data['ratingscale'] = 5;
-        }
-
         if (!empty($data['maxpostsperiod']) && !empty($data['maxpostsblock'])) {
             $data['limitgroup[enablelimit]'] = 1;
             $data['limitgroup[maxpostsperiod]'] = $data['maxpostsperiod'];

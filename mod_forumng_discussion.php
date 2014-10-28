@@ -646,6 +646,8 @@ class mod_forumng_discussion {
      * @return mod_forumng_post Post object
      */
     public function get_root_post($usecache=true, $userid=0) {
+        global $CFG, $USER;
+        require_once($CFG->dirroot . '/rating/lib.php');
         if (!$usecache || !$this->rootpost) {
             if (!$usecache || !$this->postscache) {
                 // Retrieve most posts in the discussion - even deleted
@@ -656,6 +658,34 @@ class mod_forumng_discussion {
                 $posts = mod_forumng_post::query_posts('fp.discussionid=? AND fp.oldversion=0',
                         array($this->discussionfields->id), 'fp.created',
                         $this->forum->has_ratings(), true, false, $userid);
+                // Load standard ratings.
+                if ($this->get_forum()->get_enableratings() == mod_forumng::FORUMNG_STANDARD_RATING) {
+                    // If grading is 'No grading' or 'Teacher grades students'.
+                    if ($this->get_forum()->get_grading() == mod_forumng::GRADING_NONE ||
+                                    $this->get_forum()->get_grading() == mod_forumng::GRADING_MANUAL ) {
+                        // Set the aggregation method.
+                        if ($this->get_forum()->get_rating_scale() > 0) {
+                            $aggregate = RATING_AGGREGATE_AVERAGE;
+                        } else {
+                            $aggregate = RATING_AGGREGATE_COUNT;
+                        }
+                    } else {
+                        $aggregate = $this->get_forum()->get_grading();
+                    }
+                    $ratingoptions = new stdClass();
+                    $ratingoptions->context = $this->get_forum()->get_context();
+                    $ratingoptions->component = 'mod_forumng';
+                    $ratingoptions->ratingarea = 'post';
+                    $ratingoptions->items = $posts;
+                    $ratingoptions->aggregate = $aggregate;
+                    $ratingoptions->scaleid = $this->get_forum()->get_rating_scale();
+                    $ratingoptions->userid = $USER->id;
+                    $ratingoptions->assesstimestart = $this->forum->get_ratingfrom();
+                    $ratingoptions->assesstimefinish = $this->forum->get_ratinguntil();
+
+                    $rm = new rating_manager();
+                    $posts = $rm->get_ratings($ratingoptions);
+                }
                 $this->postscache = serialize($posts);
             } else {
                 $posts = unserialize($this->postscache);
@@ -1143,7 +1173,7 @@ WHERE
         $newdiscussion = self::get_from_id($this->get_id(), $targetcloneid, -1);
 
         if ($targetforum->get_id() != $this->forum->get_id()) {
-            // Moving to different forum, we need to move attachments if any...
+            // Moving to different forum, we need to move attachments + ratings if any...
 
             // Get old and new contexts
             $fs = get_file_storage();
@@ -1157,6 +1187,12 @@ WHERE
 
             // Loop through all posts copying attachments & deleting old one
             foreach ($postids as $postid => $junk) {
+                // Move core ratings if enabled (Note move to new forum even if not enabled there).
+                if ($this->get_forum()->get_enableratings() == mod_forumng::FORUMNG_STANDARD_RATING) {
+                    $DB->set_field_select('rating', 'contextid', $newfilecontext->id,
+                            "itemid = $postid AND contextid = {$filecontext->id} AND component
+                            = 'mod_forumng' AND ratingarea = 'post'");
+                }
                 foreach (array('attachment', 'message') as $filearea) {
                     $oldfiles = $fs->get_area_files($filecontext->id, 'mod_forumng', $filearea,
                             $postid, 'id', false);
@@ -1167,6 +1203,12 @@ WHERE
                         $oldfile->delete();
                     }
                 }
+            }
+            if ($this->get_forum()->get_enableratings() == mod_forumng::FORUMNG_STANDARD_RATING) {
+                $this->forum->update_grades();
+            }
+            if ($targetforum->get_enableratings() == mod_forumng::FORUMNG_STANDARD_RATING) {
+                $targetforum->update_grades();
             }
 
             // Completion status may have changed in source and target forums
@@ -1233,6 +1275,29 @@ WHERE
             }
         }
         $rs->close();
+        // Duplicate core ratings if enabled and both forums in same course.
+        if ($oldforum->get_enableratings() == mod_forumng::FORUMNG_STANDARD_RATING &&
+                $oldforum->get_course(true)->id == $targetforum->get_course(true)->id) {
+            list($in, $inparams) = $DB->get_in_or_equal(array_keys($newids));
+            if ($ratings = $DB->get_records_sql("SELECT * FROM {rating} WHERE itemid $in AND component
+                    = ? AND ratingarea = ? AND contextid = ?", array_merge($inparams,
+                            array('mod_forumng', 'post', $oldforum->get_context(true)->id)))) {
+                foreach ($ratings as $rating) {
+                    $newrate = new stdClass();
+                    $newrate->contextid = $targetforum->get_context(true)->id;
+                    $newrate->component = 'mod_forumng';
+                    $newrate->ratingarea = 'post';
+                    $newrate->itemid = $newids[$rating->itemid];
+                    $newrate->scaleid = $rating->scaleid;
+                    $newrate->userid = $rating->userid;
+                    $newrate->rating = $rating->rating;
+                    $newrate->timecreated = $rating->timecreated;
+                    $newrate->timemodified = time();
+                    $DB->insert_record('rating', $newrate);
+                }
+                $targetforum->update_grades();
+            }
+        }
         // Update the postid and lastpostid in the discussion table no matter if they
         // are null or not
         $newpostid = $newids[$discussionobj->postid];
@@ -1376,6 +1441,15 @@ WHERE
     fd.id = ?)";
         $queryparams = array($this->discussionfields->id);
         $DB->execute("DELETE FROM {forumng_ratings} $query", $queryparams);
+
+        // Delete core ratings if enabled.
+        if ($this->get_forum()->get_enableratings() == mod_forumng::FORUMNG_STANDARD_RATING) {
+            $ratequery = str_replace('postid', 'itemid', $query);
+            $DB->execute("DELETE FROM {rating} $ratequery AND component = ? AND ratingarea = ?
+                    AND contextid = ?", array_merge($queryparams, array('mod_forumng', 'post',
+                            $this->get_forum()->get_context(true)->id)));
+            $this->forum->update_grades();
+        }
 
         // Deleting the relevant data in the forumng_flags table.
         $DB->execute("DELETE FROM {forumng_flags} $query", $queryparams);

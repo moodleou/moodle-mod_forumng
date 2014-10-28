@@ -537,3 +537,134 @@ function forumng_extend_settings_navigation(settings_navigation $settings, navig
             array('coursename' => $COURSE->id, 'contextcourseid' => $COURSE->id, 'cmid' => $PAGE->cm->id)));
     }
 }
+
+/**
+ * Return rating related permissions
+ *
+ * @param string $contextid the context id
+ * @param string $component the component to get rating permissions for
+ * @param string $ratingarea the rating area to get permissions for
+ * @return array an associative array of the user's rating permissions
+ */
+function forumng_rating_permissions($contextid, $component, $ratingarea) {
+    $context = context::instance_by_id($contextid, MUST_EXIST);
+    if ($component != 'mod_forumng' || $ratingarea != 'post') {
+        // We don't know about this component/ratingarea so just return null to get the
+        // default restrictive permissions.
+        return null;
+    }
+    return array(
+        'view' => has_capability('mod/forumng:viewrating', $context),
+        'viewany' => has_capability('mod/forumng:viewanyrating', $context),
+        'viewall' => has_capability('mod/forumng:viewallratings', $context),
+        'rate' => has_capability('mod/forumng:rate', $context)
+    );
+}
+
+/**
+ * Validates a submitted rating
+ * @param array $params submitted data
+ *            context => object the context in which the rated items exists [required]
+ *            component => The component for this module - should always be mod_forum [required]
+ *            ratingarea => object the context in which the rated items exists [required]
+ *            itemid => int the ID of the [FORUMNG-POST] object being rated [required]
+ *            scaleid => int the scale from which the user can select a rating. Used for bounds checking. [required]
+ *            rating => int the submitted rating
+ *            rateduserid => int the id of the user whose items have been rated. NOT the user who submitted the ratings. 0 to update all. [required]
+ *            aggregation => int the aggregation method to apply when calculating grades ie RATING_AGGREGATE_AVERAGE [optional]
+ * @return boolean true if the rating is valid. Will throw rating_exception if not
+ */
+function forumng_rating_validate($params) {
+    global $DB, $USER;
+    // Check the component is mod_forum
+    if ($params['component'] != 'mod_forumng') {
+        throw new rating_exception('invalidcomponent');
+    }
+
+    // Check the ratingarea is post (the only rating area in forumng).
+    if ($params['ratingarea'] != 'post') {
+        throw new rating_exception('invalidratingarea');
+    }
+
+    // Check the rateduserid is not the current user .. you can't rate your own posts.
+    if ($params['rateduserid'] == $USER->id) {
+        throw new rating_exception('nopermissiontorate');
+    }
+
+    $forumngsql = "SELECT fp.id, f.id as forumngid, f.ratingscale , f.course, fp.created,
+                          f.enableratings, f.ratingfrom, f.ratinguntil
+                     FROM {forumng} f
+                     JOIN {forumng_discussions} fd ON fd.forumngid = f.id
+                     JOIN {forumng_posts} fp ON fp.discussionid = fd.id
+                    WHERE fp.id = :itemid";
+    $forumngsqlparams = array('itemid' => $params['itemid']);
+    $info = $DB->get_record_sql($forumngsql, $forumngsqlparams);
+    if (!$info) {
+        // Item doesn't exist.
+        throw new rating_exception('invaliditemid');
+    }
+    if ($info->ratingscale != $params['scaleid']) {
+        // The scale being submitted doesnt match the one in the database.
+        throw new rating_exception('invalidscaleid');
+    }
+
+    // Check that the submitted rating is valid for the scale.
+
+    // Lower limit.
+    if ($params['rating'] < 0  && $params['rating'] != RATING_UNSET_RATING) {
+        throw new rating_exception('invalidnum');
+    }
+
+    // Upper limit.
+    if ($info->ratingscale < 0) {
+        // Its a custom scale.
+        $scalerecord = $DB->get_record('scale', array('id' => -$info->ratingscale));
+        if ($scalerecord) {
+            $scalearray = explode(',', $scalerecord->scale);
+            if ($params['rating'] > count($scalearray)) {
+                throw new rating_exception('invalidnum');
+            }
+        } else {
+            throw new rating_exception('invalidscaleid');
+        }
+    } else if ($params['rating'] > $info->ratingscale) {
+        // If its numeric and submitted rating is above maximum.
+        throw new rating_exception('invalidnum');
+    }
+
+    if (!$info->enableratings) {
+        // Item isnt approved.
+        throw new rating_exception('nopermissiontorate');
+    }
+
+    // Check the item we're rating was created in the assessable time window.
+    if (!empty($info->ratingfrom) && !empty($info->ratinguntil)) {
+        if ($info->created < $info->ratingfrom || $info->created > $info->ratinguntil) {
+            throw new rating_exception('notavailable');
+        }
+    }
+
+    $cm = get_coursemodule_from_instance('forumng', $info->forumngid, $info->course, false, MUST_EXIST);
+    $context = context_module::instance($cm->id, MUST_EXIST);
+
+    // If the supplied context doesnt match the item's context.
+    if ($context->id != $params['context']->id) {
+        throw new rating_exception('invalidcontext');
+    }
+
+    return true;
+}
+
+/**
+ * Update activity grades.
+ *
+ * @param stdClass $forumng database record
+ * @param int $userid specific user only, 0 means all
+ * @param bool $nullifnone - not used
+ */
+function forumng_update_grades($forumng, $userid = 0, $nullifnone = true) {
+    require_once(dirname(__FILE__) . '/mod_forumng.php');
+    $cm = get_coursemodule_from_instance('forumng', $forumng->id);
+    $forum = mod_forumng::get_from_id($forumng->id, mod_forumng::CLONE_DIRECT, true, $cm);
+    $forum->update_grades($userid, null);
+}

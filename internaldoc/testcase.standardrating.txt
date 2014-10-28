@@ -1,0 +1,198 @@
+This file contains a sequence of test cases for the ForumNG Export feature.
+
+Initial setup
+=============
+
+See testcase.txt for a description of the format of these tests and the initial
+site and ForumNG setup.
+
+
+RDP Creating ForumNG
+====================
+
+RDP01a / Admin
+   In course week one, from the add activity selector, choose 'ForumNG'.
+   Leave settings at defaults except for the following:
+   As Forum name enter 'F.RDP', and introduction enter, 'Test rating of discussion posts'.
+   Ensure 'Ratings'-'Allow posts to be rated' set to 'Ratings (standard)'.
+   Ensure 'Ratings'-'Scale'-'Type' set to 'Point'.
+   Ensure 'Ratings'-'Scale'-'Maximum points' set to 10.
+   Ensure 'Grade'-'Grade' set to 'Average of ratings'
+   Select 'Save and display' and return to the new course forum.
+-- Confirm creation of new empty forum with the introduction as entered above.
+
+RDP01b / Admin
+   Select the 'Start a new discussion' button.
+-- You should be taken to a new page with form 'Start a new discussion'.
+   Enter subject as 'F.RDP Admin discussion 1 RDP01' and add the message
+   'F.RDP-RDP01 This is the first standard post by Admin for testing standard ratings.',
+   Select the 'Post discussion' button.
+-- Verify that you are taken to the new discussion page and your message is shown.
+
+Return to course main page.
+
+
+RPU Basic usage
+===============
+
+RPU01 / U.ET [change]
+   Enter the course and enter forum 'F.RDP (unread posts)'.
+   Enter discussion 'F.RDP Admin discussion 1 RDP01'.
+-- You should be taken to the discussion page with an Admin post starting the discussion.
+-- Verify that above the 'Reply, Edit & Permalink' buttons there is a label and rating selector,
+   'Average of ratings: [Rate...]'.
+-- Verify that the 'Rate' selector has the options 0 - 10.
+
+RPU02 / U.ET
+   Click the 'Reply' link beneath the first message.
+   Enter 'Teacher, standard post RPU02' as subject and the message text
+   'RPU02 Teacher added as a standard post.'.
+   Click the 'Post reply' button.
+-- You should have one discussion post and your reply post appearing underneath.
+-- Confirm that the U.ET teacher post shows the 'Average of ratings' label with link
+   to 'All submitted ratings' report, but does not show the rating selector dropdown.
+Note, you cannot rate your own posts with the 'Rating (standard)' system.
+
+RPU03 / U.S1 [change]
+   Enter the course and enter forum 'F.RDP'.
+   Click to enter the unread discussion 'F.RDP Admin discussion 1 RDU01'.
+   Click the 'Reply' link beneath the teacher post 'Teacher, standard post RPU02'.
+   Enter 'Student 1 post RPU03' as subject and the message text
+   'Student 1 post RPU03 message text'
+   Click the 'Post reply' button.
+
+RPU04 / U.S1
+   Click the 'Reply' link beneath the admin post 'F.RDP Admin discussion 1 RDU01'.
+   Enter 'Student 1 post RPU04' as subject and the message text
+   'Student 1 post RPU04 message text'
+   Click the 'Post reply' button.
+
+RPU05 / U.ET [change]
+   Enter discussion 'F.RDP Admin discussion 1 RDU01'.
+   Select 'Expand all posts'.
+   Confirm that the U.ET teacher post shows the 'Average of ratings' label with link
+   to 'All submitted ratings' report, but does not show the rating selector dropdown.
+Note: Cannot rate your own post
+-- Verify that the other three posts have above the 'Reply, Edit & Permalink' buttons
+   and 'Average of ratings: [Rate...]' label and rating selector.
+-- Verify that the 'Rate' selectors have the options 0 - 10.
+
+RPU06 / U.ET
+   In the 'Student 1 post RPU03' post select Rate as 2. [auto update occurs]
+-- Confirm that the widget updates and now displays a count before the rating selector
+   'Average of ratings: 2 (1) [2]'.
+   In the 'Student 1 post RPU04' post select Rate as 3.
+-- Confirm that the widget updates and now displays a count before the rating selector
+   'Average of ratings: 3 (1) [3]'.
+
+Return to course main page.
+
+RPU07 / U.ET
+   Select 'Grades' from the 'Administration' menu to open the 'Grader report'
+-- Confirm that the report resembles the following:
+Note: It may be necessary to click the 'Full view' button, to see Course total.
+
+[Grader report       ] (Selector)
+
+Grader report
+-------------
+
+All participants: 1/1
+                        First name :AllABCDEFGHIJKLMNOPQRSTUVWXYZ
+                        Surname :AllABCDEFGHIJKLMNOPQRSTUVWXYZ
+
+                                                Test course name
+Surname  First name                     Email address    ForumNG F.RDP  Agg Course Total
+avatar   Userone  Usernameone   Grades  us1@open.ac.uk           2.50             25.00
+
+                                        Overall average          2.50             25.00
+
+RMG Rating and Manual grading
+=============================
+
+RMG01 / admin [change]
+   Enter the course and enter forum 'F.RDP'.
+   Select the 'Participation by user' button.
+-- Verify the 'Grade' column reflects the current state of user 'Grades',
+   ie. the teacher and second student have no grades, US.1 has '2.50/10'.
+   Select link to 'Show all posts by U.S1'
+-- Verify the 'Average of ratings' label and rating selector are show against all posts.
+   Select 'ForumNG administration > Edit settings' from the 'Administration' block.
+   Set 'Grade' field to 'Teacher grades students' and 'Grading scale' to 'Type':'Point', 'Maximum':'10'.
+   Select 'Save and display'.
+   Select the 'Participation by user' button.
+-- Verify all users listed have 'No grade' option selected in the 'Grade' column.
+   Update the grade for user S1 to 5 / 10 and select 'Save grades'.
+-- Verify user S1 has a grade of 5 / 10 shown.
+   Select 'Website administration > Grades' from the 'Administration' menu to open the 'Grader report'.
+-- Confirm that user S1 has a grade of 5 for forum F.RDP.
+
+RMG02 / admin
+   Enter the course and enter forum 'F.RDP'.
+   Enter discussion 'F.RDP Admin discussion 1 RDP01'.
+   Select 'Expand all posts', if needed, to display collapsed posts.
+   In the 'Student 1 post RPU03' post select Rate as 2. [auto update occurs]
+-- Confirm that the widget updates and now displays a count before the rating selector
+   'Average of ratings: 2 (2) [2]'.
+   Return to forum 'F.RDP' main page.
+   Select the 'Participation by user' button.
+-- Verify user S1 has a grade of 5 / 10 shown.
+   Select 'Website administration > Grades' from the 'Administration' menu to open the 'Grader report'.
+-- Confirm that user S1 has a grade of 5 for forum F.RDP.
+
+RMG03 / admin
+   Enter the course and enter forum 'F.RDP'.
+   Select 'ForumNG administration > Edit settings' from the 'Administration' block.
+   Set 'Grade' field to 'No grade'.
+   Select 'Save and display'.
+   Enter discussion 'F.RDP Admin discussion 1 RDP01'.
+   Select 'Expand all posts', if needed, to display collapsed posts.
+   In the 'Student 1 post RPU03' post select Rate as 4. [auto update occurs]
+-- Confirm that the widget updates and now displays a count before the rating selector
+   'Average of ratings: 3 (2) [4]'.
+   Return to forum 'F.RDP' main page.
+   Select 'ForumNG administration > Edit settings' from the 'Administration' block.
+   Set 'Allow posts to be rated' field to 'No ratings'.
+   Select 'Save and display'.
+   Enter discussion 'F.RDP Admin discussion 1 RDP01'.
+   Select 'Expand all posts', if needed, to display collapsed posts.
+-- Verify no ratings information is displayed against any of the posts shown.
+
+RMD Rating Move discussion
+==========================
+
+RMD01 / admin
+   Select 'ForumNG administration > Edit settings' from the 'Administration' block.
+   Set 'Allow posts to be rated' field to 'Ratings (standard)'.
+   Set 'Ratings'-'Scale'-'Type' to 'Point'.
+   Set 'Ratings'-'Scale'-'Maximum points' to 10.
+   Set 'Grade' to 'Average of ratings'
+   Select 'Save and display' button.
+   Select the 'Start a new discussion' button.
+-- You should be taken to a new page with form 'Start a new discussion'.
+   Enter subject as 'F.RDP Admin discussion 2 RMD01' and add the message
+   'F.RDP-RMD01 This post by Admin for testing standard ratings will be moved.'.
+   Select the 'Post discussion' button.
+-- Verify that you are taken to the new discussion page and your message is shown.
+
+RMD02 / U.ET [change]
+   Enter the course and enter forum 'F.RDP'.
+   Enter discussion 'F.RDP Admin discussion 2 RMD01'.
+   In the discussion initial post select Rate as 2. [auto update occurs]
+-- Confirm that the widget updates and now displays a count before the rating selector
+   'Average of ratings: 2 (1) [2]'.
+
+RMD03 / admin [change]
+   Enter the course and turn editing on.
+   Select the 'Duplicate' icon against forum 'F.RDP'.
+   Follow the duplicate process to create an empty duplicate of 'F.RDP',
+   edit the settings of the new forum to rename to 'F.RDP2'.
+   Return to the course and enter forum 'F.RDP'.
+   Select 'Move' button and then 'Selected discussions'.
+   Select discussion 'F.RDP Admin discussion 2 RMD01' checkbox.
+   Select 'Confirm selection'.
+   Select 'F.RDP2' in the 'Move discussion to' dropdown and then select 'Move discussions'.
+-- Verify discussion 'F.RDP Admin discussion 2 RMD01' has been moved to forum 'F.RDP2'.
+   Enter discussion 'F.RDP Admin discussion 2 RMD01'.
+-- Verify discussion initial post has 'Average of ratings: 2' displayed.
+End test.

@@ -195,5 +195,23 @@ function xmldb_forumng_upgrade($oldversion=0) {
         upgrade_mod_savepoint(true, 2014102400, 'forumng');
     }
 
+    if ($oldversion < 2014102800) {
+        // Define field enableratings to be added to forumng.
+        $table = new xmldb_table('forumng');
+        $field = new xmldb_field('enableratings', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'canpostanon');
+
+        // Launch add field enableratings.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Foreach existing 'Forumng ratings (obsolete)'
+        // Set the enableratings field to FORUMNG_RATING_OBSOLETE=1 for everything that has a rating.
+        $DB->set_field_select('forumng', 'enableratings', 1, 'ratingscale != 0');
+
+        // ForumNG savepoint reached.
+        upgrade_mod_savepoint(true, 2014102800, 'forumng');
+    }
+
     return true;
 }

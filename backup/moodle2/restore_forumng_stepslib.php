@@ -43,6 +43,8 @@ class restore_forumng_activity_structure_step extends restore_activity_structure
                     '/activity/forumng/discussions/discussion');
             $paths[] = new restore_path_element('forumng_post',
                     '/activity/forumng/discussions/discussion/posts/post');
+            $paths[] = new restore_path_element('rating',
+                    '/activity/forumng/discussions/discussion/posts/post/newratings/newrating');
             $paths[] = new restore_path_element('forumng_rating',
                     '/activity/forumng/discussions/discussion/posts/post/ratings/rating');
             $paths[] = new restore_path_element('forumng_flag',
@@ -438,4 +440,31 @@ UPDATE {forumng_discussions} SET lastpostid=(
         }
     }
 
+    protected function process_rating($data) {
+        global $DB;
+
+        $data = (object)$data;
+
+        // Cannot use ratings API, cause, it's missing the ability to specify times (modified/created).
+        $data->contextid = $this->task->get_contextid();
+        $data->itemid = $this->get_new_parentid('forumng_post');
+        if ($data->scaleid < 0) {// Scale found, get mapping.
+            $data->scaleid = -($this->get_mappingid('scale', abs($data->scaleid)));
+        }
+        $data->rating = $data->value;
+        $data->userid = $this->get_mappingid('user', $data->userid);
+        $data->timecreated = $this->apply_date_offset($data->timecreated);
+        $data->timemodified = $this->apply_date_offset($data->timemodified);
+
+        // Make sure that we have both component and ratingarea set. These were added in 2.1.
+        // Prior to that all ratings were for entries so we know what to set them too.
+        if (empty($data->component)) {
+            $data->component = 'mod_forumng';
+        }
+        if (empty($data->ratingarea)) {
+            $data->ratingarea = 'post';
+        }
+
+        $newitemid = $DB->insert_record('rating', $data);
+    }
 }

@@ -141,7 +141,7 @@ if ($submitted = $timefilter->get_data()) {
     }
 }
 
-$posts = $forum->get_all_posts_by_user($userid, $groupid, 'fd.forumngid', $start, $end);
+$posts = $forum->get_all_posts_by_user($userid, $groupid, 'fp.id', $start, $end);
 
 // Add collected start and end UNIX formated dates to moodle url.
 $pageurl->param('start', $start);

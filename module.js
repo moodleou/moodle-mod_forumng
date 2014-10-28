@@ -1197,6 +1197,11 @@ M.mod_forumng = {
         tracker.set('value', tracker.get('value') + (tracker.get('value')=='' ? '' : ',') +
                  link.postid);
 
+        // For core ratings, init js on expand.
+        if (newpost.one('.forumng-ratings-standard') && M.core_rating.init) {
+            M.core_rating.init(this.Y);
+        }
+
         if (!link.delay) {
             // Skip the expanding animation
             return;

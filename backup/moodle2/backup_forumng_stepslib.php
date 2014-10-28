@@ -45,7 +45,8 @@ class backup_forumng_activity_structure_step extends backup_activity_structure_s
             'reportingemail', 'subscription', 'feedtype', 'feeditems',
             'maxpostsperiod', 'maxpostsblock', 'postingfrom', 'postinguntil',
             'typedata', 'magicnumber', 'completiondiscussions', 'completionreplies',
-            'completionposts', 'removeafter', 'removeto', 'shared', 'originalcmid', 'gradingscale', 'canpostanon', 'tags'));
+            'completionposts', 'removeafter', 'removeto', 'shared', 'originalcmid',
+            'gradingscale', 'canpostanon', 'tags', 'enableratings'));
 
         $discussions = new backup_nested_element('discussions');
 
@@ -58,6 +59,11 @@ class backup_forumng_activity_structure_step extends backup_activity_structure_s
             'parentpostid', 'userid', 'created', 'modified', 'deleted', 'deleteuserid',
             'important', 'mailstate', 'oldversion', 'edituserid',
             'subject', 'message', 'messageformat', 'attachments', 'asmoderator'));
+
+        $newratings = new backup_nested_element('newratings');
+
+        $newrating = new backup_nested_element('newrating', array('id'), array(
+            'component', 'ratingarea', 'scaleid', 'value', 'userid', 'timecreated', 'timemodified'));
 
         $ratings = new backup_nested_element('ratings');
 
@@ -113,6 +119,9 @@ class backup_forumng_activity_structure_step extends backup_activity_structure_s
         $discussion->add_child($flagsd);
         $flagsd->add_child($flagd);
 
+        $post->add_child($newratings);
+        $newratings->add_child($newrating);
+
         $post->add_child($ratings);
         $ratings->add_child($rating);
 
@@ -142,6 +151,13 @@ class backup_forumng_activity_structure_step extends backup_activity_structure_s
 
             $read->set_source_table('forumng_read', array('discussionid' => backup::VAR_PARENTID));
 
+            $newrating->set_source_table('rating', array(
+                    'contextid' => backup::VAR_CONTEXTID,
+                    'itemid' => backup::VAR_PARENTID,
+                    'component' => backup_helper::is_sqlparam('mod_forumng'),
+                    'ratingarea' => backup_helper::is_sqlparam('post')));
+            $newrating->set_source_alias('rating', 'value');
+
             $rating->set_source_table('forumng_ratings', array('postid' => backup::VAR_PARENTID));
 
             $flag->set_source_table('forumng_flags', array('postid' => backup::VAR_PARENTID));
@@ -168,6 +184,9 @@ class backup_forumng_activity_structure_step extends backup_activity_structure_s
         $post->annotate_ids('user', 'userid');
         $post->annotate_ids('user', 'deleteuserid');
         $post->annotate_ids('user', 'edituserid');
+
+        $newrating->annotate_ids('user', 'userid');
+        $newrating->annotate_ids('scale', 'scaleid');
 
         $rating->annotate_ids('user', 'userid');
 

@@ -125,6 +125,18 @@ $capabilities = array(
         )
     ),
 
+    'mod/forumng:viewallratings' => array(
+
+        'riskbitmask' => RISK_PERSONAL,
+        'captype' => 'read',
+        'contextlevel' => CONTEXT_MODULE,
+        'archetypes' => array(
+            'teacher' => CAP_ALLOW,
+            'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW
+        ),
+    ),
+
     'mod/forumng:rate' => array(
 
         'captype' => 'write',

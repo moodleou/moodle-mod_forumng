@@ -167,6 +167,11 @@ class mod_forumng {
     /** Discussion moderator post identity: anonymously as moderator.*/
     const ASMODERATOR_ANON = 2;
 
+    // Constants defining grading options.
+    const FORUMNG_NO_RATING = 0;// No grade (default).
+    const FORUMNG_RATING_OBSOLETE = 1;// Forumng ratings (obsolete).
+    const FORUMNG_STANDARD_RATING = 2;// Ratings (standard).
+
     // Static methods
     /*///////////////*/
 
@@ -918,6 +923,21 @@ WHERE
         return $params . 'clone=' . $cloneid;
     }
 
+    /** @return int forum ratings enabled */
+    public function get_enableratings() {
+        return $this->forumfields->enableratings;
+    }
+
+    /** @return int forum ratings from */
+    public function get_ratingfrom() {
+        return $this->forumfields->ratingfrom;
+    }
+
+    /** @return int forum ratings until */
+    public function get_ratinguntil() {
+        return $this->forumfields->ratinguntil;
+    }
+
     // Factory methods
     /*////////////////*/
 
@@ -1168,6 +1188,19 @@ WHERE
             WHERE discussionid IN ($discussionquery)", $discussionparams);
         $DB->execute("DELETE FROM {forumng_posts}
             WHERE discussionid IN ($discussionquery)", $discussionparams);
+
+        // Delete standard rating data.
+        if ($this->get_enableratings() == mod_forumng::FORUMNG_STANDARD_RATING &&
+                !$this->is_clone()) {
+            require_once($CFG->dirroot . '/rating/lib.php');
+            $delopt = new stdClass();
+            $delopt->contextid = $this->get_context(true)->id;
+            $delopt->component = 'mod_forumng';
+            $delopt->ratingarea = 'post';
+
+            $rm = new rating_manager();
+            $rm->delete_ratings($delopt);
+        }
 
         // Delete per-forum data
         if ($this->is_clone()) {
@@ -2849,11 +2882,23 @@ WHERE
         // Part of query that is common to all aggregation types
         $forumngid = $this->get_id();
         $baseselect = "SELECT fp.userid AS userid";
-        $basemain = "
-FROM {forumng_discussions} fd
-INNER JOIN {forumng_posts} fp ON fp.discussionid = fd.id
-INNER JOIN {forumng_ratings} fr ON fr.postid = fp.id
-WHERE fd.forumngid = ?";
+
+        if (self::get_enableratings() == mod_forumng::FORUMNG_STANDARD_RATING) {
+            // Moodle standard rating.
+            $basemain = "
+                FROM {forumng_discussions} fd
+                INNER JOIN {forumng_posts} fp ON fp.discussionid = fd.id
+                INNER JOIN {rating} fr ON fr.itemid = fp.id
+                WHERE fd.forumngid = ?";
+        } else {
+            // ForumNg rating.
+            $basemain = "
+                FROM {forumng_discussions} fd
+                INNER JOIN {forumng_posts} fp ON fp.discussionid = fd.id
+                INNER JOIN {forumng_ratings} fr ON fr.postid = fp.id
+                WHERE fd.forumngid = ?";
+        }
+
         $baseparams = array($forumngid);
         if ($userid) {
             $basemain .= " AND fp.userid = ?";
@@ -2887,7 +2932,7 @@ WHERE fd.forumngid = ?";
             $max = $scale;
         } else {
             // Scale.
-            $scale = $DB->get_record('scale', array('id', -$scale), '*', MUST_EXIST);
+            $scale = $DB->get_record('scale', array('id' => -$scale), '*', MUST_EXIST);
             $scale = explode(',', $scale->scale);
             $max = count($scale);
         }
@@ -4802,6 +4847,7 @@ WHERE
      * @return array Array of mod_forumng_post objects
      */
     public function get_all_posts_by_user($userid, $groupid, $order = 'fp.id', $start = null, $end = null) {
+        global $CFG, $USER;
         $where = 'fd.forumngid = ? AND fp.userid = ? AND fp.oldversion = 0 AND fp.deleted = 0';
         $whereparams = array($this->get_id(), $userid);
         if ($groupid != self::NO_GROUPS && $groupid != self::ALL_GROUPS) {
@@ -4820,6 +4866,35 @@ WHERE
         $result = array();
         $posts = mod_forumng_post::query_posts($where, $whereparams, $order, false, false, true,
                 0, true, true);
+        // Add standard ratings if enabled.
+        if ($this->get_enableratings() == mod_forumng::FORUMNG_STANDARD_RATING) {
+            require_once($CFG->dirroot . '/rating/lib.php');
+            // If grading is 'No grading' or 'Teacher grades students'.
+            if ($this->get_grading() == mod_forumng::GRADING_NONE ||
+                $this->get_grading() == mod_forumng::GRADING_MANUAL) {
+                // Set the aggregation method.
+                if ($this->get_rating_scale() > 0) {
+                    $aggregate = RATING_AGGREGATE_AVERAGE;
+                } else {
+                    $aggregate = RATING_AGGREGATE_COUNT;
+                }
+            } else {
+                $aggregate = $this->get_grading();
+            }
+            $ratingoptions = new stdClass();
+            $ratingoptions->context = $this->get_context(true);
+            $ratingoptions->component = 'mod_forumng';
+            $ratingoptions->ratingarea = 'post';
+            $ratingoptions->items = $posts;
+            $ratingoptions->aggregate = $aggregate;
+            $ratingoptions->scaleid = $this->get_rating_scale();
+            $ratingoptions->userid = $USER->id;
+            $ratingoptions->assesstimestart = $this->get_ratingfrom();
+            $ratingoptions->assesstimefinish = $this->get_ratinguntil();
+
+            $rm = new rating_manager();
+            $posts = $rm->get_ratings($ratingoptions);
+        }
         foreach ($posts as $fields) {
             $discussionfields = mod_forumng_utils::extract_subobject($fields, 'fd_');
             $discussion = new mod_forumng_discussion($this, $discussionfields, false, -1);

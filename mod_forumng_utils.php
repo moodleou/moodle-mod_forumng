@@ -351,7 +351,7 @@ class mod_forumng_utils {
             'intro', 'ratingscale', 'ratingfrom', 'ratinguntil', 'grading',
             'attachmentmaxbytes', 'reportingemail', 'subscription', 'feedtype', 'feeditems',
             'maxpostsperiod', 'maxpostsblock', 'postingfrom', 'postinguntil',
-            'typedata', 'magicnumber', 'originalcmid', 'shared', 'canpostanon', 'tags'), $alias);
+            'typedata', 'magicnumber', 'originalcmid', 'shared', 'canpostanon', 'tags', 'enableratings'), $alias);
     }
 
     /**

@@ -911,7 +911,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
      * @return string HTML or text of post
      */
     public function render_post($post, $html, $options) {
-        global $CFG, $USER, $THEME;
+        global $CFG, $USER, $THEME, $OUTPUT;
         $discussion = $post->get_discussion();
 
         $expanded = $options[mod_forumng_post::OPTION_EXPANDED];
@@ -1309,7 +1309,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
                 $out .= $lf . '<div class="clear forumng-postfooter">';
             }
 
-            // Ratings
+            // Ratings.
             $ratings = '';
             $ratingclasses = '';
             if ($options[mod_forumng_post::OPTION_RATINGS_VIEW]) {
@@ -1341,9 +1341,13 @@ class mod_forumng_renderer extends plugin_renderer_base {
                     array(mod_forumng_post::NO_RATING => '-'));
                 $ratings .= '</div>';
             }
-            if ($ratings) {
+
+            if ($post->get_forum()->get_enableratings() ==
+                    mod_forumng::FORUMNG_STANDARD_RATING && $post->get_ratings()) {
+                $out .= html_writer::div($OUTPUT->render($post->get_ratings()), 'forumng-ratings-standard');
+            } else if ($ratings) {
                 $out .= '<div class="forumng-ratings' . $ratingclasses .
-                  '">' . $ratings . '</div>';
+                        '">' . $ratings . '</div>';
             }
 
             // Commands at bottom of mail
@@ -1577,10 +1581,12 @@ class mod_forumng_renderer extends plugin_renderer_base {
      * @return string Modified (if necessary) HTML
      */
     public function render_post_group($discussion, $html) {
-        // Add rating form if there are any rating selects
+        // Add ForumNG rating form if there are any ForumNG rating selects.
+        // Check any Form exists before adding actionform.
         $hasratings = strpos($html, '<div class="forumng-editrating">') !== false;
+        $hasform = strpos($html, '<form') !== false;
         $hasflags = strpos($html, '<div class="forumng-flag">') !== false;
-        if ($hasflags || $hasratings) {
+        if (($hasflags || $hasratings) && !$hasform) {
             $script = '<script type="text/javascript">' .
                 'document.getElementById("forumng-actionform").autocomplete=false;' .
                 '</script>';

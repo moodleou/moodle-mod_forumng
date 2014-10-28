@@ -657,6 +657,11 @@ WHERE
         $this->previousunread = $previousunread;
     }
 
+    /** @return int forum ratings enabled */
+    public function get_ratings() {
+        return isset($this->postfields->rating) ? $this->postfields->rating : null;
+    }
+
     // Factory method
     /*///////////////*/
 
@@ -676,6 +681,8 @@ WHERE
      */
     public static function get_from_id($id, $cloneid,
             $wholediscussion=false, $usecache=false, $userid=0) {
+        global $CFG, $USER;
+        require_once($CFG->dirroot . '/rating/lib.php');
         if ($wholediscussion) {
             $discussion = mod_forumng_discussion::get_from_post_id($id, $cloneid,
                     $usecache, $usecache);
@@ -691,6 +698,37 @@ WHERE
             $postfields = reset($records);
 
             $discussion = mod_forumng_discussion::get_from_id($postfields->discussionid, $cloneid);
+            // Load standard ratings.
+            $forum = $discussion->get_forum();
+            if ($forum->get_enableratings() == mod_forumng::FORUMNG_STANDARD_RATING) {
+                // If grading is 'No grading' or 'Teacher grades students'.
+                if ($forum->get_grading() == mod_forumng::GRADING_NONE ||
+                    $forum->get_grading() == mod_forumng::GRADING_MANUAL) {
+                    // Set the aggregation method.
+                    if ($forum->get_rating_scale() > 0) {
+                        $aggregate = RATING_AGGREGATE_AVERAGE;
+                    } else {
+                        $aggregate = RATING_AGGREGATE_COUNT;
+                    }
+                } else {
+                    $aggregate = $forum->get_grading();
+                }
+                $ratingoptions = new stdClass();
+                $ratingoptions->context = $forum->get_context(true);
+                $ratingoptions->component = 'mod_forumng';
+                $ratingoptions->ratingarea = 'post';
+                $ratingoptions->items = array('post' => $postfields);
+                $ratingoptions->aggregate = $aggregate;
+                $ratingoptions->scaleid = $forum->get_rating_scale();
+                $ratingoptions->userid = $USER->id;
+                $ratingoptions->id = $id;
+                $ratingoptions->assesstimestart = $forum->get_ratingfrom();
+                $ratingoptions->assesstimefinish = $forum->get_ratinguntil();
+
+                $rm = new rating_manager();
+                $postwithratings = $rm->get_ratings($ratingoptions);
+                $postfields = $postwithratings['post'];// Update 'post' object.
+            }
             $newpost = new mod_forumng_post($discussion, $postfields);
             return $newpost;
         }
@@ -1440,7 +1478,7 @@ WHERE
     }
 
     /**
-     * Rates this post or updates an existing rating.
+     * Rates this post or updates an existing forum rating.
      * @param $rating Rating (value depends on scale used) or NO_RATING
      * @param $userid User ID or 0 for current user
      */
