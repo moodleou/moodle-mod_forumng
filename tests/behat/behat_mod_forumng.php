@@ -58,7 +58,9 @@ class behat_mod_forumng extends behat_base {
             $steps[] = new Given('I wait until "#id_submitbutton[disabled]" "css_element" does not exist');
         }
         $steps[] = new Given('I press "' . get_string('postdiscussion', 'forumng') . '"');
-        $steps[] = new Given('I wait until the page is ready');
+        if ($this->running_javascript()) {
+            $steps[] = new Given('I wait until the page is ready');
+        }
         return $steps;
     }
 
