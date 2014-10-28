@@ -11,9 +11,15 @@ Initial setup
 This test case requires:
 
 Student user (S1)
+Student user (S2) for testing most rated posts
+Student user (S3) for testing most rated posts
+Editing Teacher (ET1) for testing most rated posts
 Admin/Manager/Teacher user (Admin) - Must be able to create activities, have access all groups, create anonymous posts etc
 
-Test course with multiple (2+) groups, user S1 must be a member of at least 1 group
+Test course with multiple (2+) groups, user S1 must be a member of at least 1 group.
+If testing with multiple (2+) groups, user S2 must be a member of a different group to user S1
+If testing with multiple (2+) groups, user S3 must be a member of the same group as user S2
+If testing with multiple (2+) groups, user ET1 must be a member of the same group as users S2 and S3
 
 The test server must have debugging set to DEVELOPER level and to display
 errors; during all parts of the test script, there should be no debugging warnings.
@@ -124,7 +130,7 @@ SUS02 / S1 (change)
  Enter forum US01, select group forum used in these tests (if not already selected by default)
  Select 'Subscribe to this group'.
 
-SUS03 / Admin (change)
+ SU03 / Admin (change)
  Enter forum US01, select 'All participants' from the group selector drop-down
  Select 'Show usage'
 - Verify under Subscribers, information is as follows:
@@ -173,3 +179,194 @@ MFP02 / Admin
 - 'New subject' post [S1 user details] (1 user flagged)
 - 'Re: US02 - admin' post [Admin user details] (1 user flagged)
 - 'US02 - admin' post [Admin user details] (1 user flagged).
+
+MRP - Most rated posts
+======================
+
+MRP01 / Admin
+ Enter forum US01 and select a group that users S2 and S3 are members of
+ Select 'Start a new discussion' button
+ Create a new discussion with title 'MRP01 - admin', any content
+ In 'Group' dropdown choose the goup that S2, S3 and ET are members of
+ All other options as default
+ Select 'Post discussion'
+ Return to Forum discussion list.
+
+MRP02 / Admin
+ Follow the link 'Administration > ForumNG administration > Edit settings'
+ In 'Ratings, Allow posts to be rated' choose 'Ratings (standard) from the dropdown
+ In 'Scale Type' dropdown choose' Scale'
+ Select 'Save and display'
+
+MRP03 / S1 (change)
+ Enter forum US01, select group forum used in these tests (if not already selected by default)
+ Select discussion 'US02 - admin'
+ Reply to discussion.
+ Select 'Post reply'
+
+MRP04 / admin (change)
+ Enter forum US01
+ Select discussion 'US02 - admin'
+ Select the post created by S1
+ Check that there is a 'Count of ratings' dropdown
+ Choose one of the options
+ Check that the 'Count of ratings' now shows a (n) link (where n is a numerioc value, probably 1)
+ Note: this not a test of whether ratings work - see testcase.standardrating.txt for that.
+ Return to Forum discussion list.
+
+MRP05 / admin
+ Select the group that user S1 belongs to from the 'Group' dropdown
+ Select 'Show usage'
+ Check that there is 'Most rated posts by, Filter ratings by' dropdown
+ Choose 'Count of Ratings'
+ Verify that under the heading 'Most rated posts by Count of ratings':
+  there is 1 post details shown that is the <post name link> <date time> S1 <user link>
+
+MRP06 / admin
+ Return to Forum discussion list.
+ Follow the link 'Administration > ForumNG administration > Edit settings'
+ In 'Ratings, Allow posts to be rated' choose 'Ratings (standard) from the dropdown
+ In 'Scale Type' dropdown choose' Point'
+ In 'Maximum points' text area enter the number 5
+ Select 'Save and display'
+
+MRP07 / S2 (change)
+ Enter forum US01
+ Select discussion 'MRP01 - admin'
+ Reply to discussion
+ Select 'Post reply'
+
+MRP08 / S3 (change)
+ Enter forum US01
+ Select discussion 'MRP01 - admin'
+ Reply to discussion
+ Select 'Post reply'
+
+MRP09 / ET (change)
+ Enter forum US01
+ Select discussion 'MRP01 - admin'
+ Select the expand [+] icon against the two replies shown
+ In each reply there will be a 'Ratings' dropdown
+ For the reply by S2 choose 2
+ For the reply by S3 choose 3
+
+MRP10 / ET
+ Reply to discussion
+ Select 'Post reply'
+
+MRP11 / admin (change)
+ Enter forum US01
+ Select discussion 'MRP01 - admin'
+ Select the expand [+] icon against the three replies shown
+ In each reply there will be a 'Ratings' dropdown
+ For the reply by S2 choose 3
+ For the reply by S3 choose 4
+ For the reply by ET choose 2
+ Return to Forum discussion list.
+
+MRP12 / admin
+ Select 'Show usage'
+ Verify that the 'Usage' page does contains a label  'Most rated posts by' and a dropdown
+ that contains 3 choices (excluding the word Choose ...'
+
+MRP13 / admin
+ Select ' Count of ratings' from the dropdown
+ Verify that a count of ratings are returned with the following details
+ 2 <post name link> <date time> S2 <user link>
+ 2 <post name link> <date time> S3 <user link>
+ 1 <post name link> <date time> ET <user link>
+
+MRP14 / admin
+ Select ' Sum of ratings' from the dropdown
+ Verify that a sum of ratings are returned with the following details
+ 7 <post name link> <date time> S3 <user link>
+ 5 <post name link> <date time> S2 <user link>
+ 2 <post name link> <date time> ET <user link>
+
+MRP15 / admin
+ Select ' average of ratings' from the dropdown
+ Verify that the average of ratings are returned with the following details
+ 3.5 <post name link> <date time> S3 <user link>
+ 2.5 <post name link> <date time> S2 <user link>
+ 2   <post name link> <date time> ET <user link>
+
+MRP16 / admin
+ Return to Forum discussion list.
+ Follow the link 'Administration > ForumNG administration > Edit settings'
+ In 'Ratings, Allow posts to be rated' choose 'Ratings (standard) from the dropdown
+ In 'Scale Type' dropdown choose' Point'
+ In 'Maximum points' text area enter the number 5
+ In 'Grade' dropdown choose 'Sum of ratings'
+ Select 'Save and display'
+
+MRP17 / admin
+ Return to Forum discussion list.
+ Select 'Show usage'
+ Verify that a sum of ratings are returned with the following details
+ 7 <post name link> <date time> S3 <user link>
+ 5 <post name link> <date time> S2 <user link>
+ 2 <post name link> <date time> ET <user link>
+
+MRP18 / admin
+ Follow the link 'Administration > ForumNG administration > Edit settings'
+ In 'Ratings, Allow posts to be rated' choose 'Ratings (standard) from the dropdown
+ In 'Scale Type' dropdown choose' Point'
+ In 'Maximum points' text area enter the number 5
+ In 'Grade' dropdown choose 'Count of ratings'
+ Select 'Save and display'
+
+MRP19 / admin
+ Return to Forum discussion list.
+ Select 'Show usage'
+ Verify that a count of ratings are returned with the following details
+ 2 <post name link> <date time> S2 <user link>
+ 2 <post name link> <date time> S3 <user link>
+ 1 <post name link> <date time> ET <user link>
+
+MRP20 / admin
+ Follow the link 'Administration > ForumNG administration > Edit settings'
+ In 'Ratings, Allow posts to be rated' choose 'Ratings (standard) from the dropdown
+ In 'Scale Type' dropdown choose' Point'
+ In 'Maximum points' text area enter the number 5
+ In 'Grade' dropdown choose 'Average of ratings'
+ Select 'Save and display'
+
+MRP21 / admin
+ Return to Forum discussion list.
+ Select 'Show usage'
+ Verify that the average of ratings are returned with the following details
+ 3.5 <post name link> <date time> S3 <user link>
+ 2.5 <post name link> <date time> S2 <user link>
+ 2   <post name link> <date time> ET <user link>
+
+MRP22 / admin
+ Follow the link 'Administration > ForumNG administration > Edit settings'
+ In 'Ratings, Allow posts to be rated' choose 'Ratings (standard) from the dropdown
+ In 'Scale Type' dropdown choose' Point'
+ In 'Maximum points' text area enter the number 5
+ In 'Grade' dropdown choose 'Maximium ratings'
+ Select 'Save and display'
+
+MRP23 / admin
+ Return to Forum discussion list.
+ Select 'Show usage'
+ Verify that the maximium ratings are returned with the following details
+ 4 <post name link> <date time> S3 <user link>
+ 3 <post name link> <date time> S2 <user link>
+ 2 <post name link> <date time> ET <user link>
+
+MRP24 / admin
+ Follow the link 'Administration > ForumNG administration > Edit settings'
+ In 'Ratings, Allow posts to be rated' choose 'Ratings (standard) from the dropdown
+ In 'Scale Type' dropdown choose' Point'
+ In 'Maximum points' text area enter the number 5
+ In 'Grade' dropdown choose 'Minimium ratings'
+ Select 'Save and display'
+
+MRP25 / admin
+ Return to Forum discussion list.
+ Select 'Show usage'
+ Verify that the minimium ratings are returned with the following details
+ 3 <post name link> <date time> S3 <user link>
+ 2 <post name link> <date time> S2 <user link>
+ 2 <post name link> <date time> ET <user link>

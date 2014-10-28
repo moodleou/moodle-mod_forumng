@@ -28,6 +28,7 @@ require_once($CFG->dirroot. '/mod/forumng/feature/usage/locallib.php');
 
 $cmid = required_param('id', PARAM_INT);
 $cloneid = optional_param('clone', 0, PARAM_INT);
+$ratings = optional_param('ratings', 0, PARAM_INT);
 $pageparams = array('id' => $cmid);
 if ($cloneid) {
     $pageparams['clone'] = $cloneid;
@@ -338,9 +339,122 @@ if (has_capability('forumngfeature/usage:viewflagged', $forum->get_context())) {
     $usageoutput .= html_writer::end_div();
 }
 
+// Show ratings.
+if (has_capability('mod/forumng:viewanyrating', $forum->get_context())) {
+    $gradingstr = '';
+    if ($ratingtype = $forum->get_enableratings()) {
+        // Get grading type from forum.
+        $gradingtype = $forum->get_grading();
+        $counttype = '';
+        if (($gradingtype == mod_forumng::GRADING_NONE) || ($gradingtype == mod_forumng::GRADING_MANUAL)) {
+            // If ratings (grading type) not set get default display grading type depending upon rating scale type.
+            if (!$ratings) {
+                $scaletype = $forum->get_rating_scale();
+                if ($scaletype > 0) {
+                    $gradingtype = mod_forumng::GRADING_AVERAGE;
+                } else if ($scaletype < 0) {
+                    $gradingtype = mod_forumng::GRADING_COUNT;
+                }
+            }
+        }
+
+        if ($ratings) {
+            $gradingtype = $ratings;
+        }
+
+        $orderby = ' rawgrade DESC';
+        // Build up sql.
+        switch ($gradingtype) {
+            case mod_forumng::GRADING_AVERAGE:
+                // Grading: Average of ratings.
+                $counttype = ' AVG(r.rating) AS rawgrade';
+                $gradingstr = 'forumng_ratings_grading_average';
+                break;
+
+            case mod_forumng::GRADING_COUNT:
+                // Grading: Count of ratings.
+                $counttype = ' COUNT(r.rating) AS rawgrade';
+                $gradingstr = 'forumng_ratings_grading_count';
+                break;
+
+            case mod_forumng::GRADING_MAX:
+                // Grading: Max rating.
+                $counttype = ' MAX(r.rating) AS rawgrade';
+                $gradingstr = 'forumng_ratings_grading_max';
+                break;
+
+            case mod_forumng::GRADING_MIN:
+                // Grading: Min rating.
+                $counttype = ' MIN(r.rating) AS rawgrade';
+                $gradingstr = 'forumng_ratings_grading_min';
+                break;
+
+            case mod_forumng::GRADING_SUM:
+                // Grading: Sum of ratings.
+                $counttype = ' SUM(r.rating) as rawgrade';
+                $gradingstr = 'forumng_ratings_grading_sum';
+                break;
+        }
+
+        $ratingslist = array();
+        $conditionsparams = array($forum->get_id());
+        $conditions = '  fd.forumngid = ?';
+        $havingparams = array();
+        if ($ratingtype == mod_forumng::FORUMNG_STANDARD_RATING ) {
+            // Moodle ratings.
+            $postid = ' r.itemid AS postid ';
+            $from = ' {rating} r ';
+            $postjoin = 'INNER JOIN {forumng_posts} fp ON r.itemid = fp.id';
+            $conditions .= ' AND r.component = \'mod_forumng\'';
+            $conditions .= ' AND r.contextid = ?';
+            $conditionsparams[] = $forum->get_context()->id;
+            $groupby = ' GROUP BY r.itemid ';
+            $having = '';
+        } else {
+            // Old forumng ratings (obsolete).
+            $postid = ' r.postid AS postid ';
+            $from = ' {forumng_ratings} r';
+            $postjoin = 'INNER JOIN {forumng_posts} fp ON r.postid = fp.id';
+            $having = 'HAVING COUNT(r.rating) >= ?';
+            $havingparams[] = $forum->get_rating_threshold();
+            $groupby = ' GROUP BY r.postid';
+        }
+
+        $conditionsparams = array_merge($conditionsparams, $groupparams, $havingparams);
+
+        $ratingsl = $DB->get_recordset_sql("SELECT $counttype, $postid
+                FROM $from
+                $postjoin
+                INNER JOIN  {forumng_discussions} fd ON fp.discussionid = fd.id
+                INNER JOIN  {forumng} f ON f.id = fd.forumngid
+                WHERE $conditions
+                AND fd.deleted = 0
+                AND fp.deleted = 0
+                AND fp.oldversion = 0
+                $groupwhere
+                $groupby
+                $having
+                ORDER BY rawgrade DESC
+                ", $conditionsparams, 0, 5);
+
+        // Get the ratings.
+        foreach ($ratingsl as $apost) {
+            if ($gradingtype == mod_forumng::GRADING_AVERAGE) {
+                $apost->rawgrade = round($apost->rawgrade, 2);
+            }
+            $post = mod_forumng_post::get_from_id($apost->postid, $cloneid, true, true);
+            list($content, $user) = $renderer->render_usage_post_info($forum, $post->get_discussion(), $post);
+            $ratingslist[] = $renderer->render_usage_list_item($forum, $apost->rawgrade, $user, $content);
+        }
+
+        // Print out ratings usage.
+        $usageoutput .= $renderer->render_usage_ratings($ratingslist, $forum, $gradingstr, $gradingtype);
+    }
+}
+
 if (!empty($usageoutput)) {
     echo html_writer::start_div('forumng_usage_section');
-    echo $OUTPUT->heading(get_string('usage', 'forumngfeature_usage'), 3, 'forumng_usage_sectitle');
+    echo $OUTPUT->heading(get_string('usage', 'forumngfeature_usage'), 4, 'forumng_usage_sectitle');
     echo $usageoutput;
     echo html_writer::start_div('clearer') . html_writer::end_div();
     echo html_writer::end_div();

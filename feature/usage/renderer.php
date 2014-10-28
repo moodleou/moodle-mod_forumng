@@ -170,4 +170,51 @@ class forumngfeature_usage_renderer extends plugin_renderer_base {
         }
         return $content;
     }
+
+    /**
+     * Display the usage ratings
+     * @param array $ratinglist list of forum post details to be displayed
+     * @param object $forum
+     * @param string $gradingstr is the string name to be got from the language file
+     * @param string $gradingtype is the numeric value of the forum or chosen grading type
+     * @return string
+     */
+    public function render_usage_ratings($ratinglist, $forum, $gradingstr = '', $gradingtype = 0) {
+
+        // Print out ratings usage.
+        $usageoutput = html_writer::start_div('forumng_usage_ratings');
+        $grading = $forum->get_grading();
+        if (($grading == mod_forumng::GRADING_NONE) || ($grading == mod_forumng::GRADING_MANUAL)) {
+            $usageoutput .= $this->render_ratings_filter($forum, $gradingtype);
+        }
+        $usageoutput .= $this->render_usage_list($ratinglist, $gradingstr);
+        $usageoutput .= html_writer::end_div();
+        return $usageoutput;
+    }
+
+    /**
+     * Display rating filter as a link or dropdown
+     * @param mod_forumng $forum
+     * @papam int $selectedid for choosing default value from dropdown
+     * @return string for printing out
+     */
+    public function render_ratings_filter($forum, $selectedid = 0) {
+
+        // Display dropdown.
+        $options = array();
+        $options[mod_forumng::GRADING_AVERAGE] = get_string('grading_average', 'forumng');
+        $options[mod_forumng::GRADING_COUNT] = get_string('grading_count', 'forumng');
+        $options[mod_forumng::GRADING_SUM] = get_string('grading_sum', 'forumng');
+
+        $usageurl = new moodle_url('/mod/forumng/feature/usage/usage.php?',
+                $forum->get_link_params_array(mod_forumng::PARAM_PLAIN));
+        $select = new single_select($usageurl, 'ratings', $options, $selectedid);
+        $select->label = get_string('forumngratingsfilter', 'forumngfeature_usage');
+        $select->set_help_icon('forumngratingsfilter', 'forumngfeature_usage');
+        $output = $this->render($select);
+        $out = '<div class="forumng_ratings_filter">' . $output . '</div>';
+
+        return $out;
+    }
+
 }

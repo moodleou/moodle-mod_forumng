@@ -50,11 +50,12 @@ ol.forumng_usage_list li {
     margin-top: .5em;
 }
 .forumng_usage_readers .forumng_usage_list .forumng_usage_list_info .fng_userlink,
-.forumng_usage_flagged .forumng_usage_list .forumng_usage_list_info .fng_userlink {
+.forumng_usage_flagged .forumng_usage_list .forumng_usage_list_info .fng_userlink,
+.forumng_usage_ratings .forumng_usage_list .forumng_usage_list_info .fng_userlink {
     margin-top: 0;
     margin-bottom: .5em;
 }
-.forumng_usage_flagged, .forumng_usage_readers {
+.forumng_usage_flagged, .forumng_usage_readers, .forumng_usage_ratings {
     float: left;
     margin-right: 1em;
 }

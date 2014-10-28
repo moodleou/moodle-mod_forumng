@@ -21,4 +21,4 @@
  * @copyright 2013 The Open University
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-$plugin->version  = 2014080800;
+$plugin->version  = 2014102800;
