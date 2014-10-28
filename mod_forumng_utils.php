@@ -299,11 +299,11 @@ class mod_forumng_utils {
         // Get core user name fields, for use with fullname etc.
         $namefields = get_all_user_name_fields();
         return $includemailfields
-            ? $namefields + array('id', 'username', 'picture', 'url',
+            ?  array('id', 'username', 'picture', 'url',
                 'imagealt', 'email', 'maildisplay', 'mailformat', 'maildigest',
-                'emailstop', 'deleted', 'auth', 'timezone', 'lang', 'idnumber')
-            :  $namefields + array('id', 'username', 'picture', 'url',
-                'imagealt', 'idnumber', 'email');
+                'emailstop', 'deleted', 'auth', 'timezone', 'lang', 'idnumber') + $namefields
+            :   array('id', 'username', 'picture', 'url',
+                'imagealt', 'idnumber', 'email') + $namefields;
     }
 
     /**
