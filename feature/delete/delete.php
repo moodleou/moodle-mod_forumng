@@ -47,8 +47,11 @@ $forum = $discussion->get_forum();
 $cm = $forum->get_course_module();
 $course = $forum->get_course();
 
-// Check permission for change.
-$discussion->require_edit();
+// Let discussion author delete if allowed, otherwise check permission for change.
+if ($USER->id != $discussion->get_poster()->id || $discussion->get_root_post()->has_children() ||
+        !$discussion->get_root_post()->can_edit($whynot)) {
+    $discussion->require_edit();
+}
 
 // Set up page.
 $pagename = get_string(
