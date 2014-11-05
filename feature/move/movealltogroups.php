@@ -111,6 +111,11 @@ if ($targetgroupmode) {
     }
 }
 
+if (!$chosentargetgroup && $targetgroup > 0 && !$groupsfound) {
+    // Target group set from source forum, but not in target - ensure choice given.
+    $targetgroup = 0;
+}
+
 if (($targetgroup > 0) || ($targetgroupmode == 0) || ($targetgroupdiff == 0) || $groupsfound) {
     // We have a targetgroup or target group mode is nogroups.
     $targetgroupfound = true;
