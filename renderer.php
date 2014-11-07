@@ -1153,6 +1153,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
             // End: forumng-pic-info.
             $out .=  html_writer::end_tag('div');
         } else {
+            require_once(dirname(__FILE__) . '/mod_forumng_cron.php');
             $out .= $by->name . ' - ' . $by->date . $lf;
 
             $out .= mod_forumng_cron::EMAIL_DIVIDER;

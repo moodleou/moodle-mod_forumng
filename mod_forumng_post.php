@@ -960,7 +960,7 @@ WHERE
         $results = $DB->get_records_sql("
 SELECT
     fp.*,
-    ".mod_forumng_utils::select_username_fields('u').",
+    ".mod_forumng_utils::select_username_fields('u', true).",
     ".mod_forumng_utils::select_username_fields('eu').",
     ".mod_forumng_utils::select_username_fields('du')."
     $ratingsquery

@@ -95,38 +95,39 @@ if ($email) {
             $notifymessagetext = $submitted->notifymessage['text'];
         }
 
-        // Always send HTML version.
-        $user->mailformat = 1;
+        // Always enable HTML version.
         $messagehtml = $out->deletion_email(text_to_html($messagetext));
         $notifymessagehtml = $out->deletion_email(text_to_html($notifymessagetext));
 
-        // Send an email to the author of the discussion post.
-        if (!email_to_user($user, $from, $subject, '', $messagehtml)) {
+        // Send an email to the author of the discussion post, using prefered format.
+        if (!email_to_user($user, $from, $subject, html_to_text($messagetext), $messagehtml)) {
             print_error(get_string('emailerror', 'forumng'));
         }
 
         // Get copy email addresses.
-        $emails = $selfmail = $contributorsemails = array();
+        $contribemails = $emails = $selfmail = $contributorsemails = array();
         // Prepare for copies.
+        $subject = strtoupper(get_string('copy')) . ' - ' . $subject;
         if ($copyself) {
+            // Send an email copy to the current user, with prefered format.
+            if (!email_to_user($USER, $from, $subject, html_to_text($messagetext), $messagehtml)) {
+                print_error(get_string('emailerror', 'forumng'));
+            }
             $selfmail[] = $USER->email;
         }
-
         // Addition of 'Email address of other recipients'.
         if (!empty($submitted->emailadd)) {
             $emails = preg_split('~[; ]+~', $submitted->emailadd);
         }
-        $emails = array_merge($emails, $selfmail);
 
-        // If there are any contributors notify them (if sent delete copy email don't).
+        // If there are any contributors notify them (if sent delete copy email won't).
         if ($notifycontributors) {
-            $contributorsemails = get_posts_discussion_email_details($discussion, $emails);
-            // Remove discussion creators email from $contributorsemails array.
-            $contributorsemails = array_diff($contributorsemails, array($user->email));
+            $contribemails = array_merge($emails, $selfmail);
+            $contribemails = array_merge($contribemails, array($user->email));
+            $contributorsemails = get_posts_discussion_email_details($discussion, $contribemails);
         }
-        // Send copy emails.
+        // Send copy HTML emails.
         if (!empty($emails)) {
-            $subject = strtoupper(get_string('copy')) . ' - '. $subject;
             foreach ($emails as $email) {
                 $fakeuser = (object)array(
                         'email' => $email,
@@ -138,17 +139,19 @@ if ($email) {
                 }
             }
         }
-        // Send contributor emails.
+        // Send contributor emails, using prefered format.
         if (!empty($contributorsemails)) {
             $subject = get_string('deletedforumpost', 'forumng');
-            foreach ($contributorsemails as $email) {
-                $fakeuser = (object)array(
-                        'email' => $email,
-                        'mailformat' => 1,
+            foreach ($contributorsemails as $contrib) {
+                if (isset($contrib['email'])) {
+                    $fakeuser = (object)array(
+                        'email' => $contrib['email'],
+                        'mailformat' => $contrib['mailformat'],
                         'id' => -1
-                );
-                if (!email_to_user($fakeuser, $from, $subject, '', $notifymessagehtml)) {
-                    print_error(get_string('emailerror', 'forumng'));
+                    );
+                    if (!email_to_user($fakeuser, $from, $subject, html_to_text($notifymessagetext), $notifymessagehtml)) {
+                        print_error(get_string('emailerror', 'forumng'));
+                    }
                 }
             }
         }
@@ -256,8 +259,13 @@ function get_posts_discussion_email_details($discussion, $emails) {
     // Get contributor details.
     $users = user_get_users_by_id($userids);
     foreach ($users as $user) {
-        $contribemails[] = $user->email;
+        if (!in_array($user->email, $emails)) {
+            $details = array();
+            $details['email'] = $user->email;
+            $details['mailformat'] = $user->mailformat;
+            $details['username'] = $user->username;
+            $contribemails[] = $details;
+        }
     }
-    $contribemails = array_diff($contribemails, $emails);
     return $contribemails;
 }

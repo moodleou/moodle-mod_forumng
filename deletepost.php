@@ -134,36 +134,40 @@ if ($email) {
         $user = $post->get_user();
         $from = $SITE->fullname;
         $subject = get_string('deletedforumpost', 'forumng');
+        $message = html_to_text($messagetext);
 
-        // Always send HTML version
-        $user->mailformat = 1;
+        // Always enable HTML version
         $messagehtml = $out->deletion_email(text_to_html($messagetext));
 
         // Include the copy of the post in the email to the author.
         if ($includepost) {
             $messagehtml .= $messagepost;
+            $message .=  $post->display(false, array(mod_forumng_post::OPTION_NO_COMMANDS => true,
+                mod_forumng_post::OPTION_SINGLE_POST => true));
         }
 
-        // send an email to the author of the post
-        if (!email_to_user($user, $from, $subject, '', $messagehtml)) {
+        // Send an email to the author of the post.
+        if (!email_to_user($user, $from, $subject, $message, $messagehtml)) {
             print_error(get_string('emailerror', 'forumng'));
         }
 
         // Prepare for copies.
-        $emails = $selfmail = array();
+        $emails = array();
+        $subject = strtoupper(get_string('copy')) . ' - ' . $subject;
         if ($copyself) {
-            $selfmail[] = $USER->email;
+            // Send an email copy to the current user, with prefered format.
+            if (!email_to_user($USER, $from, $subject, $message, $messagehtml)) {
+                print_error(get_string('emailerror', 'forumng'));
+            }
         }
 
         // Addition of 'Email address of other recipients'.
         if (!empty($submitted->emailadd)) {
             $emails = preg_split('~[; ]+~', $submitted->emailadd);
         }
-        $emails = array_merge($emails, $selfmail);
 
-        // If there are any recipients listed send them a copy.
+        // If there are any recipients listed send them an HTML copy.
         if (!empty($emails[0])) {
-            $subject = strtoupper(get_string('copy')) . ' - '. $subject;
             foreach ($emails as $email) {
                 $fakeuser = (object)array(
                         'email' => $email,

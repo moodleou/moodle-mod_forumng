@@ -79,32 +79,32 @@ function send_edit_email($formdata, $post) {
 
     // Set up the email.
     $user = $post->get_user();
-    // Always send HTML version.
-    $user->mailformat = 1;
     $from = $SITE->fullname;
     $subject = get_string('editedforumpost', 'forumng');
     $messagetext = $formdata->emailmessage['text'];
 
-    // Send an email to the author of the post.
-    if (!email_to_user($user, $from, $subject, '', $messagetext)) {
+    // Send an email to the author of the post, using prefered format.
+    if (!email_to_user($user, $from, $subject, html_to_text($messagetext), $messagetext)) {
         print_error(get_string('emailerror', 'forumng'));
     }
 
     // Prepare for copies.
-    $emails = $selfmail = array();
+    $emails = array();
+    $subject = strtoupper(get_string('copy')) . ' - '. $subject;
     if (!empty($formdata->emailself)) {
-        $selfmail[] = $USER->email;
+        // Send an email copy to the current user, using prefered format.
+        if (!email_to_user($USER, $from, $subject, html_to_text($messagetext), $messagetext)) {
+            print_error(get_string('emailerror', 'forumng'));
+        }
     }
 
     // Addition of 'Email address of other recipients'.
     if (!empty($formdata->emailadd)) {
         $emails = preg_split('~[; ]+~', $formdata->emailadd);
     }
-    $emails = array_merge($emails, $selfmail);
 
-    // If there are any recipients listed send them a copy.
+    // If there are any recipients listed send them a HTML copy.
     if (!empty($emails[0])) {
-        $subject = strtoupper(get_string('copy')) . ' - '. $subject;
         foreach ($emails as $email) {
             $fakeuser = (object)array(
                     'email' => $email,
