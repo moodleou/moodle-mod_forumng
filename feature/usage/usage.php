@@ -342,7 +342,8 @@ if (has_capability('forumngfeature/usage:viewflagged', $forum->get_context())) {
 // Show ratings.
 if (has_capability('mod/forumng:viewanyrating', $forum->get_context())) {
     $gradingstr = '';
-    if ($ratingtype = $forum->get_enableratings()) {
+    $ratingtype = $forum->get_enableratings();
+    if ($ratingtype && $forum->get_rating_scale() != 0) {
         // Get grading type from forum.
         $gradingtype = $forum->get_grading();
         $counttype = '';
