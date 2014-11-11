@@ -5328,7 +5328,7 @@ ORDER BY
             $settags = self::get_set_tags($this->forumfields->id);
 
             foreach ($rs as $tag) {
-                $tag->displayname = tag_display_name($tag);
+                $tag->displayname = strtolower(tag_display_name($tag, TAG_RETURN_TEXT));
                 if (array_key_exists($tag->id, $settags)) {
                     $tag->label = get_string('settag_label', 'forumng');
                 }
@@ -5400,7 +5400,7 @@ ORDER BY
         // Create tags associative array with tagid as key and tag name as value.
         $tags = array();
         foreach ($rs as $tag) {
-            $tags[$tag->id] = (tag_display_name($tag));
+            $tags[$tag->id] = strtolower(tag_display_name($tag, TAG_RETURN_TEXT));
         }
 
         return $tags;

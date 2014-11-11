@@ -2574,15 +2574,20 @@ WHERE
 
     /**
      * Get tags for this discussion.
+     * @param $htmldecode bool Set true to decode html special chars (for form field)
      * @return array of sorted tags or false if no tags are found.
      */
-    public function get_tags() {
+    public function get_tags($htmldecode = false) {
         global $CFG;
         require_once($CFG->dirroot . '/tag/lib.php');
         $tags = null;
         $forum = $this->get_forum();
         if ($forum->get_tags_enabled()) {
             $tags = tag_get_tags_array('discussion', $this->get_id());
+            $tags = array_map('strtolower', $tags);
+            if ($htmldecode) {
+                $tags = array_map('htmlspecialchars_decode', $tags);
+            }
             // Sort tags keeping id.
             asort($tags);
             return $tags;

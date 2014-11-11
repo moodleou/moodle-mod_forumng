@@ -248,7 +248,7 @@ try {
         $params = array('d'=>$discussionid);
         $pagename = get_string('editdiscussionoptions', 'forumng',
             $post->get_effective_subject(false));
-        $tags = $discussion->get_tags();
+        $tags = $discussion->get_tags(true);
         // Add an empty element for editing tag purposes.
         if (!empty($tags)) {
             array_push($tags, '');

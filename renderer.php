@@ -1840,7 +1840,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
     public function render_tag_filter($taglist, $forum, $selectid = null) {
         $baseurl = 'view.php?' . $forum->get_link_params(mod_forumng::PARAM_HTML);
         if (isset($selectid)) {
-            $tagname = $taglist[$selectid]->displayname;
+            $tagname = htmlspecialchars($taglist[$selectid]->displayname);
             $taglink = get_string('removefiltering', 'forumng', $tagname);
             $taglink .= '&nbsp;(';
             $taglink .= html_writer::tag('a', get_string('remove', 'forumng'), array('href' => $baseurl));
@@ -1849,7 +1849,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
         } else {
             // Display dropdown.
             foreach ($taglist as $tag) {
-                $options[$tag->id] = $tag->displayname . '  (' . $tag->count .')';
+                $options[$tag->id] = htmlspecialchars($tag->displayname) . '  (' . $tag->count .')';
             }
             $tagurl = new moodle_url('/mod/forumng/view.php?', $forum->get_link_params_array(mod_forumng::PARAM_PLAIN));
             $select = new single_select($tagurl, 'tag', $options, '');
