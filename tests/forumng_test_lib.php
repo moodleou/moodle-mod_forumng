@@ -111,4 +111,18 @@ abstract class forumng_test_lib extends advanced_testcase {
         return $forum;
     }
 
+    /**
+     * Create a discussion using the generator, returns discussion object
+     * @param mod_forumng $forum
+     * @param array $options Must contain userid
+     * @return mod_forumng_discussion
+     */
+    public function get_new_discussion(mod_forumng $forum, array $options) {
+        $options['forum'] = $forum->get_id();
+        $options['course'] = $forum->get_course_id();
+        $generator = $this->getDataGenerator()->get_plugin_generator('mod_forumng');
+        $dis = $generator->create_discussion($options);
+        return mod_forumng_discussion::get_from_id($dis[0], mod_forumng::CLONE_DIRECT);
+    }
+
 }

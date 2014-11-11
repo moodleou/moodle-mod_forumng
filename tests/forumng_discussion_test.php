@@ -53,6 +53,7 @@ class mod_forumng_discussion_testcase  extends forumng_test_lib {
         get_flagged_discussions()
         is_flagged()
         get_tags()
+        permanently_delete()
     */
 
     public function test_showfrom () {
@@ -316,5 +317,58 @@ class mod_forumng_discussion_testcase  extends forumng_test_lib {
         $taggedlist = $list->get_normal_discussions();
         $this->assertCount(0, $taggedlist);
 
+    }
+
+    /**
+     * Tests deleting discussion and permanent delete
+     * Checks completion
+     */
+    public function test_delete() {
+        global $DB, $USER, $SITE, $CFG;
+
+        require_once($CFG->dirroot . '/mod/forumng/mod_forumng_cron.php');
+        $CFG->enablecompletion = true;
+
+        $this->resetAfterTest(true);
+        $this->setAdminUser();
+        $course = $this->get_new_course();
+        $course->enablecompletion = 1;
+        update_course($course);
+
+        $forum = $this->get_new_forumng($course->id, array('removeafter' => 1, 'removeto' => 0,
+                'completion' => 2, 'completiondiscussions' => 1));
+        $completion = new completion_info($forum->get_course());
+
+        $discussion = $this->get_new_discussion($forum, array('userid' => $USER->id));
+        $root1 = $discussion->get_root_post();
+        // Get completion status.
+        $complete = $completion->get_data($forum->get_course_module());
+        $this->assertEquals(COMPLETION_COMPLETE, $complete->completionstate);
+        $discussion2 = $this->get_new_discussion($forum, array('userid' => $USER->id));
+        // Make post old.
+        $root2 = $discussion2->get_root_post();
+        $dataobject = new stdClass();
+        $dataobject->id = $root2->get_id();
+        $dataobject->modified = $root2->get_modified() - 100;
+        $DB->update_record('forumng_posts', $dataobject);
+        // Check perm delete by manual call.
+        $discussion->permanently_delete(false);
+        $this->assertFalse($DB->get_record('forumng_discussions', array('id' => $discussion->get_id())));
+        $this->assertFalse($DB->get_record('forumng_posts', array('id' => $root1->get_id())));
+        // Check cron cleanup (Does permanently_delete() on discussion2).
+        mod_forumng_cron::archive_old_discussions();
+        $this->assertFalse($DB->get_record('forumng_discussions', array('id' => $discussion2->get_id())));
+        $this->assertFalse($DB->get_record('forumng_posts', array('id' => $root2->get_id())));
+
+        $complete = $completion->get_data($forum->get_course_module());
+        $this->assertEquals(COMPLETION_INCOMPLETE, $complete->completionstate);
+        if (mod_forumng::search_installed()) {
+            $searchdoc = $root2->search_get_document();
+            $this->assertFalse($searchdoc->find());
+            $query = new local_ousearch_search('Message for discussion');
+            $query->set_coursemodule($forum->get_course_module(true));
+            $results = $query->query();
+            $this->assertEmpty($results->results);
+        }
     }
 }

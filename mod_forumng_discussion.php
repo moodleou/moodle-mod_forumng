@@ -1423,6 +1423,9 @@ WHERE
      */
     public function permanently_delete($log=true) {
         global $DB;
+
+        $this->delete(false);
+
         $transaction = $DB->start_delegated_transaction();
 
         // Deleting the relevant data in the forumng_subscriptions table.
