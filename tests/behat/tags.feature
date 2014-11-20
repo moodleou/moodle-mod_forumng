@@ -38,37 +38,37 @@ Feature: Add forumng activity and test basic tagging functionality
     And I follow "Test forum name"
     Given "tag" "select" should exist
     Then the "tag" select box should contain "one (1)"
-    Then the "tag" select box should contain "oneA (1)"
-    Then the "tag" select box should contain "oneB (1)"
+    Then the "tag" select box should contain "onea (1)"
+    Then the "tag" select box should contain "oneb (1)"
     Then the "tag" select box should contain "two (1)"
-    Then the "tag" select box should contain "twoA (1)"
-    Then the "tag" select box should contain "twoB (1)"
+    Then the "tag" select box should contain "twoa (1)"
+    Then the "tag" select box should contain "twob (1)"
     Then the "tag" select box should contain "three (1)"
-    Then the "tag" select box should contain "threeA (1)"
-    Then the "tag" select box should contain "threeB (1)"
+    Then the "tag" select box should contain "threea (1)"
+    Then the "tag" select box should contain "threeb (1)"
 
     # Check correct tags are displayed for each discusssion
     Given "tr#discrow_3" "css_element" should exist
     Then "three" "link" should exist in the "tr#discrow_3" "css_element"
-    Then "threeA" "link" should exist in the "tr#discrow_3" "css_element"
-    Then "threeB" "link" should exist in the "tr#discrow_3" "css_element"
+    Then "threea" "link" should exist in the "tr#discrow_3" "css_element"
+    Then "threeb" "link" should exist in the "tr#discrow_3" "css_element"
 
     Given "tr#discrow_2" "css_element" should exist
     Then "two" "link" should exist in the "tr#discrow_2" "css_element"
-    Then "twoA" "link" should exist in the "tr#discrow_2" "css_element"
-    Then "twoB" "link" should exist in the "tr#discrow_2" "css_element"
+    Then "twoa" "link" should exist in the "tr#discrow_2" "css_element"
+    Then "twob" "link" should exist in the "tr#discrow_2" "css_element"
 
     Given "tr#discrow_1" "css_element" should exist
     Then "one" "link" should exist in the "tr#discrow_1" "css_element"
-    Then "oneA" "link" should exist in the "tr#discrow_1" "css_element"
-    Then "oneB" "link" should exist in the "tr#discrow_1" "css_element"
+    Then "onea" "link" should exist in the "tr#discrow_1" "css_element"
+    Then "oneb" "link" should exist in the "tr#discrow_1" "css_element"
 
     # Check that the correct discussion is displayed if we click on a tag link
-    When I click on "oneB" "link"
+    When I click on "oneb" "link"
     Then "tr#discrow_1" "css_element" should exist
     Then "one" "link" should exist in the "tr#discrow_1" "css_element"
-    Then "oneA" "link" should exist in the "tr#discrow_1" "css_element"
-    Then "oneB" "link" should exist in the "tr#discrow_1" "css_element"
+    Then "onea" "link" should exist in the "tr#discrow_1" "css_element"
+    Then "oneb" "link" should exist in the "tr#discrow_1" "css_element"
     And "tr#discrow_3" "css_element" should not exist
     And "tr#discrow_2" "css_element" should not exist
     And "Remove" "link" should exist in the "div.forumng_discuss_tagfilter" "css_element"
@@ -87,7 +87,7 @@ Feature: Add forumng activity and test basic tagging functionality
 
     # Check that we open discussion options and set/edit tags to new values
     When I click on "Discussion options" "button"
-    Then I should see "three, threeA, threeB" in the "textarea#id_tags_othertags" "css_element"
+    Then I should see "three, threea, threeb" in the "textarea#id_tags_othertags" "css_element"
     Given I set the field "tags" to "two, three, threeB"
 
     # Check change of discussion tags has taken place on view page
@@ -96,7 +96,7 @@ Feature: Add forumng activity and test basic tagging functionality
     And I follow "Test forum name"
     Given "tag" "select" should exist
     Then the "tag" select box should contain "two (2)"
-    Then the "tag" select box should not contain "threeA (1)"
+    Then the "tag" select box should not contain "threea (1)"
 
     # Check that selecting tag option "two (2)2 brings up 2 discussions
     Given I set the field "tag" to "two (2)"
@@ -108,7 +108,7 @@ Feature: Add forumng activity and test basic tagging functionality
     # Check that there are links in each discussion are correct
     Then "two" "link" should exist in the "tr#discrow_2" "css_element"
     Then "two" "link" should exist in the "tr#discrow_3" "css_element"
-    Then "threeA" "link" should not exist in the "tr#discrow_3" "css_element"
+    Then "threea" "link" should not exist in the "tr#discrow_3" "css_element"
     And "Remove" "link" should exist in the "div.forumng_discuss_tagfilter" "css_element"
 
     # Check that we return to view page when the 'Remove' link is clicked on
@@ -123,9 +123,9 @@ Feature: Add forumng activity and test basic tagging functionality
 
     # Check to see that 'set' tags are not showing up in forumng view tag dropdown
     Given "tag" "select" should exist
-    Then the "tag" select box should not contain "setA (0)"
-    Then the "tag" select box should not contain "setB (0)"
-    Then the "tag" select box should not contain "setC (0)"
+    Then the "tag" select box should not contain "seta (0)"
+    Then the "tag" select box should not contain "setb (0)"
+    Then the "tag" select box should not contain "setc (0)"
 
     # Exit from test
     And I log out
