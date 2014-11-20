@@ -5325,7 +5325,7 @@ ORDER BY
                   GROUP BY t.name, t.id
                   ORDER BY t.name", $conditionparams);
 
-            $settags = self::get_set_tags($this->forumfields->id);
+            $settags = self::get_set_tags($this->forumfields->id, $groupid);
 
             foreach ($rs as $tag) {
                 $tag->displayname = strtolower(tag_display_name($tag, TAG_RETURN_TEXT));
@@ -5371,26 +5371,37 @@ ORDER BY
      * @param int $forumid used to get context id
      * @return array set tags for that forum
      */
-    public static function get_set_tags($forumid) {
+    public static function get_set_tags($forumid, $groupid = self::ALL_GROUPS) {
         global $DB, $CFG;
         require_once($CFG->dirroot . '/tag/lib.php');
 
         $cm = get_coursemodule_from_instance('forumng', $forumid);
         $context = context_module::instance($cm->id);
 
+        if (($groupid == self::ALL_GROUPS) || ($groupid == self::NO_GROUPS)) {
+            $groupid = 0;
+        }
+
         // Check to see whether tags have been set at forumng level.
         $conditionparams = array();
         $conditions = "ti.component = ?";
-        $conditions .= "AND ti.itemtype = ?";
-        $conditions .= "AND ti.itemid = ?";
-        $conditions .= "AND ti.contextid = ?";
+        $conditions .= " AND ti.itemtype = ?";
+        $conditions .= " AND ti.contextid = ?";
+        $conditions .= " AND (ti.itemid = ?";
+        if ($groupid) {
+            $conditions .= " OR ti.itemid = ?";
+        }
+        $conditions .= ")";
         $conditionparams[] = 'mod_forumng';
         $conditionparams[] = 'set';
-        $conditionparams[] = 0;
         $conditionparams[] = $context->id;
+        $conditionparams[] = 0;
+        if ($groupid) {
+            $conditionparams[] = $groupid;
+        }
 
         $rs = $DB->get_records_sql("
-            SELECT t.*
+            SELECT DISTINCT t.*
               FROM {tag} t
         INNER JOIN {tag_instance} ti
                 ON t.id = ti.tagid
