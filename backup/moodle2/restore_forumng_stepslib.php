@@ -238,7 +238,7 @@ class restore_forumng_activity_structure_step extends restore_activity_structure
         $forumid = $this->get_new_parentid('forumng');
 
         $cm = get_coursemodule_from_instance('forumng', $forumid);
-        tag_set_add('discussion', $itemid, $tag, 'mod_forumng', context_module::instance($cm->id)->id);
+        tag_set_add('forumng_discussions', $itemid, $tag, 'mod_forumng', context_module::instance($cm->id)->id);
     }
 
     protected function after_execute() {

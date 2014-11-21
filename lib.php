@@ -80,7 +80,7 @@ function forumng_update_instance($forumng) {
     $forum->updated($previous);
     if (isset($forumng->settags)) {
         $context = $forum->get_context(true);
-        tag_set('set', 0, $forumng->settags, 'mod_forumng', $context->id);
+        tag_set('forumng', $forumng->id, $forumng->settags, 'mod_forumng', $context->id);
     }
 
     return true;

@@ -1311,7 +1311,7 @@ WHERE
         $hastag = false;
         if (!empty($tagid)) {
             $hastag = true;
-            $tagjoin = "LEFT JOIN {tag_instance} ti ON ti.itemid = fd.id AND ti.itemtype = 'discussion'
+            $tagjoin = "LEFT JOIN {tag_instance} ti ON ti.itemid = fd.id AND ti.itemtype = 'forumng_discussions'
                     AND ti.component = 'mod_forumng'";
             $conditions .= "AND ti.tagid = ?";
             $conditionparams[] = $tagid;
@@ -1525,7 +1525,7 @@ WHERE $conditions AND m.name = 'forumng' AND $restrictionsql",
 
         // If tags add to tag_instance records.
         if ($tags != null) {
-            tag_set('discussion', $discussionobj->id, $tags, 'mod_forumng', $this->context->id);
+            tag_set('forumng_discussions', $discussionobj->id, $tags, 'mod_forumng', $this->context->id);
         }
 
         $transaction->allow_commit();
@@ -5274,9 +5274,9 @@ ORDER BY
             $conditionparams[] = $this->forumfields->id;
 
             // Correct tags.
-            $conditions .= "AND ti.component = 'mod_forumng'";
-            $conditions .= "AND ti.itemtype = 'discussion'";
-            $conditions .= "AND ti.contextid = ?";
+            $conditions .= " AND ti.component = 'mod_forumng'";
+            $conditions .= " AND ti.itemtype = 'forumng_discussions'";
+            $conditions .= " AND ti.contextid = ?";
             $conditionparams[] = $this->get_context()->id;
 
             // Group restriction.
@@ -5384,19 +5384,16 @@ ORDER BY
 
         // Check to see whether tags have been set at forumng level.
         $conditionparams = array();
-        $conditions = "ti.component = ?";
-        $conditions .= " AND ti.itemtype = ?";
-        $conditions .= " AND ti.contextid = ?";
-        $conditions .= " AND (ti.itemid = ?";
-        if ($groupid) {
-            $conditions .= " OR ti.itemid = ?";
-        }
-        $conditions .= ")";
+        $conditions = "(ti.component = ? AND ti.itemtype = ? AND ti.contextid = ? AND ti.itemid = ?)";
         $conditionparams[] = 'mod_forumng';
-        $conditionparams[] = 'set';
+        $conditionparams[] = 'forumng';
         $conditionparams[] = $context->id;
-        $conditionparams[] = 0;
+        $conditionparams[] = $forumid;
         if ($groupid) {
+            $conditions .= " OR (ti.component = ? AND ti.itemtype = ? AND ti.contextid = ? AND ti.itemid = ?)";
+            $conditionparams[] = 'mod_forumng';
+            $conditionparams[] = 'groups';
+            $conditionparams[] = $context->id;
             $conditionparams[] = $groupid;
         }
 

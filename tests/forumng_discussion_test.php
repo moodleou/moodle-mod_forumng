@@ -328,13 +328,13 @@ class mod_forumng_discussion_testcase  extends forumng_test_lib {
         $forumng->tags = 1;
         forumng_update_instance($forumng);
         $context = $forum->get_context();
-        tag_set('set', $group1->id, $forumng->settags, 'mod_forumng', $context->id);
+        tag_set('groups', $group1->id, $forumng->settags, 'mod_forumng', $context->id);
         $tagsused1 = $forum::get_set_tags($forumng->id, $group1->id);
         $this->assertCount(4, $tagsused1);
 
         // Set tags for group 2 (should return main set tags also).
         $g2tags = array('g2 ghost', 'g2 ghoul', 'g2 googl', 'g2 welf', 'g2 gobb');
-        tag_set('set', $group2->id, $g2tags, 'mod_forumng', $context->id);
+        tag_set('groups', $group2->id, $g2tags, 'mod_forumng', $context->id);
         $tagsused2 = $forum::get_set_tags($forumng->id, $group2->id);
         $this->assertCount(9, $tagsused2);
 

@@ -834,7 +834,7 @@ class mod_forumng_discussion {
         $tagjoin = '';
         if ($hastag) {
             $tagjoin = "LEFT JOIN {tag_instance} ti on ti.itemid = fd.id
-                            AND ti.itemtype = 'discussion'
+                            AND ti.itemtype = 'forumng_discussions'
                             AND ti.component = 'mod_forumng'";
         }
 
@@ -1106,7 +1106,7 @@ WHERE
         // Update tags if required.
         if ($tags != null) {
             $context = $this->get_forum()->get_context(true);
-            tag_set('discussion', $this->discussionfields->id, $tags, 'mod_forumng', $context->id);
+            tag_set('forumng_discussions', $this->discussionfields->id, $tags, 'mod_forumng', $context->id);
         }
         if (count((array)$update)==0) {
             // No change
@@ -2583,7 +2583,7 @@ WHERE
         $tags = null;
         $forum = $this->get_forum();
         if ($forum->get_tags_enabled()) {
-            $tags = tag_get_tags_array('discussion', $this->get_id());
+            $tags = tag_get_tags_array('forumng_discussions', $this->get_id());
             $tags = array_map('strtolower', $tags);
             if ($htmldecode) {
                 $tags = array_map('htmlspecialchars_decode', $tags);

@@ -170,7 +170,7 @@ class backup_forumng_activity_structure_step extends backup_activity_structure_s
                                    WHERE ti.itemtype = ?
                                      AND ti.component = ?
                                      AND ti.itemid = ?', array(
-                                                        backup_helper::is_sqlparam('discussion'),
+                                                        backup_helper::is_sqlparam('forumng_discussions'),
                                                         backup_helper::is_sqlparam('mod_forumng'),
                                                         backup::VAR_PARENTID));
         }
