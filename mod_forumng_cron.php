@@ -952,7 +952,9 @@ WHERE
         $housekeepingparams = array($now);
         $count = $DB->count_records_sql("SELECT COUNT(1) $housekeepingquery", $housekeepingparams);
         if ($count) {
-            mtrace("\nBeginning processing $count discussion archiving/deleting requests");
+            if (!PHPUNIT_TEST) {
+                mtrace("\nBeginning processing $count discussion archiving/deleting requests");
+            }
             $housekeepingrs = $DB->get_recordset_sql("
 SELECT
     fd.id AS discussionid, f.id AS forumngid, f.removeafter, f.removeto
@@ -1015,9 +1017,11 @@ ORDER BY f.removeto", $housekeepingparams);
                 }
             }
             $housekeepingrs->close();
-            mtrace ("\n $discussionmovecount discussions have been archived and " .
+            if (!PHPUNIT_TEST) {
+                mtrace ("\n $discussionmovecount discussions have been archived and " .
                     "$discussiondeletecount discussions have been deleted permanently and " .
                     "$discussionautolocked discussions have been automatically locked");
+            }
         }
     }
 }
