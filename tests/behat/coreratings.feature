@@ -52,7 +52,7 @@ Feature: Add forumng activity and test basic ratings functionality
     When I set the field "menurating2" to "4"
     Then I should see "Average of ratings: 3 (1)"
     # Re-access, testing rating works when posts collapsed.
-    Given I follow "Test forum name"
+    Given I click on "#forumng-arrowback a" "css_element"
     And I follow "Admin1"
     When I set the field "menurating1" to "5"
     Then I should see "Average of ratings: 5 (1)"
@@ -87,5 +87,5 @@ Feature: Add forumng activity and test basic ratings functionality
     And I press "Save and display"
     When I follow "Admin1"
     And I expand post "0"
-    Then ".forumng-p3 .forumng-ratings-standard" "css_element" should exist
-    And ".forumng-p3 .forumng-ratings-standard select" "css_element" should not exist
+    Then ".forumng-p2 .forumng-ratings-standard" "css_element" should exist
+    And ".forumng-p2 .forumng-ratings-standard select" "css_element" should not exist

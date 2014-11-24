@@ -141,6 +141,7 @@ class behat_mod_forumng extends behat_base {
             }
             $steps[] = new Then('the "' . $savebutton . '" "button" should be enabled');
             $steps[] = new Given('I press "' . $savebutton . '"');
+            $steps[] = new Given('I switch to the main frame');
         } else {
             $steps[] = new Given('I set the following fields to these values:', $data);
             $steps[] = new Given('I press "' . $savebutton . '"');
