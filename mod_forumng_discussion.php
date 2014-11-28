@@ -1611,6 +1611,9 @@ WHERE
         $DB->execute("UPDATE {forumng_posts} SET discussionid = ? WHERE discussionid = ?",
                 array($targetdiscussion->get_id(), $this->get_id()));
 
+        // Update the last post id to that of the most recent time modified.
+        $targetdiscussion->possible_lastpost_change();
+
         // Delete this discussion
         $DB->delete_records('forumng_discussions', array('id' => $this->discussionfields->id));
 
