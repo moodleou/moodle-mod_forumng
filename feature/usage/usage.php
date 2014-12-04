@@ -153,7 +153,6 @@ if (has_capability('forumngfeature/usage:viewusage', $forum->get_context())) {
     if ($starttime == 0) {
         $starttime = $COURSE->startdate;// Earliest start time.
     }
-    $startdate = new DateTime(gmdate('m/d/yy', $starttime));
     if (!isset($allposts->current()->created) || $allposts->current()->created > $starttime) {
         // Setup the start date so even if not a post in it (or no posts), it will display.
         $days[ltrim(userdate($starttime, get_string('strftimedate', 'langconfig')))] = 0;
@@ -167,7 +166,6 @@ if (has_capability('forumngfeature/usage:viewusage', $forum->get_context())) {
         }
     }
     $endday = ltrim(userdate($endtime, get_string('strftimedate', 'langconfig')));
-    $enddate = new DateTime(gmdate('m/d/yy', $endtime));
     if (!isset($days[$endday])) {
         // Make graph go up to end time if no posts that day.
         $days[$endday] = 0;
@@ -224,6 +222,8 @@ if (has_capability('forumngfeature/usage:viewusage', $forum->get_context())) {
                     )
             );
     // There are 11 day labels shown by default on chart - if less available update axis.
+    $startdate = new DateTime($data[0]->$datelabel);
+    $enddate = new DateTime($data[count($data) - 1]->$datelabel);
     $interval = $startdate->diff($enddate);
     $totaldays = $interval->days + 1;// Add 1 to day diff as we always show start and end days.
     if ($totaldays < 11) {

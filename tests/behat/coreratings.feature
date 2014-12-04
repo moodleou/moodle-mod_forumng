@@ -34,7 +34,7 @@ Feature: Add forumng activity and test basic ratings functionality
     Then I should see "Average of ratings"
     And I log out
 
-  @javascript
+  @javascript @wip
   Scenario: Access forum as teacher and rate
     Given I log in as "teacher1"
     And I follow "Course 1"

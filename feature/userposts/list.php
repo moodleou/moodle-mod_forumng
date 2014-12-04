@@ -166,7 +166,7 @@ $userfields = user_picture::fields('u', array('username'));
 $sql = "SELECT $userfields, COALESCE(ta.numposts, 0) AS numposts, COALESCE(td.numdiscussions, 0) AS numdiscussions
           FROM {user} u
      LEFT JOIN (
-          SELECT fp.userid, COUNT(fp.userid) AS numposts
+          SELECT fp.userid, COUNT (fp.userid) AS numposts
             FROM {forumng_posts} fp
       INNER JOIN {forumng_discussions} fd ON
                  fd.id = fp.discussionid
@@ -177,7 +177,7 @@ $sql = "SELECT $userfields, COALESCE(ta.numposts, 0) AS numposts, COALESCE(td.nu
             ON u.id = ta.userid
 
      LEFT JOIN (
-          SELECT fp.userid, COUNT(fp.userid) AS numdiscussions
+          SELECT fp.userid, COUNT (fp.userid) AS numdiscussions
             FROM {forumng_posts} fp
       INNER JOIN {forumng_discussions} fd ON
                  fd.postid = fp.id

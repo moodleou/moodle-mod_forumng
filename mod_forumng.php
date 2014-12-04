@@ -5325,7 +5325,7 @@ ORDER BY
                   GROUP BY t.name, t.id
                   ORDER BY t.name", $conditionparams);
 
-            $settags = self::get_set_tags($this->forumfields->id, $groupid);
+            $settags = self::get_set_tags($this->forumfields->id);
 
             foreach ($rs as $tag) {
                 $tag->displayname = strtolower(tag_display_name($tag, TAG_RETURN_TEXT));
@@ -5371,34 +5371,26 @@ ORDER BY
      * @param int $forumid used to get context id
      * @return array set tags for that forum
      */
-    public static function get_set_tags($forumid, $groupid = self::ALL_GROUPS) {
+    public static function get_set_tags($forumid) {
         global $DB, $CFG;
         require_once($CFG->dirroot . '/tag/lib.php');
 
         $cm = get_coursemodule_from_instance('forumng', $forumid);
         $context = context_module::instance($cm->id);
 
-        if (($groupid == self::ALL_GROUPS) || ($groupid == self::NO_GROUPS)) {
-            $groupid = 0;
-        }
-
         // Check to see whether tags have been set at forumng level.
         $conditionparams = array();
-        $conditions = "(ti.component = ? AND ti.itemtype = ? AND ti.contextid = ? AND ti.itemid = ?)";
+        $conditions = "ti.component = ?";
+        $conditions .= "AND ti.itemtype = ?";
+        $conditions .= "AND ti.itemid = ?";
+        $conditions .= "AND ti.contextid = ?";
         $conditionparams[] = 'mod_forumng';
         $conditionparams[] = 'forumng';
-        $conditionparams[] = $context->id;
         $conditionparams[] = $forumid;
-        if ($groupid) {
-            $conditions .= " OR (ti.component = ? AND ti.itemtype = ? AND ti.contextid = ? AND ti.itemid = ?)";
-            $conditionparams[] = 'mod_forumng';
-            $conditionparams[] = 'groups';
-            $conditionparams[] = $context->id;
-            $conditionparams[] = $groupid;
-        }
+        $conditionparams[] = $context->id;
 
         $rs = $DB->get_records_sql("
-            SELECT DISTINCT t.*
+            SELECT t.*
               FROM {tag} t
         INNER JOIN {tag_instance} ti
                 ON t.id = ti.tagid

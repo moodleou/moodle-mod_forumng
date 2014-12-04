@@ -255,27 +255,24 @@ class mod_forumng_discussion_testcase  extends forumng_test_lib {
                 $discussion::NOCHANGE, array('tag1', 'tag2', 'tag3'));
         $tags1 = $discussion->get_tags();
         $this->assertCount(3, $tags1);
-        $discussion1 = $discussion;
 
         $discussionid = $ids2[0];
         $discussion = mod_forumng_discussion::get_from_id($discussionid , 0);
         $this->assertEmpty($discussion->get_tags());
         // Edit discussion settings.
-        $discussion->edit_settings(mod_forumng_discussion::NOCHANGE, mod_forumng_discussion::NOCHANGE, mod_forumng_discussion::NOCHANGE, mod_forumng_discussion::NOCHANGE,
-                mod_forumng_discussion::NOCHANGE, array('tag1', 'tag2'));
+        $discussion->edit_settings($discussion::NOCHANGE, $discussion::NOCHANGE, $discussion::NOCHANGE, $discussion::NOCHANGE,
+                $discussion::NOCHANGE, array('tag1', 'tag2'));
         $tags2 = $discussion->get_tags();
         $this->assertCount(2, $tags2);
-        $discussion2 = $discussion;
 
         $discussionid = $ids3[0];
         $discussion = mod_forumng_discussion::get_from_id($discussionid , 0);
         $this->assertEmpty($discussion->get_tags());
         // Edit discussion settings.
-        $discussion->edit_settings(mod_forumng_discussion::NOCHANGE, mod_forumng_discussion::NOCHANGE, mod_forumng_discussion::NOCHANGE, mod_forumng_discussion::NOCHANGE,
-                mod_forumng_discussion::NOCHANGE, array('tag1'));
+        $discussion->edit_settings($discussion::NOCHANGE, $discussion::NOCHANGE, $discussion::NOCHANGE, $discussion::NOCHANGE,
+                $discussion::NOCHANGE, array('tag1'));
         $tags3 = $discussion->get_tags();
         $this->assertCount(1, $tags3);
-        $discussion3 = $discussion;
 
         // Get id of 'tag1'.
         $tagid = array_search('tag1', $tags3);
@@ -320,26 +317,6 @@ class mod_forumng_discussion_testcase  extends forumng_test_lib {
         $taggedlist = $list->get_normal_discussions();
         $this->assertCount(0, $taggedlist);
 
-        // Set tags specifically for group 1.
-        $forumng = new stdClass();
-        $forumng->settags = array('g1 vamp', 'g1 zomb', 'g1 mumm', 'g1 damm');
-        $forumng->id = $forum->get_id();
-        $forumng->instance = $forum->get_id();
-        $forumng->tags = 1;
-        forumng_update_instance($forumng);
-        $context = $forum->get_context();
-        tag_set('groups', $group1->id, $forumng->settags, 'mod_forumng', $context->id);
-        $tagsused1 = $forum::get_set_tags($forumng->id, $group1->id);
-        $this->assertCount(4, $tagsused1);
-
-        // Set tags for group 2 (should return main set tags also).
-        $g2tags = array('g2 ghost', 'g2 ghoul', 'g2 googl', 'g2 welf', 'g2 gobb');
-        tag_set('groups', $group2->id, $g2tags, 'mod_forumng', $context->id);
-        $tagsused2 = $forum::get_set_tags($forumng->id, $group2->id);
-        $this->assertCount(9, $tagsused2);
-
-        $tagsused3 = $forum::get_set_tags($forumng->id);
-        $this->assertCount(4, $tagsused3);
     }
 
     /**
