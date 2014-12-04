@@ -104,18 +104,6 @@ $settings->add(new admin_setting_configselect('forumng_permanentdeletion',
     get_string('permanentdeletion', 'forumng'),
     get_string('configpermanentdeletion', 'forumng'), 30*60*60*24, $options));
 
-// Start hour of deleting or archiving old discussions.
-$options = array();
-for ($i = 0; $i < 24; $i++) {
-    $options[$i*3600] = $i;
-}
-$settings->add(new admin_setting_configselect('forumng_housekeepingstarthour',
-    get_string('housekeepingstarthour', 'forumng'),
-    get_string('confighousekeepingstarthour', 'forumng'), 0, $options));
-
-$settings->add(new admin_setting_configselect('forumng_housekeepingstophour',
-    get_string('housekeepingstophour', 'forumng'),
-    get_string('confighousekeepingstophour', 'forumng'), 5*3600, $options));
 // Option about read tracking
 $settings->add(new admin_setting_configcheckbox('forumng_showusername',
     get_string('showusername', 'forumng'),

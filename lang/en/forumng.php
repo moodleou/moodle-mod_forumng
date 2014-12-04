@@ -917,3 +917,6 @@ $string['noratings'] = 'No ratings';
 $string['forumngratingsobsolete'] = 'Forumng ratings (obsolete)';
 $string['standardratings'] = 'Ratings (standard)';
 $string['forumng:viewallratings'] = 'View all raw ratings given by individuals';
+$string['forumngcrontaskemails'] = 'Forumng email sending job';
+$string['forumngcrontaskdaily'] = 'Forumng daily maintenance job';
+$string['forumngcrontaskdigest'] = 'Forumng email digest job';

@@ -32,19 +32,6 @@ class mod_forumng_cron {
     const EMAIL_DIVIDER =
       "---------------------------------------------------------------------\n";
 
-    public static function cron() {
-        // Setup user object (as admin)
-        cron_setup_user();
-
-        // Newline after the forum...
-        mtrace("");
-
-        // Send forum emails and digests
-        self::email();
-
-        // Delete old playsapces
-        self::daily_housekeeping();
-    }
 
     public static function delete_old_posts() {
         global $CFG, $DB;
@@ -137,19 +124,6 @@ $mainquery", $mainparams);
             $transaction->allow_commit();
             mtrace(round(microtime(true)-$before, 1) .'s');
         }
-    }
-
-    public static function email() {
-        global $CFG;
-
-        // Duplicate of check in email_to_user.
-        if (!empty($CFG->noemailever)) {
-            mtrace("Not sending forum emails because all mail is disabled.");
-            return;
-        }
-
-        self::email_normal();
-        self::email_digest();
     }
 
     /**
@@ -402,32 +376,7 @@ $mainquery", $mainparams);
     public static function email_digest() {
         global $CFG, $PERF;
 
-        // Do digest mails if required. Note this is based on server time not
-        // user time.
-        $nextdigest = get_config('forumng', 'nextdigest');
-        if (!$nextdigest) {
-            // Run digest at next occurrence of the requested time
-            $nextdigest = strtotime($CFG->digestmailtime.':00');
-            if ($nextdigest <= time()) {
-                $nextdigest = strtotime('+1 day', $nextdigest);
-            }
-            set_config('nextdigest', $nextdigest, 'forumng');
-        }
-
-        if (time() < $nextdigest) {
-            self::debug ("DEBUG: Not yet time for digest");
-            return;
-        }
-
-        // Run digest again next day at specified time (note: best to
-        // get time again, as they may have changed it)
-        $nextdigest = strtotime($CFG->digestmailtime.':00');
-        if ($nextdigest <= time()) {
-            $nextdigest = strtotime('+1 day', $nextdigest);
-        }
-        set_config('nextdigest', $nextdigest, 'forumng');
-
-        // OK, now build current digest
+        // Build current digest.
         mtrace("Beginning forum digest processing...");
         if (!empty($PERF->dbqueries)) {
             $beforequeries = $PERF->dbqueries;
@@ -441,28 +390,28 @@ $mainquery", $mainparams);
         $userdigests = array();
         $oldcourse = null;
 
-        // Forum loop
+        // Forum loop.
         while ($list->next_forum($forum, $cm, $context, $course)) {
             self::debug("DEBUG: Forum " . $forum->get_name() .
                     " on course {$course->shortname} " .
                     "(cmid {$cm->id} contextid {$context->id})");
 
             if (!$oldcourse || ($course->id != $oldcourse->id)) {
-                // Finish off and clear users
+                // Finish off and clear users.
                 if ($oldcourse) {
                     self::digest_finish_course($oldcourse, $userdigests);
                 }
-                // Set up new course details
-                // Note: This code is a bit sketchy; borrowed from cron_setup_user
+                // Set up new course details.
+                // Note: This code is a bit sketchy; borrowed from cron_setup_user.
                 $PAGE = new moodle_page();
                 $PAGE->set_course($course);
                 $oldcourse = clone($course);
             }
 
-            // Count posts just for logging
+            // Count posts just for logging.
             $postcount = 0;
 
-            // Get subscribers to forum
+            // Get subscribers to forum.
             $subscribers = $forum->get_subscribers();
             self::debug("DEBUG: Subscribers before filter " . count($subscribers), '');
             self::email_filter_subscribers($course, $cm, $forum, $subscribers, true);
@@ -487,10 +436,10 @@ $mainquery", $mainparams);
                 }
 
                 while ($list->next_post($post, $inreplyto)) {
-                    // Loop through all digest users
+                    // Loop through all digest users.
                     foreach ($discussionusers as $user) {
                         // Add to digest. (This will set up the user's
-                        // digest if they don't already have one)
+                        // digest if they don't already have one).
                         self::digest_add_post_for_user($user, $userdigests,
                             $post, $inreplyto, $discussion, $forum, $cm,
                             $course, $context);
@@ -899,40 +848,16 @@ $mainquery", $mainparams);
     }
 
     /**
-     * Do housekeeping which only runs once per day.
+     * Do housekeeping only runs once per day.
      */
     public static function daily_housekeeping() {
         global $CFG;
 
-        $starthour = $CFG->forumng_housekeepingstarthour;
-        $stophour = $CFG->forumng_housekeepingstophour;
-        $today = date('Y-m-d');
-        $now = time();
-        // Check to see if it is between specified hours
-        if (!self::is_between_hours($starthour, $stophour)) {
-            return;
-        }
-
-        // Get last run date
-        $lastrun = get_config('forumng', 'housekeepinglastrun');
-        if (!$lastrun) {
-            // If there is no last-run date, set the last run date to today
-            $lastrun = date('Y-m-d');
-        } else {
-            if ($today == $lastrun) {
-                // Do not run the housekeeping as it has been run today.
-                return;
-            }
-        }
-
-        // Really-delete old posts if that option is enabled
+        // Really-delete old posts if that option is enabled.
         self::delete_old_posts();
 
-        // Either move or delete old discussions
+        // Either move or delete old discussions.
         self::archive_old_discussions();
-
-        // Update last run date
-        set_config('housekeepinglastrun', $today, 'forumng');
     }
 
     /**

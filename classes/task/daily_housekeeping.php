@@ -15,15 +15,31 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version.
+ * A scheduled task for Forumng.
  *
  * @package mod_forumng
  * @copyright 2014 The Open University
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+namespace mod_forumng\task;
 
-$plugin->version  = 2014120400;
-$plugin->requires = 2014051200;
-$plugin->component = 'mod_forumng';
-$plugin->maturity = MATURITY_STABLE;
-$plugin->release = '2.7 r1';
+class daily_housekeeping extends \core\task\scheduled_task {
+
+    /**
+     * Get a descriptive name for this task (shown to admins).
+     *
+     * @return string
+     */
+    public function get_name() {
+        return get_string('forumngcrontaskdaily', 'mod_forumng');
+    }
+
+    /**
+     * Run forumng cron daily housekeeping.
+     */
+    public function execute() {
+        global $CFG;
+        require_once($CFG->dirroot . '/mod/forumng/mod_forumng_cron.php');
+        \mod_forumng_cron::daily_housekeeping();
+    }
+}
