@@ -127,5 +127,61 @@ Feature: Add forumng activity and test basic tagging functionality
     Then the "tag" select box should not contain "setb (0)"
     Then the "tag" select box should not contain "setc (0)"
 
+    # Add a new forum for checking copying and moving of discussions with tags
+    And I follow "Course 1"
+    And I add a "ForumNG" to section "2" and I fill the form with:
+      | Forum name | Test forum name two |
+      | Forum introduction | Test forum two description |
+      |Enable discussion tagging | 1 |
+
+    And I follow "Test forum name two"
+    And I add a discussion with the following data:
+      | Subject | Discussion two 1 |
+      | Message | abc2 |
+      | tags | t20, t21, t23 |
+    And I follow "Test forum name"
+    And I add a discussion with the following data:
+      | Subject | Discussion two 2 |
+      | Message | def2 |
+      | tags | t30, t31, t33 |
+
+    # Test the copying of a discussion
+    And I follow "Course 1"
+    And I follow "Test forum name two"
+    And I click on "Discussion two 1" "link"
+    When I click on "Copy" "button"
+    Then I click on "Begin copy" "button"
+    And I follow "Course 1"
+    And I follow "Test forum name"
+    When I click on "Paste discussion" "button"
+    Then I should see "Discussion two 1"
+    And "t20" "link" should exist
+    And "t21" "link" should exist
+    And "t23" "link" should exist
+    Given I click on "Discussion two 1" "link"
+    And I click on "Discussion options" "button"
+    Then I should see "t20, t21, t23,"
+    And I click on "Cancel" "button"
+
+    # Test the moving of a discussion
+    Given I click on "Test forum name" "link"
+    Then I should see "Discussion 2"
+    And I click on "Discussion 2" "link"
+    Given "target" "select" should exist
+    Then the "target" select box should contain "Test forum name two"
+    Given I set the field "target" to "Test forum name two"
+    And I click on "Move" "button"
+    Then "Test forum name two" "link" should exist
+    And "Discussion 2" "link" should exist
+    And "two" "link" should exist
+    And "twoa" "link" should exist
+    And "twob" "link" should exist
+
+    Given I follow "Course 1"
+    And I follow "Test forum name"
+    Then "Discussion 2" "link" should not exist
+    And "twoa" "link" should not exist
+    And "twob" "link" should not exist
+
     # Exit from test
     And I log out

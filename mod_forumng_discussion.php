@@ -1224,6 +1224,14 @@ WHERE
         $newroot->search_update();
         $newroot->search_update_children();
 
+        // Update the tags after the move.
+        if ($targetforum->get_id() != $this->forum->get_id()) {
+            // Update tags for moved discussions.
+            $oldcontext = $this->forum->get_context(true);
+            $newcontext = $targetforum->get_context(true);
+            $DB->set_field('tag_instance', 'contextid', $newcontext->id, array('itemid' => $this->get_id(), 'itemtype' => 'forumng_discussions'));
+        }
+
         $this->uncache();
         $transaction->allow_commit();
     }
@@ -1334,6 +1342,15 @@ WHERE
         $root->search_update();
         $root->search_update_children();
         $transaction->allow_commit();
+        // Update any discussion tags.
+        $tagslist = $this->get_tags();
+        if ($tagslist) {
+            $tags = array();
+            foreach ($tagslist as $key => $value) {
+                array_push($tags, $value);
+            }
+            $newdiscussion->edit_settings(self::NOCHANGE, self::NOCHANGE, self::NOCHANGE, self::NOCHANGE, self::NOCHANGE, $tags);
+        }
     }
 
     /**
@@ -1478,6 +1495,9 @@ WHERE
 
         // Delete the relevant discussion in the forumng_flags table.
         $DB->delete_records('forumng_flags', array('discussionid' => $this->get_id()));
+
+        // Delete the relevant discussion in the tag_instance table.
+        $DB->delete_records('tag_instance', array('itemid' => $this->get_id(), 'itemtype' => 'forumng_discussions'));
 
         // Finally deleting this discussion in the forumng_discussions table.
         $DB->delete_records('forumng_discussions', array('id' => $this->get_id()));

@@ -261,8 +261,9 @@ class mod_forumng_discussion_testcase  extends forumng_test_lib {
         $discussion = mod_forumng_discussion::get_from_id($discussionid , 0);
         $this->assertEmpty($discussion->get_tags());
         // Edit discussion settings.
-        $discussion->edit_settings(mod_forumng_discussion::NOCHANGE, mod_forumng_discussion::NOCHANGE, mod_forumng_discussion::NOCHANGE, mod_forumng_discussion::NOCHANGE,
-                mod_forumng_discussion::NOCHANGE, array('tag1', 'tag2'));
+        $discussion->edit_settings(mod_forumng_discussion::NOCHANGE, mod_forumng_discussion::NOCHANGE,
+                mod_forumng_discussion::NOCHANGE, mod_forumng_discussion::NOCHANGE, mod_forumng_discussion::NOCHANGE,
+                array('tag1', 'tag2'));
         $tags2 = $discussion->get_tags();
         $this->assertCount(2, $tags2);
         $discussion2 = $discussion;
@@ -271,11 +272,21 @@ class mod_forumng_discussion_testcase  extends forumng_test_lib {
         $discussion = mod_forumng_discussion::get_from_id($discussionid , 0);
         $this->assertEmpty($discussion->get_tags());
         // Edit discussion settings.
-        $discussion->edit_settings(mod_forumng_discussion::NOCHANGE, mod_forumng_discussion::NOCHANGE, mod_forumng_discussion::NOCHANGE, mod_forumng_discussion::NOCHANGE,
+        $discussion->edit_settings(mod_forumng_discussion::NOCHANGE, mod_forumng_discussion::NOCHANGE,
+                mod_forumng_discussion::NOCHANGE, mod_forumng_discussion::NOCHANGE,
                 mod_forumng_discussion::NOCHANGE, array('tag1'));
         $tags3 = $discussion->get_tags();
         $this->assertCount(1, $tags3);
         $discussion3 = $discussion;
+
+        // Create a discussion with no tags for later use.
+        $record = new stdClass();
+        $record->course = $course->id;
+        $record->forum = $forum->get_id();
+        $record->groupid = $group2->id;
+        $record->userid = $USER->id;
+        $record->timestart = time();
+        $ids4 = $generator->create_discussion($record);
 
         // Get id of 'tag1'.
         $tagid = array_search('tag1', $tags3);
@@ -340,6 +351,23 @@ class mod_forumng_discussion_testcase  extends forumng_test_lib {
 
         $tagsused3 = $forum::get_set_tags($forumng->id);
         $this->assertCount(4, $tagsused3);
+
+        // Need to test permanently delete.
+        $discussionid = $ids4[0];
+        $discussion = mod_forumng_discussion::get_from_id($discussionid , 0);
+        $this->assertEmpty($discussion->get_tags());
+        // Edit discussion settings.
+        $discussion->edit_settings(mod_forumng_discussion::NOCHANGE, mod_forumng_discussion::NOCHANGE,
+                mod_forumng_discussion::NOCHANGE, mod_forumng_discussion::NOCHANGE,
+                mod_forumng_discussion::NOCHANGE, array('t1', 't2', 't3'));
+        $tags4 = $discussion->get_tags();
+        $this->assertCount(3, $tags4);
+        $discussion4 = $discussion;
+        // Delete discussion.
+        $discussion4->permanently_delete(false);
+        $this->assertFalse($DB->get_record('forumng_discussions', array('id' => $discussion->get_id())));
+        $this->assertEmpty($DB->get_records('tag_instance',
+                array('itemid' => $discussion->get_id(), 'itemtype' => 'forumng discussions')));
     }
 
     /**
