@@ -750,21 +750,18 @@ M.mod_forumng = {
      * @param div forumng-flag div
      */
     init_flag_div: function(div) {
-        // Get on state from image icon
-        div.icon = div.one('input[type=image]');
+        div.anchor = div.one(' a');
+        // Get on state from image icon.
+        div.icon = div.one(' img.smallicon');
         if (!div.icon) {
             return; // Flag not found.
         }
         div.on = div.icon.get('src').match(/flag\.on/);
-        // Get id from p value
-        div.postid = div.icon.get('name').replace(/^.*p_([^.]*)\..*$/, '$1');
         // Remove all other event listeners just in case this func called multiple times.
         this.Y.Event.purgeElement(div.icon, false, 'click');
         div.icon.on('click', function(e) {
             var cfg = {
                 method: 'POST',
-                data: 'p=' + div.postid  + M.mod_forumng.cloneparam + '&flag=' + (div.on ? 0 : 1) +
-                    '&ajax=1',
                 timeout: 10000,
                 context: M.mod_forumng,
                 on: {
@@ -776,13 +773,14 @@ M.mod_forumng = {
                                 div.on ? M.str.forumng.clearflag : M.str.forumng.setflag);
                         div.icon.set('alt',
                                 div.on ? M.str.forumng.flagon : M.str.forumng.flagoff);
+                        div.anchor.set('href', div.anchor.get('href').replace(/\&flag=(0|1)/, '&flag=' + (div.on ? 0 : 1)));
                     },
                     failure: function(o) {
                         alert(M.str.forumng.jserr_alter);
                     }
                 }
             };
-            this.Y.io('flagpost.php', cfg);
+            this.Y.io(div.anchor.get('href') + '&ajax=1', cfg);
             e.preventDefault();
         }, this);
     },

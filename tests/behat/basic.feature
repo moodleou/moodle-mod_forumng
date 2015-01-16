@@ -1,4 +1,4 @@
-@mod @mod_forumng @ou @ou_vle
+@mod @mod_forumng @ou @ou_vle @forumng_basic
 Feature: Add forumng activity and test basic functionality
   In order to discuss topics with other users
   As a teacher
@@ -156,3 +156,139 @@ Feature: Add forumng activity and test basic functionality
     And I press "Unlock"
     Then "Lock" "button" should exist
     And "Reply" "link" should exist
+
+  Scenario: Flagging (and removing flag) posts without javascript
+    Given I log in as "admin"
+    And I follow "Course 1"
+    And I follow "Test forum name"
+    And I add a discussion with the following data:
+      | Subject | Discussion 1 |
+      | Message | abc |
+    And I reply to post "1" with the following data:
+      | Message | REPLY1 |
+    And I reply to post "1" with the following data:
+      | Message | REPLY2 |
+    And I reply to post "1" with the following data:
+      | Message | REPLY3 |
+    Then I should see "Discussion 1"
+    And I should see "REPLY1"
+    And I should see "REPLY2"
+    And I should see "REPLY3"
+    And ".forumng-flag" "css_element" should exist
+
+    # Discussion1 post
+    And ".forumng-p1 .forumng-flag img" "css_element" should exist
+    # Reply1 post
+    And ".forumng-p2 .forumng-flag img" "css_element" should exist
+    # Reply3 post
+    And ".forumng-p4 .forumng-flag img" "css_element" should exist
+    And the "alt" attribute of ".forumng-p1 .forumng-flag a img" "css_element" should contain "Flag this post for future reference"
+
+    # Click to flag Reply1
+    And I click on ".forumng-p2 .forumng-flag a" "css_element"
+    # Click 'Expand' to access 'Flag' for Replies
+    And I expand post "3"
+    And I click on ".forumng-p3 .forumng-flag a" "css_element"
+    And I expand post "4"
+    And I click on ".forumng-p4 .forumng-flag a" "css_element"
+    And ".forumng-p4 .forumng-flag img" "css_element" should exist
+    And the "alt" attribute of ".forumng-p2 .forumng-flag a img" "css_element" should contain "Remove flag"
+
+    # Check flagged posts display ok on main forum page
+    And I follow "Test forum name"
+    And "3 flagged posts" "link" should exist
+    And ".forumng-flagged-link" "css_element" should exist
+    And ".forumng-flagged" "css_element" should exist
+    And "REPLY3" "link" should exist
+    And "REPLY2" "link" should exist
+    And "REPLY1" "link" should exist
+
+    # Click Reply3 to remove flag
+    And I click on "tr.r0 td.cell.c0 form.forumng-flag input[type=image]" "css_element"
+    Then "REPLY3" "link" should not exist
+    And "REPLY2" "link" should exist
+    And "REPLY1" "link" should exist
+
+    # Return to discussion page
+    And I follow "Discussion 1"
+    And the "alt" attribute of ".forumng-p2 .forumng-flag a img" "css_element" should contain "Remove flag"
+    # Click to un-flag Reply1
+    And I click on ".forumng-p2 .forumng-flag a" "css_element"
+    And I expand post "2"
+    And the "alt" attribute of ".forumng-p2 .forumng-flag a img" "css_element" should contain "Flag this post for future reference"
+
+    # Check numbner of flagged posts display on main forum page
+    And I follow "Test forum name"
+    And "1 flagged posts" "link" should exist
+    And ".forumng-flagged-link" "css_element" should exist
+    And ".forumng-flagged" "css_element" should exist
+    And "REPLY2" "link" should exist
+    And I log out
+
+  @javascript
+  Scenario: Flagging (and removing flag) posts with javascript
+    Given I log in as "admin"
+    And I follow "Course 1"
+    And I follow "Test forum name"
+    And I add a discussion with the following data:
+      | Subject | Discussion 1 abc |
+      | Message | abc |
+    And I reply to post "1" with the following data:
+      | Message | REPLY1 |
+    And I reply to post "1" with the following data:
+      | Message | REPLY2 |
+    And I reply to post "1" with the following data:
+      | Message | REPLY3 |
+    Then I should see "Discussion 1 abc"
+    And I should see "REPLY1"
+    And I should see "REPLY2"
+    And I should see "REPLY3"
+
+    # Discussion1 post
+    And ".forumng-p1 .forumng-flag img" "css_element" should exist
+    # Reply3 post
+    And ".forumng-p4 .forumng-flag img" "css_element" should exist
+    And the "alt" attribute of ".forumng-p4 .forumng-flag a img" "css_element" should contain "Flag this post for future reference"
+
+    # Click to flag Reply1.
+    And I click on ".forumng-p2 .forumng-flag img" "css_element"
+    And I wait "1" seconds
+    # Click to flag Reply2.
+    And I click on ".forumng-p3 .forumng-flag img" "css_element"
+    And I wait "1" seconds
+    # Click to flag Reply3.
+    And I click on ".forumng-p4 .forumng-flag img" "css_element"
+    And the "alt" attribute of ".forumng-p4 .forumng-flag a img" "css_element" should contain "You have flagged this post"
+
+    # Check flagged posts display ok on main forum page
+    And I follow "Test forum name"
+    And "3 flagged posts" "link" should exist
+    And ".forumng-flagged-link" "css_element" should exist
+    And ".forumng-flagged" "css_element" should exist
+    And "REPLY3" "link" should exist
+    And "REPLY2" "link" should exist
+    And "REPLY1" "link" should exist
+
+    # Click to un-flag Reply3 from forum main page
+    And I click on "#forumng-flaggedposts .r0 form.forumng-flag input[type='image']" "css_element"
+    And I wait "1" seconds
+    And "REPLY3" "link" should not exist
+    And "REPLY2" "link" should exist
+    And "REPLY1" "link" should exist
+
+    # Return to discussion page
+    And I follow "Discussion 1 abc"
+    # Click to un-flag Reply1
+    And the "alt" attribute of ".forumng-p2 .forumng-flag a img" "css_element" should contain "Remove flag"
+    And I click on ".forumng-p2 .forumng-flag img" "css_element"
+    And the "alt" attribute of ".forumng-p2 .forumng-flag a img" "css_element" should contain "Not flagged"
+
+    # Check number of flagged posts display on main forum page.
+    And I follow "Test forum name"
+    And "1 flagged posts" "link" should exist
+    And ".forumng-flagged-link" "css_element" should exist
+    And ".forumng-flagged" "css_element" should exist
+    And "REPLY3" "link" should not exist
+    And "REPLY1" "link" should not exist
+    And "REPLY2" "link" should exist
+    And I log out

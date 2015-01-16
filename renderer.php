@@ -1136,17 +1136,16 @@ class mod_forumng_renderer extends plugin_renderer_base {
                         get_string('selectlabel', 'forumng', $postnumber) . '</label>';
             }
             if ($options[mod_forumng_post::OPTION_FLAG_CONTROL]) {
-                $out .= '<div class="forumng-flag">' .
-                    '<input type="image" title="' . get_string(
-                        $post->is_flagged() ? 'clearflag' : 'setflag', 'forumng') .
-                    '" src="' . $this->pix_url('flag.' .
-                        ($post->is_flagged() ? 'on' : 'off'), 'mod_forumng') . '" alt="' .
-                        get_string($post->is_flagged() ? 'flagon' : 'flagoff',
-                            'forumng') .
-                    '" name="action.flag.p_' . $post->get_id() . '.timeread_' .
-                        $options[mod_forumng_post::OPTION_READ_TIME] . '.flag_' .
-                        ($post->is_flagged() ? 0 : 1) .
-                    '"/></div>';
+                $flagurl = new moodle_url('flagpost.php?',
+                        array('p' => $post->get_id(),
+                        'timeread' => $options[mod_forumng_post::OPTION_READ_TIME],
+                        'flag' => ($post->is_flagged() ? 0 : 1)));
+                $icon = "flag." . ($post->is_flagged() ? 'on' : 'off');
+                $iconalt = get_string($post->is_flagged() ? 'clearflag' : 'setflag', 'forumng');
+                $iconhtml = $OUTPUT->pix_icon($icon, $iconalt, 'forumng');
+                $link = html_writer::link($flagurl, $iconhtml,
+                        array('title' => $iconalt));
+                $out .= html_writer::div($link, 'forumng-flag');
             }
             // End: forumng-info.
             $out .= html_writer::end_tag('div');
@@ -1586,8 +1585,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
         // Check any Form exists before adding actionform.
         $hasratings = strpos($html, '<div class="forumng-editrating">') !== false;
         $hasform = strpos($html, '<form') !== false;
-        $hasflags = strpos($html, '<div class="forumng-flag">') !== false;
-        if (($hasflags || $hasratings) && !$hasform) {
+        if ($hasratings && !$hasform) {
             $script = '<script type="text/javascript">' .
                 'document.getElementById("forumng-actionform").autocomplete=false;' .
                 '</script>';
