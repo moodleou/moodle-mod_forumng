@@ -40,7 +40,8 @@ class mod_forumng_editpost_form extends moodleform {
             ? $this->_customdata['timelimit'] : 0;
         $draft = isset($this->_customdata['draft'])
             ? $this->_customdata['draft'] : null;
-        $tags = $this->_customdata['tags'];
+        $tags = isset($this->_customdata['tags'])
+            ? $this->_customdata['tags'] : null;
         // Keeps track of whether we add a group selector box.
         $groupselector = false;
 
