@@ -46,8 +46,8 @@ TTD02 /U.S2
   Check that the correct number (n) of discussions are shown and that each discussion is tagged
   with the tag chosen from the dropdown.
   Check that the dropdown has been replaced with the wording 'Viewing discussions with tag <tagname>'
-  followed by a link with the word 'Remove'
-  Click on the 'Remove' link
+  followed by a link with the word 'Show all'
+  Click on the 'Show all' link
   Check that the full list of (4) discussions are shown and the dropdown box is again shown
 
 TTD03 / admin (change)
@@ -67,7 +67,7 @@ TTD04 / admin
   Check that the dropdown list lists 'jim (1)'
   Choose 'jim (1)' from the dropdown.
   Check that only 'discussion 2A' with the 'jim' tag is shown
-  Click on the 'Remove' link next to the 'Viewing discussions with tag <tagname>' label
+  Click on the 'Show all' link next to the 'Viewing discussions with tag <tagname>' label
   Check that it returns you to the forum discussion list.
   If you have followed the test as outlined above then the following should be in the dropdown list
    adam (3)

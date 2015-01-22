@@ -71,10 +71,10 @@ Feature: Add forumng activity and test basic tagging functionality
     Then "oneb" "link" should exist in the "tr#discrow_1" "css_element"
     And "tr#discrow_3" "css_element" should not exist
     And "tr#discrow_2" "css_element" should not exist
-    And "Remove" "link" should exist in the "div.forumng_discuss_tagfilter" "css_element"
+    And "Show all" "link" should exist in the "div.forumng_discuss_tagfilter" "css_element"
 
-    # Check that we return to view page when the 'Remove' link is clicked on
-    When I click on "Remove" "link"
+    # Check that we return to view page when the 'Show all' link is clicked on
+    When I click on "Show all" "link"
     Then "tr#discrow_3" "css_element" should exist
     And "Discussion 3" "link" should exist in the "tr#discrow_3" "css_element"
     Then "tr#discrow_2" "css_element" should exist
@@ -109,10 +109,10 @@ Feature: Add forumng activity and test basic tagging functionality
     Then "two" "link" should exist in the "tr#discrow_2" "css_element"
     Then "two" "link" should exist in the "tr#discrow_3" "css_element"
     Then "threea" "link" should not exist in the "tr#discrow_3" "css_element"
-    And "Remove" "link" should exist in the "div.forumng_discuss_tagfilter" "css_element"
+    And "Show all" "link" should exist in the "div.forumng_discuss_tagfilter" "css_element"
 
-    # Check that we return to view page when the 'Remove' link is clicked on
-    When I click on "Remove" "link"
+    # Check that we return to view page when the 'Show all' link is clicked on
+    When I click on "Show all" "link"
 
     # Test forum wide 'set' tags
     Then I navigate to "Edit settings" node in "ForumNG administration"

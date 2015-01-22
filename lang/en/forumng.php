@@ -910,6 +910,7 @@ $string['forumngdiscusstagfilter_help'] = 'Select a tag option to view/filter fo
 $string['removefiltering'] = ' Viewing discussions with tag \'{$a}\'';
 $string['filterdiscussions'] = 'View discussions with tag';
 $string['remove'] = 'Remove';
+$string['show_all'] = 'Show all';
 $string['settags'] = 'Set discussion tags';
 $string['settags_help'] = 'Set forum wide tags for use in discussions by entering tags separated by commas';
 $string['settag_label'] = 'Set';

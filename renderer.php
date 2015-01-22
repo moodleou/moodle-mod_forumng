@@ -1841,7 +1841,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
             $tagname = htmlspecialchars($taglist[$selectid]->displayname);
             $taglink = get_string('removefiltering', 'forumng', $tagname);
             $taglink .= '&nbsp;(';
-            $taglink .= html_writer::tag('a', get_string('remove', 'forumng'), array('href' => $baseurl));
+            $taglink .= html_writer::tag('a', get_string('show_all', 'forumng'), array('href' => $baseurl));
             $taglink .= ')';
             $out = html_writer::tag('div', $taglink, array('class' => 'forumng_discuss_tagfilter'));
         } else {
