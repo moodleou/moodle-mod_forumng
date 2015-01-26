@@ -16,14 +16,9 @@
 
 /**
  * Version.
- *
- * @package mod_forumng
+ * @package forumngfeature_flagdiscussion
  * @copyright 2014 The Open University
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$plugin->version  = 2015012600;
-$plugin->requires = 2014051200;
-$plugin->component = 'mod_forumng';
-$plugin->maturity = MATURITY_STABLE;
-$plugin->release = '2.7 r2';
+$plugin->version  = 2014120100;

@@ -5369,32 +5369,45 @@ ORDER BY
      * Call to get forum wide 'set' tags.
      *
      * @param int $forumid used to get context id
+     * @param int $groupid used to specify group that we require set tags for
+     * @param boolean $grouponly used to specify whether we are returning set tags for a single specified group
      * @return array set tags for that forum
      */
-    public static function get_set_tags($forumid, $groupid = self::ALL_GROUPS) {
+    public static function get_set_tags($forumid, $groupid = self::ALL_GROUPS, $grouponly = false) {
         global $DB, $CFG;
         require_once($CFG->dirroot . '/tag/lib.php');
 
-        $cm = get_coursemodule_from_instance('forumng', $forumid);
-        $context = context_module::instance($cm->id);
+        $forum = self::get_from_id($forumid, self::CLONE_DIRECT);
+        $forumid = $forum->get_id();
+        $context = $forum->get_context(true);
 
         if (($groupid == self::ALL_GROUPS) || ($groupid == self::NO_GROUPS)) {
             $groupid = 0;
         }
 
-        // Check to see whether tags have been set at forumng level.
         $conditionparams = array();
-        $conditions = "(ti.component = ? AND ti.itemtype = ? AND ti.contextid = ? AND ti.itemid = ?)";
-        $conditionparams[] = 'mod_forumng';
-        $conditionparams[] = 'forumng';
-        $conditionparams[] = $context->id;
-        $conditionparams[] = $forumid;
-        if ($groupid) {
-            $conditions .= " OR (ti.component = ? AND ti.itemtype = ? AND ti.contextid = ? AND ti.itemid = ?)";
+        $conditions = '';
+
+        if (($grouponly) && ($groupid)) {
+            $conditions .= " (ti.component = ? AND ti.itemtype = ? AND ti.contextid = ? AND ti.itemid = ?)";
             $conditionparams[] = 'mod_forumng';
             $conditionparams[] = 'groups';
             $conditionparams[] = $context->id;
             $conditionparams[] = $groupid;
+        } else {
+            // Check to see whether tags have been set at forumng level.
+            $conditions = "(ti.component = ? AND ti.itemtype = ? AND ti.contextid = ? AND ti.itemid = ?)";
+            $conditionparams[] = 'mod_forumng';
+            $conditionparams[] = 'forumng';
+            $conditionparams[] = $context->id;
+            $conditionparams[] = $forumid;
+            if ($groupid) {
+                $conditions .= " OR (ti.component = ? AND ti.itemtype = ? AND ti.contextid = ? AND ti.itemid = ?)";
+                $conditionparams[] = 'mod_forumng';
+                $conditionparams[] = 'groups';
+                $conditionparams[] = $context->id;
+                $conditionparams[] = $groupid;
+            }
         }
 
         $rs = $DB->get_records_sql("
@@ -5413,6 +5426,123 @@ ORDER BY
 
         return $tags;
 
+    }
+
+    /**
+     * Sets 'Set' tags for groups for the forum.
+     * Necessary to use this rather than core tag lib as that does not deal with context
+     * and as group item ids can be the same that is an issue
+     * Also can only have 1 unique group/tag/user record
+     * @param int $forumid forum table id
+     * @param int $groupid groups table id
+     * @param array $tags array of tag rawnames e.g. Fish, frog
+     */
+    public static function set_group_tags($forumid, $groupid, $tags) {
+        global $DB, $CFG, $USER;
+        require_once($CFG->dirroot . '/tag/lib.php');
+
+        $forum = self::get_from_id($forumid, self::CLONE_DIRECT);
+        $context = $forum->get_context(true);
+
+        $transaction = $DB->start_delegated_transaction();
+        // Get existing tags used.
+        $settags = array();
+        $taginstances = $DB->get_records_sql("
+                SELECT DISTINCT t.*, ti.id as instanceid
+                  FROM {tag} t
+            INNER JOIN {tag_instance} ti
+               ON t.id = ti.tagid
+                 WHERE ti.component = ? AND ti.itemtype = ? AND ti.contextid = ? AND ti.itemid = ?",
+                array('mod_forumng', 'groups', $context->id, $groupid));
+        // Delete instances any not in new tags (note tag records not deleted as cleaned in cron).
+        $tistodelete = array();
+        foreach ($taginstances as $tinstance) {
+            if (!in_array($tinstance->rawname, $tags)) {
+                $tistodelete[] = $tinstance->instanceid;
+            } else {
+                // Store existing tag instance used.
+                $settags[$tinstance->instanceid] = $tinstance->rawname;
+            }
+        }
+        if ($tistodelete) {
+            list($delsql, $delparams) = $DB->get_in_or_equal($tistodelete);
+            $DB->delete_records_select('tag_instance', "id $delsql", $delparams);
+        }
+        // Add/get new tag records.
+        $existingtags = tag_get_id($tags, TAG_RETURN_ARRAY);
+        // Normalize tags passed so can match to existing tags array.
+        $normaltags = tag_normalize($tags);
+        // Add tag instances (where needed).
+        $ordering = 0;
+        foreach ($normaltags as $rawname => $name) {
+            if (in_array($rawname, $settags)) {
+                // Pre-existing instance, skip.
+                $ordering++;
+                continue;
+            }
+            $tagid = 0;
+            if (!array_key_exists($name, $existingtags) || empty($existingtags[$name])) {
+                // Need to add tag.
+                $newtag = tag_add($rawname);
+                $tagid = array_pop($newtag);
+            } else {
+                $tagid = $existingtags[$name];
+            }
+            // Create instance (like tag_assign()).
+            $tag_instance_object = new stdClass();
+            $tag_instance_object->tagid = $tagid;
+            $tag_instance_object->component = 'mod_forumng';
+            $tag_instance_object->itemid = $groupid;
+            $tag_instance_object->itemtype = 'groups';
+            $tag_instance_object->contextid = $context->id;
+            $tag_instance_object->ordering = $ordering;
+            $tag_instance_object->timecreated = time();
+            $tag_instance_object->timemodified = $tag_instance_object->timecreated;
+            $tag_instance_object->tiuserid = self::get_group_taginstance_userid($groupid, $tagid);
+
+            $DB->insert_record('tag_instance', $tag_instance_object);
+            $ordering++;
+        }
+        $DB->commit_delegated_transaction($transaction);
+    }
+
+    /**
+     * Check user can save a new group tag instance as these have a unique key
+     * If not, will use - admin user (0), guest user (1), other admin user (2+)
+     * @param int $groupid
+     * @param int $tagid
+     * @param int $start default -1 for current user.
+     * @return int user id
+     * @throws moodle_exception If out of users
+     */
+    private static function get_group_taginstance_userid($groupid, $tagid, $start = -1) {
+        global $DB, $USER;
+        $userid = $USER->id;
+        $nexttry = 0;
+        if ($start == 0) {
+            $userid = get_admin()->id;
+            $nexttry = 1;
+        } else if ($start == 1) {
+            $userid = guest_user()->id;
+            $nexttry = 2;
+        } else if ($start >= 2) {
+            $admins = get_admins();
+            if (count($admins) < $start) {
+                throw new moodle_exception('Cannot add tag instance - duplicate value, max possible reached.');
+            }
+            $keys = array_keys($admins);// Get keys (user id's).
+            $userid = $keys[($start - 1)];
+            $nexttry = $start;
+            $nexttry++;
+        }
+
+        if (!$DB->record_exists('tag_instance', array('itemtype' => 'groups', 'itemid' => $groupid,
+                'tiuserid' => $userid, 'tagid' => $tagid))) {
+            // No existing record, safe to proceed.
+            return $userid;
+        }
+        // Try and find another userid.
+        return self::get_group_taginstance_userid($groupid, $tagid, $nexttry);
     }
 
 }
