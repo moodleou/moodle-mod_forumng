@@ -54,6 +54,8 @@ class restore_forumng_activity_structure_step extends restore_activity_structure
                     '/activity/forumng/subscriptions/subscription');
             $paths[] = new restore_path_element('forumng_read',
                     '/activity/forumng/discussions/discussion/readdiscussions/read');
+            $paths[] = new restore_path_element('forumng_readpost',
+                    '/activity/forumng/discussions/discussion/posts/post/readposts/readpost');
             $paths[] = new restore_path_element('forumng_draft',
                     '/activity/forumng/drafts/draft');
             $paths[] = new restore_path_element('forumng_flagd',
@@ -228,6 +230,17 @@ class restore_forumng_activity_structure_step extends restore_activity_structure
         $data->userid = $this->get_mappingid_or_null('user', $data->userid);
 
         $DB->insert_record('forumng_read', $data);
+    }
+
+    protected function process_forumng_readpost($data) {
+        global $DB;
+
+        $data = (object)$data;
+
+        $data->postid = $this->get_new_parentid('forumng_post');
+        $data->userid = $this->get_mappingid_or_null('user', $data->userid);
+
+        $DB->insert_record('forumng_read_posts', $data);
     }
 
     protected function process_forumng_tag($data) {

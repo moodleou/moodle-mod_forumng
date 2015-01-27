@@ -291,8 +291,9 @@ class mod_forumng {
      * @return bool True if the current user has the option selected to
      *   automatically mark discussions as read
      */
-    public static function mark_read_automatically() {
-        return !get_user_preferences('forumng_manualmark', '0');
+    public static function mark_read_automatically($userid = 0) {
+        $userid = mod_forumng_utils::get_real_userid($userid);
+        return !get_user_preferences('forumng_manualmark', '0', $userid);
     }
 
     /**
@@ -1179,6 +1180,8 @@ WHERE
         $postparams = array($this->forumfields->id);
         $DB->execute("DELETE FROM {forumng_ratings}
             WHERE postid IN ($postquery)", $postparams);
+        $DB->execute("DELETE FROM {forumng_read_posts}
+                WHERE postid IN ($postquery)", $postparams);
 
         // Delete per-discussion data
         $discussionquery = "SELECT id FROM {forumng_discussions}
@@ -1622,6 +1625,14 @@ WHERE $conditions AND m.name = 'forumng' AND $restrictionsql",
                 $readrecord->time = $time;
                 $DB->insert_record('forumng_read', $readrecord);
             }
+
+            // Delete any individual post records for discussions as now redundant.
+            $DB->execute("DELETE FROM {forumng_read_posts}
+                            WHERE postid IN(
+                                  SELECT id FROM {forumng_posts}
+                                   WHERE $inorequals)
+                              AND userid = ? AND time <= ?",
+                    array_merge($inparams, array($userid, $time)));
         }
 
         $transaction->allow_commit();
@@ -3276,32 +3287,34 @@ WHERE
             // NOTE fpfirst is used only by forum types, not here
             $now = time();
             $sharedquerypart = "
-FROM
+        FROM
     {forumng_discussions} fd
-    INNER JOIN {forumng_posts} fplast ON fd.lastpostid = fplast.id
-    INNER JOIN {forumng_posts} fpfirst ON fd.postid = fpfirst.id
-    LEFT JOIN {forumng_read} fr ON fd.id = fr.discussionid AND fr.userid = ?
-WHERE
-    fd.forumngid = f.id AND fplast.modified>?
-    AND (
-        (fd.groupid IS NULL)
-        OR ($ingroups)
-        OR cm.groupmode = " . VISIBLEGROUPS . "
-        OR ($inaagforums)
-    )
-    AND fd.deleted = 0
-    AND (
-        ((fd.timestart = 0 OR fd.timestart <= ?)
-        AND (fd.timeend = 0 OR fd.timeend > ?))
-        OR ($inviewhiddenforums)
-    )
-    AND ((fplast.edituserid IS NOT NULL AND fplast.edituserid<>?)
-        OR fplast.userid<>?)
-    AND (fr.time IS NULL OR fplast.modified>fr.time)
-    $restrictionsql";
-            $sharedqueryparams = array_merge(array($userid, $endtime), $ingroupsparams,
+  INNER JOIN {forumng_posts} fp ON fp.discussionid = fd.id
+  INNER JOIN {forumng_posts} fplast ON fd.lastpostid = fplast.id
+  INNER JOIN {forumng_posts} fpfirst ON fd.postid = fpfirst.id
+   LEFT JOIN {forumng_read} fr ON fd.id = fr.discussionid AND fr.userid = ?
+   LEFT JOIN {forumng_read_posts} frp ON frp.postid = fp.id AND frp.userid = ?
+       WHERE
+       fd.forumngid = f.id
+         AND ((fd.groupid IS NULL)
+          OR ($ingroups)
+          OR cm.groupmode = " . VISIBLEGROUPS . "
+          OR ($inaagforums))
+         AND fd.deleted = 0
+         AND (((fd.timestart = 0 OR fd.timestart <= ?)
+         AND (fd.timeend = 0 OR fd.timeend > ?))
+          OR ($inviewhiddenforums))
+         AND ((fp.edituserid IS NOT NULL AND fp.edituserid <> ?) OR (fp.edituserid IS NULL AND fp.userid <> ?))
+         AND fp.deleted = 0
+         AND fp.oldversion = 0
+	     AND frp.id IS NULL
+	     AND fp.modified > ?
+         AND (fr.time IS NULL OR fp.modified > fr.time)
+    $restrictionsql
+    ";
+            $sharedqueryparams = array_merge(array($userid, $userid), $ingroupsparams,
                     $inaagforumsparams, array($now, $now), $inviewhiddenforumsparams,
-                    array($userid, $userid), $restrictionparams);
+                    array($userid, $userid, $endtime), $restrictionparams);
 
             // Note: There is an unusual case in which this number can
             // be inaccurate. It is to do with ignoring messages the user
@@ -3320,7 +3333,7 @@ WHERE
                 // Query to get full unread discussions count
                 $readtracking = "
 (SELECT
-    COUNT(1)
+    COUNT(DISTINCT fd.id)
 $sharedquerypart
 ) AS f_numunreaddiscussions";
                 $readtrackingparams = $sharedqueryparams;

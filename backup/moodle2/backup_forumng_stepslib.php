@@ -80,6 +80,11 @@ class backup_forumng_activity_structure_step extends backup_activity_structure_s
         $read = new backup_nested_element('read', array('id'), array(
             'userid', 'time'));
 
+        $readposts = new backup_nested_element('readposts');
+
+        $readp = new backup_nested_element('readpost', array('id'), array(
+                'userid', 'time'));
+
         $drafts = new backup_nested_element('drafts');
 
         $draft = new backup_nested_element('draft', array('id'), array(
@@ -138,6 +143,9 @@ class backup_forumng_activity_structure_step extends backup_activity_structure_s
         $post->add_child($flags);
         $flags->add_child($flag);
 
+        $post->add_child($readposts);
+        $readposts->add_child($readp);
+
         $discussion->add_child($tags);
         $tags->add_child($tag);
 
@@ -166,6 +174,8 @@ class backup_forumng_activity_structure_step extends backup_activity_structure_s
                     "ORDER BY id", array(backup::VAR_PARENTID));
 
             $read->set_source_table('forumng_read', array('discussionid' => backup::VAR_PARENTID));
+
+            $readp->set_source_table('forumng_read_posts', array('postid' => backup::VAR_PARENTID));
 
             $newrating->set_source_table('rating', array(
                     'contextid' => backup::VAR_CONTEXTID,
@@ -233,6 +243,7 @@ class backup_forumng_activity_structure_step extends backup_activity_structure_s
         $subscription->annotate_ids('course_modules', 'clonecmid');
 
         $read->annotate_ids('user', 'userid');
+        $readp->annotate_ids('user', 'userid');
 
         $draft->annotate_ids('user', 'userid');
         $draft->annotate_ids('group', 'groupid');

@@ -467,6 +467,7 @@ $string['jumpnext'] = 'Next unread';
 $string['jumpprevious'] = 'Previous unread';
 $string['jumppreviousboth'] = 'previous';
 $string['skiptofirstunread'] = 'Skip to first unread post';
+$string['markpostread'] = 'Mark post read';
 $string['enableadvanced'] = 'Enable advanced features';
 $string['configenableadvanced'] = 'This option enables advanced forum features which may be
 unnecessarily complex for many installations. Currently, this just enables forum sharing, but we might add more later.';

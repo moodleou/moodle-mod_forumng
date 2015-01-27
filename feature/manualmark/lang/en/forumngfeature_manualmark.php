@@ -21,13 +21,14 @@
  * @copyright 2011 The Open University
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-$string['manualmark_auto'] = 'Automatically marking discussions read';
-$string['manualmark_manual'] = 'Manually marking discussions read';
+$string['manualmark_auto'] = 'Automatically mark as read';
+$string['manualmark_manual'] = 'Manually mark as read';
 $string['manualmark_change'] = 'Change';
 
-$string['manualmark_change_help'] = '&lsquo;Automatically marking discussions read&rsquo; marks all posts in a discussion as read when you view any post in that discussion.
+$string['manualmark_change_help'] = '&lsquo;Automatically mark as read&rsquo; marks every post in a discussion as read after you view that discussion page.
 
-&lsquo;Manually marking discussions read&rsquo; leaves posts marked as unread until you click &lsquo;Mark discussion read&rsquo;.
+&lsquo;Manually mark as read&rsquo; leaves posts marked as unread until you click &lsquo;Mark discussion read&rsquo; or
+ &lsquo;Mark post read&rsquo;.
 
-This option applies to all forums on the system.';
-$string['pluginname'] = 'Option to manually mark discussions read';
+This option applies to all forums on this system.';
+$string['pluginname'] = 'Option to manually mark discussions and posts read';

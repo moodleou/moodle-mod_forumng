@@ -1,4 +1,3 @@
-
 @mod @mod_forumng @ou @ou_vle @mod_forumng_tags
 Feature: Add forumng activity and test basic tagging functionality
   In order to add and view tags

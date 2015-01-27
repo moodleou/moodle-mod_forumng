@@ -1374,6 +1374,14 @@ class mod_forumng_renderer extends plugin_renderer_base {
                     }
                 }
 
+                // Mark post read.
+                if ($CFG->forumng_trackreadposts && !isguestuser() && $post->is_unread()
+                    && !mod_forumng::mark_read_automatically()) {
+                    $commandsarray['forumng-markread'] = html_writer::link(
+                            new moodle_url('/mod/forumng/markread.php', array('p' => $post->get_id())),
+                            get_string('markpostread', 'forumng'));
+                }
+
                 // Direct link.
                 if ($options[mod_forumng_post::OPTION_COMMAND_DIRECTLINK]) {
                     $commandsarray['forumng-permalink'] = '<a href="discuss.php?' .

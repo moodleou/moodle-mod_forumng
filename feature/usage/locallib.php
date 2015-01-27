@@ -53,9 +53,19 @@ function forumngfeature_usage_show_mostreaders($params, $forum = null) {
         list($sql, $params) = get_enrolled_sql($forum->get_context(), '', $groupid, true);
         // View discussions read.
         $readers = $DB->get_recordset_sql("
-                SELECT COUNT(fr.id) AS count, fr.discussionid
-                  FROM {forumng_read} fr
-            INNER JOIN {forumng_discussions} fd ON fd.id = fr.discussionid
+                SELECT COUNT(fr.userid) AS count, fr.discussionid
+                  FROM {forumng_discussions} fd
+            RIGHT JOIN (
+		                SELECT discussionid, userid
+		                  FROM (
+		                        SELECT * FROM {forumng_read}
+		                     UNION ALL
+		                        SELECT frp.id, frp.userid, fp.discussionid, frp.time
+                                  FROM {forumng_posts} fp
+                            RIGHT JOIN {forumng_read_posts} frp ON fp.id = frp.postid
+                                 WHERE fp.deleted = 0 AND fp.oldversion = 0
+                        ) frp GROUP BY discussionid, userid
+                ) fr ON fr.discussionid = fd.id
                  WHERE fd.forumngid = :courseid
                    AND fd.deleted = 0
                 $groupwhere

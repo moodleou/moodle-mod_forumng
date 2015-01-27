@@ -31,10 +31,12 @@ require_once('mod_forumng.php');
 // Can be called with id= (cmid) or d= (discussion id).
 $cmid = optional_param('id', 0, PARAM_INT);
 $discussionid = optional_param('d', 0, PARAM_INT);
-if ((!$cmid && !$discussionid) || ($cmid && $discussionid)) {
+$postid = optional_param('p', 0, PARAM_INT);
+if ((!$cmid && !$discussionid && !$postid) || ($cmid && $discussionid && $postid)) {
     print_error('error_markreadparams', 'forumng');
 }
 $cloneid = optional_param('clone', 0, PARAM_INT);
+$ajax = optional_param('ajax', 0, PARAM_BOOL);
 
 // Permitted values 'view', 'discuss'
 $back = optional_param('back', '', PARAM_ALPHA);
@@ -43,6 +45,9 @@ if (!preg_match('~^(discuss|view)$~', $back)) {
 }
 if (($back == 'discuss' && !$discussionid)) {
     $back = 'view';
+}
+if ($postid) {
+    $back = 'discuss';
 }
 
 // Handle whole forum
@@ -74,12 +79,26 @@ if ($discussionid) {
     $cmid = $discussion->get_forum()->get_course_module_id();
 }
 
+// Handle single post.
+if ($postid) {
+    $post = mod_forumng_post::get_from_id($postid, $cloneid);
+    $discussion = $post->get_discussion();
+    $forum = $discussion->get_forum();
+    $post->require_view();
+    if (!$forum->can_mark_read()) {
+        print_error('error_cannotmarkread', 'forumng');
+    }
+    $post->mark_read();
+}
+
+if ($ajax) {
+    echo 'ok';
+    exit;
+}
+
 // Redirect back
 if ($back == 'discuss') {
-    if (!$courseid) {
-        $courseid = $forum->get_course()->id;
-    }
-    redirect('discuss.php?' . $discussion->get_link_params(mod_forumng::PARAM_PLAIN));
+    redirect('discuss.php?' . $discussion->get_link_params(mod_forumng::PARAM_PLAIN) . ($postid ? "#p$postid" : ''));
 } else {
     redirect($forum->get_url(mod_forumng::PARAM_PLAIN));
 }

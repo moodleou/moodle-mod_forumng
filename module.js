@@ -317,6 +317,11 @@ M.mod_forumng = {
             if (link.get('parentNode').hasClass('forumng-jumpto')) {
                 this.init_jumplink(link);
             }
+
+            // Magicalise the mark post read link.
+            if (link.get('parentNode').hasClass('forumng-markread')) {
+                this.init_postread(link);
+            }
         }, this);
 
         // Magicalise rating sections
@@ -783,6 +788,39 @@ M.mod_forumng = {
             this.Y.io(div.anchor.get('href') + '&ajax=1', cfg);
             e.preventDefault();
         }, this);
+    },
+
+    init_postread: function(link) {
+        var t = this;
+        link.on('click', function(e) {
+            e.preventDefault();
+            if (t.are_links_disabled(link) || link.hasClass('disabled')) {
+                return;
+            }
+            var cfg = {
+                    method: 'GET',
+                    timeout: 10000,
+                    context: M.mod_forumng,
+                    on: {
+                        success: function(o) {
+                            if (!o.content == 'ok') {
+                                alert(M.str.forumng.jserr_alter);
+                                return;
+                            }
+                            link.addClass('disabled');
+                            link.set('disabled', 'disabled');
+                            var post = link.ancestor('div.forumng-unread');
+                            if (post) {
+                                post.replaceClass('forumng-unread', 'forumng-read');
+                            }
+                        },
+                        failure: function(o) {
+                            alert(M.str.forumng.jserr_alter);
+                        }
+                    }
+            };
+            t.Y.io(link.get('href') + '&ajax=1', cfg);
+        });
     },
 
     /**

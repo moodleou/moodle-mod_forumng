@@ -88,6 +88,9 @@ WHERE
             $DB->execute("DELETE FROM {forumng_ratings} WHERE postid IN ($idquery)",
                     $mainparams);
 
+            // Delete all read post records.
+            $DB->execute("DELETE FROM {forumng_read_posts} WHERE postid IN ($idquery)", $mainparams);
+
             // Find all messages...
             $rs = $DB->get_recordset_sql("
 SELECT
@@ -858,6 +861,20 @@ $mainquery", $mainparams);
 
         // Either move or delete old discussions.
         self::archive_old_discussions();
+
+        self::delete_old_read();
+    }
+
+    /**
+     * Delete read information that is about 2 years old
+     * (Not counting leap years etc)
+     */
+    public static function delete_old_read() {
+        global $CFG, $DB;
+        $oldtime = strtotime('730 days ago');
+
+        $DB->delete_records_select('forumng_read_posts', 'time < ?', array($oldtime));
+        $DB->delete_records_select('forumng_read', 'time < ?', array($oldtime));
     }
 
     /**

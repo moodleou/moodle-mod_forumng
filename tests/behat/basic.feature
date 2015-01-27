@@ -72,6 +72,7 @@ Feature: Add forumng activity and test basic functionality
     Given I follow "Posts"
     Then I should see "Discussion 3" in the "//table[contains(@class,'forumng-discussionlist')]//tr[4]//td[1]" "xpath_element"
 
+  @mod_forumng_unread
   Scenario: Check discussion post replies, unread and editing
     Given I log in as "admin"
     And I follow "Course 1"
@@ -103,14 +104,49 @@ Feature: Add forumng activity and test basic functionality
     Then I should see "REPLY3"
     And "li.forumng-edit" "css_element" should exist
     And "li.forumng-delete" "css_element" should exist
+    Given I reply to post "4" with the following data:
+      | Message | REPLY4 |
+    Then I should see "REPLY4"
     Given I edit post "4" with the following data:
       | Message | REPLY3 EDIT |
     Then I should see "REPLY3 EDIT"
     Given I click on "#forumng-arrowback a" "css_element"
-    Then I should see "4" in the "//table[contains(@class,'forumng-discussionlist')]//tr[2]//td[3]" "xpath_element"
+    Then I should see "5" in the "//table[contains(@class,'forumng-discussionlist')]//tr[2]//td[3]" "xpath_element"
+    And I should see "" in the "//table[contains(@class,'forumng-discussionlist')]//tr[2]//td[4]" "xpath_element"
+    Given I press "Change"
+    Then I should see "Manually mark as read"
     And I should see "" in the "//table[contains(@class,'forumng-discussionlist')]//tr[2]//td[4]" "xpath_element"
     Given I follow "Course 1"
     Then I should not see "(unread posts)"
+    And I log out
+    Given I log in as "admin"
+    And I follow "Course 1"
+    Then I should see "(Unread posts)"
+    Given I follow "Test forum name"
+    And I should see "5" in the "//table[contains(@class,'forumng-discussionlist')]//tr[2]//td[3]" "xpath_element"
+    And I should see "2" in the "//table[contains(@class,'forumng-discussionlist')]//tr[2]//td[4]" "xpath_element"
+    When I press "Change"
+    Then I should see "Manually mark as read"
+    And I should see "2" in the "//table[contains(@class,'forumng-discussionlist')]//tr[2]//td[4]" "xpath_element"
+    Given I follow "Discussion 1"
+    Then ".forumng-p4 .forumng-markread" "css_element" should exist
+    And ".forumng-p5 .forumng-markread" "css_element" should exist
+    When I click on ".forumng-p4 .forumng-markread a" "css_element"
+    Then ".forumng-p4 .forumng-markread" "css_element" should not exist
+    Given I follow "Test forum name"
+    And I should see "1" in the "//table[contains(@class,'forumng-discussionlist')]//tr[2]//td[4]" "xpath_element"
+    Given I follow "Discussion 1"
+    When I click on ".forumng-p5 .forumng-markread a" "css_element"
+    Then ".forumng-p5 .forumng-markread" "css_element" should not exist
+    Given I follow "Test forum name"
+    And I should see "Manually mark as read"
+    And I should see "" in the "//table[contains(@class,'forumng-discussionlist')]//tr[2]//td[4]" "xpath_element"
+    Given I follow "Discussion 1"
+    When I press "Show readers"
+    Then I should see "Student 1"
+    And I should see "Admin User"
+    When I follow "Course 1"
+    Then I should not see "(Unread posts)"
 
   Scenario: Deleting + locking discussions + posts
     # NOTE - this is non-js specific, will fail if @javascript enabled on this scenario.
