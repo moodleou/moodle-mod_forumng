@@ -100,6 +100,16 @@ class backup_forumng_activity_structure_step extends backup_activity_structure_s
 
         $tag = new backup_nested_element('tag', array('id'), array('name', 'rawname'));
 
+        $forumtaginstances = new backup_nested_element('forumtaginstances');
+
+        $forumtaginstance = new backup_nested_element('forumtaginstance', array('id'), array(
+            'name', 'rawname', 'tagid', 'itemtype', 'tiuserid', 'ordering', 'component'));
+
+        $forumgrouptaginstances = new backup_nested_element('forumgrouptaginstances');
+
+        $forumgrouptaginstance = new backup_nested_element('forumgrouptaginstance', array('id'), array(
+                'name', 'rawname', 'tagid', 'itemtype', 'itemid', 'tiuserid', 'ordering', 'component'));
+
         // Build the tree
         $forumng->add_child($discussions);
         $discussions->add_child($discussion);
@@ -130,6 +140,12 @@ class backup_forumng_activity_structure_step extends backup_activity_structure_s
 
         $discussion->add_child($tags);
         $tags->add_child($tag);
+
+        $forumng->add_child($forumtaginstances);
+        $forumtaginstances->add_child($forumtaginstance);
+
+        $forumng->add_child($forumgrouptaginstances);
+        $forumgrouptaginstances->add_child($forumgrouptaginstance);
 
         // Define sources
         $forumng->set_source_table('forumng', array('id' => backup::VAR_ACTIVITYID));
@@ -175,6 +191,28 @@ class backup_forumng_activity_structure_step extends backup_activity_structure_s
                                                         backup::VAR_PARENTID));
         }
 
+        $forumtaginstance->set_source_sql('SELECT t.name, t.rawname, ti.*
+                FROM {tag} t
+                JOIN {tag_instance} ti ON ti.tagid = t.id
+                WHERE ti.contextid = ?
+                AND ti.itemid = ?
+                AND ti.itemtype = ?
+                AND ti.component = ?', array(
+                        backup::VAR_CONTEXTID,
+                        backup::VAR_PARENTID,
+                        backup_helper::is_sqlparam('forumng'),
+                        backup_helper::is_sqlparam('mod_forumng')));
+
+        $forumgrouptaginstance->set_source_sql('SELECT t.name, t.rawname, ti.*
+                FROM {tag} t
+                JOIN {tag_instance} ti ON ti.tagid = t.id
+               WHERE ti.contextid = ?
+                AND ti.itemtype = ?
+                AND ti.component = ?', array(
+                      backup::VAR_CONTEXTID,
+                      backup_helper::is_sqlparam('groups'),
+                      backup_helper::is_sqlparam('mod_forumng')));
+
         // Define id annotations
         $forumng->annotate_ids('course_modules', 'originalcmid');
         $forumng->annotate_ids('scale', 'ratingscale');
@@ -200,6 +238,8 @@ class backup_forumng_activity_structure_step extends backup_activity_structure_s
         $draft->annotate_ids('group', 'groupid');
 
         $flag->annotate_ids('user', 'userid');
+
+        $forumgrouptaginstance->annotate_ids('group', 'itemid');
 
         // Define file annotations
         $forumng->annotate_files('mod_forumng', 'intro', null); // This file area hasn't itemid

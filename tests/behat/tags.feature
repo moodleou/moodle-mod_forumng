@@ -1,3 +1,4 @@
+
 @mod @mod_forumng @ou @ou_vle @mod_forumng_tags
 Feature: Add forumng activity and test basic tagging functionality
   In order to add and view tags
@@ -443,7 +444,19 @@ Feature: Add forumng activity and test basic tagging functionality
     And I should see "Set tags for Group 2"
     And I should see "f1, f2, f3" in the "//form//fieldset//fieldset//textarea" "xpath_element"
 
-    # Since we can not create group tags due to inability to access the group tag text areas
+    # We can not create group tags due to inability to access the group tag text areas
+
+    # Test backup and restore
+    And I follow "Course 1"
+    And I duplicate "Test forum name" activity editing the new copy with:
+      | Forum name | Duplicated Test forum name |
+    # And I click on "Turn editing off" "link"
+    And I follow "Duplicated Test forum name"
+    Given I press "Edit Set tags"
+    Then I should see "Set tags for forum"
+    And I should see "Set tags for Group 1"
+    And I should see "Set tags for Group 2"
+    And the field "settags_0[othertags]" matches value "f1, f2, f3"
 
     # Exit from test
     And I log out

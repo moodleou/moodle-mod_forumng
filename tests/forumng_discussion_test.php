@@ -360,7 +360,6 @@ class mod_forumng_discussion_testcase  extends forumng_test_lib {
         $tagsused2 = $forum::get_set_tags($forumng->id, $group2->id, true);
         $this->assertCount(5, $tagsused2);
 
-
         // Need to test permanently delete.
         $discussionid = $ids4[0];
         $discussion = mod_forumng_discussion::get_from_id($discussionid , 0);
