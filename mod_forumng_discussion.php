@@ -779,19 +779,18 @@ class mod_forumng_discussion {
             $deadline = mod_forumng::get_read_tracking_deadline();
             $readjoin1 = "";
             $readwhere1 = "";
-            $readtimesel = "";
-            $readjoin2 = "";
             $readtrackingparams = array($deadline, $userid, $userid, $deadline);
-            $readtrackingjoinparams = array($userid, $userid, $userid);
+            $readtrackingjoinparams = array($userid);
             if (!mod_forumng::mark_read_automatically($userid)) {
                 // Ind Mark read - check individual read_posts state.
                 $readjoin1 = "LEFT JOIN {forumng_read_posts} frp2 on frp2.postid = fp3.id AND frp2.userid = ?";
                 $readwhere1 = "OR frp2.id IS NOT NULL";
                 $readtrackingparams = array($deadline, $userid, $userid, $userid, $deadline);
             }
-
+            // Get unread count only when last added post is newer than deadline.
+            // When PAST_SELL_BY, posts modified later than last will be unread but not picked up.
             $readtracking = "
-                    , (CASE WHEN postinfo.lastmod IS NOT NULL AND postinfo.lastmod < ? THEN " .
+                    , (CASE WHEN fplast.modified IS NOT NULL AND fplast.modified < ? THEN " .
                                 self::PAST_SELL_BY . " ELSE (SELECT COUNT(1)
                         FROM {forumng_posts} fp3
                   $readjoin1
@@ -803,15 +802,7 @@ class mod_forumng_discussion {
                             OR fp3.modified < ?)) END) AS numreadposts,
                    fr.time AS timeread";
             // Join read info, get posts not authored by user: get latest modified post time.
-            $readtrackingjoin = "
-                        LEFT JOIN {forumng_read} fr ON fd.id = fr.discussionid AND fr.userid = ?
-                        LEFT JOIN (SELECT MAX(fp2.modified) AS lastmod, fp2.discussionid AS did
-                                     FROM {forumng_posts} fp2
-                                    WHERE fp2.deleted = 0 AND fp2.oldversion = 0
-                                      AND (fp2.edituserid != ?
-                                       OR (fp2.edituserid IS NULL AND fp2.userid != ?))
-                                 GROUP BY fp2.discussionid
-                                  ) AS postinfo ON postinfo.did = fd.id";
+            $readtrackingjoin = "LEFT JOIN {forumng_read} fr ON fd.id = fr.discussionid AND fr.userid = ?";
         } else {
             $readtracking = ", 0 AS numreadposts, NULL AS timeread";
             $readtrackingjoin = "";
