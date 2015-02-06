@@ -765,6 +765,7 @@ WHERE
                 $ratingoptions->id = $id;
                 $ratingoptions->assesstimestart = $forum->get_ratingfrom();
                 $ratingoptions->assesstimefinish = $forum->get_ratinguntil();
+                $ratingoptions->returnurl = $discussion->get_moodle_url();
 
                 $rm = new rating_manager();
                 $postwithratings = $rm->get_ratings($ratingoptions);

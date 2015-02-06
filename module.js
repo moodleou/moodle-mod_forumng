@@ -1234,8 +1234,13 @@ M.mod_forumng = {
                  link.postid);
 
         // For core ratings, init js on expand.
-        if (newpost.one('.forumng-ratings-standard') && M.core_rating.init) {
-            M.core_rating.init(this.Y);
+        if (newpost.one('.forumng-ratings-standard')) {
+            if (M.core_rating && M.core_rating.init) {
+                M.core_rating.init(this.Y);
+            } else if (M.theme_ou && M.theme_ou.rating.init) {
+                // OU only code for custom ratings.
+                M.theme_ou.rating.init(link.postid);
+            }
         }
 
         if (!link.delay) {

@@ -683,6 +683,7 @@ class mod_forumng_discussion {
                     $ratingoptions->userid = $USER->id;
                     $ratingoptions->assesstimestart = $this->forum->get_ratingfrom();
                     $ratingoptions->assesstimefinish = $this->forum->get_ratinguntil();
+                    $ratingoptions->returnurl = $this->get_moodle_url();
 
                     $rm = new rating_manager();
                     $posts = $rm->get_ratings($ratingoptions);
