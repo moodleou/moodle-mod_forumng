@@ -53,7 +53,7 @@ class mod_forumng_post_test extends forumng_test_lib {
      */
     public function test_individual_posts_marked_read() {
         global $USER, $DB, $CFG;
-        $this->resetAfterTest();
+        $this->resetAfterTest(true);
         $this->setAdminUser();
         $adminid = $USER->id;
         $CFG->forumng_trackreadposts = true;
@@ -64,7 +64,7 @@ class mod_forumng_post_test extends forumng_test_lib {
         $suser1 = $this->get_new_user('student', $course->id);
         $suser2 = $this->get_new_user('student', $course->id);
 
-        // Set mark discussions as read 'manually'.
+        // Set mark as read to 'manually' for discussions and posts.
         set_user_preference('forumng_manualmark', 1, $adminid);
         set_user_preference('forumng_manualmark', 1, $etuser);
         set_user_preference('forumng_manualmark', 1, $suser1);
@@ -259,4 +259,311 @@ class mod_forumng_post_test extends forumng_test_lib {
         $this->assertEquals(0, $unreadpostsuser2);
     }
 
+    /**
+     * Extend tests that check forumns and discussions being marked as read.
+     *
+     */
+    public function test_discussions_mark_read() {
+        global $USER, $DB;
+        $this->resetAfterTest(true);
+        $this->setAdminUser();
+        $adminid = $USER->id;
+        $generator = $this->getDataGenerator()->get_plugin_generator('mod_forumng');
+        $course = $this->get_new_course();
+        $etuser1 = $this->get_new_user('editingteacher', $course->id);
+        $suser1 = $this->get_new_user('student', $course->id);
+
+        $group1 = $this->get_new_group($course->id);
+        $group2 = $this->get_new_group($course->id);
+        $this->get_new_group_member($group1->id, $etuser1->id);
+        $this->get_new_group_member($group1->id, $suser1->id);
+
+        // Create 2 forums (1 group forum, 1 no groups), each with 1 discussion.
+        $forum1 = $this->get_new_forumng($course->id, array('groupmode' => VISIBLEGROUPS));
+        $forum2 = $this->get_new_forumng($course->id);
+        $did1 = $generator->create_discussion(array('course' => $course,
+                'forum' => $forum1->get_id(), 'userid' => $etuser1->id, 'groupid' => $group1->id));
+        $did2 = $generator->create_discussion(array('course' => $course,
+                'forum' => $forum2->get_id(), 'userid' => $etuser1->id));
+
+        // Set the time for offset use.
+        $posttime = time();
+        // Ensure user prefs allow discussions/posts to be marked as read 'automatically'.
+        unset_user_preference('forumng_manualmark', $etuser1);
+        unset_user_preference('forumng_manualmark', $suser1);
+
+        // Root post auto marked as read for ET the creator, of forum1 at group level.
+        $etforums = mod_forumng::get_course_forums($course, $etuser1->id, mod_forumng::UNREAD_DISCUSSIONS);
+        // Forum contains discussion post read by etuser1.
+        $this->assertFalse($etforums[$forum1->get_id()]->has_unread_discussions());
+        $this->assertEquals(0, $etforums[$forum1->get_id()]->get_num_unread_discussions());
+
+        // Suser1 has NOT read root posts.
+        $s1forums = mod_forumng::get_course_forums($course, $suser1->id, mod_forumng::UNREAD_DISCUSSIONS);
+        // Forums contain discussion posts NOT read by Suser1.
+        $this->assertTrue($s1forums[$forum1->get_id()]->has_unread_discussions());
+        $this->assertTrue($s1forums[$forum2->get_id()]->has_unread_discussions());
+        // Discussion contains posts NOT read by S1.
+        $this->assertEquals(1, $s1forums[$forum1->get_id()]->get_num_unread_discussions());
+        $this->assertEquals(1, $s1forums[$forum2->get_id()]->get_num_unread_discussions());
+
+        // User Prefs allow the marking of both discussion root posts as read 'automatically'.
+        $posttime = $posttime + 2;
+        $did1read = mod_forumng_discussion::get_from_id($did1[0], 0);
+        $did1read->mark_read($posttime, $suser1->id);
+        $did2read = mod_forumng_discussion::get_from_id($did2[0], 0);
+        $did2read->mark_read($posttime, $suser1->id);
+
+        // Check the root posts now marked as read for S1.
+        $s1forums = mod_forumng::get_course_forums($course, $suser1->id, mod_forumng::UNREAD_DISCUSSIONS);
+        // Forums contain NO discussions not read by Suser1.
+        $this->assertFalse($s1forums[$forum1->get_id()]->has_unread_discussions());
+        $this->assertFalse($s1forums[$forum2->get_id()]->has_unread_discussions());
+        // No forumn discussions contain root posts not read by Suser1.
+        $this->assertEquals(0, $s1forums[$forum1->get_id()]->get_num_unread_discussions());
+        $this->assertEquals(0, $s1forums[$forum2->get_id()]->get_num_unread_discussions());
+
+        // Set user pref so discussions/posts marked 'manually'.
+        set_user_preference('forumng_manualmark', 1, $etuser1);
+        set_user_preference('forumng_manualmark', 1, $suser1);
+
+        // Add extra posts to both discussions with time modified offset.
+        $posttime = $posttime + 2;
+        $did1s1p1 = $generator->create_post(array('discussionid' => $did1[0],
+                'parentpostid' => $did1[1], 'userid' => $suser1->id, 'modified' => $posttime));
+        $did1etp1 = $generator->create_post(array('discussionid' => $did1[0],
+                'parentpostid' => $did1[1], 'userid' => $etuser1->id, 'modified' => $posttime));
+        $did2s1p2 = $generator->create_post(array('discussionid' => $did2[0],
+                'parentpostid' => $did2[1], 'userid' => $suser1->id, 'modified' => $posttime));
+        $did2etp2 = $generator->create_post(array('discussionid' => $did2[0],
+                'parentpostid' => $did2[1], 'userid' => $etuser1->id, 'modified' => $posttime));
+        $did1s1post1 = mod_forumng_post::get_from_id($did1s1p1->id, 0);
+        $did2s1post2 = mod_forumng_post::get_from_id($did2s1p2->id, 0);
+        $did1etpost1 = mod_forumng_post::get_from_id($did1etp1->id, 0);
+        $did2etpost2 = mod_forumng_post::get_from_id($did2etp2->id, 0);
+
+        // Check read status of new posts.
+        $etforums = mod_forumng::get_course_forums($course, $etuser1->id, mod_forumng::UNREAD_DISCUSSIONS);
+        // Discussions DO have posts not read by ET.
+        $this->assertTrue($etforums[$forum1->get_id()]->has_unread_discussions());
+        $this->assertTrue($etforums[$forum2->get_id()]->has_unread_discussions());
+        // A number of discussions contain posts NOT read by ET.
+        $this->assertEquals(1, $etforums[$forum1->get_id()]->get_num_unread_discussions());
+        $this->assertEquals(1, $etforums[$forum2->get_id()]->get_num_unread_discussions());
+
+        $s1forums = mod_forumng::get_course_forums($course, $suser1->id, mod_forumng::UNREAD_DISCUSSIONS);
+        // Discussions DO have posts not read by Suser1.
+        $this->assertTrue($s1forums[$forum1->get_id()]->has_unread_discussions());
+        $this->assertTrue($s1forums[$forum2->get_id()]->has_unread_discussions());
+        // A number of discussions contain posts NOT read by Suser1.
+        $this->assertEquals(1, $s1forums[$forum1->get_id()]->get_num_unread_discussions());
+        $this->assertEquals(1, $s1forums[$forum2->get_id()]->get_num_unread_discussions());
+
+        // Mark posts read individually.
+        $posttime = $posttime + 2;
+        $did1s1post1->mark_read($posttime, $etuser1->id);// Poster suser1, reader teacher 1.
+        $did2s1post2->mark_read($posttime, $etuser1->id);// Poster suser1, reader teacher 1.
+        $did1etpost1->mark_read($posttime, $suser1->id);// Poster etuser1, reader suser1.
+        $did2etpost2->mark_read($posttime, $suser1->id);// Poster etuser1, reader suser1.
+
+        // Check read status of newly marked read posts.
+        $etforums = mod_forumng::get_course_forums($course, $etuser1->id, mod_forumng::UNREAD_DISCUSSIONS);
+        // Discussions have NO posts not read by ET.
+        $this->assertFalse($etforums[$forum1->get_id()]->has_unread_discussions());
+        $this->assertFalse($etforums[$forum2->get_id()]->has_unread_discussions());
+        // No discussions contain posts not read by ET.
+        $this->assertEquals(0, $etforums[$forum1->get_id()]->get_num_unread_discussions());
+        $this->assertEquals(0, $etforums[$forum2->get_id()]->get_num_unread_discussions());
+
+        $s1forums = mod_forumng::get_course_forums($course, $suser1->id, mod_forumng::UNREAD_DISCUSSIONS);
+        // Discussions have NO posts not read by Suser1.
+        $this->assertFalse($s1forums[$forum1->get_id()]->has_unread_discussions());
+        $this->assertFalse($s1forums[$forum2->get_id()]->has_unread_discussions());
+        // No discussions contain posts not read by Suser1.
+        $this->assertEquals(0, $s1forums[$forum1->get_id()]->get_num_unread_discussions());
+        $this->assertEquals(0, $s1forums[$forum2->get_id()]->get_num_unread_discussions());
+
+        // Get read counts for ET user, includes their own posts,
+        // also checks both query_forums() and query_discussions().
+        $discussion1etuser = mod_forumng_discussion::get_from_id($did1[0], 0, $etuser1->id);
+        $etuserposts = $discussion1etuser->get_num_posts();
+        $this->assertEquals(1, count($etuserposts));
+        $unreadpostsetuser = $discussion1etuser->get_num_unread_posts();
+        $this->assertEquals(0, $unreadpostsetuser);
+        $readpostsetuser = $DB->get_records('forumng_read_posts', array('userid' => $etuser1->id));
+        $this->assertCount(2, $readpostsetuser);
+
+        $discussion2etuser = mod_forumng_discussion::get_from_id($did2[0], 0, $etuser1->id);
+        $etuserposts = $discussion2etuser->get_num_posts();
+        $this->assertEquals(1, count($etuserposts));
+        $unreadpostsetuser = $discussion2etuser->get_num_unread_posts();
+        $this->assertEquals(0, $unreadpostsetuser);
+        $readpostsetuser = $DB->get_records('forumng_read_posts', array('userid' => $etuser1->id));
+        $this->assertCount(2, $readpostsetuser);
+
+        // Get read counts for the student user 1, includes count of their own posts.
+        $discussion1suser1 = mod_forumng_discussion::get_from_id($did1[1], 0, $suser1->id);
+        $suser1posts = $discussion1suser1->get_num_posts();
+        $this->assertEquals(1, count($suser1posts));
+        $unreadpostsuser1 = $discussion1suser1->get_num_unread_posts();
+        $this->assertEquals(0, $unreadpostsuser1);
+        $readpostsuser1 = $DB->get_records('forumng_read_posts', array('userid' => $suser1->id));
+        $this->assertCount(2, $readpostsuser1);
+
+        $discussion2suser1 = mod_forumng_discussion::get_from_id($did2[1], 0, $suser1->id);
+        $suser1posts = $discussion2suser1->get_num_posts();
+        $this->assertEquals(1, count($suser1posts));
+        $unreadpostsuser1 = $discussion2suser1->get_num_unread_posts();
+        $this->assertEquals(0, $unreadpostsuser1);
+        $readpostsuser1 = $DB->get_records('forumng_read_posts', array('userid' => $suser1->id));
+        $this->assertCount(2, $readpostsuser1);
+
+        // Ensure user prefs allow discussions/posts to be marked as read 'automatically'.
+        unset_user_preference('forumng_manualmark', $etuser1);
+        unset_user_preference('forumng_manualmark', $suser1);
+
+        // Mark read at forumn/discussion level 'automatically'.
+        $posttime = $posttime + 2;
+        // Mark forumn/discussion 1 read 'automatically'.
+        $did1read = mod_forumng_discussion::get_from_id($did1[0], 0);
+        $did1read->mark_read($posttime, $etuser1->id);
+        $did1read->mark_read($posttime, $suser1->id);
+        // Mark forumn/discussion 2 read 'automatically'.
+        $did2read = mod_forumng_discussion::get_from_id($did2[0], 0);
+        $did2read->mark_read($posttime, $suser1->id);
+        $did2read->mark_read($posttime, $etuser1->id);
+
+        // Re-check Forumn read status of forum/discussions/posts.
+        $etforums = mod_forumng::get_course_forums($course, $etuser1->id, mod_forumng::UNREAD_DISCUSSIONS);
+        // Forum discussions have NO posts not read by ET.
+        $this->assertFalse($etforums[$forum1->get_id()]->has_unread_discussions('use'));
+        $this->assertFalse($etforums[$forum2->get_id()]->has_unread_discussions());
+        // No forum discussion contains posts not read by ET.
+        $this->assertEquals(0, $etforums[$forum1->get_id()]->get_num_unread_discussions());
+        $this->assertEquals(0, $etforums[$forum2->get_id()]->get_num_unread_discussions());
+
+        $s1forums = mod_forumng::get_course_forums($course, $suser1->id, mod_forumng::UNREAD_DISCUSSIONS);
+        // Forum discussions have NO posts not read by S1.
+        $this->assertFalse($s1forums[$forum1->get_id()]->has_unread_discussions());
+        $this->assertFalse($s1forums[$forum2->get_id()]->has_unread_discussions());
+        // No forum discussion contains posts not read by S1.
+        $this->assertEquals(0, $s1forums[$forum1->get_id()]->get_num_unread_discussions());
+        $this->assertEquals(0, $s1forums[$forum2->get_id()]->get_num_unread_discussions());
+
+        // Add some more posts to discussion 2 only, to remain NOT MARKED manually.
+        $posttime = $posttime + 2;
+        $did2s1p3 = $generator->create_post(array('discussionid' => $did2[0],
+                 'parentpostid' => $did2[1], 'userid' => $suser1->id, 'modified' => $posttime));
+        $did2s1post3 = mod_forumng_post::get_from_id($did2s1p3->id, 0);
+        $did2etp3 = $generator->create_post(array('discussionid' => $did2[0],
+                 'parentpostid' => $did2[1], 'userid' => $etuser1->id, 'modified' => $posttime));
+        $did2etpost3 = mod_forumng_post::get_from_id($did2etp3->id, 0);
+
+        // Setuser pref so discussions/posts can be marked 'manually'.
+        set_user_preference('forumng_manualmark', 1, $etuser1);
+        set_user_preference('forumng_manualmark', 1, $suser1);
+
+        // Check read status of forum/discussions/posts.
+        $etforums = mod_forumng::get_course_forums($course, $etuser1->id, mod_forumng::UNREAD_DISCUSSIONS);
+        // Forumn discussion 1 has NO post not read by ET.
+        $this->assertFalse($etforums[$forum1->get_id()]->has_unread_discussions());
+        $this->assertEquals(0, $etforums[$forum1->get_id()]->get_num_unread_discussions());
+        // Forumn discussion 2 has post NOT read by ET.
+        $this->assertTrue($etforums[$forum2->get_id()]->has_unread_discussions());
+        $this->assertEquals(1, $etforums[$forum2->get_id()]->get_num_unread_discussions());
+
+        $s1forums = mod_forumng::get_course_forums($course, $suser1->id, mod_forumng::UNREAD_DISCUSSIONS);
+        // Forumn discussions 1 has NO post unread by S1.
+        $this->assertFalse($s1forums[$forum1->get_id()]->has_unread_discussions());
+        $this->assertEquals(0, $s1forums[$forum1->get_id()]->get_num_unread_discussions());
+        // Forumn discussion 2 DOES contain posts not read by S1.
+        $this->assertTrue($s1forums[$forum2->get_id()]->has_unread_discussions());
+        $this->assertEquals(1, $s1forums[$forum2->get_id()]->get_num_unread_discussions());
+
+        // Mark only the older posts read individually.
+        $posttime = $posttime + 2;
+        $did1s1post1->mark_read($posttime, $etuser1->id);// Poster suser1, reader teacher 1.
+        $did2s1post2->mark_read($posttime, $etuser1->id);// Poster suser1, reader teacher 1.
+        $did1etpost1->mark_read($posttime, $suser1->id);// Poster etuser1, reader suser1.
+        $did2etpost2->mark_read($posttime, $suser1->id);// Poster etuser1, reader suser1.
+
+        // Get read counts for ET user, includes their own posts,
+        // also checks both query_forums() and query_discussions().
+        $discussion1etuser = mod_forumng_discussion::get_from_id($did1[0], 0, $etuser1->id);
+        $etuserposts = $discussion1etuser->get_num_posts();
+        $this->assertEquals(3, $etuserposts);
+        $unreadpostsetuser = $discussion1etuser->get_num_unread_posts();
+        $this->assertEquals(0, $unreadpostsetuser);
+        $readpostsetuser = $DB->get_records('forumng_read_posts', array('userid' => $etuser1->id));
+        $this->assertCount(2, $readpostsetuser);
+
+        $discussion2etuser = mod_forumng_discussion::get_from_id($did2[0], 0, $etuser1->id);
+        $etuserposts = $discussion2etuser->get_num_posts();
+        $this->assertEquals(5, $etuserposts);
+        $unreadpostsetuser = $discussion2etuser->get_num_unread_posts();
+        $this->assertEquals(1, $unreadpostsetuser);
+
+        // Get read counts for the student user 1, includes count of their own posts.
+        $discussion1suser1 = mod_forumng_discussion::get_from_id($did1[1], 0, $suser1->id);
+        $suser1posts = $discussion1suser1->get_num_posts();
+        $this->assertEquals(1, count($suser1posts));
+        $unreadpostsuser1 = $discussion1suser1->get_num_unread_posts();
+        $this->assertEquals(0, $unreadpostsuser1);
+        $readpostsuser1 = $DB->get_records('forumng_read_posts', array('userid' => $suser1->id));
+        $this->assertCount(2, $readpostsuser1);
+
+        $discussion2suser1 = mod_forumng_discussion::get_from_id($did2[1], 0, $suser1->id);
+        $suser1posts = $discussion2suser1->get_num_posts();
+        $this->assertEquals(1, count($suser1posts));
+        $unreadpostsuser1 = $discussion2suser1->get_num_unread_posts();
+        $this->assertEquals(1, $unreadpostsuser1);
+        $readpostsuser1 = $DB->get_records('forumng_read_posts', array('userid' => $suser1->id));
+        $this->assertCount(2, $readpostsuser1);
+
+        // Check read status of forum/discussions/posts.
+        $etforums = mod_forumng::get_course_forums($course, $etuser1->id, mod_forumng::UNREAD_DISCUSSIONS);
+        // Forumn discussion 1  has NO posts not read by ET.
+        $this->assertFalse($etforums[$forum1->get_id()]->has_unread_discussions());
+        $this->assertEquals(0, $etforums[$forum1->get_id()]->get_num_unread_discussions());
+        // Forumn discussion 2 contains posts NOT read by ET.
+        $this->assertTrue($etforums[$forum2->get_id()]->has_unread_discussions());
+        $this->assertEquals(1, $etforums[$forum2->get_id()]->get_num_unread_discussions());
+
+        $s1forums = mod_forumng::get_course_forums($course, $suser1->id, mod_forumng::UNREAD_DISCUSSIONS);
+        // Forumn discussion 1 has NO posts not read by S1.
+        $this->assertFalse($etforums[$forum1->get_id()]->has_unread_discussions());
+        $this->assertEquals(0, $etforums[$forum1->get_id()]->get_num_unread_discussions());
+        // Forumn discussion 2 contains posts NOT read by S1.
+        $this->assertTrue($etforums[$forum2->get_id()]->has_unread_discussions());
+        $this->assertEquals(1, $etforums[$forum2->get_id()]->get_num_unread_discussions());
+
+        // Mark forumns read 'automatically'.
+        $forums = mod_forumng::get_course_forums($course, $etuser1->id);
+        $posttime = $posttime + 2;
+        $forums[$forum1->get_id()]->mark_read(0, $posttime, $etuser1->id);
+        $forums[$forum2->get_id()]->mark_read(0, $posttime, $etuser1->id);
+
+        $forums = mod_forumng::get_course_forums($course, $suser1->id);
+        $posttime = $posttime + 2;
+        $forums[$forum2->get_id()]->mark_read(0, $posttime, $suser1->id);
+        $forums[$forum1->get_id()]->mark_read(0, $posttime, $suser1->id);
+
+        // Check Discussion read status of forum/discussions.
+        $etforums = mod_forumng::get_course_forums($course, $etuser1->id, mod_forumng::UNREAD_DISCUSSIONS);
+        // Forum discussions have NO posts not read by ET.
+        $this->assertFalse($etforums[$forum1->get_id()]->has_unread_discussions());
+        $this->assertFalse($etforums[$forum2->get_id()]->has_unread_discussions());
+        // Forum discussions contain NO posts unread by ET.
+        $this->assertEquals(0, $etforums[$forum1->get_id()]->get_num_unread_discussions());
+        $this->assertEquals(0, $etforums[$forum2->get_id()]->get_num_unread_discussions());
+
+        $s1forums = mod_forumng::get_course_forums($course, $suser1->id, mod_forumng::UNREAD_DISCUSSIONS);
+        // Forum discussions have NO posts not read by S1.
+        $this->assertFalse($s1forums[$forum1->get_id()]->has_unread_discussions());
+        $this->assertFalse($s1forums[$forum2->get_id()]->has_unread_discussions());
+        // No Forum 1 discussion contains posts not read by S1.
+        $this->assertEquals(0, $s1forums[$forum1->get_id()]->get_num_unread_discussions());
+        $this->assertEquals(0, $s1forums[$forum2->get_id()]->get_num_unread_discussions());
+
+    }
 }
