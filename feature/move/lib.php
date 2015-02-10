@@ -179,8 +179,8 @@ function get_target_groups($selectedids, $targetforum, $cloneid) {
 }
 
 function sort_ignore_case($a, $b) {
-    $alower = textlib::strtolower($a);
-    $blower = textlib::strtolower($b);
+    $alower = core_text::strtolower($a);
+    $blower = core_text::strtolower($b);
     if ($alower == $blower) {
         return 0;
     }

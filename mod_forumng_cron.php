@@ -755,7 +755,7 @@ $mainquery", $mainparams);
         // Trim subject length (not sure why but
         // email_to_user does); note that I did it more
         // aggressively due to use of textlib.
-        $mail->Subject = textlib::substr($subject, 0, 200);
+        $mail->Subject = core_text::substr($subject, 0, 200);
 
         // Loop through in batches of specified size
         $copy = array();
