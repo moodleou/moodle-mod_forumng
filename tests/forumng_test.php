@@ -444,6 +444,9 @@ class mod_forumng_forumng_testcase extends forumng_test_lib {
         $role = $DB->get_record('role', array('shortname' => 'editingteacher'));
         role_unassign($role->id, $user1->id, context_course::instance($course->id)->id);
         $this->assertEmpty($forum1->get_subscribers());
+        // Test can subscribe (private) via can_change_subscription().
+        $forum = mod_forumng::get_from_id($forum1->get_id(), mod_forumng::CLONE_DIRECT);
+        $this->assertFalse($forum->can_change_subscription($user1->id));
     }
 
     /**

@@ -1859,12 +1859,7 @@ WHERE $conditions AND m.name = 'forumng' AND $restrictionsql",
                     break;
                 }
             } else {
-                require_once($CFG->libdir . '/conditionlib.php');
                 $visible = $cm->visible;
-                // Note: It is pretty terrible that this code is placed here.
-                // Shouldn't there be a function in cm_info to do this? :(
-                // Unfortunately I didn't think of that when redesigning
-                // cm_info, it can only work for current user.
                 $info = new \core_availability\info_module($cm);
                 $visible = $visible &&
                     $info->is_available($crap, false, $userid);
@@ -1873,17 +1868,14 @@ WHERE $conditions AND m.name = 'forumng' AND $restrictionsql",
                     $result = false;
                     break;
                 }
-                if ($cm->groupmembersonly && !has_capability(
-                    'moodle/site:accessallgroups', $context, $userid)) {
-                    // If the forum is restricted to group members only, then
-                    // limit it to people within groups on the course - or
-                    // groups in the grouping, if one is selected
-                    $groupobjs = groups_get_all_groups($course->id, $userid,
-                        $cm->groupingid, 'g.id');
-                    if (!$groupobjs || count($groupobjs)==0) {
-                        $result = false;
-                        break;
-                    }
+            }
+            if ($this->get_group_mode() == SEPARATEGROUPS &&
+                    !has_capability('moodle/site:accessallgroups', $context, $userid)) {
+                // Limit it to people within groups in the grouping, if one is selected.
+                $groupobjs = groups_get_all_groups($course->id, $userid, $cm->groupingid, 'g.id');
+                if (!$groupobjs || count($groupobjs) == 0) {
+                    $result = false;
+                    break;
                 }
             }
             $result = true;
@@ -1945,52 +1937,10 @@ WHERE $conditions AND m.name = 'forumng' AND $restrictionsql",
     public function is_in_auto_subscribe_list($userid=0, $expectingquery=false) {
         global $DB, $USER;
         $userid = mod_forumng_utils::get_real_userid($userid);
-        $context = $this->get_context();
 
-        // Check capability without doanything
-        if (!has_capability('mod/forumng:viewdiscussion', $context,
-            $userid, false)) {
+        // Check standard subscription allowed.
+        if (!$this->can_be_subscribed($userid)) {
             return false;
-        }
-
-        // Check user is in permitted group
-        $groups = $this->get_permitted_groups();
-        if ($groups) {
-            if (isset($USER) && $userid == $USER->id) {
-                $ok = false;
-                foreach ($USER->groupmember as $courseid => $values) {
-                    if ($courseid == $this->get_course_id()) {
-                        foreach ($values as $groupid) {
-                            if (in_array($groupid, $groups)) {
-                                $ok = true;
-                                break;
-                            }
-                        }
-                        if ($ok) {
-                            break;
-                        }
-                    }
-                }
-            } else {
-                if (!$expectingquery) {
-                    debugging('DB query required for is_in_auto_subscribe_list. ' .
-                        'Set $expectingquery to true or check code',
-                        DEBUG_DEVELOPER);
-                }
-                list($inorequals, $inparams) = mod_forumng_utils::get_in_array_sql('groupid',
-                        $groups);
-                $ok = $DB->count_records_sql("
-SELECT
-    COUNT(1)
-FROM
-    {groups_members}
-WHERE
-    userid = ? AND $inorequals",
-                        array_merge(array($userid), $inparams));
-            }
-            if (!$ok) {
-                return false;
-            }
         }
 
         // Check user has role in subscribe roles.
@@ -2221,24 +2171,40 @@ WHERE
         // limited to a group if specified.
         list($enrolsql, $enrolparams) = get_enrolled_sql($this->get_context(),
                 'mod/forumng:viewdiscussion', $groupid >= 0 ? $groupid : 0, true);
-        return $DB->get_records_sql("SELECT " .
+        $users =  $DB->get_records_sql("SELECT " .
                 mod_forumng_utils::select_username_fields('', true) .
                 " FROM {user} u WHERE u.id IN ($enrolsql)", $enrolparams);
+        $avail = new \core_availability\info_module($this->get_course_module());
+        $users = $avail->filter_user_list($users);
+        if ($groupid == self::ALL_GROUPS && $groups = $this->get_permitted_groups()) {
+            // Separate groups grouping enabled forum (+ group not specified) - must be in a group.
+            raise_memory_limit(MEMORY_EXTRA);
+            $groupmembers = get_users_by_capability($this->get_context(),
+                        'mod/forumng:viewdiscussion', 'u.id', '', '', '',
+                        $groups, '', 0, 0, true);
+            $newusers = array();
+            foreach ($users as $id => $ob) {
+                if (array_key_exists($id, $groupmembers)) {
+                    $newusers[$id] = $ob;
+                }
+            }
+            return $newusers;
+        }
+        return $users;
     }
 
     /**
      * Obtains a list of group IDs that are permitted to use this forum.
+     * This is not the same as restriction.
+     * Group id's will be sent when a separate groups forum with grouping applied.
      * @return mixed Either an array of IDs, or '' if all groups permitted
      */
     private function get_permitted_groups() {
         $groups = '';
-        $cm = $this->get_course_module();
-        if ($cm->groupmembersonly) {
-            // If the forum is restricted to group members only, then
-            // limit it to people within groups on the course - or
-            // groups in the grouping, if one is selected
-            $groupobjs = groups_get_all_groups($this->get_course()->id, 0,
-                $cm->groupingid, 'g.id');
+        $groupmode = $this->get_group_mode();
+        $grouping = $this->get_grouping();
+        if ($groupmode == SEPARATEGROUPS) {
+            $groupobjs = groups_get_all_groups($this->get_course()->id, 0, $grouping, 'g.id');
             $groups = array();
             foreach ($groupobjs as $groupobj) {
                 $groups[] = $groupobj->id;
@@ -2346,6 +2312,9 @@ WHERE
                     $allowedusers = get_users_by_capability($context,
                         'mod/forumng:viewdiscussion', 'u.id', '', '', '',
                         $groups, '', 0, 0, true);
+                    // Filter possible users by activity availability.
+                    $avail = new \core_availability\info_module($this->get_course_module());
+                    $allowedusers = $avail->filter_user_list($allowedusers);
                     mod_forumng_utils::add_admin_users($allowedusers);
                 }
                 // Get reference to current user, or make new object if required
@@ -4430,10 +4399,10 @@ WHERE
         $newcm->groupmode = $cm->groupmode;
         $newcm->groupingid = $cm->groupingid;
         $newcm->idnumber = $cm->idnumber;
-        $newcm->groupmembersonly = $cm->groupmembersonly;
         $newcm->completion = $cm->completion;
         $newcm->completiongradeitemnumber = $cm->completiongradeitemnumber;
         $newcm->completionview = $cm->completionview;
+        $newcm->availability = $cm->availability;
 
         // Add
         $newcm->id = $DB->insert_record('course_modules', $newcm);

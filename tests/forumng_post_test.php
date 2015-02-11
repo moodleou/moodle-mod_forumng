@@ -147,7 +147,7 @@ class mod_forumng_post_test extends forumng_test_lib {
         $this->assertEquals(1, $forumsuser2posts[$forum1->get_id()]->get_num_unread_discussions());
 
         // Get read counts for editingteacher, include count of their own posts.
-        $discussionetuser = mod_forumng_discussion::get_from_id($did1[1], 0, $etuser->id);
+        $discussionetuser = mod_forumng_discussion::get_from_id($did1[0], 0, $etuser->id);
         $etuserposts = $discussionetuser->get_num_posts();
         $this->assertEquals(1, count($etuserposts));
         $unreadpostsetuser = $discussionetuser->get_num_unread_posts();
@@ -156,7 +156,7 @@ class mod_forumng_post_test extends forumng_test_lib {
         $this->assertCount(4, $readpostsetuser);
 
         // Get the first count for the student user 1, includes count of their own posts.
-        $discussionsuser1 = mod_forumng_discussion::get_from_id($did1[1], 0, $suser1->id);
+        $discussionsuser1 = mod_forumng_discussion::get_from_id($did1[0], 0, $suser1->id);
         $suser1posts = $discussionsuser1->get_num_posts();
         $this->assertEquals(1, count($suser1posts));
         $unreadpostsuser1 = $discussionsuser1->get_num_unread_posts();
@@ -165,7 +165,7 @@ class mod_forumng_post_test extends forumng_test_lib {
         $this->assertCount(4, $readpostsuser1);
 
         // Get the first count for the student user 2, includes count of their own posts.
-        $discussionsuser2 = mod_forumng_discussion::get_from_id($did1[1], 0, $suser2->id);
+        $discussionsuser2 = mod_forumng_discussion::get_from_id($did1[0], 0, $suser2->id);
         $suser2posts = $discussionsuser2->get_num_posts();
         $this->assertEquals(1, count($suser2posts));
         $unreadpostsuser2 = $discussionsuser2->get_num_unread_posts();
@@ -199,7 +199,7 @@ class mod_forumng_post_test extends forumng_test_lib {
         $this->assertEquals(0, $forumsuser2posts[$forum1->get_id()]->get_num_unread_discussions());
 
         // Get second read count for editingteacher, includes count of their own posts.
-        $discussionetuser = mod_forumng_discussion::get_from_id($did1[1], 0, $etuser->id);
+        $discussionetuser = mod_forumng_discussion::get_from_id($did1[0], 0, $etuser->id);
         $etuserposts = $discussionetuser->get_num_posts();
         $this->assertEquals(11, $etuserposts);
         $unreadpostsetuser = $discussionetuser->get_num_unread_posts();
@@ -208,7 +208,7 @@ class mod_forumng_post_test extends forumng_test_lib {
         $this->assertCount(7, $readpostsetuser);
 
         // Get the second count for the student user 1, includes count of their own posts.
-        $discussionsuser1 = mod_forumng_discussion::get_from_id($did1[1], 0, $suser1->id);
+        $discussionsuser1 = mod_forumng_discussion::get_from_id($did1[0], 0, $suser1->id);
         $suser1posts = $discussionsuser1->get_num_posts();
         $this->assertEquals(1, count($suser1posts));
         $unreadpostsuser1 = $discussionsuser1->get_num_unread_posts();
@@ -217,7 +217,7 @@ class mod_forumng_post_test extends forumng_test_lib {
         $this->assertCount(7, $readpostsuser1);
 
         // Get more counts for the student user 2, includes count of their own posts.
-        $discussionsuser2 = mod_forumng_discussion::get_from_id($did1[1], 0, $suser2->id);
+        $discussionsuser2 = mod_forumng_discussion::get_from_id($did1[0], 0, $suser2->id);
         $suser2posts = $discussionsuser2->get_num_posts();
         $this->assertEquals(1, count($suser2posts));
         $unreadpostsuser2 = $discussionsuser2->get_num_unread_posts();
@@ -243,7 +243,7 @@ class mod_forumng_post_test extends forumng_test_lib {
         $this->assertTrue($forumsuser2posts[$forum1->get_id()]->has_unread_discussions());
         $this->assertEquals(1, $forumsuser2posts[$forum1->get_id()]->get_num_unread_discussions());
 
-        $discussionetuser = mod_forumng_discussion::get_from_id($did1[1], 0, $etuser->id);
+        $discussionetuser = mod_forumng_discussion::get_from_id($did1[0], 0, $etuser->id);
         $etuserposts = $discussionetuser->get_num_posts();
         $this->assertEquals(11, $etuserposts);
         $unreadpostsetuser = $discussionetuser->get_num_unread_posts();
@@ -402,7 +402,7 @@ class mod_forumng_post_test extends forumng_test_lib {
         $this->assertCount(2, $readpostsetuser);
 
         // Get read counts for the student user 1, includes count of their own posts.
-        $discussion1suser1 = mod_forumng_discussion::get_from_id($did1[1], 0, $suser1->id);
+        $discussion1suser1 = mod_forumng_discussion::get_from_id($did1[0], 0, $suser1->id);
         $suser1posts = $discussion1suser1->get_num_posts();
         $this->assertEquals(1, count($suser1posts));
         $unreadpostsuser1 = $discussion1suser1->get_num_unread_posts();
@@ -410,7 +410,7 @@ class mod_forumng_post_test extends forumng_test_lib {
         $readpostsuser1 = $DB->get_records('forumng_read_posts', array('userid' => $suser1->id));
         $this->assertCount(2, $readpostsuser1);
 
-        $discussion2suser1 = mod_forumng_discussion::get_from_id($did2[1], 0, $suser1->id);
+        $discussion2suser1 = mod_forumng_discussion::get_from_id($did2[0], 0, $suser1->id);
         $suser1posts = $discussion2suser1->get_num_posts();
         $this->assertEquals(1, count($suser1posts));
         $unreadpostsuser1 = $discussion2suser1->get_num_unread_posts();
@@ -504,7 +504,7 @@ class mod_forumng_post_test extends forumng_test_lib {
         $this->assertEquals(1, $unreadpostsetuser);
 
         // Get read counts for the student user 1, includes count of their own posts.
-        $discussion1suser1 = mod_forumng_discussion::get_from_id($did1[1], 0, $suser1->id);
+        $discussion1suser1 = mod_forumng_discussion::get_from_id($did1[0], 0, $suser1->id);
         $suser1posts = $discussion1suser1->get_num_posts();
         $this->assertEquals(1, count($suser1posts));
         $unreadpostsuser1 = $discussion1suser1->get_num_unread_posts();
@@ -512,7 +512,7 @@ class mod_forumng_post_test extends forumng_test_lib {
         $readpostsuser1 = $DB->get_records('forumng_read_posts', array('userid' => $suser1->id));
         $this->assertCount(2, $readpostsuser1);
 
-        $discussion2suser1 = mod_forumng_discussion::get_from_id($did2[1], 0, $suser1->id);
+        $discussion2suser1 = mod_forumng_discussion::get_from_id($did2[0], 0, $suser1->id);
         $suser1posts = $discussion2suser1->get_num_posts();
         $this->assertEquals(1, count($suser1posts));
         $unreadpostsuser1 = $discussion2suser1->get_num_unread_posts();

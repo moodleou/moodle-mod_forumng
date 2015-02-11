@@ -324,7 +324,7 @@ class mod_forumng_utils {
     public static function select_course_module_fields($alias) {
         $fields = array('id', 'course', 'module', 'instance', 'section',
             'added', 'score', 'indent', 'visible', 'visibleold', 'groupmode',
-            'groupingid', 'idnumber', 'groupmembersonly', 'completion',
+            'groupingid', 'idnumber', 'completion',
               'completiongradeitemnumber', 'completionview',
               'completionexpected');
 
