@@ -328,7 +328,8 @@ UPDATE {forumng_discussions} SET lastpostid=(
         require_once($CFG->dirroot . '/mod/forumng/mod_forumng.php');
         // Create search index if user data restored.
         if ($this->get_setting_value('userinfo') && mod_forumng::search_installed()) {
-            mod_forumng::search_update_all(false, $this->get_courseid(), $this->task->get_moduleid());
+            mod_forumng::search_update_all(false, $this->get_courseid(), $this->task->get_moduleid(),
+                    $this->get_task()->get_progress());
         }
 
         // See what $this->task->get_moduleid() contains, then check master|clone.

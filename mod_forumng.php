@@ -3381,11 +3381,17 @@ ORDER BY
 
     /**
      * Update all documents for ousearch.
+     *
+     * If specified, the progress object should be ready to receive indeterminate
+     * progress calls.
+     *
      * @param bool $feedback If true, prints feedback as HTML list items
      * @param int $courseid If specified, restricts to particular courseid
      * @param int $cmid If specified, restricts to particular cmid
+     * @param \core\progress\base $progress Set to a progress object or null
      */
-    public static function search_update_all($feedback=false, $courseid=0, $cmid=0) {
+    public static function search_update_all($feedback=false, $courseid=0, $cmid=0,
+            \core\progress\base $progress = null) {
         global $DB;
         raise_memory_limit(MEMORY_EXTRA);
         // If cmid is specified, only retrieve that one
@@ -3451,6 +3457,9 @@ WHERE
                 if ($feedback) {
                     echo '. ';
                     flush();
+                }
+                if ($progress) {
+                    $progress->progress(\core\progress\base::INDETERMINATE);
                 }
             }
 
