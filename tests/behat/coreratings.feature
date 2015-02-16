@@ -1,4 +1,4 @@
-@mod @mod_forumng @ou @ou_vle
+@mod @mod_forumng @ou @ou_vle @forumng_rating
 Feature: Add forumng activity and test basic ratings functionality
   In order to rate posts
   As a teacher
@@ -48,16 +48,15 @@ Feature: Add forumng activity and test basic ratings functionality
     And ".forumng-p1 .forumng-ratings-standard select" "css_element" should exist
     And ".forumng-p2 .forumng-ratings-standard select" "css_element" should exist
     And ".forumng-p3 .forumng-ratings-standard select" "css_element" should not exist
-    Given I set the field "menurating1" to "3"
-    When I set the field "menurating2" to "4"
+    Given I set the field "rating" to "3"
     Then I should see "Average of ratings: 3 (1)"
     # Re-access, testing rating works when posts collapsed.
     Given I click on "#forumng-arrowback a" "css_element"
     And I follow "Admin1"
-    When I set the field "menurating1" to "5"
+    When I set the field "rating" to "5"
     Then I should see "Average of ratings: 5 (1)"
     Given I expand post "2"
-    When I set the field "menurating2" to "1"
+    When I set the field "rating" to "1"
     Then I should see "Average of ratings: 1 (1)"
     # Check rating output on view all posts page.
     Given I follow "Test forum name"
