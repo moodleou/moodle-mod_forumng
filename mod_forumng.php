@@ -3252,38 +3252,53 @@ WHERE
                     $conditionsparams = array_merge($conditionsparams, $inparams);
                 }
             }
+            $indreadpart = '';
+            $indreadparms = array();
+            // Get individual posts unread if manual read marking (on unread discussions only).
+            if (!mod_forumng::mark_read_automatically($userid)) {
+                $indreadpart = "INNER JOIN {forumng_posts} fp ON fp.discussionid = discussions.id
+                                 LEFT JOIN {forumng_read_posts} frp ON frp.postid = fp.id AND frp.userid = ?
+                                     WHERE frp.id IS NULL
+                                       AND ((fp.edituserid IS NOT NULL AND fp.edituserid <> ?)
+                                           OR (fp.edituserid IS NULL AND fp.userid <> ?))
+                                       AND fp.deleted = ?
+                                       AND fp.oldversion = ?
+                                       AND fp.modified > ?
+                                       AND (discussions.time IS NULL OR fp.modified > discussions.time)";
+                $indreadparms = array($userid, $userid, $userid, 0, 0, $endtime);
+            }
 
             // NOTE fpfirst is used only by forum types, not here
             $now = time();
             $sharedquerypart = "
         FROM
-    {forumng_discussions} fd
-  INNER JOIN {forumng_posts} fp ON fp.discussionid = fd.id
+     (SELECT fd.id, fr.time
+        FROM {forumng_discussions} fd
   INNER JOIN {forumng_posts} fplast ON fd.lastpostid = fplast.id
   INNER JOIN {forumng_posts} fpfirst ON fd.postid = fpfirst.id
    LEFT JOIN {forumng_read} fr ON fd.id = fr.discussionid AND fr.userid = ?
-   LEFT JOIN {forumng_read_posts} frp ON frp.postid = fp.id AND frp.userid = ?
-       WHERE
-       fd.forumngid = f.id
-         AND ((fd.groupid IS NULL)
-          OR ($ingroups)
-          OR cm.groupmode = " . VISIBLEGROUPS . "
-          OR ($inaagforums))
+       WHERE fd.forumngid = f.id AND fplast.modified > ?
+         AND (
+             (fd.groupid IS NULL)
+             OR ($ingroups)
+             OR cm.groupmode = " . VISIBLEGROUPS . "
+             OR ($inaagforums)
+         )
          AND fd.deleted = 0
-         AND (((fd.timestart = 0 OR fd.timestart <= ?)
-         AND (fd.timeend = 0 OR fd.timeend > ?))
-          OR ($inviewhiddenforums))
-         AND ((fp.edituserid IS NOT NULL AND fp.edituserid <> ?) OR (fp.edituserid IS NULL AND fp.userid <> ?))
-         AND fp.deleted = 0
-         AND fp.oldversion = 0
-	     AND frp.id IS NULL
-	     AND fp.modified > ?
-         AND (fr.time IS NULL OR fp.modified > fr.time)
+         AND (
+             ((fd.timestart = 0 OR fd.timestart <= ?)
+             AND (fd.timeend = 0 OR fd.timeend > ?))
+             OR ($inviewhiddenforums)
+         )
+         AND ((fplast.edituserid IS NOT NULL AND fplast.edituserid <> ?)
+          OR fplast.userid <> ?)
+         AND (fr.time IS NULL OR fplast.modified > fr.time)
     $restrictionsql
-    ";
-            $sharedqueryparams = array_merge(array($userid, $userid), $ingroupsparams,
+    ) discussions
+    $indreadpart";
+            $sharedqueryparams = array_merge(array($userid, $endtime), $ingroupsparams,
                     $inaagforumsparams, array($now, $now), $inviewhiddenforumsparams,
-                    array($userid, $userid, $endtime), $restrictionparams);
+                    array($userid, $userid), $restrictionparams, $indreadparms);
 
             // Note: There is an unusual case in which this number can
             // be inaccurate. It is to do with ignoring messages the user
@@ -3302,7 +3317,7 @@ WHERE
                 // Query to get full unread discussions count
                 $readtracking = "
 (SELECT
-    COUNT(DISTINCT fd.id)
+    COUNT(DISTINCT discussions.id)
 $sharedquerypart
 ) AS f_numunreaddiscussions";
                 $readtrackingparams = $sharedqueryparams;
