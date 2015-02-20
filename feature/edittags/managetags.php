@@ -35,9 +35,6 @@ $context = $forum->get_context(true);
 
 // Get group id for forum.
 $groupid = mod_forumng::get_activity_group($cm, true);
-if ($groupid == mod_forumng::NO_GROUPS || $groupid == mod_forumng::ALL_GROUPS) {
-    $groupid = 0;
-}
 
 $fid = $forum->get_id();
 
