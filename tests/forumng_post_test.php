@@ -94,9 +94,14 @@ class mod_forumng_post_test extends forumng_test_lib {
         $forumadminposts = mod_forumng::get_course_forums($course, $adminid, mod_forumng::UNREAD_DISCUSSIONS);
         $this->assertTrue($forumadminposts[$forum1->get_id()]->has_unread_discussions());
         $this->assertEquals(1, $forumadminposts[$forum1->get_id()]->get_num_unread_discussions());
+        // Note etuser is classed as read at forum level as they made last post in discussion.
         $forumetposts = mod_forumng::get_course_forums($course, $etuser->id, mod_forumng::UNREAD_DISCUSSIONS);
-        $this->assertTrue($forumetposts[$forum1->get_id()]->has_unread_discussions());
-        $this->assertEquals(1, $forumetposts[$forum1->get_id()]->get_num_unread_discussions());
+        $this->assertFalse($forumetposts[$forum1->get_id()]->has_unread_discussions());
+        $this->assertEquals(0, $forumetposts[$forum1->get_id()]->get_num_unread_discussions());
+        // Check etuser should be classed as unread at discussion level.
+        $discussionetuser = mod_forumng_discussion::get_from_id($did1[0], 0, $etuser->id);
+        $this->assertEquals(8, $discussionetuser->get_num_unread_posts());
+
         $forumsuser1posts = mod_forumng::get_course_forums($course, $suser1->id, mod_forumng::UNREAD_DISCUSSIONS);
         $this->assertTrue($forumsuser1posts[$forum1->get_id()]->has_unread_discussions());
         $this->assertEquals(1, $forumsuser1posts[$forum1->get_id()]->get_num_unread_discussions());
@@ -136,9 +141,10 @@ class mod_forumng_post_test extends forumng_test_lib {
         $forumadminposts = mod_forumng::get_course_forums($course, $adminid, mod_forumng::UNREAD_DISCUSSIONS);
         $this->assertTrue($forumadminposts[$forum1->get_id()]->has_unread_discussions());
         $this->assertEquals(1, $forumadminposts[$forum1->get_id()]->get_num_unread_discussions());
+        // Note etuser is classed as read at forum level as they made last post in discussion.
         $forumetposts = mod_forumng::get_course_forums($course, $etuser->id, mod_forumng::UNREAD_DISCUSSIONS);
-        $this->assertTrue($forumetposts[$forum1->get_id()]->has_unread_discussions());
-        $this->assertEquals(1, $forumetposts[$forum1->get_id()]->get_num_unread_discussions());
+        $this->assertFalse($forumetposts[$forum1->get_id()]->has_unread_discussions());
+        $this->assertEquals(0, $forumetposts[$forum1->get_id()]->get_num_unread_discussions());
         $forumsuser1posts = mod_forumng::get_course_forums($course, $suser1->id, mod_forumng::UNREAD_DISCUSSIONS);
         $this->assertTrue($forumsuser1posts[$forum1->get_id()]->has_unread_discussions());
         $this->assertEquals(1, $forumsuser1posts[$forum1->get_id()]->get_num_unread_discussions());
@@ -188,9 +194,10 @@ class mod_forumng_post_test extends forumng_test_lib {
         $forumadminposts = mod_forumng::get_course_forums($course, $adminid, mod_forumng::UNREAD_DISCUSSIONS);
         $this->assertTrue($forumadminposts[$forum1->get_id()]->has_unread_discussions());
         $this->assertEquals(1, $forumadminposts[$forum1->get_id()]->get_num_unread_discussions());
+        // Note etuser is classed as read at forum level as they made last post in discussion.
         $forumetposts = mod_forumng::get_course_forums($course, $etuser->id, mod_forumng::UNREAD_DISCUSSIONS);
-        $this->assertTrue($forumetposts[$forum1->get_id()]->has_unread_discussions());
-        $this->assertEquals(1, $forumetposts[$forum1->get_id()]->get_num_unread_discussions());
+        $this->assertFalse($forumetposts[$forum1->get_id()]->has_unread_discussions());
+        $this->assertEquals(0, $forumetposts[$forum1->get_id()]->get_num_unread_discussions());
         $forumsuser1posts = mod_forumng::get_course_forums($course, $suser1->id, mod_forumng::UNREAD_DISCUSSIONS);
         $this->assertFalse($forumsuser1posts[$forum1->get_id()]->has_unread_discussions());
         $this->assertEquals(0, $forumsuser1posts[$forum1->get_id()]->get_num_unread_discussions());
@@ -233,9 +240,10 @@ class mod_forumng_post_test extends forumng_test_lib {
         $forumadminposts = mod_forumng::get_course_forums($course, $adminid, mod_forumng::UNREAD_DISCUSSIONS);
         $this->assertTrue($forumadminposts[$forum1->get_id()]->has_unread_discussions());
         $this->assertEquals(1, $forumadminposts[$forum1->get_id()]->get_num_unread_discussions());
+        // Note etuser is classed as read at forum level as they made last post in discussion.
         $forumetposts = mod_forumng::get_course_forums($course, $etuser->id, mod_forumng::UNREAD_DISCUSSIONS);
-        $this->assertTrue($forumetposts[$forum1->get_id()]->has_unread_discussions());
-        $this->assertEquals(1, $forumetposts[$forum1->get_id()]->get_num_unread_discussions());
+        $this->assertFalse($forumetposts[$forum1->get_id()]->has_unread_discussions());
+        $this->assertEquals(0, $forumetposts[$forum1->get_id()]->get_num_unread_discussions());
         $forumsuser1posts = mod_forumng::get_course_forums($course, $suser1->id, mod_forumng::UNREAD_DISCUSSIONS);
         $this->assertTrue($forumsuser1posts[$forum1->get_id()]->has_unread_discussions());
         $this->assertEquals(1, $forumsuser1posts[$forum1->get_id()]->get_num_unread_discussions());
@@ -272,6 +280,7 @@ class mod_forumng_post_test extends forumng_test_lib {
         $course = $this->get_new_course();
         $etuser1 = $this->get_new_user('editingteacher', $course->id);
         $suser1 = $this->get_new_user('student', $course->id);
+        $suser2 = $this->get_new_user('student', $course->id);
 
         $group1 = $this->get_new_group($course->id);
         $group2 = $this->get_new_group($course->id);
@@ -333,14 +342,20 @@ class mod_forumng_post_test extends forumng_test_lib {
                 'parentpostid' => $did1[1], 'userid' => $suser1->id, 'modified' => $posttime));
         $did1etp1 = $generator->create_post(array('discussionid' => $did1[0],
                 'parentpostid' => $did1[1], 'userid' => $etuser1->id, 'modified' => $posttime));
+        $did1s2p1 = $generator->create_post(array('discussionid' => $did1[0],
+                'parentpostid' => $did1[1], 'userid' => $suser2->id, 'modified' => $posttime));
         $did2s1p2 = $generator->create_post(array('discussionid' => $did2[0],
                 'parentpostid' => $did2[1], 'userid' => $suser1->id, 'modified' => $posttime));
         $did2etp2 = $generator->create_post(array('discussionid' => $did2[0],
                 'parentpostid' => $did2[1], 'userid' => $etuser1->id, 'modified' => $posttime));
+        $did2s2p1 = $generator->create_post(array('discussionid' => $did2[0],
+                'parentpostid' => $did2[1], 'userid' => $suser2->id, 'modified' => $posttime));
         $did1s1post1 = mod_forumng_post::get_from_id($did1s1p1->id, 0);
         $did2s1post2 = mod_forumng_post::get_from_id($did2s1p2->id, 0);
         $did1etpost1 = mod_forumng_post::get_from_id($did1etp1->id, 0);
         $did2etpost2 = mod_forumng_post::get_from_id($did2etp2->id, 0);
+        $did1s2post1 = mod_forumng_post::get_from_id($did1s2p1->id, 0);
+        $did2s2post1 = mod_forumng_post::get_from_id($did2s2p1->id, 0);
 
         // Check read status of new posts.
         $etforums = mod_forumng::get_course_forums($course, $etuser1->id, mod_forumng::UNREAD_DISCUSSIONS);
@@ -365,6 +380,10 @@ class mod_forumng_post_test extends forumng_test_lib {
         $did2s1post2->mark_read($posttime, $etuser1->id);// Poster suser1, reader teacher 1.
         $did1etpost1->mark_read($posttime, $suser1->id);// Poster etuser1, reader suser1.
         $did2etpost2->mark_read($posttime, $suser1->id);// Poster etuser1, reader suser1.
+        $did1s2post1->mark_read($posttime, $suser1->id);
+        $did2s2post1->mark_read($posttime, $suser1->id);
+        $did1s2post1->mark_read($posttime, $etuser1->id);
+        $did2s2post1->mark_read($posttime, $etuser1->id);
 
         // Check read status of newly marked read posts.
         $etforums = mod_forumng::get_course_forums($course, $etuser1->id, mod_forumng::UNREAD_DISCUSSIONS);
@@ -391,7 +410,7 @@ class mod_forumng_post_test extends forumng_test_lib {
         $unreadpostsetuser = $discussion1etuser->get_num_unread_posts();
         $this->assertEquals(0, $unreadpostsetuser);
         $readpostsetuser = $DB->get_records('forumng_read_posts', array('userid' => $etuser1->id));
-        $this->assertCount(2, $readpostsetuser);
+        $this->assertCount(4, $readpostsetuser);
 
         $discussion2etuser = mod_forumng_discussion::get_from_id($did2[0], 0, $etuser1->id);
         $etuserposts = $discussion2etuser->get_num_posts();
@@ -399,7 +418,7 @@ class mod_forumng_post_test extends forumng_test_lib {
         $unreadpostsetuser = $discussion2etuser->get_num_unread_posts();
         $this->assertEquals(0, $unreadpostsetuser);
         $readpostsetuser = $DB->get_records('forumng_read_posts', array('userid' => $etuser1->id));
-        $this->assertCount(2, $readpostsetuser);
+        $this->assertCount(4, $readpostsetuser);
 
         // Get read counts for the student user 1, includes count of their own posts.
         $discussion1suser1 = mod_forumng_discussion::get_from_id($did1[0], 0, $suser1->id);
@@ -408,7 +427,7 @@ class mod_forumng_post_test extends forumng_test_lib {
         $unreadpostsuser1 = $discussion1suser1->get_num_unread_posts();
         $this->assertEquals(0, $unreadpostsuser1);
         $readpostsuser1 = $DB->get_records('forumng_read_posts', array('userid' => $suser1->id));
-        $this->assertCount(2, $readpostsuser1);
+        $this->assertCount(4, $readpostsuser1);
 
         $discussion2suser1 = mod_forumng_discussion::get_from_id($did2[0], 0, $suser1->id);
         $suser1posts = $discussion2suser1->get_num_posts();
@@ -416,7 +435,7 @@ class mod_forumng_post_test extends forumng_test_lib {
         $unreadpostsuser1 = $discussion2suser1->get_num_unread_posts();
         $this->assertEquals(0, $unreadpostsuser1);
         $readpostsuser1 = $DB->get_records('forumng_read_posts', array('userid' => $suser1->id));
-        $this->assertCount(2, $readpostsuser1);
+        $this->assertCount(4, $readpostsuser1);
 
         // Ensure user prefs allow discussions/posts to be marked as read 'automatically'.
         unset_user_preference('forumng_manualmark', $etuser1);
@@ -456,7 +475,7 @@ class mod_forumng_post_test extends forumng_test_lib {
                  'parentpostid' => $did2[1], 'userid' => $suser1->id, 'modified' => $posttime));
         $did2s1post3 = mod_forumng_post::get_from_id($did2s1p3->id, 0);
         $did2etp3 = $generator->create_post(array('discussionid' => $did2[0],
-                 'parentpostid' => $did2[1], 'userid' => $etuser1->id, 'modified' => $posttime));
+                 'parentpostid' => $did2[1], 'userid' => $suser2->id, 'modified' => $posttime));
         $did2etpost3 = mod_forumng_post::get_from_id($did2etp3->id, 0);
 
         // Setuser pref so discussions/posts can be marked 'manually'.
@@ -491,7 +510,7 @@ class mod_forumng_post_test extends forumng_test_lib {
         // also checks both query_forums() and query_discussions().
         $discussion1etuser = mod_forumng_discussion::get_from_id($did1[0], 0, $etuser1->id);
         $etuserposts = $discussion1etuser->get_num_posts();
-        $this->assertEquals(3, $etuserposts);
+        $this->assertEquals(4, $etuserposts);
         $unreadpostsetuser = $discussion1etuser->get_num_unread_posts();
         $this->assertEquals(0, $unreadpostsetuser);
         $readpostsetuser = $DB->get_records('forumng_read_posts', array('userid' => $etuser1->id));
@@ -499,9 +518,9 @@ class mod_forumng_post_test extends forumng_test_lib {
 
         $discussion2etuser = mod_forumng_discussion::get_from_id($did2[0], 0, $etuser1->id);
         $etuserposts = $discussion2etuser->get_num_posts();
-        $this->assertEquals(5, $etuserposts);
+        $this->assertEquals(6, $etuserposts);
         $unreadpostsetuser = $discussion2etuser->get_num_unread_posts();
-        $this->assertEquals(1, $unreadpostsetuser);
+        $this->assertEquals(2, $unreadpostsetuser);
 
         // Get read counts for the student user 1, includes count of their own posts.
         $discussion1suser1 = mod_forumng_discussion::get_from_id($did1[0], 0, $suser1->id);
