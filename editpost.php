@@ -683,6 +683,7 @@ try {
                 $initialvalues->timeend = $discussion->get_time_end();
                 $initialvalues->sticky = $discussion->is_sticky() ? 1 : 0;
                 $initialvalues->groupid = $discussion->get_group_id();
+                $groupid = $discussion->get_group_id();
             }
             $initialvalues->subject = $post->get_subject();
             $initialvalues->message = array('text'=>$post->get_raw_message(),
