@@ -571,6 +571,10 @@ ul.forumng-commands li.forumng-replylink {
     background-color:transparent;
 }
 
+.forumng-markread a.disabled {
+	pointer-events: none;
+}
+
 /*
 // Edit/reply form within discussion
 ////////////////////////////////////
@@ -789,6 +793,14 @@ form.markread input {
 #forumng-features .forumng-highlight {
     background: #FFD991;
     padding: 0.7em 0.5em;
+}
+
+#forumng-features .forum-feature-edittags {
+    display: inline-block;
+}
+
+#forumng-features .forum-feature-edittags form {
+    margin-left: 1em;
 }
 
 /*

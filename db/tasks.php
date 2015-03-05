@@ -15,15 +15,42 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version.
+ * Definition of Forum scheduled tasks.
  *
  * @package mod_forumng
+ * @category task
  * @copyright 2014 The Open University
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$plugin->version = 2015012700;
-$plugin->requires = 2014051200;
-$plugin->component = 'mod_forumng';
-$plugin->maturity = MATURITY_STABLE;
-$plugin->release = '2.7 r2';
+defined('MOODLE_INTERNAL') || die();
+
+$tasks = array(
+    array(
+        'classname' => 'mod_forumng\task\email_normal',
+        'blocking' => 0,
+        'minute' => '0',
+        'hour' => '*',
+        'day' => '*',
+        'month' => '*',
+        'dayofweek' => '*'
+    ),
+    array(
+        'classname' => 'mod_forumng\task\daily_housekeeping',
+        'blocking' => 0,
+        'minute' => '0',
+        'hour' => '1',
+        'day' => '*',
+        'dayofweek' => '*',
+        'month' => '*'
+    ),
+    array(
+        'classname' => 'mod_forumng\task\email_digest',
+        'blocking' => 0,
+        'minute' => '0',
+        'hour' => '17',
+        'day' => '*',
+        'dayofweek' => '*',
+        'month' => '*'
+    )
+);

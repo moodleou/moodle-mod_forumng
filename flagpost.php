@@ -26,7 +26,7 @@ require_once('mod_forumng.php');
 
 // Post ID
 $postid = required_param('p', PARAM_INT);
-$cloneid = optional_param('clone', 0, PARAM_INT);
+$cloneid = optional_param('clone', mod_forumng::CLONE_DIRECT, PARAM_INT);
 
 // 1 = set flag, 0 = clear it
 $flag = required_param('flag', PARAM_INT);

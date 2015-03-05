@@ -15,15 +15,36 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version.
+ * A scheduled task for Forumng cron.
  *
  * @package mod_forumng
  * @copyright 2014 The Open University
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+namespace mod_forumng\task;
 
-$plugin->version = 2015012700;
-$plugin->requires = 2014051200;
-$plugin->component = 'mod_forumng';
-$plugin->maturity = MATURITY_STABLE;
-$plugin->release = '2.7 r2';
+class email_normal extends \core\task\scheduled_task {
+
+    /**
+     * Get a descriptive name for this task (shown to admins).
+     *
+     * @return string
+     */
+    public function get_name() {
+        return get_string('forumngcrontaskemails', 'mod_forumng');
+    }
+
+    /**
+     * Run forumng cron send forum emails normally.
+     */
+    public function execute() {
+        global $CFG;
+        // Duplicate of check in email_to_user.
+        if (!empty($CFG->noemailever)) {
+            mtrace("Not sending forum emails because all mail is disabled.");
+            return;
+        }
+        require_once($CFG->dirroot . '/mod/forumng/mod_forumng_cron.php');
+        \mod_forumng_cron::email_normal();
+    }
+}

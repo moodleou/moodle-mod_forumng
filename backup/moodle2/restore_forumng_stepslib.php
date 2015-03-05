@@ -32,6 +32,7 @@ class restore_forumng_activity_structure_step extends restore_activity_structure
      * @var int
      */
     private $forumngid, $shared, $type;
+    private $grouptags = array();
 
     protected function define_structure() {
         $paths = array();
@@ -53,12 +54,20 @@ class restore_forumng_activity_structure_step extends restore_activity_structure
                     '/activity/forumng/subscriptions/subscription');
             $paths[] = new restore_path_element('forumng_read',
                     '/activity/forumng/discussions/discussion/readdiscussions/read');
+            $paths[] = new restore_path_element('forumng_readpost',
+                    '/activity/forumng/discussions/discussion/posts/post/readposts/readpost');
             $paths[] = new restore_path_element('forumng_draft',
                     '/activity/forumng/drafts/draft');
             $paths[] = new restore_path_element('forumng_flagd',
                     '/activity/forumng/discussions/discussion/flagsd/flagd');
-            $paths[] = new restore_path_element('forumng_tag', '/activity/forumng/discussions/discussion/tags/tag');
+            $paths[] = new restore_path_element('forumng_tag',
+                    '/activity/forumng/discussions/discussion/tags/tag');
         }
+
+        $paths[] = new restore_path_element('forumng_forumtaginstance',
+                '/activity/forumng/forumtaginstances/forumtaginstance');
+        $paths[] = new restore_path_element('forumng_forumgrouptaginstance',
+                '/activity/forumng/forumgrouptaginstances/forumgrouptaginstance');
 
         // Return the paths wrapped into standard activity structure.
         return $this->prepare_activity_structure($paths);
@@ -223,8 +232,19 @@ class restore_forumng_activity_structure_step extends restore_activity_structure
         $DB->insert_record('forumng_read', $data);
     }
 
+    protected function process_forumng_readpost($data) {
+        global $DB;
+
+        $data = (object)$data;
+
+        $data->postid = $this->get_new_parentid('forumng_post');
+        $data->userid = $this->get_mappingid_or_null('user', $data->userid);
+
+        $DB->insert_record('forumng_read_posts', $data);
+    }
+
     protected function process_forumng_tag($data) {
-        global $CFG, $DB;
+        global $CFG;
 
         $data = (object)$data;
         $oldid = $data->id;
@@ -239,6 +259,44 @@ class restore_forumng_activity_structure_step extends restore_activity_structure
 
         $cm = get_coursemodule_from_instance('forumng', $forumid);
         tag_set_add('forumng_discussions', $itemid, $tag, 'mod_forumng', context_module::instance($cm->id)->id);
+    }
+
+    protected function process_forumng_forumtaginstance($data) {
+        global $CFG;
+
+        $data = (object)$data;
+        $oldid = $data->id;
+
+        if (empty($CFG->usetags)) { // Tags disabled in server, nothing to process.
+            return;
+        }
+
+        $tag = $data->rawname;
+        $forumid = $this->get_new_parentid('forumng');
+
+        $cm = get_coursemodule_from_instance('forumng', $forumid);
+        tag_set_add('forumng', $forumid, $tag, 'mod_forumng', context_module::instance($cm->id)->id);
+    }
+
+    protected function process_forumng_forumgrouptaginstance($data) {
+        global $CFG;
+
+        $data = (object)$data;
+        $oldid = $data->id;
+
+        if (empty($CFG->usetags)) { // Tags disabled in server, nothing to process.
+            return;
+        }
+
+        $tag = $data->rawname;
+
+        $groupid = $this->get_mappingid_or_null('group', $data->itemid);
+
+        if (isset($this->grouptags[$groupid])) {
+            $this->grouptags[$groupid][] = $tag;
+        } else {
+            $this->grouptags[$groupid] = array($tag);
+        }
     }
 
     protected function after_execute() {
@@ -270,7 +328,8 @@ UPDATE {forumng_discussions} SET lastpostid=(
         require_once($CFG->dirroot . '/mod/forumng/mod_forumng.php');
         // Create search index if user data restored.
         if ($this->get_setting_value('userinfo') && mod_forumng::search_installed()) {
-            mod_forumng::search_update_all(false, $this->get_courseid(), $this->task->get_moduleid());
+            mod_forumng::search_update_all(false, $this->get_courseid(), $this->task->get_moduleid(),
+                    $this->get_task()->get_progress());
         }
 
         // See what $this->task->get_moduleid() contains, then check master|clone.
@@ -328,7 +387,11 @@ UPDATE {forumng_discussions} SET lastpostid=(
                 }
             }
         }
-
+        if (!empty($this->grouptags)) {
+            foreach ($this->grouptags as $groupid => $tags) {
+                mod_forumng::set_group_tags($this->forumngid, $groupid, $tags);
+            }
+        }
     }
 
     protected function get_new_idnumber($idnumber) {

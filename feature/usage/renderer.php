@@ -208,7 +208,7 @@ class forumngfeature_usage_renderer extends plugin_renderer_base {
 
         $usageurl = new moodle_url('/mod/forumng/feature/usage/usage.php?',
                 $forum->get_link_params_array(mod_forumng::PARAM_PLAIN));
-        $select = new single_select($usageurl, 'ratings', $options, $selectedid);
+        $select = new single_select($usageurl, 'ratings', $options, $selectedid, false);
         $select->label = get_string('forumngratingsfilter', 'forumngfeature_usage');
         $select->set_help_icon('forumngratingsfilter', 'forumngfeature_usage');
         $output = $this->render($select);

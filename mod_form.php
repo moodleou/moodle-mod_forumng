@@ -144,7 +144,7 @@ class mod_forumng_mod_form extends moodleform_mod {
             if ($forumng) {
                 $settags = mod_forumng::get_set_tags($this->_instance);
                 // Create 'Set' forumng wide tags.
-                $mform->addElement('tags', 'settags', get_string('discussiontags', 'forumng'),
+                $mform->addElement('tags', 'settags', get_string('setforumtags', 'forumng'),
                         array('display' => 'noofficial'));
                 $mform->disabledIf('settags', 'tags', 'notchecked');
                 $mform->setType('settags', PARAM_TAGLIST);

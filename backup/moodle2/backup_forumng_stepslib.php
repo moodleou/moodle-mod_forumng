@@ -80,6 +80,11 @@ class backup_forumng_activity_structure_step extends backup_activity_structure_s
         $read = new backup_nested_element('read', array('id'), array(
             'userid', 'time'));
 
+        $readposts = new backup_nested_element('readposts');
+
+        $readp = new backup_nested_element('readpost', array('id'), array(
+                'userid', 'time'));
+
         $drafts = new backup_nested_element('drafts');
 
         $draft = new backup_nested_element('draft', array('id'), array(
@@ -99,6 +104,16 @@ class backup_forumng_activity_structure_step extends backup_activity_structure_s
         $tags = new backup_nested_element('tags');
 
         $tag = new backup_nested_element('tag', array('id'), array('name', 'rawname'));
+
+        $forumtaginstances = new backup_nested_element('forumtaginstances');
+
+        $forumtaginstance = new backup_nested_element('forumtaginstance', array('id'), array(
+            'name', 'rawname', 'tagid', 'itemtype', 'tiuserid', 'ordering', 'component'));
+
+        $forumgrouptaginstances = new backup_nested_element('forumgrouptaginstances');
+
+        $forumgrouptaginstance = new backup_nested_element('forumgrouptaginstance', array('id'), array(
+                'name', 'rawname', 'tagid', 'itemtype', 'itemid', 'tiuserid', 'ordering', 'component'));
 
         // Build the tree
         $forumng->add_child($discussions);
@@ -128,8 +143,17 @@ class backup_forumng_activity_structure_step extends backup_activity_structure_s
         $post->add_child($flags);
         $flags->add_child($flag);
 
+        $post->add_child($readposts);
+        $readposts->add_child($readp);
+
         $discussion->add_child($tags);
         $tags->add_child($tag);
+
+        $forumng->add_child($forumtaginstances);
+        $forumtaginstances->add_child($forumtaginstance);
+
+        $forumng->add_child($forumgrouptaginstances);
+        $forumgrouptaginstances->add_child($forumgrouptaginstance);
 
         // Define sources
         $forumng->set_source_table('forumng', array('id' => backup::VAR_ACTIVITYID));
@@ -150,6 +174,8 @@ class backup_forumng_activity_structure_step extends backup_activity_structure_s
                     "ORDER BY id", array(backup::VAR_PARENTID));
 
             $read->set_source_table('forumng_read', array('discussionid' => backup::VAR_PARENTID));
+
+            $readp->set_source_table('forumng_read_posts', array('postid' => backup::VAR_PARENTID));
 
             $newrating->set_source_table('rating', array(
                     'contextid' => backup::VAR_CONTEXTID,
@@ -175,6 +201,28 @@ class backup_forumng_activity_structure_step extends backup_activity_structure_s
                                                         backup::VAR_PARENTID));
         }
 
+        $forumtaginstance->set_source_sql('SELECT t.name, t.rawname, ti.*
+                FROM {tag} t
+                JOIN {tag_instance} ti ON ti.tagid = t.id
+                WHERE ti.contextid = ?
+                AND ti.itemid = ?
+                AND ti.itemtype = ?
+                AND ti.component = ?', array(
+                        backup::VAR_CONTEXTID,
+                        backup::VAR_PARENTID,
+                        backup_helper::is_sqlparam('forumng'),
+                        backup_helper::is_sqlparam('mod_forumng')));
+
+        $forumgrouptaginstance->set_source_sql('SELECT t.name, t.rawname, ti.*
+                FROM {tag} t
+                JOIN {tag_instance} ti ON ti.tagid = t.id
+               WHERE ti.contextid = ?
+                AND ti.itemtype = ?
+                AND ti.component = ?', array(
+                      backup::VAR_CONTEXTID,
+                      backup_helper::is_sqlparam('groups'),
+                      backup_helper::is_sqlparam('mod_forumng')));
+
         // Define id annotations
         $forumng->annotate_ids('course_modules', 'originalcmid');
         $forumng->annotate_ids('scale', 'ratingscale');
@@ -195,11 +243,14 @@ class backup_forumng_activity_structure_step extends backup_activity_structure_s
         $subscription->annotate_ids('course_modules', 'clonecmid');
 
         $read->annotate_ids('user', 'userid');
+        $readp->annotate_ids('user', 'userid');
 
         $draft->annotate_ids('user', 'userid');
         $draft->annotate_ids('group', 'groupid');
 
         $flag->annotate_ids('user', 'userid');
+
+        $forumgrouptaginstance->annotate_ids('group', 'itemid');
 
         // Define file annotations
         $forumng->annotate_files('mod_forumng', 'intro', null); // This file area hasn't itemid

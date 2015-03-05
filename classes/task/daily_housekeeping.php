@@ -15,20 +15,31 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Lang strings.
- * @package forumngfeature
- * @subpackage manualmark
- * @copyright 2011 The Open University
+ * A scheduled task for Forumng.
+ *
+ * @package mod_forumng
+ * @copyright 2014 The Open University
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-$string['manualmark_auto'] = 'Automatically mark as read';
-$string['manualmark_manual'] = 'Manually mark as read';
-$string['manualmark_change'] = 'Change';
+namespace mod_forumng\task;
 
-$string['manualmark_change_help'] = '&lsquo;Automatically mark as read&rsquo; marks every post in a discussion as read after you view that discussion page.
+class daily_housekeeping extends \core\task\scheduled_task {
 
-&lsquo;Manually mark as read&rsquo; leaves posts marked as unread until you click &lsquo;Mark discussion read&rsquo; or
- &lsquo;Mark post read&rsquo;.
+    /**
+     * Get a descriptive name for this task (shown to admins).
+     *
+     * @return string
+     */
+    public function get_name() {
+        return get_string('forumngcrontaskdaily', 'mod_forumng');
+    }
 
-This option applies to all forums on this system.';
-$string['pluginname'] = 'Option to manually mark discussions and posts read';
+    /**
+     * Run forumng cron daily housekeeping.
+     */
+    public function execute() {
+        global $CFG;
+        require_once($CFG->dirroot . '/mod/forumng/mod_forumng_cron.php');
+        \mod_forumng_cron::daily_housekeeping();
+    }
+}

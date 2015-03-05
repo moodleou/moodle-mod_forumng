@@ -53,6 +53,8 @@ class mod_forumng_discussion_testcase  extends forumng_test_lib {
         get_flagged_discussions()
         is_flagged()
         get_tags()
+        get_set_tags()
+        forumng_update_instance()
         permanently_delete()
     */
 
@@ -255,24 +257,38 @@ class mod_forumng_discussion_testcase  extends forumng_test_lib {
                 $discussion::NOCHANGE, array('tag1', 'tag2', 'tag3'));
         $tags1 = $discussion->get_tags();
         $this->assertCount(3, $tags1);
+        $discussion1 = $discussion;
 
         $discussionid = $ids2[0];
         $discussion = mod_forumng_discussion::get_from_id($discussionid , 0);
         $this->assertEmpty($discussion->get_tags());
         // Edit discussion settings.
-        $discussion->edit_settings($discussion::NOCHANGE, $discussion::NOCHANGE, $discussion::NOCHANGE, $discussion::NOCHANGE,
-                $discussion::NOCHANGE, array('tag1', 'tag2'));
+        $discussion->edit_settings(mod_forumng_discussion::NOCHANGE, mod_forumng_discussion::NOCHANGE,
+                mod_forumng_discussion::NOCHANGE, mod_forumng_discussion::NOCHANGE, mod_forumng_discussion::NOCHANGE,
+                array('tag1', 'tag2'));
         $tags2 = $discussion->get_tags();
         $this->assertCount(2, $tags2);
+        $discussion2 = $discussion;
 
         $discussionid = $ids3[0];
         $discussion = mod_forumng_discussion::get_from_id($discussionid , 0);
         $this->assertEmpty($discussion->get_tags());
         // Edit discussion settings.
-        $discussion->edit_settings($discussion::NOCHANGE, $discussion::NOCHANGE, $discussion::NOCHANGE, $discussion::NOCHANGE,
-                $discussion::NOCHANGE, array('tag1'));
+        $discussion->edit_settings(mod_forumng_discussion::NOCHANGE, mod_forumng_discussion::NOCHANGE,
+                mod_forumng_discussion::NOCHANGE, mod_forumng_discussion::NOCHANGE,
+                mod_forumng_discussion::NOCHANGE, array('tag1'));
         $tags3 = $discussion->get_tags();
         $this->assertCount(1, $tags3);
+        $discussion3 = $discussion;
+
+        // Create a discussion with no tags for later use.
+        $record = new stdClass();
+        $record->course = $course->id;
+        $record->forum = $forum->get_id();
+        $record->groupid = $group2->id;
+        $record->userid = $USER->id;
+        $record->timestart = time();
+        $ids4 = $generator->create_discussion($record);
 
         // Get id of 'tag1'.
         $tagid = array_search('tag1', $tags3);
@@ -317,6 +333,80 @@ class mod_forumng_discussion_testcase  extends forumng_test_lib {
         $taggedlist = $list->get_normal_discussions();
         $this->assertCount(0, $taggedlist);
 
+        // Set tags specifically for group 1.
+        $forumng = new stdClass();
+        $forumng->settags = array('g1 vamp', 'g1 zomb', 'g1 mumm', 'g1 damm');
+        $forumng->id = $forum->get_id();
+        $forumng->instance = $forum->get_id();
+        $forumng->tags = 1;
+        forumng_update_instance($forumng);
+        $context = $forum->get_context();
+        mod_forumng::set_group_tags($forum->get_id(), $group1->id, $forumng->settags);
+        $tagsused1 = $forum::get_set_tags($forumng->id, $group1->id);
+        $this->assertCount(4, $tagsused1);
+
+        // Set tags for group 2 (should return main set tags also).
+        $g2tags = array('g2 ghost', 'g2 ghoul', 'g2 googl', 'g2 welf', 'g2 gobb');
+        mod_forumng::set_group_tags($forum->get_id(), $group2->id, $g2tags);
+        $tagsused2 = $forum::get_set_tags($forumng->id, $group2->id);
+        $this->assertCount(9, $tagsused2);
+
+        $tagsused3 = $forum::get_set_tags($forumng->id);
+        $this->assertCount(4, $tagsused3);
+
+        // Test that group only tags can be returned.
+        $tagsused1 = $forum::get_set_tags($forumng->id, $group1->id, true);
+        $this->assertCount(4, $tagsused1);
+        $tagsused2 = $forum::get_set_tags($forumng->id, $group2->id, true);
+        $this->assertCount(5, $tagsused2);
+
+        // Need to test permanently delete.
+        $discussionid = $ids4[0];
+        $discussion = mod_forumng_discussion::get_from_id($discussionid , 0);
+        $this->assertEmpty($discussion->get_tags());
+        // Edit discussion settings.
+        $discussion->edit_settings(mod_forumng_discussion::NOCHANGE, mod_forumng_discussion::NOCHANGE,
+                mod_forumng_discussion::NOCHANGE, mod_forumng_discussion::NOCHANGE,
+                mod_forumng_discussion::NOCHANGE, array('t1', 't2', 't3'));
+        $tags4 = $discussion->get_tags();
+        $this->assertCount(3, $tags4);
+        $discussion4 = $discussion;
+        // Delete discussion.
+        $discussion4->permanently_delete(false);
+        $this->assertFalse($DB->get_record('forumng_discussions', array('id' => $discussion->get_id())));
+        $this->assertEmpty($DB->get_records('tag_instance',
+                array('itemid' => $discussion->get_id(), 'itemtype' => 'forumng discussions')));
+
+        // Test group tag setting.
+        $user2 = $this->get_new_user();
+        $this->setUser($user2);
+        mod_forumng::set_group_tags($forumng->id, $group1->id, array('t1', 'tnew'));
+        $tagsused = $forum::get_set_tags($forumng->id, $group1->id, true);
+        $this->assertCount(2, $tagsused);
+        mod_forumng::set_group_tags($forumng->id, $group1->id, array('t1'));
+        $tagsused = $forum::get_set_tags($forumng->id, $group1->id, true);
+        $this->assertCount(1, $tagsused);
+        // Create a new forum and add same group tags.
+        $forumrecord2 = $generator->create_instance(array('course' => $course->id, 'tags' => true,
+                'groupmode' => VISIBLEGROUPS));
+        $forum2 = mod_forumng::get_from_id($forumrecord2->id, mod_forumng::CLONE_DIRECT, true);
+        mod_forumng::set_group_tags($forumrecord2->id, $group1->id, array('t1'));
+        $tagsused = $forum::get_set_tags($forumrecord2->id, $group1->id, true);
+        $this->assertCount(1, $tagsused);
+        // Create a new forum and add same group tags (should use another user).
+        $forumrecord2 = $generator->create_instance(array('course' => $course->id, 'tags' => true,
+                'groupmode' => VISIBLEGROUPS));
+        $forum2 = mod_forumng::get_from_id($forumrecord2->id, mod_forumng::CLONE_DIRECT, true);
+        mod_forumng::set_group_tags($forumrecord2->id, $group1->id, array('t1'));
+        $tagsused = $forum::get_set_tags($forumrecord2->id, $group1->id, true);
+        $this->assertCount(1, $tagsused);
+        // Create a new forum and add same group tags (should fail as ou of users).
+        $forumrecord2 = $generator->create_instance(array('course' => $course->id, 'tags' => true,
+                'groupmode' => VISIBLEGROUPS));
+        $forum2 = mod_forumng::get_from_id($forumrecord2->id, mod_forumng::CLONE_DIRECT, true);
+        $this->setExpectedException('moodle_exception');
+        mod_forumng::set_group_tags($forumrecord2->id, $group1->id, array('t1'));
+        // Do not add any tests after this point as exception called above.
     }
 
     /**

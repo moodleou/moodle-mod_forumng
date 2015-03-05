@@ -15,20 +15,26 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Lang strings.
+ * Capabilities.
  * @package forumngfeature
- * @subpackage manualmark
- * @copyright 2011 The Open University
+ * @subpackage edittags
+ * @copyright 2014 The Open University
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-$string['manualmark_auto'] = 'Automatically mark as read';
-$string['manualmark_manual'] = 'Manually mark as read';
-$string['manualmark_change'] = 'Change';
-
-$string['manualmark_change_help'] = '&lsquo;Automatically mark as read&rsquo; marks every post in a discussion as read after you view that discussion page.
-
-&lsquo;Manually mark as read&rsquo; leaves posts marked as unread until you click &lsquo;Mark discussion read&rsquo; or
- &lsquo;Mark post read&rsquo;.
-
-This option applies to all forums on this system.';
-$string['pluginname'] = 'Option to manually mark discussions and posts read';
+$capabilities = array(
+    'forumngfeature/edittags:managesettags' => array(
+        'captype' => 'read',
+        'contextlevel' => CONTEXT_MODULE,
+        'archetypes' => array(
+            'manager' => CAP_ALLOW
+       )
+    ),
+    'forumngfeature/edittags:editsettags' => array(
+        'captype' => 'read',
+        'contextlevel' => CONTEXT_MODULE,
+        'archetypes' => array(
+            'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW
+        )
+    )
+);

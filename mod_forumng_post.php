@@ -443,6 +443,36 @@ WHERE
     }
 
     /**
+     * Marks this post read.
+     * @param int $time Time to mark it read at (0 = now)
+     * @param int $userid User who's read the post (0 = current)
+     */
+    public function mark_read($time = 0, $userid = 0) {
+        global $DB;
+        $userid = mod_forumng_utils::get_real_userid($userid);
+        if (!$time) {
+            $time = time();
+        }
+        $transaction = $DB->start_delegated_transaction();
+        // Check for existing record - should never have one, but do this in case.
+        $existing = $DB->get_record('forumng_read_posts', array('userid' => $userid,
+                'postid' => $this->get_id()), '*', IGNORE_MISSING);
+        if ($existing) {
+            $readrecord = new stdClass();
+            $readrecord->id = $existing->id;
+            $readrecord->time = $time;
+            $DB->update_record('forumng_read_posts', $readrecord);
+        } else {
+            $readrecord = new stdClass();
+            $readrecord->userid = $userid;
+            $readrecord->postid = $this->get_id();
+            $readrecord->time = $time;
+            $DB->insert_record('forumng_read_posts', $readrecord);
+        }
+        $transaction->allow_commit();
+    }
+
+    /**
      * Checks unread status (only available when requested as part of whole
      * discussion).
      * @return bool True if this post is unread
@@ -465,8 +495,19 @@ WHERE
             return false;
         }
 
-        // Compare date to discussion read data
-        return $this->postfields->modified > $this->discussion->get_time_read();
+        if ($this->get_deleted()) {
+            return false;
+        }
+
+        $timeread = $this->discussion->get_time_read();
+
+        // If later manual mark post as read record then use that as read time.
+        if (!empty($this->postfields->read) && $this->postfields->read > $timeread) {
+            $timeread = $this->postfields->read;
+        }
+
+        // Compare date to discussion read data.
+        return $this->postfields->modified > $timeread;
     }
 
     /**
@@ -724,6 +765,7 @@ WHERE
                 $ratingoptions->id = $id;
                 $ratingoptions->assesstimestart = $forum->get_ratingfrom();
                 $ratingoptions->assesstimefinish = $forum->get_ratinguntil();
+                $ratingoptions->returnurl = $discussion->get_moodle_url();
 
                 $rm = new rating_manager();
                 $postwithratings = $rm->get_ratings($ratingoptions);
@@ -885,13 +927,14 @@ WHERE
      *   in additional queries afterward for posts which are very deeply nested.
      * @param int $userid 0 = current user (at present this is only used for
      *   flags)
+     * @param bool $read True if read post record (time) is sought
      * @return array Resulting posts as array of Moodle records, empty array
      *   if none
      */
     public static function query_posts($where, $whereparams, $order='fp.id', $ratings=true,
         $flags=false, $effectivesubjects=false,
         $userid=0, $joindiscussion=false, $discussionsubject=false, $limitfrom='',
-        $limitnum='') {
+        $limitnum='', $read = false) {
         global $DB, $USER;
         $userid = mod_forumng_utils::get_real_userid($userid);
         $queryparams = array();
@@ -955,6 +998,15 @@ WHERE
             $subjectsquery = '';
         }
 
+        if ($read) {
+            $readquery = ', fr.time AS read';
+            $readjoin = "LEFT JOIN {forumng_read_posts} fr ON fr.postid = fp.id AND fr.userid = ?";
+            $queryparams[] = $userid;
+        } else {
+            $readquery = '';
+            $readjoin = '';
+        }
+
         // Retrieve posts from discussion with incorporated user information
         // and ratings info if specified
         $results = $DB->get_records_sql("
@@ -967,6 +1019,7 @@ SELECT
     $flagsquery
     $subjectsquery
     $discussionquery
+    $readquery
 FROM
     {forumng_posts} fp
     INNER JOIN {user} u ON fp.userid = u.id
@@ -975,6 +1028,7 @@ FROM
     $discussionjoin
     $flagsjoin
     $subjectsjoin
+    $readjoin
 WHERE
     $where
 ORDER BY

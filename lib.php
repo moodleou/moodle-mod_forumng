@@ -117,19 +117,6 @@ function forumng_delete_instance($id) {
     return $DB->delete_records('forumng', array('id' => $id));
 }
 
-function forumng_cron() {
-    require_once(dirname(__FILE__).'/mod_forumng_cron.php');
-
-    try {
-        mod_forumng_cron::cron();
-    } catch (moodle_exception $e) {
-        mtrace("A forum exception occurred and forum cron was aborted: " .
-            $e->getMessage() . "\n\n" .
-            $e->debuginfo . "\n\n" .
-            $e->getTraceAsString()."\n\n");
-    }
-}
-
 
 /**
  * Obtains a search document given the ousearch parameters.

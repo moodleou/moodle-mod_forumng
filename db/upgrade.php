@@ -213,5 +213,38 @@ function xmldb_forumng_upgrade($oldversion=0) {
         upgrade_mod_savepoint(true, 2014102800, 'forumng');
     }
 
+    if ($oldversion < 2015012700) {
+
+        // Define table forumng_read_posts to be created.
+        $table = new xmldb_table('forumng_read_posts');
+
+        // Adding fields to table forumng_read_posts.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('userid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('postid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('time', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+
+        // Adding keys to table forumng_read_posts.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+        $table->add_key('userid', XMLDB_KEY_FOREIGN, array('userid'), 'user', array('id'));
+        $table->add_key('postid', XMLDB_KEY_FOREIGN, array('postid'), 'forumng_posts', array('id'));
+
+        // Adding indexes to table forumng_read_posts.
+        $table->add_index('userid-postid', XMLDB_INDEX_UNIQUE, array('userid', 'postid'));
+        $table->add_index('time', XMLDB_INDEX_NOTUNIQUE, array('time'));
+
+        // Conditionally launch create table for forumng_read_posts.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+        set_time_limit(0);
+        $oldtime = strtotime('730 days ago');
+
+        $DB->delete_records_select('forumng_read', 'time < ?', array($oldtime));
+
+        // Forumng savepoint reached.
+        upgrade_mod_savepoint(true, 2015012700, 'forumng');
+    }
+
     return true;
 }

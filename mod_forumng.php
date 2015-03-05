@@ -291,8 +291,9 @@ class mod_forumng {
      * @return bool True if the current user has the option selected to
      *   automatically mark discussions as read
      */
-    public static function mark_read_automatically() {
-        return !get_user_preferences('forumng_manualmark', '0');
+    public static function mark_read_automatically($userid = 0) {
+        $userid = mod_forumng_utils::get_real_userid($userid);
+        return !get_user_preferences('forumng_manualmark', '0', $userid);
     }
 
     /**
@@ -1179,6 +1180,8 @@ WHERE
         $postparams = array($this->forumfields->id);
         $DB->execute("DELETE FROM {forumng_ratings}
             WHERE postid IN ($postquery)", $postparams);
+        $DB->execute("DELETE FROM {forumng_read_posts}
+                WHERE postid IN ($postquery)", $postparams);
 
         // Delete per-discussion data
         $discussionquery = "SELECT id FROM {forumng_discussions}
@@ -1622,6 +1625,14 @@ WHERE $conditions AND m.name = 'forumng' AND $restrictionsql",
                 $readrecord->time = $time;
                 $DB->insert_record('forumng_read', $readrecord);
             }
+
+            // Delete any individual post records for discussions as now redundant.
+            $DB->execute("DELETE FROM {forumng_read_posts}
+                            WHERE postid IN(
+                                  SELECT id FROM {forumng_posts}
+                                   WHERE $inorequals)
+                              AND userid = ? AND time <= ?",
+                    array_merge($inparams, array($userid, $time)));
         }
 
         $transaction->allow_commit();
@@ -3272,36 +3283,53 @@ WHERE
                     $conditionsparams = array_merge($conditionsparams, $inparams);
                 }
             }
+            $indreadpart = '';
+            $indreadparms = array();
+            // Get individual posts unread if manual read marking (on unread discussions only).
+            if (!mod_forumng::mark_read_automatically($userid)) {
+                $indreadpart = "INNER JOIN {forumng_posts} fp ON fp.discussionid = discussions.id
+                                 LEFT JOIN {forumng_read_posts} frp ON frp.postid = fp.id AND frp.userid = ?
+                                     WHERE frp.id IS NULL
+                                       AND ((fp.edituserid IS NOT NULL AND fp.edituserid <> ?)
+                                           OR (fp.edituserid IS NULL AND fp.userid <> ?))
+                                       AND fp.deleted = ?
+                                       AND fp.oldversion = ?
+                                       AND fp.modified > ?
+                                       AND (discussions.time IS NULL OR fp.modified > discussions.time)";
+                $indreadparms = array($userid, $userid, $userid, 0, 0, $endtime);
+            }
 
             // NOTE fpfirst is used only by forum types, not here
             $now = time();
             $sharedquerypart = "
-FROM
-    {forumng_discussions} fd
-    INNER JOIN {forumng_posts} fplast ON fd.lastpostid = fplast.id
-    INNER JOIN {forumng_posts} fpfirst ON fd.postid = fpfirst.id
-    LEFT JOIN {forumng_read} fr ON fd.id = fr.discussionid AND fr.userid = ?
-WHERE
-    fd.forumngid = f.id AND fplast.modified>?
-    AND (
-        (fd.groupid IS NULL)
-        OR ($ingroups)
-        OR cm.groupmode = " . VISIBLEGROUPS . "
-        OR ($inaagforums)
-    )
-    AND fd.deleted = 0
-    AND (
-        ((fd.timestart = 0 OR fd.timestart <= ?)
-        AND (fd.timeend = 0 OR fd.timeend > ?))
-        OR ($inviewhiddenforums)
-    )
-    AND ((fplast.edituserid IS NOT NULL AND fplast.edituserid<>?)
-        OR fplast.userid<>?)
-    AND (fr.time IS NULL OR fplast.modified>fr.time)
-    $restrictionsql";
+        FROM
+     (SELECT fd.id, fr.time
+        FROM {forumng_discussions} fd
+  INNER JOIN {forumng_posts} fplast ON fd.lastpostid = fplast.id
+  INNER JOIN {forumng_posts} fpfirst ON fd.postid = fpfirst.id
+   LEFT JOIN {forumng_read} fr ON fd.id = fr.discussionid AND fr.userid = ?
+       WHERE fd.forumngid = f.id AND fplast.modified > ?
+         AND (
+             (fd.groupid IS NULL)
+             OR ($ingroups)
+             OR cm.groupmode = " . VISIBLEGROUPS . "
+             OR ($inaagforums)
+         )
+         AND fd.deleted = 0
+         AND (
+             ((fd.timestart = 0 OR fd.timestart <= ?)
+             AND (fd.timeend = 0 OR fd.timeend > ?))
+             OR ($inviewhiddenforums)
+         )
+         AND ((fplast.edituserid IS NOT NULL AND fplast.edituserid <> ?)
+          OR fplast.userid <> ?)
+         AND (fr.time IS NULL OR fplast.modified > fr.time)
+    $restrictionsql
+    ) discussions
+    $indreadpart";
             $sharedqueryparams = array_merge(array($userid, $endtime), $ingroupsparams,
                     $inaagforumsparams, array($now, $now), $inviewhiddenforumsparams,
-                    array($userid, $userid), $restrictionparams);
+                    array($userid, $userid), $restrictionparams, $indreadparms);
 
             // Note: There is an unusual case in which this number can
             // be inaccurate. It is to do with ignoring messages the user
@@ -3320,7 +3348,7 @@ WHERE
                 // Query to get full unread discussions count
                 $readtracking = "
 (SELECT
-    COUNT(1)
+    COUNT(DISTINCT discussions.id)
 $sharedquerypart
 ) AS f_numunreaddiscussions";
                 $readtrackingparams = $sharedqueryparams;
@@ -3399,11 +3427,17 @@ ORDER BY
 
     /**
      * Update all documents for ousearch.
+     *
+     * If specified, the progress object should be ready to receive indeterminate
+     * progress calls.
+     *
      * @param bool $feedback If true, prints feedback as HTML list items
      * @param int $courseid If specified, restricts to particular courseid
      * @param int $cmid If specified, restricts to particular cmid
+     * @param \core\progress\base $progress Set to a progress object or null
      */
-    public static function search_update_all($feedback=false, $courseid=0, $cmid=0) {
+    public static function search_update_all($feedback=false, $courseid=0, $cmid=0,
+            \core\progress\base $progress = null) {
         global $DB;
         raise_memory_limit(MEMORY_EXTRA);
         // If cmid is specified, only retrieve that one
@@ -3469,6 +3503,9 @@ WHERE
                 if ($feedback) {
                     echo '. ';
                     flush();
+                }
+                if ($progress) {
+                    $progress->progress(\core\progress\base::INDETERMINATE);
                 }
             }
 
@@ -5325,7 +5362,7 @@ ORDER BY
                   GROUP BY t.name, t.id
                   ORDER BY t.name", $conditionparams);
 
-            $settags = self::get_set_tags($this->forumfields->id);
+            $settags = self::get_set_tags($this->forumfields->id, $groupid);
 
             foreach ($rs as $tag) {
                 $tag->displayname = strtolower(tag_display_name($tag, TAG_RETURN_TEXT));
@@ -5369,28 +5406,49 @@ ORDER BY
      * Call to get forum wide 'set' tags.
      *
      * @param int $forumid used to get context id
+     * @param int $groupid used to specify group that we require set tags for
+     * @param boolean $grouponly used to specify whether we are returning set tags for a single specified group
      * @return array set tags for that forum
      */
-    public static function get_set_tags($forumid) {
+    public static function get_set_tags($forumid, $groupid = self::ALL_GROUPS, $grouponly = false) {
         global $DB, $CFG;
         require_once($CFG->dirroot . '/tag/lib.php');
 
-        $cm = get_coursemodule_from_instance('forumng', $forumid);
-        $context = context_module::instance($cm->id);
+        $forum = self::get_from_id($forumid, self::CLONE_DIRECT);
+        $forumid = $forum->get_id();
+        $context = $forum->get_context(true);
 
-        // Check to see whether tags have been set at forumng level.
+        if (($groupid == self::ALL_GROUPS) || ($groupid == self::NO_GROUPS)) {
+            $groupid = 0;
+        }
+
         $conditionparams = array();
-        $conditions = "ti.component = ?";
-        $conditions .= "AND ti.itemtype = ?";
-        $conditions .= "AND ti.itemid = ?";
-        $conditions .= "AND ti.contextid = ?";
-        $conditionparams[] = 'mod_forumng';
-        $conditionparams[] = 'forumng';
-        $conditionparams[] = $forumid;
-        $conditionparams[] = $context->id;
+        $conditions = '';
+
+        if (($grouponly) && ($groupid)) {
+            $conditions .= " (ti.component = ? AND ti.itemtype = ? AND ti.contextid = ? AND ti.itemid = ?)";
+            $conditionparams[] = 'mod_forumng';
+            $conditionparams[] = 'groups';
+            $conditionparams[] = $context->id;
+            $conditionparams[] = $groupid;
+        } else {
+            // Check to see whether tags have been set at forumng level.
+            $conditions = "(ti.component = ? AND ti.itemtype = ? AND ti.contextid = ? AND ti.itemid = ?)";
+            $conditionparams[] = 'mod_forumng';
+            $conditionparams[] = 'forumng';
+            $conditionparams[] = $context->id;
+            $conditionparams[] = $forumid;
+            if ($groupid) {
+                $conditions .= " OR (ti.component = ? AND ti.itemtype = ? AND ti.contextid = ? AND ti.itemid = ?)";
+                $conditionparams[] = 'mod_forumng';
+                $conditionparams[] = 'groups';
+                $conditionparams[] = $context->id;
+                $conditionparams[] = $groupid;
+            }
+        }
 
         $rs = $DB->get_records_sql("
-            SELECT t.*
+            SELECT DISTINCT t.*
               FROM {tag} t
         INNER JOIN {tag_instance} ti
                 ON t.id = ti.tagid
@@ -5405,6 +5463,123 @@ ORDER BY
 
         return $tags;
 
+    }
+
+    /**
+     * Sets 'Set' tags for groups for the forum.
+     * Necessary to use this rather than core tag lib as that does not deal with context
+     * and as group item ids can be the same that is an issue
+     * Also can only have 1 unique group/tag/user record
+     * @param int $forumid forum table id
+     * @param int $groupid groups table id
+     * @param array $tags array of tag rawnames e.g. Fish, frog
+     */
+    public static function set_group_tags($forumid, $groupid, $tags) {
+        global $DB, $CFG, $USER;
+        require_once($CFG->dirroot . '/tag/lib.php');
+
+        $forum = self::get_from_id($forumid, self::CLONE_DIRECT);
+        $context = $forum->get_context(true);
+
+        $transaction = $DB->start_delegated_transaction();
+        // Get existing tags used.
+        $settags = array();
+        $taginstances = $DB->get_records_sql("
+                SELECT DISTINCT t.*, ti.id as instanceid
+                  FROM {tag} t
+            INNER JOIN {tag_instance} ti
+               ON t.id = ti.tagid
+                 WHERE ti.component = ? AND ti.itemtype = ? AND ti.contextid = ? AND ti.itemid = ?",
+                array('mod_forumng', 'groups', $context->id, $groupid));
+        // Delete instances any not in new tags (note tag records not deleted as cleaned in cron).
+        $tistodelete = array();
+        foreach ($taginstances as $tinstance) {
+            if (!in_array($tinstance->rawname, $tags)) {
+                $tistodelete[] = $tinstance->instanceid;
+            } else {
+                // Store existing tag instance used.
+                $settags[$tinstance->instanceid] = $tinstance->rawname;
+            }
+        }
+        if ($tistodelete) {
+            list($delsql, $delparams) = $DB->get_in_or_equal($tistodelete);
+            $DB->delete_records_select('tag_instance', "id $delsql", $delparams);
+        }
+        // Add/get new tag records.
+        $existingtags = tag_get_id($tags, TAG_RETURN_ARRAY);
+        // Normalize tags passed so can match to existing tags array.
+        $normaltags = tag_normalize($tags);
+        // Add tag instances (where needed).
+        $ordering = 0;
+        foreach ($normaltags as $rawname => $name) {
+            if (in_array($rawname, $settags)) {
+                // Pre-existing instance, skip.
+                $ordering++;
+                continue;
+            }
+            $tagid = 0;
+            if (!array_key_exists($name, $existingtags) || empty($existingtags[$name])) {
+                // Need to add tag.
+                $newtag = tag_add($rawname);
+                $tagid = array_pop($newtag);
+            } else {
+                $tagid = $existingtags[$name];
+            }
+            // Create instance (like tag_assign()).
+            $tag_instance_object = new stdClass();
+            $tag_instance_object->tagid = $tagid;
+            $tag_instance_object->component = 'mod_forumng';
+            $tag_instance_object->itemid = $groupid;
+            $tag_instance_object->itemtype = 'groups';
+            $tag_instance_object->contextid = $context->id;
+            $tag_instance_object->ordering = $ordering;
+            $tag_instance_object->timecreated = time();
+            $tag_instance_object->timemodified = $tag_instance_object->timecreated;
+            $tag_instance_object->tiuserid = self::get_group_taginstance_userid($groupid, $tagid);
+
+            $DB->insert_record('tag_instance', $tag_instance_object);
+            $ordering++;
+        }
+        $DB->commit_delegated_transaction($transaction);
+    }
+
+    /**
+     * Check user can save a new group tag instance as these have a unique key
+     * If not, will use - admin user (0), guest user (1), other admin user (2+)
+     * @param int $groupid
+     * @param int $tagid
+     * @param int $start default -1 for current user.
+     * @return int user id
+     * @throws moodle_exception If out of users
+     */
+    private static function get_group_taginstance_userid($groupid, $tagid, $start = -1) {
+        global $DB, $USER;
+        $userid = $USER->id;
+        $nexttry = 0;
+        if ($start == 0) {
+            $userid = get_admin()->id;
+            $nexttry = 1;
+        } else if ($start == 1) {
+            $userid = guest_user()->id;
+            $nexttry = 2;
+        } else if ($start >= 2) {
+            $admins = get_admins();
+            if (count($admins) < $start) {
+                throw new moodle_exception('Cannot add tag instance - duplicate value, max possible reached.');
+            }
+            $keys = array_keys($admins);// Get keys (user id's).
+            $userid = $keys[($start - 1)];
+            $nexttry = $start;
+            $nexttry++;
+        }
+
+        if (!$DB->record_exists('tag_instance', array('itemtype' => 'groups', 'itemid' => $groupid,
+                'tiuserid' => $userid, 'tagid' => $tagid))) {
+            // No existing record, safe to proceed.
+            return $userid;
+        }
+        // Try and find another userid.
+        return self::get_group_taginstance_userid($groupid, $tagid, $nexttry);
     }
 
 }

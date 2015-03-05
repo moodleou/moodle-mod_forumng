@@ -369,19 +369,15 @@ UNR Basic unread support
 
 UNR01 / U.S2
   Go to F.SG. Click 'Mark all posts read'. Ensure that the setting reads
-  'Automatically marking all posts read'; if not, change it.
+  'Automatically mark as read'; if not, change it.
 
-UNR02 / U.S1 [change]
+UNR02 / U.ET [change]
   Go to F.SG. Click 'Mark all posts read'. Ensure that the setting reads
-  'Automatically marking all posts read'; if not, change it.
-
-UNR03 / U.ET [change]
-  Go to F.SG. Click 'Mark all posts read'. Ensure that the setting reads
-  'Automatically marking all posts read'; if not, change it.
+  'Automatically mark as read'; if not, change it.
 
   Select group G2. Start a new discussion. Inside the discussion, add a reply.
 
-UNR04 / U.S2 [change]
+UNR03 / U.S2 [change]
   Go to course page.
   - Verify that an '(Unread posts)' note appears next to F.SG.
   Go to F.SG
@@ -389,13 +385,13 @@ UNR04 / U.S2 [change]
   - Verify that it shows 2 unread messages in the discussion, with a
     'mark read' tick next to it.
 
-UNR05 / U.S2
+UNR04 / U.S2
   Click into discussion.
   - Verify that both messages display as unread (on standard theme this means
-    there is a yellow background and the date is bold).
+    expanded with a blue background and bold date).
   Click back to the forum main page.
   - Verify that there are no unread messages any more.
-  Start a new discussion and post it, then reply to it, then reply to the reply,
+  Start a new discussion titled UNR04 and post it, then reply to it, then reply to the reply,
   ensuring that the replies have a reasonable length (e.g. copy/paste this
   step of the test case into each one) so that the page will scroll later.
   Then return to the forum main page.
@@ -403,13 +399,13 @@ UNR05 / U.S2
   Return to the course page.
   - Verify that F.SG does not show unread any more.
 
-UNR06 / U.ET [change]
+UNR05 / U.ET [change]
   Go to course page.
-  - Verify that the forum shows as unread.
+  - Verify that the F.SG forum shows as unread.
   Go into F.SG.
-  - Verify that the discussion (UNR05) appears and shows 3 unread posts.
-  Click the 'Change' link next to 'Automatically marking read'
-  - Verify that it changed to 'Manually marking read'.
+  - Verify that the discussion (UNR04) appears and shows 3 unread posts.
+  Click the 'Change' link next to 'Automatically mark as read'
+  - Verify that it changed to 'Manually mark as read'.
   Click on the number (3) to enter the discussion.
   - Verify that you enter the discussion and it scrolls to top of first post,
     with #firstunread in URL
@@ -424,22 +420,66 @@ UNR06 / U.ET [change]
   - Verify that it cycles through the 'previous unread' again until you get
     back to the start
 
-UNR07 / U.ET
+UNR06 / U.ET
   Go back to F.SG main page.
-  - Verify that discussion still shows as unread.
-  Click into discussion again.
-  - Verify that messages still show as read.
+  - Verify that discussion UNR04 still shows as having 3 unread posts.
+  Click into discussion UNR04 again.
+  - Verify that all 3 messages still show as unread and each has a 'Mark post read' button.
+  Select 'Mark post read' button on the last post.
+  - Verify that the blue background on the last post is removed
+    and it's 'Mark post read' button becomes disabled.
+  Refresh the current page.
+  - Verify the last post is no longer classed as being unread.
+  Go back to F.SG main page.
+  - Verify that UNR04 discussion shows as having 2 unread posts.
+  Return to the course page.
+  - Verify that F.SG shows as unread.
+
+UNR07 / U.ET
+  Go into F.SG main page.
+  - Verify that UNR04 discussion shows as having 2 unread posts.
+  Click into discussion UNR04 again.
+  - Verify that 2 messages still show as unread.
+  Click 'Show readers' button (bottom).
+  - Verify U.ET user is not listed (As long as F.SG is a group forum and U.ET is not in group).
+  Return to discussion.
   Click 'Mark discussion read' button (bottom left).
   - Verify that you are returned to main forum page and discussion now shows
     as read (no unread messages).
+  Add a new reply to the last post (any message content).
+  Go back to F.SG main page.
+  - Verify that UNR04 discussion shows as having no unread posts.
+  Click the 'Change' link next to 'Manually mark as read'
+  - Verify that it changed to 'Automatically mark as read'.
+  - Verify UNR04 discussion shows as having no unread posts.
+  Click the 'Change' link next to 'Automatically mark as read'
+  - Verify that it changed to 'Manually mark as read'.
+  - Verify UNR04 discussion shows as having no unread posts.
+  Return to the course page.
+  - Verify that F.SG does not show as unread.
 
-UNR08 / U.S1 [change]
+UNR08 / U.S2
   Go to course page.
-  - Verify that forum F.SG does not show any unread messages (because all
-    messages were posted in the other group).
+  - Verify that an '(Unread posts)' note appears next to F.SG.
+  Go to F.SG
+  - Verify that UNR04 discussion shows as having 1 unread post.
+  Click the 'Change' link next to 'Automatically mark as read'
+  - Verify that it changed to 'Manually mark as read'.
+  Enter discussion UNR04
+  Right-click 'Mark post read' and open in new tab
+  - Verify UNR04 loads in new tab, showing last post as read.
+  Close new tab and return to F.SG main page.
+  - Verify UNR04 discussion shows as having no unread posts.
+  Click the 'Change' link next to 'Manually mark as read'
+  - Verify that it changed to 'Automatically mark as read'.
+  - Verify UNR04 discussion shows as having 1 unread posts.
 
-** PASSED 2011-02-21
-
+UNR09 / U.ET
+  Go into F.SG main page.
+  Click into discussion UNR04 again.
+  Click 'Show readers' button (bottom).
+  - Verify U.S2 user is listed with time corresponding to marking post as read in UNR08.
+  Return to discussion.
 
 DRP Draft posts
 ===============

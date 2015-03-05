@@ -77,7 +77,7 @@ if (optional_param('unsubscribe', '', PARAM_RAW)) {
         if (preg_match('~^user([0-9]+)$~', $key, $matches)) {
             $confirmarray[$key] = 1;
             $user = $DB->get_record('user', array('id' => $matches[1]),
-                'id, username, firstname, lastname', MUST_EXIST);
+                '*', MUST_EXIST);
             $list .= '<li>' . $forum->display_user_link($user) . '</li>';
         }
     }

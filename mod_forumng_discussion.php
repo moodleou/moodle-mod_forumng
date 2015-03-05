@@ -650,6 +650,7 @@ class mod_forumng_discussion {
         require_once($CFG->dirroot . '/rating/lib.php');
         if (!$usecache || !$this->rootpost) {
             if (!$usecache || !$this->postscache) {
+                $read = !mod_forumng::mark_read_automatically($userid);
                 // Retrieve most posts in the discussion - even deleted
                 // ones. These are necessary in case somebody deletes a post that has
                 // replies. They will display as 'deleted post'. We don't retrieve
@@ -657,7 +658,7 @@ class mod_forumng_discussion {
                 // so that the order of replies remains constant when we build the tree.
                 $posts = mod_forumng_post::query_posts('fp.discussionid=? AND fp.oldversion=0',
                         array($this->discussionfields->id), 'fp.created',
-                        $this->forum->has_ratings(), true, false, $userid);
+                        $this->forum->has_ratings(), true, false, $userid, false, false, '', '', $read);
                 // Load standard ratings.
                 if ($this->get_forum()->get_enableratings() == mod_forumng::FORUMNG_STANDARD_RATING) {
                     // If grading is 'No grading' or 'Teacher grades students'.
@@ -682,6 +683,7 @@ class mod_forumng_discussion {
                     $ratingoptions->userid = $USER->id;
                     $ratingoptions->assesstimestart = $this->forum->get_ratingfrom();
                     $ratingoptions->assesstimefinish = $this->forum->get_ratinguntil();
+                    $ratingoptions->returnurl = $this->get_moodle_url();
 
                     $rm = new rating_manager();
                     $posts = $rm->get_ratings($ratingoptions);
@@ -776,20 +778,32 @@ class mod_forumng_discussion {
                 $userid = $USER->id;
             }
             $deadline = mod_forumng::get_read_tracking_deadline();
-            $readtracking = "
-                , (CASE WHEN fplast.modified<? THEN " . self::PAST_SELL_BY .
-                " ELSE (SELECT COUNT(1)
-                    FROM {forumng_posts} fp3
-                    WHERE fp3.discussionid = fd.id AND fp3.oldversion = 0
-                    AND fp3.deleted = 0
-                    AND (fp3.modified<fr.time OR fp3.edituserid = ?
-                        OR (fp3.edituserid IS NULL AND fp3.userid = ?)
-                        OR fp3.modified < ?)) END) AS numreadposts,
-                fr.time AS timeread";
-            $readtrackingjoin = "LEFT JOIN {forumng_read} fr
-                ON fd.id = fr.discussionid AND fr.userid = ?";
+            $readjoin1 = "";
+            $readwhere1 = "";
             $readtrackingparams = array($deadline, $userid, $userid, $deadline);
             $readtrackingjoinparams = array($userid);
+            if (!mod_forumng::mark_read_automatically($userid)) {
+                // Ind Mark read - check individual read_posts state.
+                $readjoin1 = "LEFT JOIN {forumng_read_posts} frp2 on frp2.postid = fp3.id AND frp2.userid = ?";
+                $readwhere1 = "OR frp2.id IS NOT NULL";
+                $readtrackingparams = array($deadline, $userid, $userid, $userid, $deadline);
+            }
+            // Get unread count only when last added post is newer than deadline.
+            // When PAST_SELL_BY, posts modified later than last will be unread but not picked up.
+            $readtracking = "
+                    , (CASE WHEN fplast.modified IS NOT NULL AND fplast.modified < ? THEN " .
+                                self::PAST_SELL_BY . " ELSE (SELECT COUNT(1)
+                        FROM {forumng_posts} fp3
+                  $readjoin1
+                       WHERE fp3.discussionid = fd.id AND fp3.oldversion = 0
+                         AND fp3.deleted = 0
+                         AND (fp3.modified < fr.time OR fp3.edituserid = ?
+                            $readwhere1
+                            OR (fp3.edituserid IS NULL AND fp3.userid = ?)
+                            OR fp3.modified < ?)) END) AS numreadposts,
+                   fr.time AS timeread";
+            // Join read info, get posts not authored by user: get latest modified post time.
+            $readtrackingjoin = "LEFT JOIN {forumng_read} fr ON fd.id = fr.discussionid AND fr.userid = ?";
         } else {
             $readtracking = ", 0 AS numreadposts, NULL AS timeread";
             $readtrackingjoin = "";
@@ -1224,6 +1238,14 @@ WHERE
         $newroot->search_update();
         $newroot->search_update_children();
 
+        // Update the tags after the move.
+        if ($targetforum->get_id() != $this->forum->get_id()) {
+            // Update tags for moved discussions.
+            $oldcontext = $this->forum->get_context(true);
+            $newcontext = $targetforum->get_context(true);
+            $DB->set_field('tag_instance', 'contextid', $newcontext->id, array('itemid' => $this->get_id(), 'itemtype' => 'forumng_discussions'));
+        }
+
         $this->uncache();
         $transaction->allow_commit();
     }
@@ -1334,6 +1356,15 @@ WHERE
         $root->search_update();
         $root->search_update_children();
         $transaction->allow_commit();
+        // Update any discussion tags.
+        $tagslist = $this->get_tags();
+        if ($tagslist) {
+            $tags = array();
+            foreach ($tagslist as $key => $value) {
+                array_push($tags, $value);
+            }
+            $newdiscussion->edit_settings(self::NOCHANGE, self::NOCHANGE, self::NOCHANGE, self::NOCHANGE, self::NOCHANGE, $tags);
+        }
     }
 
     /**
@@ -1457,6 +1488,9 @@ WHERE
         // Deleting the relevant data in the forumng_flags table.
         $DB->execute("DELETE FROM {forumng_flags} $query", $queryparams);
 
+        // Deleting the relevant data in the forumng_read_posts table.
+        $DB->execute("DELETE FROM {forumng_read_posts} $query", $queryparams);
+
         // Delete all the attachment files of this discussion.
         $fs = get_file_storage();
         $filecontext = $this->get_forum()->get_context(true);
@@ -1478,6 +1512,9 @@ WHERE
 
         // Delete the relevant discussion in the forumng_flags table.
         $DB->delete_records('forumng_flags', array('discussionid' => $this->get_id()));
+
+        // Delete the relevant discussion in the tag_instance table.
+        $DB->delete_records('tag_instance', array('itemid' => $this->get_id(), 'itemtype' => 'forumng_discussions'));
 
         // Finally deleting this discussion in the forumng_discussions table.
         $DB->delete_records('forumng_discussions', array('id' => $this->get_id()));
@@ -1671,7 +1708,19 @@ SELECT
     fr.time,
     u.idnumber AS u_idnumber
 FROM
-    {forumng_read} fr
+    (SELECT MAX(id) AS id, userid, discussionid, MAX(time) AS time
+     FROM (
+         SELECT id, userid, discussionid, time
+           FROM {forumng_read} fr
+      UNION ALL
+         SELECT id, userid, discussionid, time
+           FROM (
+               SELECT frp.*, fp.discussionid
+                 FROM {forumng_posts} fp
+           RIGHT JOIN {forumng_read_posts} frp ON fp.id = frp.postid
+                WHERE fp.deleted = 0 AND fp.oldversion = 0
+           ) frp
+    ) rp GROUP BY userid, discussionid) fr
     INNER JOIN {user} u ON u.id = fr.userid
 WHERE
     fr.userid IN ($sql)
@@ -1723,6 +1772,13 @@ ORDER BY
             $readrecord->time = $time;
             $DB->insert_record('forumng_read', $readrecord);
         }
+        // Delete any individual post records for discussion as now redundant.
+        $DB->execute("DELETE FROM {forumng_read_posts}
+                            WHERE postid IN(
+                                  SELECT id FROM {forumng_posts}
+                                   WHERE discussionid = :discussionid)
+                              AND userid = :userid AND time <= :now",
+                array('userid' => $userid, 'discussionid' => $this->discussionfields->id, 'now' => $time));
         $transaction->allow_commit();
 
         if ($this->incache) {
@@ -1740,7 +1796,13 @@ ORDER BY
         $userid = mod_forumng_utils::get_real_userid($userid);
         $DB->delete_records('forumng_read',
                 array('userid' => $userid, 'discussionid' => $this->discussionfields->id));
-
+        // Delete any individual post records for discussion as well.
+        $DB->execute("DELETE FROM {forumng_read_posts}
+                            WHERE postid IN(
+                                  SELECT id FROM {forumng_posts}
+                                   WHERE discussionid = :discussionid)
+                              AND userid = :userid",
+                array('userid' => $userid, 'discussionid' => $this->discussionfields->id));
         if ($this->incache) {
             $this->discussionfields->timeread = null;
             $this->cache($this->incache->userid);
