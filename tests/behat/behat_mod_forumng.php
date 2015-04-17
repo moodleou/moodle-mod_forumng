@@ -65,6 +65,28 @@ class behat_mod_forumng extends behat_base {
     }
 
     /**
+     * Updates forumng post created date.
+     * Indentified by subject and using date format (YYYY-MM-DD OR YYYY/MM/DD).
+     * E.g. | Discussion 1 | 2015-01-20 |
+     * @Given /^I amend the forumng posts to new created date:$/
+     * @param TableNode $data
+     */
+    public function i_amend_the_forumng_posts_to_new_created_date(TableNode $data) {
+        global $DB;
+
+        foreach ($data->getRows() as $rowdata) {
+            $conditions = array('subject'=>$rowdata[0]);
+            $idtochange = $DB->get_field('forumng_posts', 'id', $conditions);
+            if ($idtochange) {
+                $updateobject = new stdClass();
+                $updateobject->created = trim(strtotime(str_replace('/', '-', $rowdata[1])));
+                $updateobject->id = $idtochange;
+                $DB->update_record('forumng_posts', $updateobject);
+            }
+        }
+    }
+
+    /**
      * Replies to numbered post (e.g. "2" is second post on page) with the provided data.
      * You should be in the discussion view page.
      * Note this step will always expand the post.

@@ -92,11 +92,13 @@ $pagename = fullname($user, has_capability('moodle/site:viewfullnames', $context
 $pagename .= $CFG->forumng_showusername ? ' (' . $user->username . ')' : '';
 $start = null;
 $end = null;
+$rated = false;
 $prevpage = '';
 $prevurl = '';
 $pageparams['group'] = $groupid;
 $pageparams['start'] = $start;
 $pageparams['end'] = $end;
+$pageparams['rated'] = $rated;
 $pageurl = new moodle_url('/mod/forumng/feature/userposts/user.php', $pageparams);
 $out = '';
 
@@ -120,6 +122,11 @@ $customdata = array(
         'startyear' => $timeparts['year'],
         'params' => array()
 );
+if ($forum->get_enableratings() == mod_forumng::FORUMNG_STANDARD_RATING) {
+    $customdata['ratings'] = true;
+} else {
+    $customdata['ratings'] = false;
+}
 $timefilter = new forumng_participation_table_form(null, $customdata);
 
 $start = $end = 0;
@@ -131,6 +138,11 @@ if ($submitted = $timefilter->get_data()) {
     if ($submitted->end) {
         $end = strtotime('23:59:59', $submitted->end);
     }
+    if (!empty($submitted->ratedposts)) {
+        $rated = true;
+    } else {
+        $rated = false;
+    }
 } else if (!$timefilter->is_submitted()) {
     // Recieved via post back.
     if ($start = optional_param('start', null, PARAM_INT)) {
@@ -139,13 +151,15 @@ if ($submitted = $timefilter->get_data()) {
     if ($end = optional_param('end', null, PARAM_INT)) {
         $end = strtotime('23:59:59', $end);
     }
+    $rated = optional_param('rated', false, PARAM_BOOL);
 }
 
-$posts = $forum->get_all_posts_by_user($userid, $groupid, 'fp.id', $start, $end);
+$posts = $forum->get_all_posts_by_user($userid, $groupid, 'fp.id', $start, $end, $rated);
 
 // Add collected start and end UNIX formated dates to moodle url.
 $pageurl->param('start', $start);
 $pageurl->param('end', $end);
+$pageurl->param('rated', $rated);
 
 $table = new forumng_participation_table('mod-forumng-participation');
 $table->set_attribute('class', 'flexible generaltable');
@@ -161,6 +175,9 @@ if (empty($download)) {
     // Display time filter options form.
     if ($start || $end) {
         $timefilter->set_data(array('start' => $start, 'end' => $end));
+    }
+    if (!empty($submitted->ratedposts)) {
+        $timefilter->set_data(array('ratedposts' => $submitted->ratedposts));
     }
     $timefilter->display();
     // Display the download button only if we have posts to download.

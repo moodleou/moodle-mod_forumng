@@ -142,6 +142,7 @@ class mod_forumng_rating_testcase extends forumng_test_lib {
         $did1 = $generator->create_discussion(array('course' => $course, 'forum' => $forum->get_id(), 'userid' => $suser->id));
         $did2 = $generator->create_discussion(array('course' => $course, 'forum' => $forum->get_id(), 'userid' => $suser->id));
         $did3 = $generator->create_discussion(array('course' => $course, 'forum' => $forum->get_id(), 'userid' => $suser->id));
+        $did4 = $generator->create_discussion(array('course' => $course, 'forum' => $forum->get_id(), 'userid' => $suser->id));
         // Add rating to all 3 discussions.
         $rm = new rating_manager();
         $params = new stdClass();
@@ -174,8 +175,10 @@ class mod_forumng_rating_testcase extends forumng_test_lib {
         $this->assertNotNull($ratings);
         $this->assertEquals($did1[1], $ratings->itemid);
 
+        $ratedposts = $forum->get_all_posts_by_user($suser->id, null, 'fp.id', null, null, true);
+        $this->assertCount(3, $ratedposts);
         $allposts = $forum->get_all_posts_by_user($suser->id, null);
-        $this->assertCount(3, $allposts);
+        $this->assertCount(4, $allposts);
         $this->assertNotNull($allposts[$did1[1]]->get_ratings());
 
         // Update grades (does nothing).

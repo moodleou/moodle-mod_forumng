@@ -4855,9 +4855,10 @@ WHERE
      * @param string $order Sort order; the default is fp.id - note this is preferable
      *   to fp.timecreated because it works correctly if there are two posts in
      *   the same second
+     * @param bool $hasrating if true only returns posts which ahve been rated
      * @return array Array of mod_forumng_post objects
      */
-    public function get_all_posts_by_user($userid, $groupid, $order = 'fp.id', $start = null, $end = null) {
+    public function get_all_posts_by_user($userid, $groupid, $order = 'fp.id', $start = null, $end = null, $hasrating = false) {
         global $CFG, $USER;
         $where = 'fd.forumngid = ? AND fp.userid = ? AND fp.oldversion = 0 AND fp.deleted = 0';
         $whereparams = array($this->get_id(), $userid);
@@ -4873,6 +4874,12 @@ WHERE
         if (!empty($end)) {
             $where .= ' AND fp.created <= ?';
             $whereparams[] = $end;
+        }
+        if ($hasrating) {
+            $where .= ' AND '.self::select_exists("SELECT r.itemid FROM {rating} r WHERE r.itemid = fp.id AND r.ratingarea = 'post'
+                    AND r.contextid = ? AND r.userid <> ?");
+            $whereparams[] = $this->get_context(true)->id;
+            $whereparams[] = $userid;
         }
         $result = array();
         $posts = mod_forumng_post::query_posts($where, $whereparams, $order, false, false, true,

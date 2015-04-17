@@ -1,0 +1,109 @@
+This script describes steps to test the userposts facility from a user
+perspective. It is intended to cover mainly the use of the 'Posts rated by others@ display option.
+
+NOTE: In this test case, the word 'forum' always refers to the OU ForumNG.
+
+The test steps in this script follow on from each other and aren't independent.
+
+Initial setup
+=============
+
+This test case requires:
+
+- a course
+- one test course enrolled student user (U.S1).
+- one editing teacher with manager role on course (U.ET)
+
+The test server must have debugging set to DEVELOPER level and to display
+errors; during all parts of the test script, there should be no debugging
+warnings.
+
+
+CRE Creating forums and data
+============================
+
+CRE01 / admin
+  In your test course, create a forum called CRE01
+  Edit forum settings so that:
+  Under 'Ratings' settings
+  Choose 'Ratings (standard)' from 'Allow posts to be rated dropdown'
+  Set 'Type' to 'Point'
+  Set 'Maximum points' to 10
+  Click on 'Save and display' submit button
+
+CRE02 / admin
+  Go into the forum you have just created and start 3 seperate discussions (Disc1, Disc2 and Disc3) with message
+
+
+UP Userposts
+============
+
+UP01 / U.S1 [change]
+  Go to forum CRE01.
+  Reply to start discussion post Disc1 created by admin user
+
+UP02 / U.S1
+  Go to forum CRE01.
+  Reply to start discussion post Disc2 created by admin user
+
+
+RP Rate posts
+=============
+
+RP01 / U.ET [change]
+  Go to forum CRE01.
+  Follow Disc1 discussion
+  Expand all posts
+  Rate reply by student (S1) by means of the 'Rate...' select drop down menu (choose value = 9)
+  It should now show the Average of ratings for that post is equal to 9.
+
+
+VP View posts
+=============
+
+  VP01 / U.ET
+  Go to forum CRE01.
+  Click 'Participation by user'
+  Follow 'Show all posts by S1.." link
+  You should see 'From' and 'To' dates set to today's date
+  You should see 'Posts rated by others' is unchecked
+  You should see 2 post replies by S1 (one only rated with a value of 9)
+
+  Tick 'Posts rated by others' checkbox and click 'Update'
+  Now only the post reply to Disc1 with the rating (9) should be displayed
+  You should see also see 'From' and 'To' dates unchanged at today's date
+
+  Enable the date selectors and change both the 'From' and 'To' dates to dates in the past
+  e.g. 1 January 2010 to 10 February 2015 and click 'Update'
+  You should see 'Posts rated by others' is still checked
+  You should now not see any posts
+
+  Uncheck 'Posts rated by others' checkbox and click 'Update'
+  The dates should remain the same
+  You should not see any posts
+
+
+RD Rating disabled / enabled
+============================
+
+  RD01 / U.ET
+  Go to forum CRE01.
+  Follow 'Edit settings' link for ForumNG
+  Choose 'No ratings' from 'Allow posts to be rated dropdown'
+  Click 'Save and display'
+  Click 'Participation by user'
+  Follow 'Show all posts by S1.." link
+  Confirm the 'Posts rated by others' label and checkbox is not visible
+  You should see both replies from S1.
+
+  RD02 / U.ET
+  Follow 'Edit settings' link for ForumNG
+  Edit forum settings so that:
+  Under 'Ratings' settings
+  Choose 'Ratings (standard)' from 'Allow posts to be rated dropdown'
+  Set 'Maximum points' to 10
+  Click on 'Save and display' submit button
+  Click 'Participation by user'
+  Follow 'Show all posts by S1.." link
+  Confirm the 'Posts rated by others' label and checkbox is visible
+  You should see both replies from S1.

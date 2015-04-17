@@ -192,6 +192,11 @@ class forumng_participation_table_form extends moodleform {
         $mform->addElement('date_selector', 'end',
                 get_string('end', 'forumngfeature_userposts'), array('startyear' => $cdata['startyear'], 'stopyear' => gmdate("Y"),
                         'optional' => true));
+        if (isset($cdata['ratings']) && ($cdata['ratings'] == true)) {
+            $mform->addElement('checkbox', 'ratedposts', get_string('ratedposts', 'forumngfeature_userposts'));
+            $mform->addHelpButton('ratedposts', 'ratedposts', 'forumngfeature_userposts');
+            $mform->setDefault('ratedposts', 0);
+        }
 
         if (isset($cdata['type'])) {
             $mform->addElement('hidden', 'type', $cdata['type']);

@@ -48,3 +48,5 @@ $string['displayperiod_help'] = '<p>The default selects all entries.</p>
 <p>Or you can select from the first entry \'To\' a date</p>';
 $string['timestartenderror'] = 'Selection end date cannot be earlier than the start date';
 $string['timefilter_submit'] = 'Update';
+$string['ratedposts'] = 'Posts rated by others';
+$string['ratedposts_help'] = 'Show only posts that have been rated by others';
