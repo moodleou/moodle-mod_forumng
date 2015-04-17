@@ -463,40 +463,39 @@ M.mod_forumng = {
                         iframe.setStyle('top', '0px');
                         iframe.setStyle('left', '0px');
                         iframe.setStyle('z-index', '9999');
-                        Y.one('window').on('scroll', function(){
-                            // Prevent scrolling past iframe as not 'fixed' on some mobiles.
-                            if (window.scrollY > iframe.get('contentWindow.document').one('#page').get('clientHeight')) {
-                                parent.window.scrollTo(0, 0);
-                            }
-                        });
                     }
                     iframe.setStyle('height', '100%');
                     iframe.setStyle('width', '100%');
                     iframe.setStyle('overflowX', 'hidden');
+                    iframe.setStyle('overflowY', 'auto');
                     if (iframe.get('clientHeight') >= iframe.get('contentWindow.document').one('#page').get('clientHeight')) {
                         // If iframe size larger than content then hide scroll.
                         iframe.set('scrolling', 'no');
+                    } else {
+                        iframe.set('scrolling', 'auto');
                     }
                     doc.body.focus();
                     window.scrollTo(0, 0);
                 } else {
-					if (iframe.get('parentNode') && iframe.get('parentNode').get('parentNode')) {
-						iframe.set('width', iframe.get('parentNode').get('parentNode').getComputedStyle('width'));
-					}
-					if (M.mod_forumng.Y.UA.ios || M.mod_forumng.Y.UA.android) {
-					    var margin = parseInt(iframe.get('parentNode').get('parentNode').getComputedStyle('width')) - doc.body.scrollWidth;
-					    if (margin < 0) {
-					        iframecon.setStyle('margin-left', margin);
-					        iframe.setStyle('width', doc.body.scrollWidth);
-					        iframecon.setStyle('width', doc.body.scrollWidth);
-					    }
-					}
-					counter++;
-					if (counter < 20) {
-					    // Keep resizing iframe as filemanager takes a while to initialise.
-					    setTimeout(fix_height, 500);
-					}
-				}
+                    if (M.cfg.theme.indexOf('ou') != -1 || M.theme_ou) {
+                        if (iframe.get('parentNode') && iframe.get('parentNode').get('parentNode')) {
+                            iframe.set('width', iframe.get('parentNode').get('parentNode').getComputedStyle('width'));
+                        }
+                        if (M.mod_forumng.Y.UA.ios || M.mod_forumng.Y.UA.android) {
+                            var margin = parseInt(iframe.get('parentNode').get('parentNode').getComputedStyle('width')) - doc.body.scrollWidth;
+                            if (margin < 0) {
+                                iframecon.setStyle('margin-left', margin);
+                                iframe.setStyle('width', doc.body.scrollWidth);
+                                iframecon.setStyle('width', doc.body.scrollWidth);
+                                }
+                            }
+                        }
+                    }
+                counter++;
+                if (counter < 20) {
+                    // Keep resizing iframe as filemanager takes a while to initialise.
+                    setTimeout(fix_height, 500);
+                }
             };
             fix_height();
 

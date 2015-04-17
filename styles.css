@@ -595,9 +595,6 @@ ul.forumng-commands li.forumng-replylink {
 .forumng-iframe#page-mod-forumng-editpost {
     min-width: inherit;
 }
-.forumng-iframe#page-mod-forumng-editpost .mform {
-    min-width: 580px;
-}
 .gecko.forumng-iframe#page-mod-forumng-editpost .mform {
     min-width: 605px;
 }
@@ -636,6 +633,11 @@ ul.forumng-commands li.forumng-replylink {
     clear: left;
     margin-left: 0;
 }
+.forumng-iframe#page-mod-forumng-editpost #fitem_id_subject input {
+	max-width: 90%;
+	min-width: 80%;
+}
+
 .forumng-iframe#page-mod-forumng-editpost #fgroup_id_buttonar .felement {
     clear: left;
     margin-left: 0;

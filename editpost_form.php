@@ -77,7 +77,7 @@ class mod_forumng_editpost_form extends moodleform {
             $mform->addElement('text', 'subject',
                 $isroot ? get_string('subject', 'forumng')
                 : get_string('optionalsubject', 'forumng'),
-                array('size'=>48, 'id'=>'id_subject'));
+                array('id'=>'id_subject'));
             $mform->setType('subject', PARAM_TEXT);
             $mform->addRule('subject', get_string('maximumchars', '', 255),
                 'maxlength', 255, 'client');
