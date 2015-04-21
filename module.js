@@ -499,20 +499,26 @@ M.mod_forumng = {
             };
             fix_height();
 
-            // Add cancel handler that just removes the iframe.
+            // Add cancel handler that just removes the iframe - Except Atto as autosave cancel needed.
             doc.getElementById('id_cancel').onclick = function(e) {
-                if (!e) {
-                    e = window.event;
+                var blank = false;// Check if empty text, if so close iframe (Hack to stop 'required' issue).
+                if (innerwin.Y.one('#id_message') && innerwin.Y.one('#id_message').get('innerText') === '') {
+                    blank = true;
                 }
-                if (e) {
-                    if (e.stopPropagation) {
-                        e.stopPropagation();
-                    } else {
-                        e.cancelBubble = true;
+                if (!innerwin.Y.one('.editor_atto') || blank) {
+                    if (!e) {
+                        e = window.event;
                     }
+                    if (e) {
+                        if (e.stopPropagation) {
+                            e.stopPropagation();
+                        } else {
+                            e.cancelBubble = true;
+                        }
+                    }
+                    t.remove_iframe(iframe);
+                    return false;
                 }
-                t.remove_iframe(iframe);
-                return false;
             };
 
             // Focus the editor.
@@ -573,39 +579,40 @@ M.mod_forumng = {
                 // Add item just in front of existing post, then delete existing.
                 var scriptcommands = [];
                 var newpost = t.prepare_new_post(innerwin, scriptcommands);
-                post.get('parentNode').insertBefore(newpost, post);
-                post.get('parentNode').removeChild(post);
+                if (newpost.get('innerHTML') !== '') {
+                    post.get('parentNode').insertBefore(newpost, post);
+                    post.get('parentNode').removeChild(post);
 
-                // Run script commands.
-                for (var i=0; i<scriptcommands.length; i++) {
-                    eval(scriptcommands[i]);
-                }
-
-                // For discussion, do special handling.
-                if (rootpost) {
-                    // Get subject and remove its node.
-                    var subjectinput = newpost.one('input[name=discussion_subject]');
-                    var subject = subjectinput.get('value');
-                    subjectinput.remove();
-
-                    // Find breadcrumb that displays subject (last <li>).
-                    var navbaritems = t.Y.one('#page-header .navbar ul').all('li');
-                    var breadcrumb = navbaritems.item(navbaritems.size() - 1);
-
-                    // Find the span in this (last span).
-                    var list = breadcrumb.all('span');
-                    var lastspan = list.item(list.size() - 1);
-
-                    // Text is inside here, replace it.
-                    if (lastspan) {
-                        lastspan.get('childNodes').each(function(node, index, list) { node.remove(); });
-                        lastspan.appendChild(document.createTextNode(' ' + subject));
+                    // Run script commands.
+                    for (var i=0; i<scriptcommands.length; i++) {
+                        eval(scriptcommands[i]);
                     }
+
+                    // For discussion, do special handling.
+                    if (rootpost) {
+                        // Get subject and remove its node.
+                        var subjectinput = newpost.one('input[name=discussion_subject]');
+                        var subject = subjectinput.get('value');
+                        subjectinput.remove();
+
+                        // Find breadcrumb that displays subject (last <li>).
+                        var navbaritems = t.Y.one('#page-header .navbar ul').all('li');
+                        var breadcrumb = navbaritems.item(navbaritems.size() - 1);
+
+                        // Find the span in this (last span).
+                        var list = breadcrumb.all('span');
+                        var lastspan = list.item(list.size() - 1);
+
+                        // Text is inside here, replace it.
+                        if (lastspan) {
+                            lastspan.get('childNodes').each(function(node, index, list) { node.remove(); });
+                            lastspan.appendChild(document.createTextNode(' ' + subject));
+                        }
+                    }
+
+                    // Sort out links.
+                    t.init_content(newpost);
                 }
-
-                // Sort out links.
-                t.init_content(newpost);
-
                 // Remove the iframe.
                 // This needs to be palced here for mobile devices to work.
                 t.remove_iframe(iframe);

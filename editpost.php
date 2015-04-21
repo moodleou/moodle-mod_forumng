@@ -328,6 +328,10 @@ try {
     }
 
     if ($mform->is_cancelled()) {
+        if ($iframe) {
+            // If we got to cancel in an iframe do js sucess code so iframe closes.
+            finish(0, $cloneid, '', null, null, false);
+        }
         if ($edit) {
             redirect('discuss.php?' .
                     $post->get_discussion()->get_link_params(mod_forumng::PARAM_PLAIN) .

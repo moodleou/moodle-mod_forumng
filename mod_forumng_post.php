@@ -2533,6 +2533,10 @@ WHERE
      */
     private static function get_post_html($postorid, $cloneid=null,
             $options=array()) {
+        if ($postorid === 0) {
+            // No post to show.
+            return '<div></div>';
+        }
         if (is_object($postorid)) {
             $post = $postorid;
         } else {
