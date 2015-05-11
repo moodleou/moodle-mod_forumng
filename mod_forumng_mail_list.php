@@ -248,6 +248,11 @@ ORDER BY
         $this->storedrecord = clone($record);
         $cm = mod_forumng_utils::extract_subobject($record, 'cm_');
         $course = mod_forumng_utils::extract_subobject($record, 'c_');
+        // Get full cm info if we can.
+        $modinfo = get_fast_modinfo($course);
+        if (array_key_exists($cm->id, $modinfo->get_cms())) {
+            $cm = $modinfo->get_cm($cm->id);
+        }
         context_helper::preload_from_record(
                 mod_forumng_utils::extract_subobject($record, 'x_'));
         $context = context_module::instance($cm->id);
