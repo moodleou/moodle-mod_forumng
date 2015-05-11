@@ -37,6 +37,7 @@ $string['event:postundeleted'] = 'Undelete post';
 $string['event:postupdated'] = 'Edit post';
 $string['event:postreported'] = 'Report post';
 $string['event:postsplit'] = 'Split post';
+$string['event:savefailed'] = 'Session fail on post save';
 $string['event:subscriptioncreated'] = 'Subscription created';
 $string['event:subscriptiondeleted'] = 'Subscription removed';
 
