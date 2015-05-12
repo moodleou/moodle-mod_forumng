@@ -827,6 +827,9 @@ class mod_forumng_renderer extends plugin_renderer_base {
                 '<input type="hidden" name="back" value="view" />' .
                 $outsubmit . '</div></form>';
         }
+        if ($subscribed != mod_forumng::NOT_SUBSCRIBED) {
+            $out .= $this->render_subscribe_info($forum->get_context());
+        }
         if ($viewlink) {
             $out .= ' <div class="forumng-subscribe-admin">' .
                 '<a href="subscribers.php?' .
@@ -838,13 +841,14 @@ class mod_forumng_renderer extends plugin_renderer_base {
     }
     /**
      * Display subscribe option for discussions.
-     * @param discussion $discussion Forum
+     * @param mod_forumng_discussion $discussion Forum
      * @param string $text Textual note
      * @param bool $subscribe True if user can subscribe, False if user can unsubscribe
      * @return string HTML code for this area
      */
     public function render_discussion_subscribe_option($discussion, $subscribe) {
         global $USER;
+        $info = '';
         if ($subscribe) {
             $status = get_string('subscribestate_discussionunsubscribed', 'forumng');
             $submit = 'submitsubscribe';
@@ -854,6 +858,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
                     '<strong>' . $USER->email . '</strong>' );
             $submit = 'submitunsubscribe';
             $button = get_string('unsubscribediscussion', 'forumng');
+            $info = $this->render_subscribe_info($discussion->get_forum()->get_context());
         }
         return '<div class="clearfix"></div><div class="forumng-subscribe-options" id="forumng-subscribe-options">' .
             '<h3>' . get_string('subscription', 'forumng') . '</h3>' .
@@ -862,7 +867,63 @@ class mod_forumng_renderer extends plugin_renderer_base {
             $discussion->get_link_params(mod_forumng::PARAM_FORM) .
             '<input type="hidden" name="back" value="discuss" />' .
             '<input type="submit" name="' . $submit . '" value="' .
-            $button . '" /></div></form></div>';
+            $button . '" /></div></form></div>' . $info;
+    }
+
+    /**
+     * Show current user forum subscription info
+     * Show link to change profile email preferences (if allowed to change profile)
+     * @param $context context_module
+     * @return string output html
+     */
+    public function render_subscribe_info($context) {
+        global $USER;
+        $output = '';
+        $link = '';
+        $course = $context->get_course_context(true)->instanceid;
+        $userauthplugin = false;
+        if (!empty($USER->auth)) {
+            $userauthplugin = get_auth_plugin($USER->auth);
+        }
+
+        // Add the profile edit link (partial copy from navigationlib).
+        if (isloggedin() && !isguestuser($USER) && !is_mnet_remote_user($USER)) {
+            if (has_capability('moodle/user:editownprofile', $context)) {
+                if ($userauthplugin && $userauthplugin->can_edit_profile()) {
+                    $url = $userauthplugin->edit_profile_url();
+                    if (empty($url)) {
+                        $url = new moodle_url('/user/edit.php', array('id' => $USER->id, 'course' => $course));
+                    }
+                    $link = ' (' . html_writer::link($url, get_string('subscribestate_info_link', 'forumng')) . ')';
+                }
+            }
+        }
+        $output = get_string('subscribestate_info', 'forumng', $link);
+
+        $info = ' ';
+        switch ($USER->maildigest) {
+            case 0:
+                $info .= get_string('emaildigestoff');
+                break;
+            case 1:
+                $info .= get_string('emaildigestcomplete');
+                break;
+	           case 2:
+	            $info .= get_string('emaildigestsubjects');
+	            break;
+        }
+        $info .= ', ';
+        switch ($USER->mailformat) {
+            case 0:
+                $info .= get_string('textformat');
+                break;
+            case 1:
+                $info .= get_string('htmlformat');
+                break;
+        }
+        $infodiv = html_writer::span($info, 'forumng_subinfo_mail');
+
+        return html_writer::div($output . $infodiv, 'forumng_subinfo');
     }
 
     /**

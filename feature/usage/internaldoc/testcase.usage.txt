@@ -128,7 +128,7 @@ SUS01 / Admin
 
 SUS02 / S1 (change)
  Enter forum US01, select group forum used in these tests (if not already selected by default)
- Select 'Subscribe to this group'.
+ Select 'Subscribe to this group's forum'.
 
  SU03 / Admin (change)
  Enter forum US01, select 'All participants' from the group selector drop-down

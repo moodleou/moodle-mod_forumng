@@ -68,10 +68,10 @@ To add your reply via the website, click on this link:';
 $string['discussionoptions'] = 'Discussion options';
 $string['forum'] = 'Forum';
 $string['subscribed'] = 'Subscribed';
-$string['subscribegroup'] = 'Subscribe to this group';
+$string['subscribegroup'] = 'Subscribe to this group\'s forum';
 $string['subscribeshort'] = 'Subscribe';
 $string['subscribelong'] = 'Subscribe to whole forum';
-$string['unsubscribegroup'] = 'Unsubscribe from this group';
+$string['unsubscribegroup'] = 'Unsubscribe from this group\'s forum';
 $string['unsubscribegroup_partial'] = 'Unsubscribe from discussions in this group';
 $string['unsubscribeshort'] = 'Unsubscribe';
 $string['unsubscribelong'] = 'Unsubscribe from the forum';
@@ -280,6 +280,8 @@ $string['subscribestate_discussionsubscribed'] = 'You receive messages from this
 email to {$a}.';
 $string['subscribestate_discussionunsubscribed'] = 'You do not currently receive messages from this
 discussion by email. If you would like to, click &lsquo;Subscribe to discussion&rsquo;.';
+$string['subscribestate_info'] = 'Your email preferences{$a}:';
+$string['subscribestate_info_link'] = 'change';
 $string['replytopost'] = 'Reply to post: {$a}';
 $string['editpost'] = 'Edit post: {$a}';
 $string['editdiscussionoptions'] = 'Edit discussion options: {$a}';

@@ -1175,8 +1175,10 @@ to OU (@open.ac.uk) addresses.
 
 NOTE: This script uses the phrase 'trigger email sending' to indicate that you
 should make sure the system sends out emails at that point. You can manually
-trigger email sending by visiting the URL admin/cron.php in a browser when
-logged in as admin. It will probably be useful to use multiple browsers for
+trigger email sending on test servers by visiting the URL admin/cron.php in a browser
+when logged in as admin. On acct/live servers the post emails
+are sent at the start of every hour automatically.
+It will probably be useful to use multiple browsers for
 this test (one to do the email ending, the other for everything else).
 
 NOTE: Running cron.php also runs periodic tasks for all other modules, not
@@ -1188,19 +1190,34 @@ EML01 / U.ET [change]
   click the Subscribe button to subscribe to the whole forum.
   - Verify that the text changes to indicate that you are subscribed to the
     forum and show your email address.
+  - Verify 'Your email preferences (change):' and information on current email
+    preferences are shown under the subscription text.
+  Select 'change' link.
+  - Verify you are taken to the user profile edit page for U.ET.
+  Open the 'Preferences' section.
+  Set 'Email format' drop-down to 'Pretty HTML format'
+  Set 'Email digest type' to 'No digest (single email per forum post)'
+  Select 'Update profile'
+  Navigate back to forum F.EWC
+  - Verify 'No digest (single email per forum post), Pretty HTML format' is shown
+    in the subscription preferences information text.
+
+EML02 / U.ET
+  Ensure you are in forum F.EWC
   Start new discussion EML01. In the form, click the 'Mail soon' box.
   In that discussion, create a reply EML01-b; but in this reply, do not click
   the 'Mail soon' box.
+  - Verify that no subscription information including mail preferences is shown at the
+    bottom of the discussion.
   Trigger email sending [see above].
   - Verify that you receive email copy of EML01 but not EML01-b.
-  Wait for the system editing timeout (if it's not already set that way, you
-  can change it now to 5 minutes). While waiting, go to your user profile and
+  Wait for the system editing timeout (5 mins). While waiting, go to your user profile and
   change the setting about email type from HTML format to text format.
   Then trigger email sending again.
-  - Verify that you now receive email copy of EML01-b.
+  - Verify that you now receive email copy of EML01-b in text format.
   Change email type back to HTML format.
 
-EML02 / U.ET
+EML03 / U.ET
   Check the email copy of EML01.
   - Verify that it is in HTML format.
   - Verify that it contains whatever message you typed, along with
@@ -1210,7 +1227,7 @@ EML02 / U.ET
   - Verify that it includes, at the bottom, the message that it was replying
     to (i.e. the text of the original discussion post).
 
-EML03 / U.ET
+EML04 / U.ET
   Go to F.EWC and click the 'View subscribers' link.
   - List of subscribers should be shown (containing only you).
   In one of the emails, click the unsubscribe link.
@@ -1224,8 +1241,10 @@ EML03 / U.ET
   Go back to F.EWC and click Subscribe then Unsubscribe; check the list.
   - Still no subscribers.
 
-EML04 / U.ET
-  In F.EWC start a new discussion 'EML04-a' (mail soon). In that discussion,
+EML05 / U.ET
+  Go to F.EWC forum home page.
+  - Verify email preferences text is not shown under subscription option.
+  Start a new discussion 'EML04-a' (mail soon). In that discussion,
   make a reply EML04-b (mail soon). Delete the reply.
   Start a new discussion EML04-c (mail soon). Delete it.
   Start a new discussion EML04-d (mail soon). Set it to not appear until the
@@ -1237,11 +1256,16 @@ EML04 / U.ET
     waiting for the next day; and for a full test (given the safety-net period),
     it would have to be about a week probably.
 
-EML05 / U.ET
-  Unsubscribe from F.EWC. Start a new discussion 'EML05-a' (mail soon). Start
-  a second new discussion 'EML05-b' (mail soon). Inside EML05-b, click the
-  button at the bottom to subscribe just to that discussion.
+EML06 / U.ET
+  Unsubscribe from F.EWC.
+  Start a new discussion 'EML05-a' (mail soon).
+  Start a second new discussion 'EML05-b' (mail soon).
+  - Verify that no mail preference information is shown at the bottom of the discussion
+    under the subscribe button.
+  Inside EML05-b, click the button at the bottom to subscribe just to that discussion.
   - Verify that the button changes to say you're subscribed to that discussion.
+   - Verify 'Your email preferences (change): No digest (single email per forum post),
+     Pretty HTML format' is shown in the subscription preferences information text.
   - Trigger email sending.
   - Check that you receive EML05-b but not EML05-a.
   Return to F.EWC main page.
@@ -1254,21 +1278,22 @@ EML05 / U.ET
   - Verify that it now says you aren't subscribed at all.
   Delete forum F.EWC.
 
-EML06 / U.ET
+EML07 / U.ET
   Create new forum F.ESG set to separate groups mode. Ensure you are in the
   'all participants' view, then click subscribe button.
   - It should say that you are subscribed to the forum.
   Change to group G1. Start new discussion EML06-a (mail soon).
   Change to group G2. Start new discussion EML06-b (mail soon).
 
-EML07 / U.S2 [change]
+EML08 / U.S2 [change]
   Go to new forum F.ESG. (You should be in group G2.) Click subscribe button.
   - It should say you're subscribed to the group.
+  - Verify email preferences information is shown.
   Trigger email sending.
   - Verify that the discussion EML06-a and b are both sent to user U.ET's email,
     but the discussion EML06-b is only sent to user U.S2's email.
 
-EML08 / U.ET [change]
+EML09 / U.ET [change]
   In F.ESG, change to 'All participants' and view subscriber list.
   - Both users should now be shown.
   - For U.ET it should show 'All'.

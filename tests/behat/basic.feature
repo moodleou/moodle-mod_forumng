@@ -328,3 +328,57 @@ Feature: Add forumng activity and test basic functionality
     And "REPLY1" "link" should not exist
     And "REPLY2" "link" should exist
     And I log out
+
+    Scenario: Test subscription buttons
+    Given I log in as "student1"
+    And I follow "Course 1"
+    When I follow "Test forum name"
+    Then I should see "You do not currently receive messages from this forum"
+    And "Subscribe" "button" should exist
+    Given I add a discussion with the following data:
+      | Subject | Discussion 1 |
+      | Message | abc |
+    Then I should see "You do not currently receive messages from this"
+    And "Subscribe to discussion" "button" should exist
+    Given I press "Subscribe to discussion"
+    Then I should see "Your email preferences"
+    And I should see "No digest (single email per forum post)"
+    And I should see "Pretty HTML format"
+    And "change" "link" should exist
+    And "Unsubscribe from discussion" "button" should exist
+    Given I follow "Test forum name"
+    Then I should see "You receive messages from some discussions in"
+    And I should see "Your email preferences ("
+    Given I press "Subscribe to whole forum"
+    Then I should see "You receive messages from this forum via email to"
+    And I should see "Your email preferences ("
+    And "Unsubscribe" "button" should exist
+    Given I follow "change"
+    And I expand all fieldsets
+    And I set the field "mailformat" to "0"
+    And I set the field "maildigest" to "1"
+    When I press "Update profile"
+    And I am on homepage
+    And I follow "Course 1"
+    And I follow "Test forum name"
+    Then I should see "Complete (daily email with full posts)"
+    And I should see "Plain text format"
+    Given I follow "Discussion 1"
+    Then I should not see "You do not currently receive messages from this"
+    And I should not see "Your email preferences"
+    Given I follow "Test forum name"
+    And I press "Unsubscribe"
+    Then I should see "You do not currently receive messages from this"
+    Given I log out
+    And I log in as "admin"
+    And I follow "Course 1"
+    And I follow "Test forum name"
+    And I follow "Edit settings"
+    And I set the field "subscription" to "3"
+    And I press "Save and display"
+    When I log out
+    And I log in as "student1"
+    And I follow "Course 1"
+    When I follow "Test forum name"
+    Then I should see "You receive messages from this forum via email to"
+    And I should see "This forum does not allow you to unsubscribe"
