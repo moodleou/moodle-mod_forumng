@@ -246,17 +246,24 @@ a.forumng-sortlink:hover {
     margin: 2em 0 1em;
 }
 
-div.forumng-flag {
+div.forumng-flag,
+div.forumng-flagpost {
     display: inline;
     padding-right: 0.5em;
 }
 
-form.forumng-flag {
+form.forumng-flag,
+form.forumng-flagpost {
     display: inline;
     padding-left: 0.5em;
 }
-form.forumng-flag div {
+form.forumng-flag div,
+form.forumng-flagpost div {
     display:inline;
+}
+div.forumng-flagpost a img {
+    padding-right: 0.5em;
+    vertical-align: -3px;
 }
 
 .forumng-shareinfo {
@@ -372,7 +379,7 @@ h2.forumng-author {
     position: relative;
     padding-right: 16px;
 }
-.forumng-info .forumng-flag {
+.forumng-info .forumng-flag .forumng-flagpost {
     position: absolute;
     right: -0.5em;
 }
@@ -547,7 +554,7 @@ ul.forumng-commands li.forumng-replylink {
 }
 .forumng-selectmode .forumng-feedlinks,
 .forumng-selectmode #forumng-arrowback,
-.forumng-selectmode .forumng-info .forumng-flag,
+.forumng-selectmode .forumng-info .forumng-flag .forumng-flagpost,
 .forumng-selectmode .forumng-edit {
     display:none;
 }

@@ -453,6 +453,7 @@ $string['flaggedpostslink'] = '{$a} flagged posts';
 $string['post'] = 'Post';
 $string['author'] = 'Author';
 $string['clearflag'] = 'Remove flag';
+$string['flagpost'] = 'Flag post';
 $string['setflag'] = 'Flag this post for future reference';
 $string['flagon'] = 'You have flagged this post';
 $string['flagoff'] = 'Not flagged';

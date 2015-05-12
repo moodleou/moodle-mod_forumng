@@ -751,7 +751,7 @@ M.mod_forumng = {
      * @param node Root element
      */
     init_flags: function(node) {
-        node.all('div.forumng-flag').each(function(div) {
+        node.all('div.forumng-flagpost').each(function(div) {
             this.init_flag_div(div);
         }, this);
     },
@@ -762,15 +762,13 @@ M.mod_forumng = {
      */
     init_flag_div: function(div) {
         div.anchor = div.one(' a');
+        div.span = div.one(' span');
         // Get on state from image icon.
         div.icon = div.one(' img.smallicon');
-        if (!div.icon) {
-            return; // Flag not found.
-        }
         div.on = div.icon.get('src').match(/flag\.on/);
         // Remove all other event listeners just in case this func called multiple times.
         this.Y.Event.purgeElement(div.icon, false, 'click');
-        div.icon.on('click', function(e) {
+        div.anchor.on('click', function(e) {
             var cfg = {
                 method: 'POST',
                 timeout: 10000,
@@ -783,8 +781,14 @@ M.mod_forumng = {
                         div.icon.set('title',
                                 div.on ? M.str.forumng.clearflag : M.str.forumng.setflag);
                         div.icon.set('alt',
-                                div.on ? M.str.forumng.flagon : M.str.forumng.flagoff);
+                                div.on ? M.str.forumng.clearflag : M.str.forumng.setflag);
                         div.anchor.set('href', div.anchor.get('href').replace(/\&flag=(0|1)/, '&flag=' + (div.on ? 0 : 1)));
+                        div.anchor.set('title',
+                                div.on ? M.str.forumng.clearflag : M.str.forumng.setflag);
+                        var text = div.span.get('innerHTML');
+                        if (text) {
+                            div.span.set('innerHTML', div.on ? M.str.forumng.clearflag : M.str.forumng.flagpost);
+                        }
                     },
                     failure: function(o) {
                         alert(M.str.forumng.jserr_alter);

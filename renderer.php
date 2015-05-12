@@ -1196,18 +1196,6 @@ class mod_forumng_renderer extends plugin_renderer_base {
                         $post->get_id() . '">' .
                         get_string('selectlabel', 'forumng', $postnumber) . '</label>';
             }
-            if ($options[mod_forumng_post::OPTION_FLAG_CONTROL]) {
-                $flagurl = new moodle_url('flagpost.php?',
-                        array('p' => $post->get_id(),
-                        'timeread' => $options[mod_forumng_post::OPTION_READ_TIME],
-                        'flag' => ($post->is_flagged() ? 0 : 1)));
-                $icon = "flag." . ($post->is_flagged() ? 'on' : 'off');
-                $iconalt = get_string($post->is_flagged() ? 'clearflag' : 'setflag', 'forumng');
-                $iconhtml = $OUTPUT->pix_icon($icon, $iconalt, 'forumng');
-                $link = html_writer::link($flagurl, $iconhtml,
-                        array('title' => $iconalt));
-                $out .= html_writer::div($link, 'forumng-flag');
-            }
             // End: forumng-info.
             $out .= html_writer::end_tag('div');
             // End: forumng-pic-info.
@@ -1441,6 +1429,22 @@ class mod_forumng_renderer extends plugin_renderer_base {
                     $commandsarray['forumng-markread'] = html_writer::link(
                             new moodle_url('/mod/forumng/markread.php', array('p' => $post->get_id())),
                             get_string('markpostread', 'forumng'));
+                }
+
+                // Flag link.
+                if ($options[mod_forumng_post::OPTION_FLAG_CONTROL]) {
+                    $flagurl = new moodle_url('flagpost.php?',
+                            array('p' => $post->get_id(),
+                                    'timeread' => $options[mod_forumng_post::OPTION_READ_TIME],
+                                    'flag' => ($post->is_flagged() ? 0 : 1)));
+                    $icon = "flag." . ($post->is_flagged() ? 'on' : 'off');
+                    $iconalt = get_string($post->is_flagged() ? 'clearflag' : 'setflag', 'forumng');
+                    $bnstr = get_string($post->is_flagged() ? 'clearflag' : 'flagpost', 'forumng');
+                    $iconhtml = $OUTPUT->pix_icon($icon, $iconalt, 'forumng');
+                    $iconhtml .= html_writer::span($bnstr, 'flagtext');
+                    $link = html_writer::link($flagurl, $iconhtml,
+                        array('title' => $iconalt));
+                    $commandsarray['forumng-flagpost'] = html_writer::div($link, 'forumng-flagpost');
                 }
 
                 // Direct link.

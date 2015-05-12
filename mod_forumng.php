@@ -3926,7 +3926,8 @@ WHERE
             'flagon' => null,
             'flagoff' => null,
             'clearflag' => null,
-            'setflag' => null);
+            'setflag' => null,
+            'flagpost' => null);
         if ($this->has_post_quota()) {
             $mainstrings['quotaleft_plural'] = (object)array(
                 'posts'=>'#', 'period' => $this->get_max_posts_period(true, true));

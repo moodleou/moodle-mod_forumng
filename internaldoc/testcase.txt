@@ -659,18 +659,18 @@ FLG Flags
 
 FLG01 / U.ET
   Go into F.SH. Start a discussion. Post a reply in the discussion.
-  Mouse over the flag icon against the discussion (icon at top right of
-  message).
-  - Title should popup 'Flag this message for future reference'.
-  Click the icon.
-  - The flag icon should change to the 'flagged' display.
+  You should see a greyed out 'Flag post' link and a 'flag' icon in the list of links at the bottom of the posts
+  Mouse over the flag link
+  - Title should popup 'Flag post'.
+  Click the link.
+  - The flag link should change to 'Remove flag' and the flag icon should change to the 'flagged' display.
   Mouse over it again
-  - New title 'Remove this flag'.
+  - New title 'Remove flag'.
   Click it again.
-  - Flag icon should disappear.
+  - the 'Flag post' link and a 'flag' icon should be greyed out
   Mouse over it again.
   - Title should be back to first one.
-  Click the flag icon against the reply.
+  Click the 'Flag post' link against the reply.
   - Reply should now be flagged.
 
 FLG02 / U.ET
@@ -696,13 +696,12 @@ FLG03 / U.ET
   - Page should reload; flagged message should be removed.
 
 FLG04 / U.S1 [change]
-  Go to F.SH and click into discussion FLG01. Click the flag icon next to
-  the top post.
+  Go to F.SH and click into discussion FLG01. Click the 'Flag post' link of the top post.
   - Page should reload, showing post as flagged, and with the top post at
     top of screen (if possible).
-  Click flag icon again.
+  Click the 'Flag post' link again.
   - Page should reload once more, showing post not flagged, post at top.
-  Click 'Expand all posts'. Now click flag icon next to reply.
+  Click 'Expand all posts'. Now click the reply 'Flag post' link.
   - Page should reload with reply flagged. Reply should be already-expanded
     this time.
 
