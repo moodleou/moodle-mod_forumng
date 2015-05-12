@@ -75,13 +75,47 @@ class behat_mod_forumng extends behat_base {
         global $DB;
 
         foreach ($data->getRows() as $rowdata) {
-            $conditions = array('subject'=>$rowdata[0]);
+            $conditions = array('subject' => $rowdata[0]);
             $idtochange = $DB->get_field('forumng_posts', 'id', $conditions);
             if ($idtochange) {
                 $updateobject = new stdClass();
                 $updateobject->created = trim(strtotime(str_replace('/', '-', $rowdata[1])));
                 $updateobject->id = $idtochange;
                 $DB->update_record('forumng_posts', $updateobject);
+            }
+        }
+    }
+
+    /**
+     * Updates forumng post rated date.
+     * Indentified by rater username, subject and using date format (YYYY-MM-DD OR YYYY/MM/DD).
+     * E.g. | student1 | Discussion 1 | 2015-01-20 |
+     * @Given /^I amend the forumng rated posts to new rated date:$/
+     * @param TableNode $data
+     */
+    public function i_amend_the_forumng_rated_posts_to_new_rated_date(TableNode $data) {
+        global $DB;
+
+        foreach ($data->getRows() as $rowdata) {
+            $conditions = array('subject' => $rowdata[1]);
+            $postid = $DB->get_field('forumng_posts', 'id', $conditions);
+            if ($postid) {
+                $conditions = $conditions = array('username' => $rowdata[0]);
+                $userid = $DB->get_field('user', 'id', $conditions);
+                if ($userid) {
+                    $conditions = array(
+                            'userid' => $userid, 'itemid' => $postid, 'component' => 'mod_forumng', 'ratingarea' => 'post');
+                    $ratingid = $DB->get_field('rating', 'id', $conditions);
+                    if ($ratingid) {
+                        $newtime = trim(strtotime(str_replace('/', '-', $rowdata[2])));
+                        $updateobject = new stdClass();
+                        $updateobject->id = $ratingid;
+                        $updateobject->timecreated = $newtime;
+                        $updateobject->timemodified = $newtime;
+                        $updateobject->itemid = $postid;
+                        $DB->update_record('rating', $updateobject);
+                    }
+                }
             }
         }
     }

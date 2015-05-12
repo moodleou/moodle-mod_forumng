@@ -26,13 +26,13 @@ CRE01 / admin
   In your test course, create a forum called CRE01
   Edit forum settings so that:
   Under 'Ratings' settings
-  Choose 'Ratings (standard)' from 'Allow posts to be rated dropdown'
+  Choose 'Ratings (standard)' from 'Allow posts to be rated' dropdown
   Set 'Type' to 'Point'
   Set 'Maximum points' to 10
   Click on 'Save and display' submit button
 
 CRE02 / admin
-  Go into the forum you have just created and start 3 seperate discussions (Disc1, Disc2 and Disc3) with message
+  Go into the forum you have just created and start 3 separate discussions (Disc1, Disc2 and Disc3) with message
 
 
 UP Userposts
@@ -74,8 +74,9 @@ VP View posts
   You should see also see 'From' and 'To' dates unchanged at today's date
 
   Enable the date selectors and change both the 'From' and 'To' dates to dates in the past
-  e.g. 1 January 2010 to 10 February 2015 and click 'Update'
+  e.g. 1 January 2015 to 10 February 2015 and click 'Update'
   You should see 'Posts rated by others' is still checked
+  You should see "No posts by S1"
   You should now not see any posts
 
   Uncheck 'Posts rated by others' checkbox and click 'Update'
@@ -89,21 +90,58 @@ RD Rating disabled / enabled
   RD01 / U.ET
   Go to forum CRE01.
   Follow 'Edit settings' link for ForumNG
-  Choose 'No ratings' from 'Allow posts to be rated dropdown'
+  Choose 'No ratings' from 'Allow posts to be rated' dropdown
   Click 'Save and display'
   Click 'Participation by user'
   Follow 'Show all posts by S1.." link
   Confirm the 'Posts rated by others' label and checkbox is not visible
   You should see both replies from S1.
+  No tabs ('User posts', 'Posts user rated', 'My posts', 'Posts I rated') should be visible
 
   RD02 / U.ET
   Follow 'Edit settings' link for ForumNG
   Edit forum settings so that:
   Under 'Ratings' settings
-  Choose 'Ratings (standard)' from 'Allow posts to be rated dropdown'
+  Choose 'Ratings (standard)' from 'Allow posts to be rated' dropdown
   Set 'Maximum points' to 10
   Click on 'Save and display' submit button
   Click 'Participation by user'
   Follow 'Show all posts by S1.." link
   Confirm the 'Posts rated by others' label and checkbox is visible
   You should see both replies from S1.
+  You should see 'User posts' tab (current) and 'Posts user rated' tab
+
+  Click on 'Posts user rated' tab
+  You should see 'From' and 'To' dates set to today's date
+  You should see 'Posts rated from' and 'Posts rated to' dates set to today's date
+  You should see "No posts rated by S1"
+
+
+  RT Rating tabs specific
+  =======================
+
+  RT01 / admin [change]
+  Follow ForumNG administration / Permissions
+  Choose 'Student' from the 'Advanced role override' dropdown
+  Type 'forumng:rate' into filter text box
+  Select the 'Allow' radio button
+  Press 'Save changes'
+
+  RT02 / U.S1 [change]
+  Go to forum CRE01.
+  Go to Disc3
+  Rate the Admin user post at '5' by means of the drop down box
+  Go back to the forum CRE01
+  Click the 'My participation' button
+  You should see the 'My posts' tab (selected) and the 'Posts I rated' tab
+  You should see 'From' and 'To' dates set to today's date
+  You should see 'Posts rated by others' is unchecked
+  You should see 2 post replies by S1 (one only rated with a value of 9)
+
+  Click on 'Posts I rated' tab
+  You should see 'From' and 'To' dates set to today's date
+  You should see 'Posts rated from' and 'Posts rated to' dates set to today's date
+  You should see 1 post by Admin user with a rating of 5
+  Click on 'Download' button
+  You should see a csv file created.
+  Open the csv file and it should show the post date, subject and message matching the webpage.

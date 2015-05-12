@@ -35,6 +35,7 @@ $cmid = required_param('id', PARAM_INT);
 $userid = required_param('user', PARAM_INT);
 $cloneid = optional_param('clone', 0, PARAM_INT);
 $download = optional_param('download', '', PARAM_TEXT);
+$tab = optional_param('tab', 0, PARAM_INT);
 
 $student = false;
 $groupid = -1;
@@ -92,13 +93,18 @@ $pagename = fullname($user, has_capability('moodle/site:viewfullnames', $context
 $pagename .= $CFG->forumng_showusername ? ' (' . $user->username . ')' : '';
 $start = null;
 $end = null;
+$ratedstart = null;
+$ratedend = null;
 $rated = false;
 $prevpage = '';
 $prevurl = '';
 $pageparams['group'] = $groupid;
 $pageparams['start'] = $start;
 $pageparams['end'] = $end;
+$pageparams['ratedstart'] = $ratedstart;
+$pageparams['ratedend'] = $ratedend;
 $pageparams['rated'] = $rated;
+$pageparams['tab'] = $tab;
 $pageurl = new moodle_url('/mod/forumng/feature/userposts/user.php', $pageparams);
 $out = '';
 
@@ -107,8 +113,12 @@ if (!$student) {
     $prevurl = new moodle_url('/mod/forumng/feature/userposts/list.php',
         $forum->get_link_params_array());
     $out = $forum->init_page($pageurl, $pagename, array($prevpage => $prevurl));
+    $tabtitle1 = get_string('userpoststitle', 'forumngfeature_userposts');
+    $tabtitle2 = get_string('postsuserratedtitle', 'forumngfeature_userposts');
 } else {
     $out = $forum->init_page($pageurl, $pagename);
+    $tabtitle1 = get_string('mypoststitle', 'forumngfeature_userposts');
+    $tabtitle2 = get_string('postsiratedtitle', 'forumngfeature_userposts');
 }
 
 $timeparts = getdate($course->startdate);
@@ -120,6 +130,7 @@ $customdata = array(
         'group' => $groupid,
         'download' => $download,
         'startyear' => $timeparts['year'],
+        'tab' => $tab,
         'params' => array()
 );
 if ($forum->get_enableratings() == mod_forumng::FORUMNG_STANDARD_RATING) {
@@ -127,7 +138,11 @@ if ($forum->get_enableratings() == mod_forumng::FORUMNG_STANDARD_RATING) {
 } else {
     $customdata['ratings'] = false;
 }
-$timefilter = new forumng_participation_table_form(null, $customdata);
+if ($tab == 0) {
+    $timefilter = new forumng_participation_table_form(null, $customdata);
+} else {
+    $timefilter = new forumng_rated_participation_table_form(null, $customdata);
+}
 
 $start = $end = 0;
 // If data has been received from this form.
@@ -137,6 +152,12 @@ if ($submitted = $timefilter->get_data()) {
     }
     if ($submitted->end) {
         $end = strtotime('23:59:59', $submitted->end);
+    }
+    if (!empty($submitted->ratedstart)) {
+        $ratedstart = strtotime('00:00:00', $submitted->ratedstart);
+    }
+    if (!empty($submitted->ratedend)) {
+        $ratedend = strtotime('23:59:59', $submitted->ratedend);
     }
     if (!empty($submitted->ratedposts)) {
         $rated = true;
@@ -151,15 +172,26 @@ if ($submitted = $timefilter->get_data()) {
     if ($end = optional_param('end', null, PARAM_INT)) {
         $end = strtotime('23:59:59', $end);
     }
+    if ($ratedstart = optional_param('ratedstart', null, PARAM_INT)) {
+        $ratedstart = strtotime('00:00:00', $ratedstart);
+    }
+    if ($ratedend = optional_param('ratedend', null, PARAM_INT)) {
+        $ratedend = strtotime('23:59:59', $ratedend);
+    }
     $rated = optional_param('rated', false, PARAM_BOOL);
 }
-
-$posts = $forum->get_all_posts_by_user($userid, $groupid, 'fp.id', $start, $end, $rated);
+if ($tab == 0) {
+    $posts = $forum->get_all_posts_by_user($userid, $groupid, 'fp.id', $start, $end, $rated);
+} else {
+    $posts = $forum->get_rated_posts_by_user($forum, $userid, $groupid, 'fp.id', $ratedstart, $ratedend, $start, $end);
+}
 
 // Add collected start and end UNIX formated dates to moodle url.
 $pageurl->param('start', $start);
 $pageurl->param('end', $end);
 $pageurl->param('rated', $rated);
+$pageurl->param('ratedstart', $ratedstart);
+$pageurl->param('ratedend', $ratedend);
 
 $table = new forumng_participation_table('mod-forumng-participation');
 $table->set_attribute('class', 'flexible generaltable');
@@ -172,13 +204,25 @@ $table->is_downloading($download, $filename, get_string('userposts', 'forumngfea
 
 if (empty($download)) {
     print $out->header();
-    // Display time filter options form.
-    if ($start || $end) {
-        $timefilter->set_data(array('start' => $start, 'end' => $end));
+    if (($forum->get_enableratings() == mod_forumng::FORUMNG_STANDARD_RATING) &&
+    (has_capability('mod/forumng:rate', $context))) {
+        $taburl = clone $pageurl;
+        $taburl->remove_params('tab');
+        $tabs = array(
+                new tabobject('tab0', $taburl . '&amp;tab=0', $tabtitle1),
+                new tabobject('tab1', $taburl . '&amp;tab=1', $tabtitle2)
+        );
+        print $out->tabtree($tabs, "tab$tab");
     }
+    // Display time filter options form.
+    if ($start || $end || $ratedstart || $ratedend) {
+        $timefilter->set_data(array('start' => $start, 'end' => $end, 'ratedstart' => $ratedstart, 'ratedend' => $ratedend ));
+    }
+
     if (!empty($submitted->ratedposts)) {
         $timefilter->set_data(array('ratedposts' => $submitted->ratedposts));
     }
+
     $timefilter->display();
     // Display the download button only if we have posts to download.
     if ($posts) {
@@ -237,8 +281,13 @@ if (!$posts) {
     // Should only occur if student because list.php won't let us get here if no posts available.
     $username = fullname($user);
     if (empty($download)) {
-        print '<p class="forumng-nopostsby">' .
-                get_string('nopostsby', 'forumngfeature_userposts', $username) . '</p>';
+        if ($tab == 1) { // Ratings tabe message.
+            print '<p class="forumng-nopostsby">' .
+                get_string('nopostsratedby', 'forumngfeature_userposts', $username) . '</p>';
+        } else {
+            print '<p class="forumng-nopostsby">' .
+                    get_string('nopostsby', 'forumngfeature_userposts', $username) . '</p>';
+        }
     }
 }
 

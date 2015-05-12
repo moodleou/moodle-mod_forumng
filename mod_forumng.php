@@ -4922,6 +4922,96 @@ WHERE
     }
 
     /**
+     * Returns all posts in this forum by the given user within the given group.
+     * @param object $forum
+     * @param int $userid
+     * @param int $groupid
+     * @param int $ratedstart
+     * @param int $ratedend
+     * @param string $order Sort order; the default is fp.id - note this is preferable
+     *   to fp.timecreated because it works correctly if there are two posts in
+     *   the same second
+     * @param bool $hasrating if true only returns posts which ahve been rated
+     * @return array Array of mod_forumng_post objects
+     */
+    public function get_rated_posts_by_user(
+            $forum, $userid, $groupid, $order = 'fp.id', $ratedstart = null, $ratedend = null, $start = null, $end = null) {
+        global $CFG, $USER;
+        if ($forum->get_enableratings() != mod_forumng::FORUMNG_STANDARD_RATING) {
+            return array();
+        }
+        $where = 'fd.forumngid = ? AND fp.userid <> ? AND fp.oldversion = 0 AND fp.deleted = 0';
+        $whereparams = array($this->get_id(), $userid);
+        if ($groupid != self::NO_GROUPS && $groupid != self::ALL_GROUPS) {
+            $where .= ' AND (fd.groupid = ? OR fd.groupid IS NULL)';
+            $whereparams[] = $groupid;
+        }
+        if (!empty($start)) {
+            $where .= ' AND fp.created >= ?';
+            $whereparams[] = $start;
+        }
+
+        if (!empty($end)) {
+            $where .= ' AND fp.created <= ?';
+            $whereparams[] = $end;
+        }
+        $sqlselectstring = 'SELECT r.itemid FROM {rating} r WHERE r.itemid = fp.id AND r.ratingarea = \'post\'
+                AND r.contextid = ? AND r.userid = ?';
+        $extraparams = array();
+        if (!empty($ratedstart)) {
+            $sqlselectstring .= ' AND r.timemodified >= ?';
+            $extraparams[] = $ratedstart;
+        }
+        if (!empty($ratedend)) {
+            $sqlselectstring .= ' AND r.timemodified <= ?';
+            $extraparams[] = $ratedend;
+        }
+        $where .= ' AND '.self::select_exists($sqlselectstring);
+        $whereparams[] = $this->get_context(true)->id;
+        $whereparams[] = $userid;
+        $whereparams = array_merge($whereparams, $extraparams);
+
+        $result = array();
+        $posts = mod_forumng_post::query_posts($where, $whereparams, $order, false, false, true,
+                0, true, true);
+        // Add standard ratings if enabled.
+        if ($this->get_enableratings() == mod_forumng::FORUMNG_STANDARD_RATING) {
+            require_once($CFG->dirroot . '/rating/lib.php');
+            // If grading is 'No grading' or 'Teacher grades students'.
+            if ($this->get_grading() == mod_forumng::GRADING_NONE ||
+            $this->get_grading() == mod_forumng::GRADING_MANUAL) {
+                // Set the aggregation method.
+                if ($this->get_rating_scale() > 0) {
+                    $aggregate = RATING_AGGREGATE_AVERAGE;
+                } else {
+                    $aggregate = RATING_AGGREGATE_COUNT;
+                }
+            } else {
+                $aggregate = $this->get_grading();
+            }
+            $ratingoptions = new stdClass();
+            $ratingoptions->context = $this->get_context(true);
+            $ratingoptions->component = 'mod_forumng';
+            $ratingoptions->ratingarea = 'post';
+            $ratingoptions->items = $posts;
+            $ratingoptions->aggregate = $aggregate;
+            $ratingoptions->scaleid = $this->get_rating_scale();
+            $ratingoptions->userid = $USER->id;
+            $ratingoptions->assesstimestart = $this->get_ratingfrom();
+            $ratingoptions->assesstimefinish = $this->get_ratinguntil();
+
+            $rm = new rating_manager();
+            $posts = $rm->get_ratings($ratingoptions);
+        }
+        foreach ($posts as $fields) {
+            $discussionfields = mod_forumng_utils::extract_subobject($fields, 'fd_');
+            $discussion = new mod_forumng_discussion($this, $discussionfields, false, -1);
+            $result[$fields->id] = new mod_forumng_post($discussion, $fields);
+        }
+        return $result;
+    }
+
+    /**
      * Gets all user post counts.
      * @param int $groupid Group ID or NO_GROUPS/ALL_GROUPS
      * @param bool $ignoreanon Ignore posts marked as anonymous

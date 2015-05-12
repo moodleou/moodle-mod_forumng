@@ -196,6 +196,22 @@ class mod_forumng_rating_testcase extends forumng_test_lib {
         $grades = grade_get_grades($course->id, 'mod', 'forumng', $forum->get_id(), $suser->id);
         $this->assertEquals(3, abs($grades->items[0]->grades[$suser->id]->grade));
 
+        // Check get_rated_posts_by_user.
+        $extrapost = $generator->create_post(array('discussionid' => $did1[0],
+                 'parentpostid' => $did1[1], 'userid' => $suser->id, 'created' => 1388589745));
+        $extraposts = $forum->get_rated_posts_by_user($forum, $suser->id, -1, 'fp.id', null, null);
+        $this->assertCount(0, $extraposts);
+        $extraposts = $forum->get_rated_posts_by_user($forum, $USER->id, -1, 'fp.id', null, null);
+        $this->assertCount(3, $extraposts);
+        $params->itemid = $extrapost->id;
+        $rating = new rating($params);
+        $rating->update_rating(10);
+        $extraposts = $forum->get_rated_posts_by_user($forum, $USER->id, -1, 'fp.id', null, null);
+        $this->assertCount(4, $extraposts);
+        // Now filter out the 'old' extrapost.
+        $extraposts = $forum->get_rated_posts_by_user($forum, $USER->id, -1, 'fp.id', null, null, 1388600000);
+        $this->assertCount(3, $extraposts);
+
         // Check discussion delete.
         $discuss = mod_forumng_discussion::get_from_id($did1[0], mod_forumng::CLONE_DIRECT);
         $discuss->permanently_delete();

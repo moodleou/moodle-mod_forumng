@@ -215,6 +215,9 @@ class forumng_participation_table_form extends moodleform {
             $mform->setType('group', PARAM_INT);
         }
 
+        $mform->addElement('hidden', 'tab', 0);
+        $mform->setType('tab', PARAM_INT);
+
         $this->add_action_buttons(false, get_string('timefilter_submit', 'forumngfeature_userposts'));
     }
 
@@ -223,6 +226,90 @@ class forumng_participation_table_form extends moodleform {
         if (!empty($data['start']) and !empty($data['end'])) {
             if ($data['start'] > $data['end']) {
                 $errors['start'] = get_string('timestartenderror', 'forumngfeature_userposts');
+            }
+        }
+        return $errors;
+    }
+
+}
+
+class forumng_rated_participation_table_form extends moodleform {
+
+    // Code below taken from OU Blog class oublog_participation_timefilter_form.
+    public function definition() {
+        global $CFG;
+
+        $mform =& $this->_form;
+        $cdata = $this->_customdata;
+        /*
+         * We Expect custom data to have following format:
+        * 'options' => array used for select drop down
+        * 'default' => default/selected option
+        * 'cmid' => blog course module id
+        * 'params' => key(name)/value array to make into hidden inputs (value must be integer)
+        */
+        if (!empty($cdata['params']) && is_array($cdata['params'])) {
+            foreach ($cdata['params'] as $param => $value) {
+                $mform->addElement('hidden', $param, $value);
+                $mform->setType($param, PARAM_INT);
+            }
+        }
+        $mform->addElement('header', 'postheader', get_string('posttitle', 'forumngfeature_userposts'));
+        $mform->setExpanded('postheader');
+        // Data selectors, with optional enabling checkboxes.
+        $mform->addElement('date_selector', 'start',
+                get_string('start', 'forumngfeature_userposts'),
+                array('startyear' => $cdata['startyear'], 'stopyear' => gmdate("Y"), 'optional' => true));
+        $mform->addHelpButton('start', 'displayperiod', 'forumngfeature_userposts');
+
+        $mform->addElement('date_selector', 'end',
+                get_string('end', 'forumngfeature_userposts'), array('startyear' => $cdata['startyear'], 'stopyear' => gmdate("Y"),
+                        'optional' => true));
+
+        $mform->addElement('header', 'ratingheader', get_string('ratingtitle', 'forumngfeature_userposts'));
+        $mform->setExpanded('ratingheader');
+        $mform->addElement('date_selector', 'ratedstart',
+                get_string('ratedstart', 'forumngfeature_userposts'),
+                array('ratedstartyear' => $cdata['startyear'], 'ratedstopyear' => gmdate("Y"), 'optional' => true));
+        $mform->addHelpButton('ratedstart', 'displayperiod', 'forumngfeature_userposts');
+
+        $mform->addElement('date_selector', 'ratedend',
+                get_string('ratedend', 'forumngfeature_userposts'),
+                array('ratedstartyear' => $cdata['startyear'], 'ratedstopyear' => gmdate("Y"),
+                        'optional' => true));
+
+        if (isset($cdata['type'])) {
+            $mform->addElement('hidden', 'type', $cdata['type']);
+            $mform->setType('type', PARAM_ALPHA);
+        }
+        if (isset($cdata['cmid'])) {
+            $mform->addElement('hidden', 'id', $cdata['cmid']);
+            $mform->setType('id', PARAM_INT);
+        }
+        if (isset($cdata['user'])) {
+            $mform->addElement('hidden', 'user', $cdata['user']);
+            $mform->setType('user', PARAM_INT);
+        }
+        if (isset($cdata['group'])) {
+            $mform->addElement('hidden', 'group', $cdata['group']);
+            $mform->setType('group', PARAM_INT);
+        }
+        $mform->addElement('hidden', 'tab', 1);
+        $mform->setType('tab', PARAM_INT);
+
+        $this->add_action_buttons(false, get_string('timefilter_submit', 'forumngfeature_userposts'));
+    }
+
+    public function validation($data, $files) {
+        $errors = parent::validation($data, $files);
+        if (!empty($data['start']) and !empty($data['end'])) {
+            if ($data['start'] > $data['end']) {
+                $errors['start'] = get_string('timestartenderror', 'forumngfeature_userposts');
+            }
+        }
+        if (!empty($data['ratedstart']) and !empty($data['ratedend'])) {
+            if ($data['ratedstart'] > $data['ratedend']) {
+                $errors['ratedstart'] = get_string('ratedtimestartenderror', 'forumngfeature_userposts');
             }
         }
         return $errors;

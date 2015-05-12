@@ -13,13 +13,199 @@ Feature: Add forumng activity and test userposts filtering
       | teacher2 | Teacher | 2 | teacher2@asd.com |
     When the following "courses" exist:
       | fullname | shortname | category |
-      | Course 1 | C1 | 0 |
+      | Course 1 | C1        | 0        |
     Then the following "course enrolments" exist:
       | user | course | role |
       | student1 | C1 | student |
       | student2 | C1 | student |
       | teacher1 | C1 | teacher |
       | teacher2 | C1 | teacher |
+    And the following "permission overrides" exist:
+      | capability       | permission | role    | contextlevel | reference |
+      | mod/forumng:rate | Allow      | student | Course       | C1        |
+
+
+  Scenario: Check rating tab rated from and rated to filter
+    Given I log in as "admin"
+    When I am on homepage
+    Then I follow "Course 1"
+    And I turn editing mode on
+    And I add a "ForumNG" to section "1" and I fill the form with:
+      | Forum name                  | Test forum name        |
+      | Forum introduction          | Test forum description |
+      | Allow posts to be rated     | Ratings (standard)     |
+      | ratingscale[modgrade_type]  | point                  |
+      | ratingscale[modgrade_point] | 10                     |
+    And I follow "Course 1"
+    And I follow "Test forum name"
+    And I add a discussion with the following data:
+      | Subject | Discussion 1 |
+      | Message | abc          |
+    And I log out
+    And I log in as "student1"
+    And I follow "Course 1"
+    And I follow "Test forum name"
+    And I follow "Discussion 1"
+    And I set the following fields to these values:
+      | rating | 10 |
+    And I press "Rate"
+    And I log out
+    And I amend the forumng rated posts to new rated date:
+     | student1 |  Discussion 1 | 2014-12-02 |
+    And I log in as "student1"
+    And I follow "Course 1"
+    And I follow "Test forum name"
+    And I follow "Discussion 1"
+    And I reply to post "1" with the following data:
+      | Change subject (optional) | Discussion 1 reply by student1                |
+      | Message                   | This is reply text by student1 (Discussion 1) |
+    And I follow "Miscellaneous"
+    And I follow "Course 1"
+    And I follow "Test forum name"
+    And I press "My participation"
+    And I follow "Posts I rated"
+    And I set the following fields to these values:
+      | ratedstart[enabled]  | 1       |
+      | ratedend[enabled]    | 1       |
+      | ratedstart[month]    | January |
+    And I press "Update"
+    And I should see "No posts rated by Student 1"
+    And I should not see "Discussion 1"
+    And "//select[@name='rating']/option[@selected='selected'][normalize-space(text())='10']" "xpath_element" should not exist
+    And I set the following fields to these values:
+      | ratedstart[enabled] | 1    |
+      | ratedend[enabled]   | 1    |
+      | ratedstart[year]    | 2013 |
+    And I press "Update"
+    And I should see "Discussion 1"
+    And "//select[@name='rating']/option[@selected='selected'][normalize-space(text())='10']" "xpath_element" should exist
+    And I log out
+
+    # Check all ratings options not visible when 'No ratings' enabled in Forum
+    And I log in as "admin"
+    And I follow "Course 1"
+    And I follow "Test forum name"
+    And I navigate to "Edit settings" node in "ForumNG administration"
+    And I set the field "id_enableratings" to "No ratings"
+    And I press "Save and display"
+    And I press "Participation by user"
+    And I follow "Show all posts by Student 1"
+    And I should not see "Rating"
+    And I should not see "User posts"
+    And I should not see "Posts user rated"
+
+
+  Scenario: Check rating filtering tabs (create posts by a user and rate by another user)
+    Given I log in as "admin"
+    When I am on homepage
+    Then I follow "Course 1"
+    And I turn editing mode on
+    And I add a "ForumNG" to section "1" and I fill the form with:
+      | Forum name                  | Test forum name        |
+      | Forum introduction          | Test forum description |
+      | Allow posts to be rated     | Ratings (standard)     |
+      | ratingscale[modgrade_type]  | point                  |
+      | ratingscale[modgrade_point] | 10                     |
+    And I follow "Course 1"
+    And I follow "Test forum name"
+    And I add a discussion with the following data:
+      | Subject | Discussion 1 |
+      | Message | abc          |
+    And I follow "ForumNG"
+    And I add a discussion with the following data:
+      | Subject | Discussion 2 |
+      | Message | abcdefg      |
+      | sticky  | 1            |
+    And I log out
+
+    And I log in as "student1"
+    And I follow "Course 1"
+    And I follow "Test forum name"
+    And I follow "Discussion 1"
+    And I reply to post "1" with the following data:
+      | Change subject (optional) | Discussion 1 reply by student1                |
+      | Message                   | This is reply text by student1 (Discussion 1) |
+    And I follow "Test forum name"
+    And I follow "Discussion 2"
+    And I reply to post "1" with the following data:
+      | Change subject (optional) | Discussion 2 reply by student1                |
+      | Message                   | This is reply text by student1 (Discussion 2) |
+    And I log out
+
+    And I log in as "student2"
+    And I follow "Course 1"
+    And I follow "Test forum name"
+    And I follow "Discussion 1"
+    And I reply to post "1" with the following data:
+      | Change subject (optional) | Discussion 1 reply by student2   |
+      | Message | This is reply text by student2 (Discussion 1)      |
+    And I am on homepage
+    And I log out
+
+    And I log in as "student1"
+    And I follow "Course 1"
+    And I follow "Test forum name"
+    And I follow "Discussion 2"
+    And I set the following fields to these values:
+      | rating | 10 |
+    And I press "Rate"
+    And I follow "Miscellaneous"
+    And I follow "Course 1"
+    And I follow "Test forum name"
+    And I follow "Discussion 1"
+    And I set the following fields to these values:
+      | rating | 9 |
+    And I press "Rate"
+    And I log out
+
+    And I log in as "admin"
+    And I follow "Course 1"
+    And I follow "Test forum name"
+    And I press "Participation by user"
+    And I follow "Show all posts by Student 1"
+    And I set the following fields to these values:
+      | rating | 7 |
+    And I press "Rate"
+
+    # Results.
+
+    And I should see "User posts"
+    And I should see "Discussion 1 reply by student1"
+    And I should see "Discussion 2 reply by student1"
+    And I set the following fields to these values:
+      | ratedposts | 1 |
+    And I press "Update"
+    And I should see "Discussion 1 reply by student1"
+    And I should not see "Discussion 2 reply by student1"
+    And I follow "Posts user rated"
+    And I should see "Discussion 1"
+    And I should see "abc"
+    And I should see "Discussion 2"
+    And I should see "abcdefg"
+    And "//span[@class='ratingaggregate'][normalize-space(text())='9']" "xpath_element" should exist
+    And "//span[@class='ratingaggregate'][normalize-space(text())='10']" "xpath_element" should exist
+    And I log out
+
+    And I log in as "student1"
+    And I follow "Course 1"
+    And I follow "Test forum name"
+    And I press "My participation"
+    And I should see "My posts"
+    And I should see "Discussion 1 reply by student1"
+    And I should see "Discussion 2 reply by student1"
+    And I set the following fields to these values:
+      | ratedposts | 1 |
+    And I press "Update"
+    And I should see "Discussion 1 reply by student1"
+    And I should not see "Discussion 2 reply by student1"
+    And "//span[@class='ratingaggregate'][normalize-space(text())='7']" "xpath_element" should exist
+    And I follow "Posts I rated"
+    And I should see "Discussion 1"
+    And I should see "abc"
+    And I should see "Discussion 2"
+    And I should see "abcdefg"
+    And "//select[@name='rating']/option[@selected='selected'][normalize-space(text())='9']" "xpath_element" should exist
+    And "//select[@name='rating']/option[@selected='selected'][normalize-space(text())='10']" "xpath_element" should exist
 
   Scenario: Add forumng replies and check display by user post
     Given I log in as "admin"

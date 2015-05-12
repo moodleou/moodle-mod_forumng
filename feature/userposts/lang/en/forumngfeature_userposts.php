@@ -33,6 +33,7 @@ $string['pluginname'] = 'View posts by user';
 $string['action'] = 'Action';
 $string['viewownposts'] = 'My participation';
 $string['nopostsby'] = 'No posts by {$a}';
+$string['nopostsratedby'] = 'No posts rated by {$a}';
 
 // User participation.
 $string['savegrades'] = 'Save grades';
@@ -45,10 +46,19 @@ $string['start'] = 'From';
 $string['end'] = 'To';
 $string['displayperiod'] = 'Contribution selector From date - To date.';
 $string['displayperiod_help'] = '<p>The default selects all entries.</p>
-<p>You can select \'From\' a date until todays entries.</p>
+<p>You can select \'From\' a date until today\'s entries.</p>
 <p>You can select all entries between a \'From\' date and a \'To\' date.</p>
 <p>Or you can select from the first entry \'To\' a date</p>';
 $string['timestartenderror'] = 'Selection end date cannot be earlier than the start date';
 $string['timefilter_submit'] = 'Update';
 $string['ratedposts'] = 'Posts rated by others';
 $string['ratedposts_help'] = 'Show only posts that have been rated by others';
+$string['ratedstart'] = 'Post rated from';
+$string['ratedend'] = 'Post rated to';
+$string['ratedtimestartenderror'] = 'Post rated end date cannot be earlier than the start date';
+$string['userpoststitle'] = 'User posts';
+$string['postsuserratedtitle'] = 'Posts user rated';
+$string['mypoststitle'] = 'My posts';
+$string['postsiratedtitle'] = 'Posts I rated';
+$string['posttitle'] = 'Post';
+$string['ratingtitle'] = 'Rating';
