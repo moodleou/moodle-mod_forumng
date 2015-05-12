@@ -1,0 +1,149 @@
+This script describes steps to test the Show user ratings facility in the participation by user screen facility from a user
+perspective. It is intended to cover most of the UI and features.
+
+NOTE: In this test case, the word 'forum' always refers to the OU ForumNG.
+
+The test steps in this script follow on from each other and aren't independent.
+
+Initial setup
+=============
+
+This test case requires:
+
+- a course.
+- two test student users (U.S1 and U.S2, both enrolled in the course).
+- one editing teacher (U.ET)
+
+The test server must have debugging set to DEVELOPER level and to display
+errors; during all parts of the test script, there should be no debugging
+warnings.
+
+The completion system must be enabled for (a) the site, and (b) the test
+course.
+
+CRE Creating forums and data
+============================
+
+CRE01 / admin
+  In your test course, create a forum called CRE01
+  Edit forum settings so that:
+  Under 'Ratings' settings
+  Choose 'Ratings (standard)' from Allow posts to be rated dropdown
+  Set 'Maximum points' to 10
+
+  Under 'Common module' settings
+  Leave 'Visible' to 'Show'
+
+  Click on Save and display submit button
+
+CRE02 / admin
+  Go into the forum you have just created and start 2 seperate discussions
+  For each discussion create a post
+
+CRE03 / U.S1 [change]
+  Go to forum CRE01
+  Reply to start discussion 1 post created by admin user
+  Reply to start discussion 2 post created by admin user
+
+CRE04 / U.S2 [change]
+  Go to forum CRE01
+  Reply to start discussion 2 post created by admin user
+
+CRE04 / U.ET [change]
+  Go to forum CRE01.
+  Click against 'Participation by user'
+  You should see the number of Discussions started and the number of Replies for both users (U.S1 and U.S2) as well as
+  a value of 0.0 for both users for Average rating
+
+
+UR Userpost ratings
+===================
+
+UR01 / U.ET
+  Go to forum CRE01
+  Go to the first discussion
+  Rate the reply by U.S1 with a value of 9
+  Return to the forum
+  Go to the second discussion
+  Rate the reply by U.S1 with a value of 6
+  Return to the forum
+  Click against 'Participation by user'
+
+  You should now see an average rating value for U.S1 of 7.5
+
+
+UD Downloading ratings and Date selector
+========================================
+
+UD01 / U.ET
+  Click against 'Download'.
+  You should be able to open the downloaded file using excel
+  The file should contain corresponding values to the screen.
+  Close the file
+
+  Check both the enable checkboxes for 'From' and 'To'
+  Click against 'Update'
+  The detail should not change
+
+  Change the 'From' and 'To' dates to cover a period exclusively from last week
+  Click against 'Update'
+  You should see values of 0 Discussions and 0 Replies and no Average rating displayed at all for both users
+  Click against 'Download'.
+  The file should contain corresponding values to the screen.
+  Close the file
+
+
+US Sorting
+========================================
+
+US01 / U.ET
+  Uncheck both the enable checkboxes for 'From' and 'To'
+  Click against 'Update'
+  Check Clicking on column headings 'User', 'Replies' and 'Average rating' reverses the display order
+
+
+ UM Module settings
+========================================
+
+UM01 / U.ET
+  Follow the 'Edit settings' link in the forum administration menu
+  Edit forum settings so that:
+  Under 'Grade' settings
+  Choose 'Count of ratings' from Grade dropdown
+  Click on Save and display submit button
+  Click against 'Participation by user'
+  You should see that U.S1 has a grade of 2.0 and U.S2 has a grade of 0.0
+  Confirm sorting by all except Discussions works.
+  Confirm 'Download' reflects the view.
+  Check both the enable checkboxes for 'From' and 'To'
+  Change the 'From' and 'To' dates to cover a period exclusively from last week
+  Click against 'Update'
+  All values displayed should be either 0 or null
+  Confirm 'Download' reflects the view.
+
+  Follow the 'Edit settings' link in the forum administration menu
+  Edit forum settings so that:
+  Under 'Ratings' settings
+  Choose 'No ratings' from Allow posts to be rated dropdown
+  Under 'Grade' settings'
+  Choose 'Teacher grades students' from Grade dropdown
+  Choose 'Point' from Grading scale / Type dropdown
+  Type in '5' into the 'Maximum points' field
+  Click on Save and display submit button
+  Click against 'Participation by user'
+  Assign a grade to US01 using the Grade dropdown
+  Click on Save grades submit button
+  Reload the page and you should still see the grade you assigned.
+
+  Follow the 'Edit settings' link in the forum administration menu
+  Edit forum settings so that:
+  Under 'Ratings' settings
+  Choose 'Ratings (standard)' from Allow posts to be rated dropdown
+  Choose 'Point' from Scale / Type dropdown
+  Type in '10' into the 'Maximum points' field
+  Click on Save and display submit button
+  Click against 'Participation by user'
+  You should see the following values for U.S1:
+  Grade 3/5 and Average rating 7.5
+  You should see the following values for U.S2:
+  Grade 'No grade' and Average rating 0.0

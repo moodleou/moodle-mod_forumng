@@ -117,8 +117,35 @@ $sort = '';
 $ptable = new forumng_participation_table('mod-forumng-participation');
 $ptable->set_attribute('class', 'flexible generaltable');
 $ptable->set_attribute('width', '100%');
-$ptable->define_columns(array('c1', 'numdiscussions', 'numposts', 'c4', 'c5'));
-$ptable->define_headers(array($userstr, $discussions, $replies, $action, $grade));
+$c5value = 'c5';
+$newheader = '';
+if ((has_capability('mod/forumng:viewanyrating', $context)) &&
+        ($forum->get_enableratings() == mod_forumng::FORUMNG_STANDARD_RATING)) {
+    if ($forum->get_grading() == mod_forumng::GRADING_MANUAL) {
+        if ($forum->get_rating_scale() > 0) {
+            $newheader = get_string('avgrating', 'forumngfeature_userposts');
+        } else if ($forum->get_rating_scale() < 0) {
+            $newheader = get_string('totrating', 'forumngfeature_userposts');;
+        }
+    } else if ($forum->get_grading() == mod_forumng::GRADING_NONE) {
+        if ($forum->get_rating_scale() > 0) {
+            $grade = get_string('avgrating', 'forumngfeature_userposts');
+            $c5value = 'ratingcol';
+        } else if ($forum->get_rating_scale() < 0) {
+            $grade = get_string('totrating', 'forumngfeature_userposts');
+            $c5value = 'ratingcol';
+        }
+    }
+}
+if ($newheader == '') {
+    $columnsarray = array('c1', 'numdiscussions', 'numposts', 'c4', $c5value);
+    $headersarray = array($userstr, $discussions, $replies, $action, $grade);
+} else {
+    $columnsarray = array('c1', 'numdiscussions', 'numposts', 'c4', $c5value, 'ratingcol');
+    $headersarray = array($userstr, $discussions, $replies, $action, $grade, $newheader);
+}
+$ptable->define_columns($columnsarray);
+$ptable->define_headers($headersarray);
 $ptable->define_baseurl($thisurl);
 $ptable->sortable(true);
 $ptable->maxsortkeys = 1;
@@ -158,12 +185,22 @@ $params["fd_forumngid2"] = $forum->get_id();
 list($userwhere2, $userparams2) = get_all_user_post_counts_sql($groupid, false, $start, $end, '2');
 $params = array_merge($params, $userparams2);
 
+$params["fd_forumngid3"] = $forum->get_id();
+list($userwhere3, $userparams3) = get_all_user_post_counts_sql($groupid, false, $start, $end, '3');
+$params = array_merge($params, $userparams3);
+
 list($esql, $esqlparams) = get_enrolled_sql($context, '', $groupid > 0 ? $groupid : 0, false);
 $params = array_merge($params, $esqlparams);
 
 $userfields = user_picture::fields('u', array('username'));
+if ($newheader == 'Average rating' || $grade == 'Average rating' ) {
+    $sqlfunction = 'AVG';
+} else {
+    $sqlfunction = 'COUNT';
+}
 
-$sql = "SELECT $userfields, COALESCE(ta.numposts, 0) AS numposts, COALESCE(td.numdiscussions, 0) AS numdiscussions
+$sql = "SELECT $userfields, COALESCE(ta.numposts, 0) AS numposts, COALESCE(td.numdiscussions, 0) AS numdiscussions,
+        COALESCE(tr.ratingval, 0) AS ratingcol
           FROM {user} u
      LEFT JOIN (
           SELECT fp.userid, COUNT(fp.userid) AS numposts
@@ -185,7 +222,19 @@ $sql = "SELECT $userfields, COALESCE(ta.numposts, 0) AS numposts, COALESCE(td.nu
                  $userwhere2
         GROUP BY (fp.userid)) td
             ON u.id = td.userid
-         WHERE u.id IN ($esql)";
+
+      LEFT JOIN (
+          SELECT fp.userid, $sqlfunction(ra.rating) AS ratingval
+            FROM {rating} ra
+       INNER JOIN {forumng_posts} fp ON
+                  fp.id = ra.itemid
+        LEFT JOIN {forumng_discussions} fd ON
+                  fd.id = fp.discussionid
+            WHERE  $userwhere3 AND ra.component = 'mod_forumng' AND ra.ratingarea = 'post' AND contextid = {$context->id}
+         GROUP BY (fp.userid)) tr
+             ON u.id = tr.userid
+
+          WHERE u.id IN ($esql)";
 
 if (!$orderbyuser) {
     $sql = "$sql ORDER BY $sort";
@@ -341,6 +390,28 @@ foreach ($users as $id => $u) {
     }
 
     $row[4] = $span . $gradeitem . $postspan;
+
+    if (($forum->get_enableratings() != mod_forumng::FORUMNG_NO_RATING) || (($forum->get_grading() != mod_forumng::GRADING_NONE) &&
+            ($forum->get_grading() != mod_forumng::GRADING_MANUAL))) {
+        $numberparamvalue = 1;
+        if ($newheader == get_string('totrating', 'forumngfeature_userposts') ||
+                $grade == get_string('totrating', 'forumngfeature_userposts')) {
+            $numberparamvalue = 0;
+        }
+        if ($newheader == '') {
+            if ($u->numdiscussions > 0 || $u->numposts > 0) {
+                $row[4] = $span . number_format($u->ratingcol, $numberparamvalue) . $postspan;
+            } else {
+                $row[4] = $span . ' ' . $postspan;
+            }
+        } else {
+            if ($u->numdiscussions > 0 || $u->numposts > 0) {
+                $row[5] = $span . number_format($u->ratingcol, $numberparamvalue) . $postspan;
+            } else {
+                $row[5] = $span . ' ' . $postspan;
+            }
+        }
+    }
     $data[] = $row;
 }
 
@@ -437,22 +508,22 @@ function get_all_user_post_counts_sql($groupid, $ignoreanon = false, $start = nu
     AND fp.oldversion = 0';
 
     if ($groupid != mod_forumng::NO_GROUPS && $groupid != mod_forumng::ALL_GROUPS) {
-        $getuserswhere .= 'AND (fd.groupid = :fd_groupid'.$suffix.'OR fd.groupid IS NULL)';
+        $getuserswhere .= ' AND (fd.groupid = :fd_groupid'.$suffix.'OR fd.groupid IS NULL)';
         $getusersparams['fd_groupid'.$suffix] = $groupid;
     }
 
     if ($ignoreanon) {
-        $getuserswhere .= 'AND fp.asmoderator != :fp_moderator'.$suffix;
+        $getuserswhere .= ' AND fp.asmoderator != :fp_moderator'.$suffix;
         $getusersparams['fp_moderator'.$suffix] = mod_forumng::ASMODERATOR_ANON;
     }
 
     if (!empty($start)) {
-        $getuserswhere .= 'AND fp.created >= :fp_start'.$suffix;
+        $getuserswhere .= ' AND fp.created >= :fp_start'.$suffix;
         $getusersparams['fp_start'.$suffix] = $start;
     }
 
     if (!empty($end)) {
-        $getuserswhere .= 'AND fp.created <= :fp_end'.$suffix;
+        $getuserswhere .= ' AND fp.created <= :fp_end'.$suffix;
         $getusersparams['fp_end'.$suffix] = $end;
     }
 

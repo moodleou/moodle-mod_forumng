@@ -38,6 +38,8 @@ $string['nopostsby'] = 'No posts by {$a}';
 $string['savegrades'] = 'Save grades';
 $string['usergrade'] = 'User grade';
 $string['gradesupdated'] = 'Grades updated';
+$string['avgrating'] = 'Average rating';
+$string['totrating'] = 'Total ratings';
 
 $string['start'] = 'From';
 $string['end'] = 'To';
