@@ -302,6 +302,7 @@ $string['text_desc'] = 'Z-A';
 $string['sortby'] = 'Sort by {$a}';
 $string['rate'] = 'Rate';
 $string['expand'] = 'Expand<span class=\'accesshide\'> post {$a}</span>';
+$string['expand_text'] = 'Expand post';
 $string['postnum'] = 'Post {$a->num}';
 $string['postnumreply'] = 'Post {$a->num}{$a->info} in reply to {$a->parent}';
 $string['postinfo_short'] = 'summarised';

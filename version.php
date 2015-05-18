@@ -22,7 +22,7 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$plugin->version = 2015051201;
+$plugin->version = 2015051800;
 $plugin->requires = 2014111000;
 $plugin->component = 'mod_forumng';
 $plugin->maturity = MATURITY_STABLE;

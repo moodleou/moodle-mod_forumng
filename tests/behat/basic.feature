@@ -218,7 +218,7 @@ Feature: Add forumng activity and test basic functionality
     And ".forumng-p2 .forumng-flagpost img" "css_element" should exist
     # Reply3 post
     And ".forumng-p4 .forumng-flagpost img" "css_element" should exist
-    And the "alt" attribute of ".forumng-p1 .forumng-flagpost a img" "css_element" should contain "Flag this post for future reference"
+    And the "title" attribute of ".forumng-p1 .forumng-flagpost a" "css_element" should contain "Flag this post for future reference"
 
     # Click to flag Reply1
     And I click on ".forumng-p2 .forumng-flagpost a" "css_element"
@@ -228,7 +228,7 @@ Feature: Add forumng activity and test basic functionality
     And I expand post "4"
     And I click on ".forumng-p4 .forumng-flagpost a" "css_element"
     And ".forumng-p4 .forumng-flagpost img" "css_element" should exist
-    And the "alt" attribute of ".forumng-p2 .forumng-flagpost a img" "css_element" should contain "Remove flag"
+    And the "title" attribute of ".forumng-p2 .forumng-flagpost a" "css_element" should contain "Remove flag"
 
     # Check flagged posts display ok on main forum page
     And I follow "Test forum name"
@@ -247,11 +247,11 @@ Feature: Add forumng activity and test basic functionality
 
     # Return to discussion page
     And I follow "Discussion 1"
-    And the "alt" attribute of ".forumng-p2 .forumng-flagpost a img" "css_element" should contain "Remove flag"
+    And the "title" attribute of ".forumng-p2 .forumng-flagpost a" "css_element" should contain "Remove flag"
     # Click to un-flag Reply1
     And I click on ".forumng-p2 .forumng-flagpost a" "css_element"
     And I expand post "2"
-    And the "alt" attribute of ".forumng-p2 .forumng-flagpost a img" "css_element" should contain "Flag this post for future reference"
+    And the "title" attribute of ".forumng-p2 .forumng-flagpost a" "css_element" should contain "Flag this post for future reference"
 
     # Check numbner of flagged posts display on main forum page
     And I follow "Test forum name"
@@ -285,7 +285,7 @@ Feature: Add forumng activity and test basic functionality
     And ".forumng-p1 .forumng-flagpost a img" "css_element" should exist
     # Reply3 post
     And ".forumng-p4 .forumng-flagpost a img" "css_element" should exist
-    And the "alt" attribute of ".forumng-p4 .forumng-flagpost a img" "css_element" should contain "Flag this post for future reference"
+    And the "title" attribute of ".forumng-p4 .forumng-flagpost a" "css_element" should contain "Flag this post for future reference"
 
     # Click to flag Reply1.
     And I click on ".forumng-p2 .forumng-flagpost a" "css_element"
@@ -295,7 +295,7 @@ Feature: Add forumng activity and test basic functionality
     And I wait "1" seconds
     # Click to flag Reply3.
     And I click on ".forumng-p4 .forumng-flagpost a" "css_element"
-    And the "alt" attribute of ".forumng-p4 .forumng-flagpost a img" "css_element" should contain "Remove flag"
+    And the "title" attribute of ".forumng-p4 .forumng-flagpost a" "css_element" should contain "Remove flag"
 
     # Check flagged posts display ok on main forum page
     And I follow "Test forum name"
@@ -316,9 +316,9 @@ Feature: Add forumng activity and test basic functionality
     # Return to discussion page
     And I follow "Discussion 1 abc"
     # Click to un-flag Reply1
-    And the "alt" attribute of ".forumng-p2 .forumng-flagpost a img" "css_element" should contain "Remove flag"
+    And the "title" attribute of ".forumng-p2 .forumng-flagpost a" "css_element" should contain "Remove flag"
     And I click on ".forumng-p2 .forumng-flagpost img" "css_element"
-    And the "alt" attribute of ".forumng-p2 .forumng-flagpost a img" "css_element" should contain "Flag this post for future reference"
+    And the "title" attribute of ".forumng-p2 .forumng-flagpost a" "css_element" should contain "Flag this post for future reference"
 
     # Check number of flagged posts display on main forum page.
     And I follow "Test forum name"

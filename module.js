@@ -778,10 +778,6 @@ M.mod_forumng = {
                         div.on = !div.on;
                         div.icon.set('src', div.icon.get('src').replace(/flag\.o(n|ff)/,
                                 'flag.' + (div.on ? 'on' : 'off')));
-                        div.icon.set('title',
-                                div.on ? M.str.forumng.clearflag : M.str.forumng.setflag);
-                        div.icon.set('alt',
-                                div.on ? M.str.forumng.clearflag : M.str.forumng.setflag);
                         div.anchor.set('href', div.anchor.get('href').replace(/\&flag=(0|1)/, '&flag=' + (div.on ? 0 : 1)));
                         div.anchor.set('title',
                                 div.on ? M.str.forumng.clearflag : M.str.forumng.setflag);
@@ -1142,6 +1138,11 @@ M.mod_forumng = {
         var text = link.one('.forumng-expandtext');
         if (text) {
             text.set('innerHTML', M.str.forumng.expand.replace('#', postnum));
+        }
+        // Add to post number to alt when using an image in expand link (expand_text lang string).
+        var linkimg = link.one('img.fng-eai');
+        if (linkimg) {
+            linkimg.set('alt', linkimg.get('alt') + ' ' + postnum);
         }
 
         link.on('click', function(e) {

@@ -1440,7 +1440,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
                     $icon = "flag." . ($post->is_flagged() ? 'on' : 'off');
                     $iconalt = get_string($post->is_flagged() ? 'clearflag' : 'setflag', 'forumng');
                     $bnstr = get_string($post->is_flagged() ? 'clearflag' : 'flagpost', 'forumng');
-                    $iconhtml = $OUTPUT->pix_icon($icon, $iconalt, 'forumng');
+                    $iconhtml = $OUTPUT->pix_icon($icon, '', 'forumng');
                     $iconhtml .= html_writer::span($bnstr, 'flagtext');
                     $link = html_writer::link($flagurl, $iconhtml,
                         array('title' => $iconalt));
