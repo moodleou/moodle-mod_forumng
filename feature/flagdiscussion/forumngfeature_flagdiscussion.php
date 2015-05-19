@@ -54,7 +54,8 @@ class forumngfeature_flagdiscussion extends forumngfeature_discussion {
         }
 
         if ($button) {
-            return parent::get_button($discussion, $name, $script, false, array('d' => $discussion->get_id(), 'flag' => $flag));
+            $html = parent::get_button($discussion, $name, $script, false, array('d' => $discussion->get_id(), 'flag' => $flag));
+            return html_writer::div($html, "forumng_flagdis fngflg$flag");
         }
     }
 
