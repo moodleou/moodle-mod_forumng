@@ -502,7 +502,8 @@ M.mod_forumng = {
             // Add cancel handler that just removes the iframe - Except Atto as autosave cancel needed.
             doc.getElementById('id_cancel').onclick = function(e) {
                 var blank = false;// Check if empty text, if so close iframe (Hack to stop 'required' issue).
-                if (innerwin.Y.one('#id_message') && innerwin.Y.one('#id_message').get('innerText') === '') {
+                if (innerwin.Y.one('#id_message') && (innerwin.Y.one('#id_message').get('innerText') === ''
+                        || innerwin.Y.one('#id_message').get('textContent') === '')) {
                     blank = true;
                 }
                 if (!innerwin.Y.one('.editor_atto') || blank) {
