@@ -458,6 +458,11 @@ M.mod_forumng = {
                         iframecon.setStyle('top', '0px');
                         iframecon.setStyle('left', '0px');
                         iframecon.setStyle('z-index', '9999');
+                        iframecon.setStyle('overflow', 'scroll');
+                        iframecon.setStyle('-webkit-overflow-scrolling', 'touch');
+                        iframe.setStyle('position', 'relative');
+                        iframe.setStyle('top', 'initial');
+                        iframe.setStyle('left', 'initial');
                     } else {
                         iframe.setStyle('position', 'fixed');
                         iframe.setStyle('top', '0px');
