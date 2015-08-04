@@ -502,8 +502,8 @@ WHERE
         $timeread = $this->discussion->get_time_read();
 
         // If later manual mark post as read record then use that as read time.
-        if (!empty($this->postfields->read) && $this->postfields->read > $timeread) {
-            $timeread = $this->postfields->read;
+        if (!empty($this->postfields->uread) && $this->postfields->uread > $timeread) {
+            $timeread = $this->postfields->uread;
         }
 
         // Compare date to discussion read data.
@@ -999,7 +999,7 @@ WHERE
         }
 
         if ($read) {
-            $readquery = ', fr.time AS read';
+            $readquery = ', fr.time AS uread';
             $readjoin = "LEFT JOIN {forumng_read_posts} fr ON fr.postid = fp.id AND fr.userid = ?";
             $queryparams[] = $userid;
         } else {
