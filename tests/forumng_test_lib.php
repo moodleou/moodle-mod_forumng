@@ -125,4 +125,33 @@ abstract class forumng_test_lib extends advanced_testcase {
         return mod_forumng_discussion::get_from_id($dis[0], mod_forumng::CLONE_DIRECT);
     }
 
+    /**
+     * Creates a forum with 6 timed discussions
+     * 1 - start in past
+     * 2 - start in future
+     * 3 - end in past
+     * 4 - end in future
+     * 5 - start+end in past
+     * 6 - start+end in future
+     * @param int $courseid
+     * @param int $userid
+     * @returns array (forum, array(discussions))
+     */
+    public function create_timed_discussions_forum($courseid, $userid = 0) {
+        $forum = $this->get_new_forumng($courseid);
+        // Discussion starting in past.
+        $dis1 = $this->get_new_discussion($forum, array('userid' => $userid, 'timestart' => 1420070400));
+        // Discussion starting in future.
+        $dis2 = $this->get_new_discussion($forum, array('userid' => $userid, 'timestart' => 2524608000));
+        // Discussion ending in past.
+        $dis3 = $this->get_new_discussion($forum, array('userid' => $userid, 'timeend' => 1420070400));
+        // Discussion ending in future.
+        $dis4 = $this->get_new_discussion($forum, array('userid' => $userid, 'timeend' => 2524608000));
+        // Discussion starting & ending in past.
+        $dis5 = $this->get_new_discussion($forum, array('userid' => $userid, 'timestart' => 1420070400, 'timeend' => 1420070401));
+        // Discussion starting & ending in future.
+        $dis6 = $this->get_new_discussion($forum, array('userid' => $userid, 'timestart' => 2524608000, 'timeend' => 2524608001));
+        return array($forum, array($dis1, $dis2, $dis3, $dis4, $dis5, $dis6));
+    }
+
 }

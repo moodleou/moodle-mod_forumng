@@ -549,4 +549,25 @@ class mod_forumng_forumng_testcase extends forumng_test_lib {
                 'parentpostid' => $postid));
         $this->assertTrue($forum3->get_completion_state($USER->id, COMPLETION_OR));
     }
+
+    /**
+     * Checks timed discussions read
+     */
+    public function test_timed_discussions_read() {
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        $course = $this->get_new_course('TESTTIME');
+        $student = $this->get_new_user('student', $course->id);
+        $manager = $this->get_new_user('manager', $course->id);
+
+        list($forum, $discussions) = $this->create_timed_discussions_forum($course->id);
+
+        $sforum = mod_forumng::get_course_forums($course, $student->id);
+        $this->assertEquals(2, $sforum[$forum->get_id()]->get_num_unread_discussions());
+
+        // Check manager (can see timed discussions).
+        $mforum = mod_forumng::get_course_forums($course, $manager->id);
+        $this->assertEquals(4, $mforum[$forum->get_id()]->get_num_unread_discussions());
+    }
 }
