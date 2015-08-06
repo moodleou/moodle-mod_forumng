@@ -32,6 +32,7 @@ Feature: Add forumng activity and test basic ratings functionality
       | Message | Test2 |
     # Forum chooses average of ratings by default for point scales.
     Then I should see "Average of ratings"
+    And I am on homepage
     And I log out
 
   @javascript
