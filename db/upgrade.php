@@ -246,5 +246,24 @@ function xmldb_forumng_upgrade($oldversion=0) {
         upgrade_mod_savepoint(true, 2015012700, 'forumng');
     }
 
+    if ($oldversion < 2015060502) {
+
+        // Define key discussionid (foreign) to be dropped form forumng_flags.
+        $table = new xmldb_table('forumng_flags');
+        $key = new xmldb_key('discussionid', XMLDB_KEY_FOREIGN, array('discussionid'), 'forumng_discussion', array('id'));
+
+        // Launch drop key discussionid.
+        $dbman->drop_key($table, $key);
+
+        // Define key discussionid (foreign) to be added to forumng_flags.
+        $table = new xmldb_table('forumng_flags');
+        $key = new xmldb_key('discussionid', XMLDB_KEY_FOREIGN, array('discussionid'), 'forumng_discussions', array('id'));
+
+        // Launch add key discussionid.
+        $dbman->add_key($table, $key);
+
+        // Forumng savepoint reached.
+        upgrade_mod_savepoint(true, 2015060502, 'forumng');
+    }
     return true;
 }
