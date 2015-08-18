@@ -27,7 +27,7 @@ Feature: Add forumng activity and test userposts filtering
 
   Scenario: Check rating tab rated from and rated to filter
     Given I log in as "admin"
-    When I am on homepage
+    When I am on site homepage
     Then I follow "Course 1"
     And I turn editing mode on
     And I add a "ForumNG" to section "1" and I fill the form with:
@@ -97,7 +97,7 @@ Feature: Add forumng activity and test userposts filtering
 
   Scenario: Check rating filtering tabs (create posts by a user and rate by another user)
     Given I log in as "admin"
-    When I am on homepage
+    When I am on site homepage
     Then I follow "Course 1"
     And I turn editing mode on
     And I add a "ForumNG" to section "1" and I fill the form with:
@@ -209,6 +209,7 @@ Feature: Add forumng activity and test userposts filtering
 
   Scenario: Add forumng replies and check display by user post
     Given I log in as "admin"
+    And I am on site homepage
     When I follow "Course 1"
     Then I turn editing mode on
     And I add a "ForumNG" to section "1" and I fill the form with:
