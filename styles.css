@@ -584,6 +584,9 @@ ul.forumng-commands li.forumng-replylink {
 	pointer-events: none;
 }
 
+.forumng-message {
+    overflow: auto;
+}
 /*
 // Edit/reply form within discussion
 ////////////////////////////////////
