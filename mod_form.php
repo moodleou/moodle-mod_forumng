@@ -78,7 +78,7 @@ class mod_forumng_mod_form extends moodleform_mod {
         $mform->addHelpButton('type', 'forumtype', 'forumng');
         $mform->setDefault('type', 'general');
 
-        $this->add_intro_editor(false, get_string('forumintro', 'forumng'));
+        $this->standard_intro_elements(get_string('forumintro', 'forumng'));
 
         // Subscription option displays only if enabled at site level
         if ($CFG->forumng_subscription == -1) {

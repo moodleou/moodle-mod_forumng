@@ -19,6 +19,7 @@ Feature: Add forumng activity and test basic ratings functionality
       | student1 | C1     | student |
       | student2 | C1     | student |
     And I log in as "admin"
+    And I am on site homepage
     And I follow "Course 1"
     And I turn editing mode on
     And I add a "ForumNG" to section "1" and I fill the form with:
@@ -127,6 +128,7 @@ Feature: Add forumng activity and test basic ratings functionality
 
     # View with different grade setting
     And I log in as "admin"
+    And I am on site homepage
     And I follow "Course 1"
     And I follow "Test forum name"
     And I follow "Edit settings"
