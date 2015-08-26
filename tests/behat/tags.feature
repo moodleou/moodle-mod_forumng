@@ -25,6 +25,7 @@ Feature: Add forumng activity and test basic tagging functionality
 
   Scenario: Add tagging to discussions
     And I log in as "admin"
+    And I am on site homepage
     And I follow "Course 1"
     And I turn editing mode on
     And I add a "ForumNG" to section "1" and I fill the form with:
@@ -212,6 +213,7 @@ Feature: Add forumng activity and test basic tagging functionality
 
     # Log in as a student 1 to test adding discussion tags
     Given I log in as "student1"
+    And I am on site homepage
     And I follow "Course 1"
     And I follow "Test forum name"
     Then I should see "Test forum description"
@@ -233,6 +235,7 @@ Feature: Add forumng activity and test basic tagging functionality
 
     # Log in as a student 2 to test adding discussion tags
     Given I log in as "student2"
+    And I am on site homepage
     # Check that we set/edit tags to new values
     And I follow "Course 1"
     And I follow "Test forum name"
@@ -246,6 +249,7 @@ Feature: Add forumng activity and test basic tagging functionality
  @javascript
   Scenario: Test system changes
     Given I log in as "admin"
+    And I am on site homepage
     And I follow "Course 1"
     And I turn editing mode on
     And I add a "ForumNG" to section "1" and I fill the form with:
@@ -283,6 +287,7 @@ Feature: Add forumng activity and test basic tagging functionality
 
     # Test teacher can only see groups from manage 'set' tags screen
     Given I log in as "teacher1"
+    And I am on site homepage
     And I follow "Course 1"
     And I follow "Test forum name"
     Then I should see "Test forum description"
@@ -293,6 +298,7 @@ Feature: Add forumng activity and test basic tagging functionality
     And I log out
 
     Given I log in as "admin"
+    And I am on site homepage
     And I follow "Course 1"
     Given I expand "Users" node
     And I click on "Permissions" "link"
@@ -310,6 +316,7 @@ Feature: Add forumng activity and test basic tagging functionality
     And I log out
 
     Given I log in as "admin"
+    And I am on site homepage
     And I follow "Course 1"
     And I follow "Test forum name"
     And I click on "Permissions" "link"
@@ -320,6 +327,7 @@ Feature: Add forumng activity and test basic tagging functionality
 
     # Test teacher can only see groups from manage 'set' tags screen
     Given I log in as "teacher1"
+    And I am on site homepage
     And I follow "Course 1"
     And I follow "Test forum name"
     Then I should see "Test forum description"
@@ -330,6 +338,7 @@ Feature: Add forumng activity and test basic tagging functionality
     And I log out
 
     Given I log in as "admin"
+    And I am on site homepage
     And I follow "Course 1"
     And I follow "Test forum name"
     And I click on "Permissions" "link"
@@ -340,6 +349,7 @@ Feature: Add forumng activity and test basic tagging functionality
 
     # Test teacher can only see groups from manage 'set' tags screen
     Given I log in as "teacher1"
+    And I am on site homepage
     And I follow "Course 1"
     And I follow "Test forum name"
     Then I should see "Test forum description"
@@ -354,6 +364,7 @@ Feature: Add forumng activity and test basic tagging functionality
  @javascript
   Scenario: Add group tagging to forums
     And I log in as "admin"
+    And I am on site homepage
     # Create 2 Discussions
     And I follow "Course 1"
     And I turn editing mode on
