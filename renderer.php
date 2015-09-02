@@ -890,10 +890,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
         if (isloggedin() && !isguestuser($USER) && !is_mnet_remote_user($USER)) {
             if (has_capability('moodle/user:editownprofile', $context)) {
                 if ($userauthplugin && $userauthplugin->can_edit_profile()) {
-                    $url = $userauthplugin->edit_profile_url();
-                    if (empty($url)) {
-                        $url = new moodle_url('/user/edit.php', array('id' => $USER->id, 'course' => $course));
-                    }
+                    $url = $this->subscribe_preferences_url($context->instanceid);
                     $link = ' (' . html_writer::link($url, get_string('subscribestate_info_link', 'forumng')) . ')';
                 }
             }
@@ -908,9 +905,9 @@ class mod_forumng_renderer extends plugin_renderer_base {
             case 1:
                 $info .= get_string('emaildigestcomplete');
                 break;
-	           case 2:
-	            $info .= get_string('emaildigestsubjects');
-	            break;
+            case 2:
+                $info .= get_string('emaildigestsubjects');
+                break;
         }
         $info .= ', ';
         switch ($USER->mailformat) {
@@ -924,6 +921,17 @@ class mod_forumng_renderer extends plugin_renderer_base {
         $infodiv = html_writer::span($info, 'forumng_subinfo_mail');
 
         return html_writer::div($output . $infodiv, 'forumng_subinfo');
+    }
+
+    /**
+     * Returns url to forum mail subscription preferences page.
+     * @param int $forumngid cmid
+     * @return moodle_url
+     */
+    public function subscribe_preferences_url($forumngid) {
+        global $USER, $COURSE;
+        return new moodle_url('/mod/forumng/preferences.php',
+                array('id' => $USER->id, 'course' => $COURSE->id, 'fid' => $forumngid));
     }
 
     /**

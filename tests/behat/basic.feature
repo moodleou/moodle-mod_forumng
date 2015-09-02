@@ -365,13 +365,12 @@ Feature: Add forumng activity and test basic functionality
     And I should see "Your email preferences ("
     And "Unsubscribe" "button" should exist
     Given I follow "change"
-    And I expand all fieldsets
+    And I should see "Forum preferences"
+    And I should see "Email digest type"
+    And I should see "Email format"
     And I set the field "mailformat" to "0"
     And I set the field "maildigest" to "1"
-    When I press "Update profile"
-    And I am on homepage
-    And I follow "Course 1"
-    And I follow "Test forum name"
+    When I press "Save changes"
     Then I should see "Complete (daily email with full posts)"
     And I should see "Plain text format"
     Given I follow "Discussion 1"
