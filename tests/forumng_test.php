@@ -47,13 +47,13 @@ class mod_forumng_forumng_testcase extends forumng_test_lib {
      * whole forum + group subscriptions
      * grades
      * completion
+     * post date restrictions - get functions (inc quota)
      * // TODO: Unit tests do not cover:
      * discussion functions (in discussion tests instead)
      * reporting email functions
      * ratings functions
      * Anon posting functions
      * maxbytes etc
-     * post date restrictions - get functions (inc quota)
      */
 
     /**
@@ -569,5 +569,41 @@ class mod_forumng_forumng_testcase extends forumng_test_lib {
         // Check manager (can see timed discussions).
         $mforum = mod_forumng::get_course_forums($course, $manager->id);
         $this->assertEquals(4, $mforum[$forum->get_id()]->get_num_unread_discussions());
+    }
+
+    /**
+     * Checks forum posting restrictions.
+     */
+    public function test_forum_posting_restrictions() {
+        global $USER;
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        $course = $this->get_new_course('TESTTIME');
+        $student = $this->get_new_user('student', $course->id);
+
+        $course = $this->get_new_course();
+        $forum = $this->get_new_forumng($course->id, array('name' => 'TEST', 'intro' => 'abc123'));
+        $future = $this->get_new_forumng($course->id, array('name' => 'TEST2', 'intro' => 'abc123', 'postingfrom' => 1893456000));
+        $past = $this->get_new_forumng($course->id, array('name' => 'TEST3', 'intro' => 'abc123', 'postinguntil' => 1420070400));
+        $limit = $this->get_new_forumng($course->id, array('name' => 'TEST4', 'intro' => 'abc123', 'maxpostsblock' => 1, 'maxpostsperiod' => 1209600));
+
+        $this->assertFalse($forum->is_read_only());
+        $this->assertFalse($future->is_read_only());
+        $this->assertFalse($past->is_read_only());
+        $this->assertFalse($limit->has_post_quota());
+        $this->assertEquals(mod_forumng::QUOTA_DOES_NOT_APPLY, $limit->get_remaining_post_quota());
+
+        $this->assertFalse($forum->is_read_only($student->id));
+        $this->assertTrue($future->is_read_only($student->id));
+        $this->assertTrue($past->is_read_only($student->id));
+        $this->assertTrue($limit->has_post_quota($student->id));
+        $this->assertEquals(1, $limit->get_remaining_post_quota($student->id));
+
+        $this->get_new_discussion($limit, array('userid' => $USER->id));
+        $this->get_new_discussion($limit, array('userid' => $student->id));
+
+        $this->assertEquals(mod_forumng::QUOTA_DOES_NOT_APPLY, $limit->get_remaining_post_quota());
+        $this->assertEquals(0, $limit->get_remaining_post_quota($student->id));
     }
 }

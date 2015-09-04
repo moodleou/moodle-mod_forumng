@@ -56,6 +56,8 @@ class mod_forumng_discussion_testcase  extends forumng_test_lib {
         get_set_tags()
         forumng_update_instance()
         permanently_delete()
+        copy() // TODO Check attachments and ratings copying.
+        lock(), unlock(), islocked(), auto_lock().
     */
 
     public function test_showfrom () {
@@ -477,5 +479,104 @@ class mod_forumng_discussion_testcase  extends forumng_test_lib {
         $this->assertEquals(2524608000, $discussions[1]->get_time_start());
         $this->assertEquals(1420070400, $discussions[2]->get_time_end());
         $this->assertEquals(2524608000, $discussions[3]->get_time_end());
+    }
+
+    /**
+     * Tests discussion copying to another group and another course forum
+     * (Does not check attachments or ratings copying)
+     */
+    public function test_copy() {
+        global $USER;
+        $this->resetAfterTest();
+        $this->setAdminUser();
+        $course1 = $this->get_new_course();
+        $course2 = $this->get_new_course();
+
+        $group1 = $this->get_new_group($course1->id);
+        $group2 = $this->get_new_group($course1->id);
+
+        $orig = $this->get_new_forumng($course1->id, array('groupmode' => VISIBLEGROUPS));
+        $other = $this->get_new_forumng($course2->id);
+
+        $dis = $this->get_new_discussion($orig, array('groupid' => $group1->id, 'userid' => $USER->id));
+        $lastpost = mod_forumng_post::get_from_id($dis->get_last_post_id(), 0);
+        $dis->create_reply($lastpost, 'reply', 'reply', FORMAT_HTML);
+
+        $dis->copy($orig, $group2->id);
+        $dis->copy($other, mod_forumng::CLONE_DIRECT);
+
+        $forums1 = mod_forumng::get_course_forums($course1);
+        $forums2 = mod_forumng::get_course_forums($course2);
+
+        $this->assertEquals(2, $forums1[$orig->get_id()]->get_num_discussions());
+        $this->assertEquals(1, $forums2[$other->get_id()]->get_num_discussions());
+
+        $list = $forums1[$orig->get_id()]->get_discussion_list($group2->id);
+        $this->assertFalse($list->is_empty());
+        $discussion = $list->get_normal_discussions();
+        $this->assertEquals(2 , reset($discussion)->get_num_posts());
+
+        if (mod_forumng::search_installed()) {
+            $searchdoc = reset($discussion)->get_root_post()->search_get_document();
+            $this->assertTrue($searchdoc->find());
+            $query = new local_ousearch_search('reply');
+            $query->set_coursemodule($other->get_course_module(true));
+            $results = $query->query();
+            $this->assertNotEmpty($results->results);
+        }
+    }
+
+    /**
+     * Tests discussion locking
+     */
+    public function test_lock() {
+        global $USER, $DB;
+        $this->resetAfterTest();
+        $this->setAdminUser();
+        $course1 = $this->get_new_course();
+
+        $orig = $this->get_new_forumng($course1->id, array('removeto' => -1, 'removeafter' => 1));
+
+        $dis = $this->get_new_discussion($orig, array('userid' => $USER->id));
+        $dis2 = $this->get_new_discussion($orig, array('userid' => $USER->id));
+        $dis3 = $this->get_new_discussion($orig, array('userid' => $USER->id));
+        // Alter post modified times to in past.
+        foreach ($DB->get_records('forumng_posts') as $post) {
+            $new = new stdClass();
+            $new->id = $post->id;
+            $new->modified = 1420070400;
+            $DB->update_record('forumng_posts', $new);
+        }
+        // Delete dis2 so not auto-locked.
+        $dis2->delete(false);
+
+        $this->assertFalse($dis->is_locked());
+        $this->assertFalse($dis->is_auto_locked());
+
+        $lockpostid = $dis->lock('sub', 'mess', FORMAT_HTML);
+        $this->assertTrue($dis->is_locked());
+        $this->assertFalse($dis->is_auto_locked());
+
+        $dis = mod_forumng_discussion::get_from_id($dis->get_id(), mod_forumng::CLONE_DIRECT);
+        $this->assertTrue($dis->is_locked());
+        $this->assertFalse($dis->is_auto_locked());
+        $dis->unlock();
+        $this->assertFalse($dis->is_locked());
+        $this->assertFalse($dis->is_auto_locked());
+        $lockpost = mod_forumng_post::get_from_id($lockpostid, mod_forumng::CLONE_DIRECT);
+        $this->assertNotEmpty($lockpost->get_deleted());
+
+        // Check auto-locking ($dis3 should be auto-locked only).
+        $dis->lock('', '', FORMAT_HTML);
+        mod_forumng_cron::archive_old_discussions();
+        $dis = mod_forumng_discussion::get_from_id($dis->get_id(), mod_forumng::CLONE_DIRECT);
+        $dis2 = mod_forumng_discussion::get_from_id($dis2->get_id(), mod_forumng::CLONE_DIRECT);
+        $dis3 = mod_forumng_discussion::get_from_id($dis3->get_id(), mod_forumng::CLONE_DIRECT);
+        $this->assertTrue($dis->is_locked());
+        $this->assertFalse($dis->is_auto_locked());
+        $this->assertFalse($dis2->is_locked());
+        $this->assertFalse($dis2->is_auto_locked());
+        $this->assertTrue($dis3->is_locked());
+        $this->assertTrue($dis3->is_auto_locked());
     }
 }

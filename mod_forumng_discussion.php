@@ -1067,6 +1067,9 @@ WHERE
         $timestart = $timestart ? $timestart : 0;
         $timeend = $timeend ? $timeend : 0;
         $sticky = $sticky ? 1 : 0;
+        if ($locked === true) {
+            $locked = 1;
+        }
         if (!($locked == 1 || $locked == 2)) {
             $locked = 0;
         }
