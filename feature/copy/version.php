@@ -23,3 +23,5 @@
  */
 
 $plugin->version  = 2011020300;
+
+$plugin->outestssufficient = true;

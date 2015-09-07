@@ -94,6 +94,8 @@ class mod_forumng_forumng_testcase extends forumng_test_lib {
         $forum3 = mod_forumng::get_from_cmid($forum2->get_course_module_id(), mod_forumng::CLONE_DIRECT);
         $this->assertTrue($forum3->is_clone());
         $this->assertArrayHasKey($forum3->get_context()->id, $forum1->get_clone_details());
+        $this->assertEquals($course2->id, $forum1->get_clone_details()[$forum3->get_context()->id]->courseid);
+        $this->assertEquals($forum3->get_context()->id, $forum1->get_clone_details()[$forum3->get_context()->id]->context->id);
         $this->assertEquals($course2->id, $forum3->get_course_id());
     }
 
