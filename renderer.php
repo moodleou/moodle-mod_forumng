@@ -1391,10 +1391,9 @@ class mod_forumng_renderer extends plugin_renderer_base {
                 $ratings .= '</div>';
             }
 
-            if ($post->get_forum()->get_enableratings() ==
-                    mod_forumng::FORUMNG_STANDARD_RATING && $post->get_ratings()) {
-                $out .= html_writer::div($OUTPUT->render($post->get_ratings()), 'forumng-ratings-standard');
-            } else if ($ratings) {
+            if ($ratings && $post->get_forum()->get_enableratings() ==
+                    mod_forumng::FORUMNG_RATING_OBSOLETE) {
+                // Old Forum ratings.
                 $out .= '<div class="forumng-ratings' . $ratingclasses .
                         '">' . $ratings . '</div>';
             }
@@ -1549,6 +1548,11 @@ class mod_forumng_renderer extends plugin_renderer_base {
                 }
 
                 // Only the reply command is available in text mode
+            }
+
+            if ($post->get_forum()->get_enableratings() ==
+                    mod_forumng::FORUMNG_STANDARD_RATING && $post->get_ratings()) {
+                        $out .= html_writer::div($OUTPUT->render($post->get_ratings()), 'forumng-ratings-standard');
             }
 
             // End: forumng-postfooter and forumng-postmain.

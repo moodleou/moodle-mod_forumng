@@ -1257,6 +1257,7 @@ M.mod_forumng = {
             } else if (M.theme_ou && M.theme_ou.rating.init) {
                 // OU only code for custom ratings.
                 M.theme_ou.rating.init(link.postid);
+                M.theme_ou.rating.init_count_popup(link.postid);
             }
         }
 

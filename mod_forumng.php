@@ -3290,8 +3290,7 @@ WHERE
          AND fd.deleted = 0
          AND (
              ((fd.timestart = 0 OR fd.timestart <= ?)
-             AND (fd.timeend = 0 OR fd.timeend > ?))
-             OR ($inviewhiddenforums)
+             AND (fd.timeend = 0 OR fd.timeend > ? OR ($inviewhiddenforums)))
          )
          AND ((fplast.edituserid IS NOT NULL AND fplast.edituserid <> ?)
           OR fplast.userid <> ?)

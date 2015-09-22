@@ -450,6 +450,8 @@ ul.forumng-commands {
     margin: 0;
     padding: 0;
     white-space: nowrap;
+    float: left;
+    margin-bottom: .7em;
 }
 .ie7 ul.forumng-commands {
     display: inline;
@@ -739,6 +741,11 @@ ul.forumng-commands li.forumng-replylink {
 form.markread input {
     font-size: 0.85em;
 }
+
+.forumng-ratings-standard {
+	float: left;
+}
+
 /*
 // Confirm dialog within discussion
 ///////////////////////////////////

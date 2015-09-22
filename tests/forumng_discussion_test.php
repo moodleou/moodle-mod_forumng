@@ -461,4 +461,21 @@ class mod_forumng_discussion_testcase  extends forumng_test_lib {
             $this->assertEmpty($results->results);
         }
     }
+
+    /**
+     * Checks timed discussions
+     */
+    public function test_timed_discussions() {
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        $course = $this->get_new_course('TESTTIME');
+
+        list($forum, $discussions) = $this->create_timed_discussions_forum($course->id);
+
+        $this->assertEquals(1420070400, $discussions[0]->get_time_start());
+        $this->assertEquals(2524608000, $discussions[1]->get_time_start());
+        $this->assertEquals(1420070400, $discussions[2]->get_time_end());
+        $this->assertEquals(2524608000, $discussions[3]->get_time_end());
+    }
 }

@@ -131,12 +131,16 @@ class mod_forumng_generator extends testing_module_generator {
             $record['timestart'] = 0;
         }
 
+        if (!isset($record['timeend'])) {
+            $record['timeend'] = 0;
+        }
+
         // Get a forum object.
         $forum = mod_forumng::get_from_id($record['forum'], mod_forumng::CLONE_DIRECT);
 
         // Create the discussion.
         $discussionid = $forum->create_discussion($record['groupid'], $record['subject'],
-                $record['message'], $record['format'], false, false, $record['timestart'], 0, false,
+                $record['message'], $record['format'], false, false, $record['timestart'], $record['timeend'], false,
                 false, $record['userid']);
 
         return $discussionid;
