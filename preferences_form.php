@@ -30,22 +30,9 @@ class user_edit_forumng_form extends moodleform {
      * Define the form.
      */
     public function definition () {
-        global $CFG, $COURSE;
-
         $mform = $this->_form;
 
-        $choices = array();
-        $choices['0'] = get_string('emaildigestoff');
-        $choices['1'] = get_string('emaildigestcomplete');
-        $mform->addElement('select', 'maildigest', get_string('emaildigest'), $choices);
-        $mform->setDefault('maildigest', $CFG->defaultpreference_maildigest);
-        $mform->addHelpButton('maildigest', 'emaildigest');
-
-        $choices = array();
-        $choices['1'] = get_string('htmlformat');
-        $choices['0'] = get_string('textformat');
-        $mform->addElement('select', 'mailformat', get_string('emailformat'), $choices);
-        $mform->setDefault('autosubscribe', $CFG->defaultpreference_mailformat);
+        self::add_elements($mform);
 
         // Add some extra hidden fields.
         foreach ($this->_customdata as $name => $default) {
@@ -58,4 +45,30 @@ class user_edit_forumng_form extends moodleform {
 
         $this->add_action_buttons(true, get_string('savechanges'));
     }
+
+    /**
+     * Add re-usable form elements for forum preferences
+     * @param MoodleQuickForm $mform
+     */
+    public static function add_elements(&$mform) {
+        global $CFG, $OUTPUT;
+
+        $mform->addElement('html', $OUTPUT->heading(get_string('forumsubscription', 'forumng'), 3));
+
+        $choices = array();
+        $choices['0'] = get_string('emaildigestoff');
+        $choices['1'] = get_string('emaildigestcomplete');
+        $mform->addElement('select', 'maildigest', get_string('emaildigest'), $choices);
+        $mform->setDefault('maildigest', $CFG->defaultpreference_maildigest);
+        $mform->addHelpButton('maildigest', 'emaildigest');
+
+        $mform->addElement('html', html_writer::empty_tag('hr'));
+
+        $choices = array();
+        $choices['1'] = get_string('htmlformat');
+        $choices['0'] = get_string('textformat');
+        $mform->addElement('select', 'mailformat', get_string('emailformat'), $choices);
+        $mform->setDefault('autosubscribe', $CFG->defaultpreference_mailformat);
+    }
+
 }

@@ -65,6 +65,8 @@ $string['postmailinfo'] = 'This is a copy of a message posted on the {$a} websit
 
 To add your reply via the website, click on this link:';
 
+$string['forumsubscription'] = 'Forum subscription';
+
 $string['discussionoptions'] = 'Discussion options';
 $string['forum'] = 'Forum';
 $string['subscribed'] = 'Subscribed';
