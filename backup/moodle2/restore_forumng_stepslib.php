@@ -129,9 +129,6 @@ class restore_forumng_activity_structure_step extends restore_activity_structure
         $oldid = $data->id;
 
         $data->discussionid = $this->get_new_parentid('forumng_discussion');
-        $data->created = $this->apply_date_offset($data->created);
-        $data->modified = $this->apply_date_offset($data->modified);
-        $data->deleted = $this->apply_date_offset($data->deleted);
         $data->userid = $this->get_mappingid_or_null('user', $data->userid);
         $data->deleteuserid = $this->get_mappingid_or_null('user', $data->deleteuserid);
         $data->edituserid = $this->get_mappingid_or_null('user', $data->edituserid);
@@ -178,7 +175,6 @@ class restore_forumng_activity_structure_step extends restore_activity_structure
 
         $data->postid = $this->get_new_parentid('forumng_post');
         $data->userid = $this->get_mappingid_or_null('user', $data->userid);
-        $data->time = $this->apply_date_offset($data->time);
 
         $DB->insert_record('forumng_ratings', $data);
     }
