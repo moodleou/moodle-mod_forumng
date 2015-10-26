@@ -460,6 +460,28 @@ function mod_forumng_cm_info_dynamic(cm_info $cm) {
 }
 
 /**
+ * Return forums on course that have unread posts for current user
+ *
+ * @param stdClass $course
+ * @return array
+ */
+function forumng_get_ourecent_activity($course) {
+    global $CFG;
+    require_once($CFG->dirroot . '/mod/forumng/mod_forumng.php');
+    $forums = mod_forumng::get_course_forums($course, 0, mod_forumng::UNREAD_BINARY);
+    $return = array();
+    foreach ($forums as $forum) {
+        if ($forum->has_unread_discussions()) {
+            $data = new stdClass();
+            $data->cm = $forum->get_course_module();
+            $data->icon = '%%unread%%';
+            $return[$data->cm->id] = $data;
+        }
+    }
+    return $return;
+}
+
+/**
  * Returns an array of recipients for OU alerts
  * @param char $type
  * @param int $id
