@@ -184,10 +184,11 @@ class forumngfeature_usage_renderer extends plugin_renderer_base {
         // Print out ratings usage.
         $usageoutput = html_writer::start_div('forumng_usage_ratings');
         $grading = $forum->get_grading();
+        $usageoutput .= $this->render_usage_list_heading($gradingstr);
         if (($grading == mod_forumng::GRADING_NONE) || ($grading == mod_forumng::GRADING_MANUAL)) {
             $usageoutput .= $this->render_ratings_filter($forum, $gradingtype);
         }
-        $usageoutput .= $this->render_usage_list($ratinglist, $gradingstr);
+        $usageoutput .= $this->render_usage_list($ratinglist, $gradingstr, false);
         $usageoutput .= html_writer::end_div();
         return $usageoutput;
     }
