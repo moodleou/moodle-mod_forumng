@@ -1254,10 +1254,10 @@ M.mod_forumng = {
         if (newpost.one('.forumng-ratings-standard')) {
             if (M.core_rating && M.core_rating.init) {
                 M.core_rating.init(this.Y);
-            } else if (M.theme_ou && M.theme_ou.rating.init) {
+            } else if (M.local_themeextras && M.local_themeextras.rating.init) {
                 // OU only code for custom ratings.
-                M.theme_ou.rating.init(link.postid);
-                M.theme_ou.rating.init_count_popup(link.postid);
+                M.local_themeextras.rating.init(link.postid);
+                M.local_themeextras.rating.init_count_popup(link.postid);
             }
         }
 
