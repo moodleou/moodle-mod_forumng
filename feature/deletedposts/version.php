@@ -22,5 +22,5 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 $plugin->version  = 2014080800;
-
+$plugin->component = 'forumngfeature_deletedposts';
 $plugin->outestssufficient = true;
