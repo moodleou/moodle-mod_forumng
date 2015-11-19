@@ -24,3 +24,4 @@
 $plugin->version  = 2011020300;
 $plugin->component = 'forumngtype_clone';
 $plugin->outestssufficient = true;
+$plugin->requires = 2014051200;
