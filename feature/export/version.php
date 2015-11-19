@@ -23,3 +23,4 @@
  */
 
 $plugin->version  = 2013012400;
+$plugin->component = 'forumngfeature_export';
