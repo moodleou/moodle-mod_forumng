@@ -588,6 +588,12 @@ M.mod_forumng = {
                 if (newpost.get('innerHTML') !== '') {
                     post.get('parentNode').insertBefore(newpost, post);
                     post.get('parentNode').removeChild(post);
+                    t.Y.later(100, this, function(post) {
+                        // Reload all the images - fixes chrome issue.
+                        post.all('img').each(function(img){
+                            img.set('src', img.get('src'));
+                        })
+                    }, newpost);
 
                     // Run script commands.
                     for (var i=0; i<scriptcommands.length; i++) {
