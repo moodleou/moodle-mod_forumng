@@ -23,3 +23,4 @@
  */
 $plugin->version  = 2014102800;
 $plugin->component = 'forumngfeature_usage';
+$plugin->requires = 2014051200;
