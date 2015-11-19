@@ -23,5 +23,5 @@
  */
 
 $plugin->version  = 2011020300;
-
+$plugin->component = 'forumngfeature_copy';
 $plugin->outestssufficient = true;
