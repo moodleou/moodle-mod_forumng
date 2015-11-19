@@ -23,3 +23,4 @@
  */
 $plugin->version  = 2014012800;
 $plugin->component = 'forumngfeature_move';
+$plugin->requires = 2014051200;
