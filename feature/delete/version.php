@@ -24,3 +24,4 @@
 $plugin->version  = 2013041400;
 $plugin->component = 'forumngfeature_delete';
 $plugin->outestssufficient = true;
+$plugin->requires = 2014051200;
