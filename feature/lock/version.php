@@ -24,3 +24,4 @@
 $plugin->version  = 2013070101;
 $plugin->component = 'forumngfeature_lock';
 $plugin->outestssufficient = true;
+$plugin->requires = 2014051200;
