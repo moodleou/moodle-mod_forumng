@@ -22,5 +22,6 @@
  */
 
 $plugin->version  = 2014120100;
-
+$plugin->component = 'forumngfeature_edittags';
 $plugin->outestssufficient = true;
+$plugin->requires = 2014051200;

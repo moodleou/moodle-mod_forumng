@@ -22,5 +22,6 @@
  */
 
 $plugin->version  = 2014072800;
-
+$plugin->requires = 2014051200;
 $plugin->outestssufficient = true;
+$plugin->component = 'forumngfeature_flagdiscussion';

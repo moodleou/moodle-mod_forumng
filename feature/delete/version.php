@@ -22,5 +22,6 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 $plugin->version  = 2013041400;
-
+$plugin->component = 'forumngfeature_delete';
 $plugin->outestssufficient = true;
+$plugin->requires = 2014051200;
