@@ -1,4 +1,4 @@
-<?php
+$plugin->requires = 2014051200;<?php
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -24,3 +24,4 @@
 $plugin->version  = 2011020300;
 $plugin->component = 'forumngtype_general';
 $plugin->outestssufficient = true;
+$plugin->requires = 2014051200;
