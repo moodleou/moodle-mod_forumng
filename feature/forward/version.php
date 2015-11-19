@@ -23,3 +23,4 @@
  */
 
 $plugin->version  = 2014080800;
+$plugin->component = 'forumngfeature_forward';
