@@ -23,3 +23,4 @@
  */
 $plugin->version  = 2013052300;
 $plugin->component = 'forumngfeature_sticky';
+$plugin->requires = 2014051200; 
