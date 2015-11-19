@@ -23,3 +23,4 @@
  */
 $plugin->version  = 2011020300;
 $plugin->component = 'forumngfeature_print';
+$plugin->requires = 2014051200;
