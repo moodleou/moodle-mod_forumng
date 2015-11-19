@@ -23,3 +23,4 @@
  */
 $plugin->version = 2015012700;
 $plugin->component = 'forumngfeature_manualmark';
+$plugin->requires = 2014051200;
