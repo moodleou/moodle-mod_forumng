@@ -127,7 +127,7 @@ class post_selector extends \forumngfeature_post_selector {
             print $out->header();
 
             print $out->box(get_string('forward_done', 'forumngfeature_forward'));
-            print $out->continue_button(new moodle_url('/mod/forumng/discuss.php',
+            print $out->continue_button(new \moodle_url('/mod/forumng/discuss.php',
                     $discussion->get_link_params_array()));
             print $out->footer();
         }
