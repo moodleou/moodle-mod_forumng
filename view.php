@@ -56,8 +56,6 @@ $forum->require_view($groupid, 0, true);
 // Get update button, if allowed for current user
 $strforum = get_string("modulename", "forum");
 
-$buttontext = $forum->display_search_form();
-
 // Atom header meta tag
 $feedtype = $forum->get_effective_feed_option();
 if ($feedtype == mod_forumng::FEEDTYPE_DISCUSSIONS ||
@@ -83,6 +81,8 @@ $out = $forum->init_page($pageurl);
 print $out->header();
 $forum->print_js($cm->id);
 
+print $out->render_forum_header($forum, $groupid);
+
 // Display group selector if required
 groups_print_activity_menu($cm, $forum->get_url(mod_forumng::PARAM_HTML));
 
@@ -91,12 +91,6 @@ print $out->render_switch_link($forum);
 print $out->skip_link_target();
 // Get forum type to display main part of page
 $forum->get_type()->print_view_page($forum, $groupid);
-
-// Show dashboard feature if enabled
-if (file_exists($CFG->dirroot . '/local/externaldashboard/external_dashboard.php')) {
-    require_once($CFG->dirroot . '/local/externaldashboard/external_dashboard.php');
-    external_dashboard::print_favourites_button($cm);
-}
 
 print $out->container_end();
 

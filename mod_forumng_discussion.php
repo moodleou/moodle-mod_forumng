@@ -2443,7 +2443,9 @@ WHERE
         foreach (forumngfeature_discussion::get_all() as $feature) {
             if ($feature->should_display($this) &&
                 $type->allow_forumngfeature_discussion($this, $feature)) {
+                $features .= html_writer::start_div('forumngfeature_dis_' . $feature->get_id());
                 $features .= $feature->display($this);
+                $features .= html_writer::end_div();
             }
         }
         if ($features) {

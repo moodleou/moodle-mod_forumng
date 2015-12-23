@@ -164,6 +164,11 @@ form.forumng-paste-buttons {
 .forumng-subscribe-options {
     margin-top: 2em;
 }
+
+.forumng-subscribe-details {
+    display: inline;
+}
+
 .forumng-subscribe-options h3 {
     margin: 0em;
     font-size: 1em;

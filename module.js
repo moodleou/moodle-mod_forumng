@@ -844,20 +844,35 @@ M.mod_forumng = {
     /**
      * Initialises the feature buttons that run along the bottom of a discussion. Some
      * of these may use the 'post selector' feature, which requires JavaScript.
+     * 
+     * Looks for some ou-specific links that are treated as the real buttons
+     * 
      * @param islist True if discussion list
      */
     init_feature_buttons: function(islist) {
         // Get all forms
         if (islist) {
             // Feature btns on discussion list.
-            this.Y.all('form.forumng-dselectorbutton input[type=submit]').each(
+            this.Y.all('form.forumng-dselectorbutton input[type=submit], #osep-bottombutton-export, #osep-bottombutton-print').each(
                     function(node) {
+                        // For hacked buttons do extra, inc passing original input node target.
+                        if (node.get('tagName') === 'A') {
+                            var discussions = this.Y.all('.forumng-discussionlist tr');
+                            if (discussions.size() == 0) {
+                                node.setStyle('display', 'none');
+                            }
+                        }
                         this.init_select_button(node, true);
             }, this);
         } else {
-            var featureForms = this.Y.all('form.forumng-selectorbutton').each(
+            var featureForms = this.Y.all('form.forumng-selectorbutton, #osep-bottombutton-export, #osep-bottombutton-print').each(
                     function(node, index, list) {
-                var submit = node.one('input[type=submit]');
+                        var submit;
+                        if (node.get('tagName') === 'A') {
+                            submit = node;
+                        } else {
+                            submit = node.one('input[type=submit]');
+                        }
                 this.init_select_button(submit, false);
             }, this);
         }
@@ -879,6 +894,13 @@ M.mod_forumng = {
             }
             submit.on('click', function(e) {
                 e.preventDefault();
+                if (submit.get('tagName') === 'A') {
+                    if (submit.get('id') === 'osep-bottombutton-export') {
+                        submit = this.Y.one('.forumngfeature_export form.forumng-dselectorbutton input[type=submit]');
+                    } else if (submit.get('id') === 'osep-bottombutton-print') {
+                        submit = this.Y.one('.forumngfeature_print form.forumng-dselectorbutton input[type=submit]');
+                    }
+                }
                 var outerThis = this;
                 // Pick up any discussion types we specifically include or exclude.
                 var include = new Array();
@@ -917,6 +939,13 @@ M.mod_forumng = {
         }
         submit.on('click', function(e) {
             e.preventDefault();
+            if (submit.get('tagName') === 'A') {
+                if (submit.get('id') === 'osep-bottombutton-export') {
+                    submit = this.Y.one('.forumngfeature_dis_export form.forumng-selectorbutton input[type=submit]');
+                } else if (submit.get('id') === 'osep-bottombutton-print') {
+                    submit = this.Y.one('.forumngfeature_dis_print form.forumng-selectorbutton input[type=submit]');
+                }
+            }
             var outerThis = this;
             this.confirm("<h4>" + submit.get('value') + "</h4><p>" +
                 M.str.forumng.selectorall + "</p>",

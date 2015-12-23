@@ -47,7 +47,7 @@ email address so that recipients can reply personally rather than via the forum?
 \'Yes\' users can choose in their profile to keep their email address secret.';
 $string['disallowsubscribe'] = 'Subscriptions are not permitted';
 $string['forcesubscribe'] = 'Force everyone to be (and stay) subscribed';
-$string['subscription'] = 'Subscription';
+$string['subscription'] = 'Email subscription';
 $string['subscription_help'] = 'You can force everyone to be subscribed, or set them be subscribed
 initially; the difference is that in the latter case, they can choose to unsubscribe themselves.
 
@@ -71,7 +71,7 @@ $string['discussionoptions'] = 'Discussion options';
 $string['forum'] = 'Forum';
 $string['subscribed'] = 'Subscribed';
 $string['subscribegroup'] = 'Subscribe to this group\'s forum';
-$string['subscribeshort'] = 'Subscribe';
+$string['subscribeshort'] = 'Subscribe to forum';
 $string['subscribelong'] = 'Subscribe to whole forum';
 $string['unsubscribegroup'] = 'Unsubscribe from this group\'s forum';
 $string['unsubscribegroup_partial'] = 'Unsubscribe from discussions in this group';
@@ -271,7 +271,7 @@ to {$a}.';
 $string['subscribestate_subscribed_notinallgroup'] = 'Click &lsquo;Unsubscribe&rsquo; to unsubscribe
 from the forum.';
 $string['subscribestate_unsubscribed'] = 'You do not currently receive messages from this forum by
-email. If you would like to, click &lsquo;Subscribe&rsquo;.';
+email. If you would like to, click &lsquo;Subscribe to forum&rsquo;.';
 $string['subscribestate_unsubscribed_thisgroup'] = 'You do not currently receive messages from this
 group by email. If you would like to, click &lsquo;Subscribe to this group&rsquo;.';
 $string['subscribestate_not_permitted'] = 'This forum does not allow email subscription.';

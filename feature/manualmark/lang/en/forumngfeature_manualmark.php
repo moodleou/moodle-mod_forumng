@@ -23,6 +23,8 @@
  */
 $string['manualmark_auto'] = 'Automatically mark as read';
 $string['manualmark_manual'] = 'Manually mark as read';
+$string['manualmark_auto_long'] = 'Your posts are automatically marked as read';
+$string['manualmark_manual_long'] = 'Your posts are manually marked as read';
 $string['manualmark_change'] = 'Change';
 
 $string['manualmark_change_help'] = '&lsquo;Automatically mark as read&rsquo; marks every post in a discussion as read after you view that discussion page.

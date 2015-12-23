@@ -26,10 +26,17 @@ require_once('../../mod_forumng.php');
 
 // This script toggles the user's 'automatically mark read' preference.
 
-$id = required_param('id', PARAM_INT);
 $cloneid = optional_param('clone', 0, PARAM_INT);
+$did = optional_param('d', 0, PARAM_INT);
 
-$forum = mod_forumng::get_from_cmid($id, $cloneid);
+if ($did) {
+    $dis = mod_forumng_discussion::get_from_id($did, $cloneid);
+    $forum = $dis->get_forum();
+} else {
+    $id = required_param('id', PARAM_INT);
+    $forum = mod_forumng::get_from_cmid($id, $cloneid);
+}
+
 $groupid = mod_forumng::get_activity_group($forum->get_course_module(), false);
 $forum->require_view($groupid);
 

@@ -229,11 +229,7 @@ class forumngtype_general extends forumngtype {
             print $out->render_flagged_list_end();
         }
 
-        // Subscribe and view subscribers links
-        print $forum->display_subscribe_options();
-
-        // Atom/RSS links
-        print $forum->display_feed_links($groupid);
+        print $out->render_forum_footer($forum, $groupid);
 
         // display the warning message for invalid archive setting
         print $forum->display_archive_warning();
@@ -249,6 +245,8 @@ class forumngtype_general extends forumngtype {
     public function print_discussion_page($discussion) {
         global $PAGE;
         $out = mod_forumng_utils::get_renderer();
+
+        print $out->render_discussion_header($discussion);
 
         $previousread = (int)$discussion->get_time_read();
 
@@ -327,11 +325,7 @@ class forumngtype_general extends forumngtype {
         // Display discussion features (row of buttons)
         print $discussion->display_forumngfeature_discussions();
 
-        // Display the subscription options to this disucssion if available
-        print $discussion->display_subscribe_options();
-
-        // Atom/RSS links
-        print $discussion->display_feed_links();
+        print $out->render_discussion_footer($discussion);
 
         // Set read data [shouldn't this logic be somewhere else as it is not
         // part of display?]

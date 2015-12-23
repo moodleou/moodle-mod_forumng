@@ -146,7 +146,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
             $unreadpart = "</th>{$th}$nextnum lastcol'>";
         }
 
-        return "<table class='generaltable forumng-discussionlist'><tr>" .
+        return "<table class='generaltable forumng-discussionlist'><thead><tr>" .
             "{$th}0'>" .
             $sortdata[mod_forumng::SORT_SUBJECT]->before .
             get_string('discussion', 'forumng') .
@@ -164,7 +164,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
             $sortdata[mod_forumng::SORT_DATE]->before .
             get_string('lastpost', 'forumng') .
             $sortdata[mod_forumng::SORT_DATE]->after .
-            '</th></tr>';
+            '</th></tr></thead><tbody>';
     }
 
     /**
@@ -397,7 +397,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
      * @return string HTML code for end of table
      */
     public function render_discussion_list_end($forum, $groupid) {
-        return '</table>';
+        return '</tbody></table>';
     }
 
     /**
@@ -705,6 +705,61 @@ class mod_forumng_renderer extends plugin_renderer_base {
     }
 
     /**
+     * Top of forum page
+     *
+     * @param mod_forumng $forum
+     * @param int $groupid
+     * @return string
+     */
+    public function render_forum_header($forum, $groupid) {
+        return '';
+    }
+
+    /**
+     * Bottom of forum page (before info).
+     *
+     * @param mod_forumng $forum
+     * @param int $groupid
+     * @return string
+     */
+    public function render_forum_footer($forum, $groupid) {
+        $toreturn = '';
+        // Subscribe and view subscribers links.
+        $toreturn .= $forum->display_subscribe_options();
+
+        // Atom/RSS links.
+        $toreturn .= $forum->display_feed_links($groupid);
+
+        return $toreturn;
+    }
+
+    /**
+     * Top of discussion page
+     *
+     * @param mod_forumng_discussion $discussion
+     * @return string
+     */
+    public function render_discussion_header($discussion) {
+        return '';
+    }
+
+    /**
+     * Bottom of discussion page
+     *
+     * @param mod_forumng_discussion $discussion
+     * @return string
+     */
+    public function render_discussion_footer($discussion) {
+        $toreturn = '';
+        // Display the subscription options to this disucssion if available.
+        $toreturn .= $discussion->display_subscribe_options();
+
+        // Atom/RSS links.
+        $toreturn .= $discussion->display_feed_links();
+        return $toreturn;
+    }
+
+    /**
      * Display post button for forum.
      * @param mod_forumng $forum Forum
      * @param int $groupid Group
@@ -782,9 +837,11 @@ class mod_forumng_renderer extends plugin_renderer_base {
      */
     public function render_subscribe_options($forum, $text, $subscribed,
         $button, $viewlink) {
-        $out = '<div class="forumng-subscribe-options">' .
+        $out = '<div class="forumng-subscribe-options forumng-subscribe-options' . $subscribed .
+            '"><div class="forumng-subscribe-details">' .
             '<h3>' . get_string('subscription', 'forumng') . '</h3>' .
             '<p>' . $text . '</p>';
+        $out .= '</div>';
         $cm = $forum->get_course_module();
         if ($button) {
             $outsubmit = '';
@@ -861,9 +918,10 @@ class mod_forumng_renderer extends plugin_renderer_base {
             $info = $this->render_subscribe_info($discussion->get_forum()->get_context());
         }
         return '<div class="clearfix"></div><div class="forumng-subscribe-options" id="forumng-subscribe-options">' .
+            '<div class="forumng-subscribe-details">' .
             '<h3>' . get_string('subscription', 'forumng') . '</h3>' .
             '<p>' . $status .
-            '</p>' . '&nbsp;<form action="subscribe.php" method="post"><div>' .
+            '</p></div>' . '&nbsp;<form action="subscribe.php" method="post"><div>' .
             $discussion->get_link_params(mod_forumng::PARAM_FORM) .
             '<input type="hidden" name="back" value="discuss" />' .
             '<input type="submit" name="' . $submit . '" value="' .
@@ -1311,27 +1369,9 @@ class mod_forumng_renderer extends plugin_renderer_base {
             // Attachments
             $attachments = $post->get_attachment_names();
             if (count($attachments)) {
-                if ($html) {
-                    $out .= $lf;
-                    if (count($attachments) == 1) {
-                        $attachmentlabel = get_string('attachment', 'forumng');
-                    } else {
-                        $attachmentlabel = get_string('attachments', 'forumng');
-                    }
-                    $out .= '<span class="accesshide">' . $attachmentlabel .
-                            '</span><ul class="forumng-attachments">';
-                }
-                foreach ($attachments as $attachment) {
-                    if ($html) {
-                        require_once($CFG->libdir . '/filelib.php');
-                        $iconsrc = $this->pix_url('/f/' . mimeinfo('icon', $attachment));
-                        $alt = get_mimetype_description(
-                            mimeinfo('type', $attachment));
 
-                        $out .= '<li><a href="' . $post->get_attachment_url($attachment) . '">' .
-                                '<img src="' . $iconsrc . '" alt="' . $alt . '" /> <span>' .
-                                htmlspecialchars($attachment) . '</span></a> </li>';
-                    } else {
+                foreach ($attachments as $attachment) {
+                    if (!$html) {
                         // Right-align the entry to 70 characters
                         $padding = 70 - strlen($attachment);
                         if ($padding > 0) {
@@ -1344,7 +1384,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
                 }
 
                 if ($html) {
-                    $out .= '</ul>' . $lf;
+                    $out .= $this->render_attachments($attachments, $post);
                 } else {
                     $out .= $lf; // Extra line break after attachments
                 }
@@ -1356,7 +1396,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
                     $message = preg_replace('~<a[^>]*\shref\s*=\s*[\'"](http:.*?)[\'"][^>]*>' .
                     '(?!(http:|www\.)).*?</a>~', "$0 [$1]", $message);
                 }
-                $out .= $lf . '<div class="forumng-message">' . $message . '</div>';
+                $out .= $lf . '<div class="forumng-message">' . $this->render_message($message, $post) . '</div>';
             } else {
                 $out .= $post->get_email_message();
                 $out .= "\n\n";
@@ -1424,9 +1464,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
                     $pid = $options[mod_forumng_post::OPTION_JUMP_PREVIOUS];
                     $parentid = $options[mod_forumng_post::OPTION_JUMP_PARENT];
                     if ($jumptotext = $this->render_commands_jumpto($nextid, $pid, $parentid)) {
-                        $thiscommand = '<span class="forumng-jumpto-label">' .
-                                get_string('jumpto', 'forumng') . '</span>' . $jumptotext;
-                        $commandsarray['forumng-jumpto'] = $thiscommand;
+                        $commandsarray['forumng-jumpto'] = $jumptotext;
                     }
                 }
 
@@ -1590,6 +1628,49 @@ class mod_forumng_renderer extends plugin_renderer_base {
     }
 
     /**
+     * Returns list of attachments
+     *
+     * @param array $attachments
+     * @param mod_forumng_post $post
+     * @return string
+     */
+    public function render_attachments($attachments, $post) {
+        global $CFG;
+        require_once($CFG->libdir . '/filelib.php');
+        $lf = ' ';
+        $out = $lf;
+        if (count($attachments) == 1) {
+            $attachmentlabel = get_string('attachment', 'forumng');
+        } else {
+            $attachmentlabel = get_string('attachments', 'forumng');
+        }
+        $out .= '<span class="accesshide forumng-attachments-label">' . $attachmentlabel .
+            '</span><ul class="forumng-attachments">';
+
+        foreach ($attachments as $attachment) {
+            $iconsrc = $this->pix_url('/f/' . mimeinfo('icon', $attachment));
+            $alt = get_mimetype_description(mimeinfo('type', $attachment));
+
+            $out .= '<li><a href="' . $post->get_attachment_url($attachment) . '">' .
+                    '<img src="' . $iconsrc . '" alt="' . $alt . '" /> <span>' .
+                    htmlspecialchars($attachment) . '</span></a> </li>';
+        }
+
+        return $out .= '</ul>' . $lf;
+    }
+
+    /**
+     * Render message inner text
+     *
+     * @param string $text
+     * @param mod_forumng_post $post
+     * @return string
+     */
+    public function render_message($text, $post) {
+        return $text;
+    }
+
+    /**
      * Renders the jumpto buttons.
      * @param int $nextid id of the next unread post
      * @param int $pid id of the previous unread post
@@ -1614,6 +1695,10 @@ class mod_forumng_renderer extends plugin_renderer_base {
         if ($parentid) {
             $output .= ' <a href="#p'. $parentid . '" class="forumng-parent">' .
                     get_string('jumpparent', 'forumng') . '</a>';
+        }
+        if (!empty($output)) {
+            $output = '<span class="forumng-jumpto-label">' .
+                    get_string('jumpto', 'forumng') . '</span>' . $output;
         }
         return $output;
     }
@@ -1813,9 +1898,10 @@ class mod_forumng_renderer extends plugin_renderer_base {
      * @param string $querytext user query
      * @param string $linkfields passing through forum link parameters for form submission
      * @param string $help help string if needed
+     * @param mod_forumng $forum Forum object if needed
      * @return string
      */
-    public function render_search_form($querytext, $linkfields, $help='') {
+    public function render_search_form($querytext, $linkfields, $help = '', $forum = null) {
         $strsearchthisactivity = get_string('searchthisforum', 'forumng');
         $out = html_writer::start_tag('form', array('action' => 'search.php', 'method' => 'get'));
         $out .= html_writer::start_tag('div');

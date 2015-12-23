@@ -3506,7 +3506,7 @@ WHERE
         $linkfields = $this->get_link_params(self::PARAM_FORM);
         $out = mod_forumng_utils::get_renderer();
         $help = $out->help_icon('searchthisforum', 'forumng');
-        return $out->render_search_form($querytext, $linkfields, $help);
+        return $out->render_search_form($querytext, $linkfields, $help, $this);
     }
 
     /**
@@ -3539,7 +3539,9 @@ WHERE
         $features = '';
         foreach (forumngfeature_discussion_list::get_all() as $feature) {
             if ($feature->should_display($this, $groupid)) {
+                $features .= html_writer::start_div('forumngfeature_' . $feature->get_id());
                 $features .= $feature->display($this, $groupid);
+                $features .= html_writer::end_div();
             }
         }
         if ($features) {
