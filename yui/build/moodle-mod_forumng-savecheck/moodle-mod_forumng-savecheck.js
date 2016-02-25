@@ -5,7 +5,7 @@ M.mod_forumng.savecheck = {
     /**
      * Adds save (session) checking functionality to submit buttons.
      */
-    init: function() {
+    init: function(contextid) {
         // Trap edit saving and test server is up.
         var btns = Y.all('#id_submitbutton, #id_savedraft');
         btns.on('click', function(e) {
@@ -50,7 +50,7 @@ M.mod_forumng.savecheck = {
             }
             var cfg = {
                 method: 'POST',
-                data: 'sesskey=' + M.cfg.sesskey,
+                data: 'sesskey=' + M.cfg.sesskey + '&contextid=' + contextid,
                 on: {
                     success: checksave,
                     failure: savefail

@@ -773,7 +773,8 @@ try {
                 array('id_tags_othertags', $forum->get_tags_used($groupid, true)));
 
         $PAGE->requires->strings_for_js(array('savefailtitle', 'savefailnetwork', 'numberofdiscussions'), 'forumng');
-        $PAGE->requires->yui_module('moodle-mod_forumng-savecheck', 'M.mod_forumng.savecheck.init');
+        $PAGE->requires->yui_module('moodle-mod_forumng-savecheck', 'M.mod_forumng.savecheck.init',
+                array($forum->get_context()->id));
 
         // Display footer
         print $out->footer();
