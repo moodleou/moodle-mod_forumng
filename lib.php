@@ -664,6 +664,48 @@ function forumng_rating_validate($params) {
 }
 
 /**
+ * Can the current user see ratings for a given itemid?
+ *
+ * @param array $params submitted data
+ *            contextid => int contextid [required]
+ *            component => The component for this module - should always be mod_forumng [required]
+ *            ratingarea => object the context in which the rated items exists [required]
+ *            itemid => int the ID of the object being rated [required]
+ *            scaleid => int scale id [optional]
+ * @return bool
+ * @throws coding_exception
+ * @throws rating_exception
+ */
+function mod_forumng_rating_can_see_item_ratings($params) {
+    require_once(dirname(__FILE__) . '/mod_forumng.php');
+    require_once(dirname(__FILE__) . '/mod_forumng_post.php');
+
+    // Check the component is mod_forum.
+    if (!isset($params['component']) || $params['component'] != 'mod_forumng') {
+        throw new rating_exception('invalidcomponent');
+    }
+
+    // Check the ratingarea is post (the only rating area in forum).
+    if (!isset($params['ratingarea']) || $params['ratingarea'] != 'post') {
+        throw new rating_exception('invalidratingarea');
+    }
+
+    if (!isset($params['itemid'])) {
+        throw new rating_exception('invaliditemid');
+    }
+
+    $post = mod_forumng_post::get_from_id($params['itemid'], mod_forumng::CLONE_DIRECT);
+    if (!$post->get_discussion()->can_view()) {
+        return false;
+    }
+    $context = context::instance_by_id($params['contextid']);
+    if (!has_capability('mod/forumng:viewallratings', $context)) {
+        return false;
+    }
+    return true;
+}
+
+/**
  * Update activity grades.
  *
  * @param stdClass $forumng database record
