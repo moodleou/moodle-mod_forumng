@@ -5380,7 +5380,7 @@ ORDER BY
         require_once($CFG->dirroot . '/tag/lib.php');
 
         if (!$this->get_tags_enabled()) {
-            return false;
+            return array();
         } else {
             // Build list of SQL conditions.
             /*/////////////////////////////*/

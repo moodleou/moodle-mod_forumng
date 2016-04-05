@@ -149,6 +149,10 @@ form.forumng-paste-buttons {
     margin-bottom: 1em;
 }
 
+.forumng_discuss_tagfilter .helptooltip {
+    margin-right: 5px;
+}
+
 .forumng-subscribe-options p,
 .forumng-subscribe-options form,
 .forumng-subscribe-options form div {

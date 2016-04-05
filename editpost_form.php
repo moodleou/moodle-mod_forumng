@@ -42,6 +42,8 @@ class mod_forumng_editpost_form extends moodleform {
             ? $this->_customdata['draft'] : null;
         $tags = isset($this->_customdata['tags'])
             ? $this->_customdata['tags'] : null;
+        $tagoptions = isset($this->_customdata['forumtags'])
+                ? $this->_customdata['forumtags'] : null;
         // Keeps track of whether we add a group selector box.
         $groupselector = false;
 
@@ -198,8 +200,9 @@ class mod_forumng_editpost_form extends moodleform {
 
             // Tag discussion.
             if ($forum->can_tag_discussion()) {
-                $mform->addElement('tags', 'tags', get_string('discussiontags', 'forumng'),
-                        array('display' => 'noofficial'));
+                $tagselect = $mform->addElement('autocomplete', 'tags', get_string('discussiontags', 'forumng'),
+                        $tagoptions, array('tags' => true, 'placeholder' => get_string('entertags', 'tag')));
+                $tagselect->setMultiple(true);
                 $mform->setType('tags', PARAM_TAGLIST);
                 $mform->setDefault('tags', $tags);
                 $mform->addHelpButton('tags', 'discussiontags', 'forumng');

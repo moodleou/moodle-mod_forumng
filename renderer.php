@@ -307,9 +307,11 @@ class mod_forumng_renderer extends plugin_renderer_base {
         if ($tags) {
             $taglinks = "<div class='forumng_discuss_tags'>Tags: ";
             // Unlist them.
+            $taglinkitems = array();
             foreach ($tags as $key => $value) {
-                $taglinks .= "<a href='view.php?$linkparams&tag=$key'>$value</a>,&nbsp;";
+                $taglinkitems[] = "<a href='view.php?$linkparams&tag=$key'>$value</a>";
             }
+            $taglinks .= implode(', ', $taglinkitems);
             $taglinks .= "</div>";
         }
 
@@ -2018,7 +2020,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
         } else {
             // Display dropdown.
             foreach ($taglist as $tag) {
-                $options[$tag->id] = htmlspecialchars($tag->displayname) . '  (' . $tag->count .')';
+                $options[$tag->id] = htmlspecialchars($tag->displayname) . ' (' . $tag->count .')';
             }
             $tagurl = new moodle_url('/mod/forumng/view.php?', $forum->get_link_params_array(mod_forumng::PARAM_PLAIN));
             $select = new single_select($tagurl, 'tag', $options, '');

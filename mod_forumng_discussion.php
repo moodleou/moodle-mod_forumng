@@ -1121,7 +1121,7 @@ WHERE
             $update->sticky = $sticky;
         }
         // Update tags if required.
-        if ($tags != null) {
+        if (!is_null($tags)) {
             $context = $this->get_forum()->get_context(true);
             tag_set('forumng_discussions', $this->discussionfields->id, $tags, 'mod_forumng', $context->id);
         }

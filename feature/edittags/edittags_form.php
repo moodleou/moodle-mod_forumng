@@ -33,8 +33,9 @@ class mod_forumng_edittags_form extends moodleform {
         $tags = $this->_customdata['tags'];
 
         // Tag discussion.
-        $mform->addElement('tags', 'tags', get_string('discussiontags', 'forumng'),
-                array('display' => 'noofficial'));
+        $tagselect = $mform->addElement('autocomplete', 'tags', get_string('discussiontags', 'forumng'),
+                $this->_customdata['forumtags'], array('tags' => true, 'placeholder' => get_string('entertags', 'tag')));
+        $tagselect->setMultiple(true);
         $mform->setType('tags', PARAM_TAGLIST);
         $mform->setDefault('tags', $tags);
         $mform->addHelpButton('tags', 'discussiontags', 'forumng');

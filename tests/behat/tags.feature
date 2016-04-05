@@ -1,4 +1,4 @@
-@mod @mod_forumng @ou @ou_vle @mod_forumng_tags
+@mod @mod_forumng @ou @ou_vle @mod_forumng_tags @javascript
 Feature: Add forumng activity and test basic tagging functionality
   In order to add and view tags
   As admin
@@ -33,6 +33,8 @@ Feature: Add forumng activity and test basic tagging functionality
       | Forum introduction | Test forum description |
       |Enable discussion tagging | 1 |
     And I follow "Test forum name"
+    And I press "Start a new discussion"
+    And I press "Cancel"
     And I add a discussion with the following data:
       | Subject | Discussion 1 |
       | Message | abc |
@@ -111,8 +113,12 @@ Feature: Add forumng activity and test basic tagging functionality
 
     # Check that we open discussion options and set/edit tags to new values
     When I click on "Discussion options" "button"
-    Then I should see "three, threea, threeb" in the "textarea#id_tags_othertags" "css_element"
-    Given I set the field "tags" to "two, three, threeB"
+    Then I should see "three" in the ".form-autocomplete-selection" "css_element"
+    And I should see "threea" in the ".form-autocomplete-selection" "css_element"
+    And I should see "threeb" in the ".form-autocomplete-selection" "css_element"
+    Given I click on "span[data-value=three]" "css_element"
+    And I click on "span[data-value=threea]" "css_element"
+    And I set the field "tags" to "two,"
 
     # Check change of discussion tags has taken place on view page
     When I click on "Save changes" "button"
@@ -124,7 +130,6 @@ Feature: Add forumng activity and test basic tagging functionality
 
     # Check that selecting tag option "two (2)2 brings up 2 discussions
     Given I set the field "tag" to "two (2)"
-    When I press "Go"
     Then "tr.forumng-discussion-short:nth-child(1)" "css_element" should exist
     Then "tr.forumng-discussion-short:nth-child(2)" "css_element" should exist
     Then "tr.forumng-discussion-short:nth-child(3)" "css_element" should not exist
@@ -142,7 +147,7 @@ Feature: Add forumng activity and test basic tagging functionality
     Then I navigate to "Edit settings" node in "ForumNG administration"
     When I click on "Edit settings" "link"
     Then the "Enable discussion tagging" "checkbox" should be enabled
-    Given I set the field "id_settags_othertags" to "setA, setB, setC"
+    Given I set the field "Set tags for forum" to "setA, setB, setC"
     And I click on "Save and display" "button"
 
     # Check to see that 'set' tags are not showing up in forumng view tag dropdown
@@ -184,7 +189,9 @@ Feature: Add forumng activity and test basic tagging functionality
     And "t23" "link" should exist
     Given I click on "Discussion two 1" "link"
     And I click on "Discussion options" "button"
-    Then I should see "t20, t21, t23,"
+    Then I should see "t20" in the ".form-autocomplete-selection" "css_element"
+    Then I should see "t21" in the ".form-autocomplete-selection" "css_element"
+    Then I should see "t23" in the ".form-autocomplete-selection" "css_element"
     And I click on "Cancel" "button"
 
     # Test the moving of a discussion
@@ -246,7 +253,6 @@ Feature: Add forumng activity and test basic tagging functionality
     # Log out as student 2
     And I log out
 
- @javascript
   Scenario: Test system changes
     Given I log in as "admin"
     And I am on site homepage
@@ -361,7 +367,6 @@ Feature: Add forumng activity and test basic tagging functionality
     # Exit from test
     And I log out
 
- @javascript
   Scenario: Add group tagging to forums
     And I log in as "admin"
     And I am on site homepage
@@ -387,18 +392,17 @@ Feature: Add forumng activity and test basic tagging functionality
     Then I should see "Set tags for forum"
     # This is the only control we have over a group id
     And I set the following fields to these values:
-      | settags_0[othertags]  | f1, f2, f3  |
+      | Set tags for forum | f1, f2, f3  |
     And I press "Save changes"
 
     # Make use of forum wide tags
     Then I click on "Discussion 1" "link"
     Then I click on "Edit tags" "button"
-    When I click on "textarea#id_tags_othertags" "css_element"
-    Given I wait until ".yui3-aclist-hidden" "css_element" does not exist
+    When I click on "#fitem_id_tags .form-autocomplete-downarrow" "css_element"
     Then I should see "f1"
     And I should see "f2"
     And I should see "f3"
-    Given I click on ".yui3-aclist ul li[data-text='f1'] div" "css_element"
+    Given I click on "#fitem_id_tags ul.form-autocomplete-suggestions li[data-value='f1']" "css_element"
     And I click on "Save changes" "button"
     # Returns to discuss.php page
     Then I should see "Discussion tags: f1"
@@ -409,12 +413,11 @@ Feature: Add forumng activity and test basic tagging functionality
     Given I click on "Test forum name" "link"
     Then I click on "Discussion 2" "link"
     Then I click on "Edit tags" "button"
-    When I click on "textarea#id_tags_othertags" "css_element"
-    Given I wait until ".yui3-aclist-hidden" "css_element" does not exist
+    When I click on "#fitem_id_tags .form-autocomplete-downarrow" "css_element"
     Then I should see "f1"
     And I should see "f2"
     And I should see "f3"
-    Given I click on ".yui3-aclist ul li[data-text='f3'] div" "css_element"
+    Given I click on "#fitem_id_tags ul.form-autocomplete-suggestions li[data-value='f3']" "css_element"
     And I click on "Save changes" "button"
     # Returns to discuss.php page
     Then I should see "Discussion tags: f3"
@@ -451,9 +454,28 @@ Feature: Add forumng activity and test basic tagging functionality
     Then I should see "Set tags for forum"
     And I should see "Set tags for Group 1"
     And I should see "Set tags for Group 2"
-    And I should see "f1, f2, f3" in the "//form//fieldset//fieldset//textarea" "xpath_element"
+    And I should see "f1" in the ".fitem_fautocomplete:first-child" "css_element"
+    And I should see "f2" in the ".fitem_fautocomplete:first-child" "css_element"
+    And I should see "f3" in the ".fitem_fautocomplete:first-child" "css_element"
 
-    # We can not create group tags due to inability to access the group tag text areas
+    # Create group tags
+    When I set the field "Set tags for Group 1" to "g1, g2, g3"
+    And I set the field "Set tags for Group 2" to "g4, g5, g6"
+    And I press "Save changes"
+    And I press "Edit Set tags"
+    Then I should see "g1" in the ".fitem_fautocomplete:nth-child(2)" "css_element"
+    And I should see "g2" in the ".fitem_fautocomplete:nth-child(2)" "css_element"
+    And I should see "g3" in the ".fitem_fautocomplete:nth-child(2)" "css_element"
+    And I should see "g4" in the ".fitem_fautocomplete:last-child" "css_element"
+    And I should see "g5" in the ".fitem_fautocomplete:last-child" "css_element"
+    And I should see "g6" in the ".fitem_fautocomplete:last-child" "css_element"
+
+    Given I press "Cancel"
+    And I follow "Discussion 1"
+    And I press "Edit tags"
+    When I click on "#fitem_id_tags .form-autocomplete-downarrow" "css_element"
+    Then I should see "g1"
+    And I should not see "g4"
 
     # Test backup and restore
     And I follow "Course 1"
@@ -465,7 +487,15 @@ Feature: Add forumng activity and test basic tagging functionality
     Then I should see "Set tags for forum"
     And I should see "Set tags for Group 1"
     And I should see "Set tags for Group 2"
-    And the field "settags_0[othertags]" matches value "f1, f2, f3"
+    And I should see "f1" in the ".fitem_fautocomplete:first-child" "css_element"
+    And I should see "f2" in the ".fitem_fautocomplete:first-child" "css_element"
+    And I should see "f3" in the ".fitem_fautocomplete:first-child" "css_element"
+    And I should see "g1" in the ".fitem_fautocomplete:nth-child(2)" "css_element"
+    And I should see "g2" in the ".fitem_fautocomplete:nth-child(2)" "css_element"
+    And I should see "g3" in the ".fitem_fautocomplete:nth-child(2)" "css_element"
+    And I should see "g4" in the ".fitem_fautocomplete:last-child" "css_element"
+    And I should see "g5" in the ".fitem_fautocomplete:last-child" "css_element"
+    And I should see "g6" in the ".fitem_fautocomplete:last-child" "css_element"
 
     # Exit from test
     And I log out

@@ -43,37 +43,37 @@ Feature: Add forumng activity and test basic functionality
     And I follow "Test forum name"
     Then I should see "Discussion 1" in the ".forumng-subject" "css_element"
     And "//td[1]//img" "xpath_element" should not exist in the "Discussion 1" "table_row"
-    And I should see "1" in the "//table[contains(@class,'forumng-discussionlist')]//tr[2]//td[3]" "xpath_element"
+    And I should see "1" in the "//table[contains(@class,'forumng-discussionlist')]/tbody/tr[1]//td[3]" "xpath_element"
     Given I add a discussion with the following data:
       | Subject | Discussion 2 |
       | Message | abcdefg |
       | sticky | 1 |
     And I follow "Test forum name"
     Then I should see "Discussion 2" in the ".forumng-subject" "css_element"
-    And I should see "Discussion 2" in the "//table[contains(@class,'forumng-discussionlist')]//tr[2]//td[1]" "xpath_element"
+    And I should see "Discussion 2" in the "//table[contains(@class,'forumng-discussionlist')]/tbody/tr[1]//td[1]" "xpath_element"
     And "//td[1]//img" "xpath_element" should exist in the "Discussion 2" "table_row"
     Given I add a discussion with the following data:
       | Subject | Discussion 3 |
       | Message | abcdefghijk |
     And I follow "Test forum name"
     # Check discussion 3 is second in list of discussions (allowing for extra divider row)
-    Then I should see "Discussion 3" in the "//table[contains(@class,'forumng-discussionlist')]//tr[4]//td[1]" "xpath_element"
+    Then I should see "Discussion 3" in the "//table[contains(@class,'forumng-discussionlist')]/tbody/tr[3]//td[1]" "xpath_element"
     # Check sorting
     Given I follow "Discussion"
-    Then I should see "Discussion 2" in the "//table[contains(@class,'forumng-discussionlist')]//tr[2]//td[1]" "xpath_element"
-    And I should see "Discussion 1" in the "//table[contains(@class,'forumng-discussionlist')]//tr[4]//td[1]" "xpath_element"
+    Then I should see "Discussion 2" in the "//table[contains(@class,'forumng-discussionlist')]/tbody/tr[1]//td[1]" "xpath_element"
+    And I should see "Discussion 1" in the "//table[contains(@class,'forumng-discussionlist')]/tbody/tr[3]//td[1]" "xpath_element"
     Given I follow "Last post"
-    Then I should see "Discussion 2" in the "//table[contains(@class,'forumng-discussionlist')]//tr[2]//td[1]" "xpath_element"
-    And I should see "Discussion 3" in the "//table[contains(@class,'forumng-discussionlist')]//tr[4]//td[1]" "xpath_element"
+    Then I should see "Discussion 2" in the "//table[contains(@class,'forumng-discussionlist')]/tbody/tr[1]//td[1]" "xpath_element"
+    And I should see "Discussion 3" in the "//table[contains(@class,'forumng-discussionlist')]/tbody/tr[3]//td[1]" "xpath_element"
     Given I follow "Discussion 1"
     And I reply to post "1" with the following data:
       | Message | HELLO |
     And I follow "Test forum name"
-    Then I should see "2" in the "//table[contains(@class,'forumng-discussionlist')]//tr[4]//td[3]" "xpath_element"
+    Then I should see "2" in the "//table[contains(@class,'forumng-discussionlist')]/tbody/tr[3]//td[3]" "xpath_element"
     Given I follow "Posts"
-    Then I should see "Discussion 1" in the "//table[contains(@class,'forumng-discussionlist')]//tr[4]//td[1]" "xpath_element"
+    Then I should see "Discussion 1" in the "//table[contains(@class,'forumng-discussionlist')]/tbody/tr[3]//td[1]" "xpath_element"
     Given I follow "Posts"
-    Then I should see "Discussion 3" in the "//table[contains(@class,'forumng-discussionlist')]//tr[4]//td[1]" "xpath_element"
+    Then I should see "Discussion 3" in the "//table[contains(@class,'forumng-discussionlist')]/tbody/tr[3]//td[1]" "xpath_element"
 
   @mod_forumng_unread
   Scenario: Check discussion post replies, unread and editing
@@ -94,8 +94,8 @@ Feature: Add forumng activity and test basic functionality
     And I follow "Course 1"
     Then I should see "(Unread posts)"
     Given I follow "Test forum name"
-    Then I should see "3" in the "//table[contains(@class,'forumng-discussionlist')]//tr[2]//td[3]" "xpath_element"
-    And I should see "3" in the "//table[contains(@class,'forumng-discussionlist')]//tr[2]//td[4]" "xpath_element"
+    Then I should see "3" in the "//table[contains(@class,'forumng-discussionlist')]/tbody/tr[1]//td[3]" "xpath_element"
+    And I should see "3" in the "//table[contains(@class,'forumng-discussionlist')]/tbody/tr[1]//td[4]" "xpath_element"
     Given I follow "Discussion 1"
     Then "li.forumng-edit" "css_element" should not exist
     And "li.forumng-delete" "css_element" should not exist
@@ -116,11 +116,11 @@ Feature: Add forumng activity and test basic functionality
       | Message | REPLY3 EDIT |
     Then I should see "REPLY3 EDIT"
     Given I click on "#forumng-arrowback a" "css_element"
-    Then I should see "5" in the "//table[contains(@class,'forumng-discussionlist')]//tr[2]//td[3]" "xpath_element"
-    And I should see "" in the "//table[contains(@class,'forumng-discussionlist')]//tr[2]//td[4]" "xpath_element"
+    Then I should see "5" in the "//table[contains(@class,'forumng-discussionlist')]/tbody/tr[1]//td[3]" "xpath_element"
+    And I should see "" in the "//table[contains(@class,'forumng-discussionlist')]/tbody/tr[1]//td[4]" "xpath_element"
     Given I press "Change"
     Then I should see "Manually mark as read"
-    And I should see "" in the "//table[contains(@class,'forumng-discussionlist')]//tr[2]//td[4]" "xpath_element"
+    And I should see "" in the "//table[contains(@class,'forumng-discussionlist')]/tbody/tr[1]//td[4]" "xpath_element"
     Given I follow "Course 1"
     Then I should not see "(unread posts)"
     And I log out
@@ -129,24 +129,24 @@ Feature: Add forumng activity and test basic functionality
     And I follow "Course 1"
     Then I should see "(Unread posts)"
     Given I follow "Test forum name"
-    And I should see "5" in the "//table[contains(@class,'forumng-discussionlist')]//tr[2]//td[3]" "xpath_element"
-    And I should see "2" in the "//table[contains(@class,'forumng-discussionlist')]//tr[2]//td[4]" "xpath_element"
+    And I should see "5" in the "//table[contains(@class,'forumng-discussionlist')]/tbody/tr[1]//td[3]" "xpath_element"
+    And I should see "2" in the "//table[contains(@class,'forumng-discussionlist')]/tbody/tr[1]//td[4]" "xpath_element"
     When I press "Change"
     Then I should see "Manually mark as read"
-    And I should see "2" in the "//table[contains(@class,'forumng-discussionlist')]//tr[2]//td[4]" "xpath_element"
+    And I should see "2" in the "//table[contains(@class,'forumng-discussionlist')]/tbody/tr[1]//td[4]" "xpath_element"
     Given I follow "Discussion 1"
     Then ".forumng-p4 .forumng-markread" "css_element" should exist
     And ".forumng-p5 .forumng-markread" "css_element" should exist
     When I click on ".forumng-p4 .forumng-markread a" "css_element"
     Then ".forumng-p4 .forumng-markread" "css_element" should not exist
     Given I follow "Test forum name"
-    And I should see "1" in the "//table[contains(@class,'forumng-discussionlist')]//tr[2]//td[4]" "xpath_element"
+    And I should see "1" in the "//table[contains(@class,'forumng-discussionlist')]/tbody/tr[1]//td[4]" "xpath_element"
     Given I follow "Discussion 1"
     When I click on ".forumng-p5 .forumng-markread a" "css_element"
     Then ".forumng-p5 .forumng-markread" "css_element" should not exist
     Given I follow "Test forum name"
     And I should see "Manually mark as read"
-    And I should see "" in the "//table[contains(@class,'forumng-discussionlist')]//tr[2]//td[4]" "xpath_element"
+    And I should see "" in the "//table[contains(@class,'forumng-discussionlist')]/tbody/tr[1]//td[4]" "xpath_element"
     Given I follow "Discussion 1"
     When I press "Show readers"
     Then I should see "Student 1"

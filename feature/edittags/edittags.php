@@ -75,9 +75,9 @@ if ($cloneid) {
 
 $tags = $discussion->get_tags(true);
 
-// Add an empty element for editing tag purposes.
-if (!empty($tags)) {
-    array_push($tags, '');
+$forumtags = array();
+foreach ($forum->get_tags_used($groupid, true) as $tag) {
+    $forumtags[tag_display_name($tag, TAG_RETURN_TEXT)] = tag_display_name($tag);
 }
 
 $customdata = array(
@@ -85,6 +85,7 @@ $customdata = array(
         'cmid' => $cm->id,
         'group' => $groupid,
         'tags' => $tags,
+        'forumtags' => $forumtags,
         'params' => $urlparams
 );
 
@@ -101,6 +102,8 @@ if ($mform->is_cancelled()) {
 } else if ($fromform = $mform->get_data()) {
     if (!isset($fromform->tags)) {
         $fromform->tags = null;
+    } else if (empty($fromform->tags)) {
+        $fromform->tags = array();
     }
     $discussion = mod_forumng_discussion::get_from_id($d, $cloneid);
     $discussion->edit_settings(mod_forumng_discussion::NOCHANGE, mod_forumng_discussion::NOCHANGE,
@@ -114,8 +117,6 @@ if ($mform->is_cancelled()) {
     $forum->print_form_js();
     $mform->display();
 
-    $PAGE->requires->yui_module('moodle-mod_forumng-tagselector', 'M.mod_forumng.tagselector.init',
-            array('id_tags_othertags', $forum->get_tags_used($groupid, true)));
     $PAGE->requires->strings_for_js(array('numberofdiscussions'), 'forumng');
 
     // Display footer.

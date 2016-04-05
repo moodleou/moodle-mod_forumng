@@ -142,6 +142,7 @@ try {
     $forum = null;
     $post = null;
     $tags = null;
+    $forumtags = null;
     if ($draftid = optional_param('draft', 0, PARAM_INT)) {
         $pageparams['draft'] = $draftid;
         $draft = mod_forumng_draft::get_from_id($draftid);
@@ -195,6 +196,10 @@ try {
             $params = array('id'=>$cmid, 'group'=>$groupid);
         }
         $pagename = get_string('addanewdiscussion', 'forumng');
+        $forumtags = array();
+        foreach ($forum->get_tags_used($groupid, true) as $tag) {
+            $forumtags[tag_display_name($tag, TAG_RETURN_TEXT)] = tag_display_name($tag);
+        }
 
     } else if ($replytoid ||
         ($replytoid = optional_param('replyto', 0, PARAM_INT))) {
@@ -249,9 +254,9 @@ try {
         $pagename = get_string('editdiscussionoptions', 'forumng',
             $post->get_effective_subject(false));
         $tags = $discussion->get_tags(true);
-        // Add an empty element for editing tag purposes.
-        if (!empty($tags)) {
-            array_push($tags, '');
+        $forumtags = array();
+        foreach ($forum->get_tags_used($discussion->get_group_id(), true) as $tag) {
+            $forumtags[tag_display_name($tag, TAG_RETURN_TEXT)] = tag_display_name($tag);
         }
     } else {
         // To edit existing posts, p (forum post id) is required
@@ -306,7 +311,7 @@ try {
             'iframe' => $iframe ? true : false,
             'timelimit' => $ispost && $edit && !$post->can_ignore_edit_time_limit()
                 ? $post->get_edit_time_limit() : 0,
-            'draft'=>$draft, 'tags' => $tags));
+            'draft' => $draft, 'tags' => $tags, 'forumtags' => $forumtags));
 
     if (is_object($post)) {
         // Not a new discussion/post so we are editing a pre-existing post.
@@ -768,9 +773,6 @@ try {
         if ($iframe) {
             $PAGE->requires->js_init_code('window.parent.iframe_has_loaded(window);', true);
         }
-
-        $PAGE->requires->yui_module('moodle-mod_forumng-tagselector', 'M.mod_forumng.tagselector.init',
-                array('id_tags_othertags', $forum->get_tags_used($groupid, true)));
 
         $PAGE->requires->strings_for_js(array('savefailtitle', 'savefailnetwork', 'numberofdiscussions'), 'forumng');
         $PAGE->requires->yui_module('moodle-mod_forumng-savecheck', 'M.mod_forumng.savecheck.init',

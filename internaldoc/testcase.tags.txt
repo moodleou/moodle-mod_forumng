@@ -53,7 +53,7 @@ TTD02 /U.S2
 
 TTD03 / admin (change)
   Goto discussion 1 and click on the button 'Discussion options'
-  In the 'discussion tags' text area remove the entry 'fred'
+  In the 'discussion tags' field and click 'x' on the 'fred' tag to remove it
   Save changes
   Return to the forum
   Check that 'discussion 1' no longer has the 'fred' tag
@@ -61,7 +61,7 @@ TTD03 / admin (change)
 
 TTD04 / admin
   Goto discussion 2 and click on the button 'Discussion options'
-  In the 'discussion tags' text area remove the entry 'jim'
+  In the 'discussion tags' field and click 'x' on the 'jim' tag to remove it
   Save changes
   Return to the forum
   Check that 'discussion 2' no longer has the 'jim' tag
@@ -85,8 +85,8 @@ TTD06 / U.S1
   Goto discussion 1
   Check that there is a button entitled 'Edit tags'
   Click on the 'Edit tags' button
-  Check that 'adam, john, fred,' tags are in 'Discussion tags' text area
-  Add 'ted' to the tags
+  Check that 'adam' 'john' and 'fred' tags shown above the 'Discussion tags' field
+  Enter 'ted' in the 'Discussion tags' field to add it to the tags
   Click on 'Save changes' button
   Check that you have returned to discussion 1
   Check that 'Discussion tags: adam, fred, john, ted' is shown below the discussion
@@ -103,20 +103,23 @@ TJD01 / admin (change)
 
 TJD02 / admin
   Create discussion 3A
-  Click in add tags text area
+  Click the down arrow in the 'Discssuon tags' field
   Check that a javascript dropdown/box appears containing the following
-   adam 3 discussions
-   borg 1 discussions
-   gorn 1 discussions
-   jim  1 discussions
-   john 2 discussions
-   ted  1 discussions
-   vulcan 1 discussions
-  Select the 'borg 1 discussions' from the javascript box
-  Check that it has added it to the text area and removed from the javascript box
-  Select the 'vulcan 1 discussion' from the javascript box
-  Check that it has added it to the text area and removed from the javascript box
-  Add 'tim' manually to the tags
+   adam
+   borg
+   gorn
+   jim
+   john
+   ted
+   vulcan
+  Select the 'borg' from the dropdown box
+  Check that it has added the 'borg' tag and removed from the dropdown box
+  Ensure the dropdown box is not visible (click the arrow to close it if it is)
+  Type 'vul' in the 'Discussion tags' field
+  Check that the dropdown has appeared with 'vulcan' visible
+  Select the 'vulcan' from the javascript box
+  Check that it has added it to the text area and removed from the dropdown box
+  Type 'tim' in the 'Discussion tags' field to manually add it to the tags
   Add post 'discussion post 3A' and some text
   Save changes
   Return to the forum
@@ -124,20 +127,20 @@ TJD02 / admin
 
 TJD03 / admin
   Goto discussion 3 and click on the button 'Discussion options'
-  In the 'discussion tags' text area remove the entry 'gorn'
+  In the 'discussion tags' field click 'x' next to 'gorn' to remove it
   Save changes
   Return to the forum
   Check that 'discussion 3' no longer has the 'gorn' tag
 
 TJD04 / admin
   Goto discussion 3A and click on the button 'Discussion options'
-   Click in add tags text area
+   Click the arrow in the 'Discussion tags' field
    Check that a javascript dropdown/box appears does not contain an entry for the 'gorn'
    It should show
-   adam 3 discussions
-   jim  1 discussions
-   john 2 discussions
-   ted  1 discussions
+   adam
+   jim
+   john
+   ted
 
 SFT Test Set Forum Tags
 =======================
@@ -148,7 +151,7 @@ SFT01 / admin
      click on 'Edit settings'
   This should bring up the forum edit form.
   Check that Enable discussion tagging checkbox is ticked as per instruction in CRE01.
-  In the 'Set tags for forum' text area enter the following ' set 1, set 2, set 3,' making sure that the commas are correctly placed.
+  In the 'Set tags for forum' field enter the following 'set 1, set 2, set 3,' making sure that the commas are correctly placed.
   'Save and display'
 
 SFT02 / admin
@@ -156,36 +159,36 @@ SFT02 / admin
   Add a post to the discussion.
   Click on the 'Discussion options' button.
   This should bring up discussion options form.
-  Click in the 'Discussion tags' text area.
+  Click in the arrow in the 'Discussion tags' field.
   Check that a javascript dropdown/box appears which has the following entries in it.
   Note: There maybe other entries as well, but we are just checking against the entries below.
-     set 1, Set, 0 discussions
-     set 2, Set, 0 discussions
-     set 3, Set, 0 discussions
+     set 1
+     set 2
+     set 3
   Click on the entry for 'set 2' and 'Save changes'
-  Check that the 'Discussion tags' text area has 'set 2,' in it.
-  Click in the 'Discussion tags' text area.
+  Check that the 'Discussion tags' text area has 'set 2' above it.
+  Click in the arrow in the 'Discussion tags' field.
   Check that a javascript dropdown/box appears which has the following entries in it.
   Note: There maybe other entries as well, but we are just checking against the entries below.
-     set 1, Set, 0 discussions
-     set 3, Set, 0 discussions
+     set 1
+     set 3
 
 SFT03 / admin
   Return to forum view page.
-  Check that 'discussion 4' is shown with the tag 'set 2,' shown in a smaller normal font.
+  Check that 'discussion 4' is shown with the tag 'set 2' shown in a smaller normal font.
   Check that there is a drop down entitled 'View discussions with tag'
      and the drop down shows a list of tags in alphabetical order with the correct number (sum) of tags for each tag.
   Check that there is a entry on the drop down list entitles 'set 2 (1)'
   Check that there are no entries for
-     set 1, Set, 0 discussions
-     set 3, Set, 0 discussions
+     set 1
+     set 3
 
 SFT04 / admin
   In the admin panel on the left hand side of the webpage under 'Administration', 'ForumNG Adminstration'
      click on 'Edit settings'
   This should bring up the forum edit form.
   Check that Enable discussion tagging checkbox is ticked as per instruction in SFT01.
-  Check that the in 'Set tags for forum' text area has set tags as previously entered, i.e. ' set 1, set 2, set 3' are shown.
+  Check that the 'Set tags for forum' field has set tags as previously entered, i.e. 'set 1', 'set 2', 'set 3', shown.
 
 Test Group Set Forum Tags
 =========================
@@ -209,7 +212,7 @@ TGS03 / admin
   Return to the forum view page
   Change 'separate groups' dropdown to show G1
   Click on the 'Edit set tags' button
-  Enter 'g1, g12, g13' into the 'Set tags for G1' text box.
+  Enter 'g1, g12, g13' into the 'Set tags for G1' field.
   There should also be text boxes for 'Set tags for forum' and 'Set tags for G2'
   Click on 'Save changes'
 
@@ -218,27 +221,27 @@ TGS04 / admin
   Change 'separate groups' dropdown to show G1
   Click on 'G1 D1' link
   Click on 'Edit tags' button
-  Click in the 'Discussion tags' text area.
+  Click in the arrow in the 'Discussion tags' field.
   Check that a javascript dropdown/box appears which has the following entries in it.
   Note: There maybe other entries as well, but we are just checking against the entries below.
-     g1, Set, 0 discussions
-     g12, Set, 0 discussions
-     g13, Set, 0 discussions
-  Click on the entry for 'g12, Set, 0 discussions'
+     g1
+     g12
+     g13
+  Click on the entry for 'g12'
   Click on the 'Save changes' button
   Check that 'G1 D1' has 'Tags: g12' showing under the discussion name.
 
 TGS05 / admin
   Click on 'G1 D2' link
   Click on 'Edit tags' button
-  Click in the 'Discussion tags' text area.
+  Click in the arrow in the 'Discussion tags' field.
   Check that a javascript dropdown/box appears which has the following entries in it.
   Note: There maybe other entries as well, but we are just checking against the entries below.
-     g1, Set, 0 discussions
-     g12, Set, 1 discussions
-     g13, Set, 0 discussions
-  Click on the entry for 'g12, Set, 1 discussions'
-  Click on the entry for 'g1, Set, 0 discussions'
+     g1
+     g12
+     g13
+  Click on the entry for 'g12'
+  Click on the entry for 'g1'
   Click on the 'Save changes' button
   Check that 'G1 D2' has 'Tags: g1, g12' showing under the discussion name.
 
@@ -253,7 +256,7 @@ TGS07 / admin
   Return to the forum view page
   Change 'separate groups' dropdown to show G2
   Click on the 'Edit set tags' button
-  Enter 'g2, g22, g23' into the 'Set tags for G2' text area.
+  Enter 'g2, g22, g23' into the 'Set tags for G2' field.
   There should also be text boxes for 'Set tags for forum' and 'Set tags for G1'
   Click on 'Save changes'
 
@@ -262,14 +265,14 @@ TGS08 / admin
   Change 'separate groups' dropdown to show G2
   Click on 'G2 D1' link
   Click on 'Edit tags' button
-  Click in the 'Discussion tags' text area.
+  Click in the arrow in the 'Discussion tags' field.
   Check that a javascript dropdown/box appears which has the following entries in it.
   Note: There maybe other entries as well, but we are checking first against the entries below.
-     g2, Set, 0 discussions
-     g22, Set, 0 discussions
-     g23, Set, 0 discussions
+     g2
+     g22
+     g23
   Check that entries for 'g1, g12, g13' are not shown.
-  Click on the entry for 'g22, Set, 0 discussions'
+  Click on the entry for 'g22'
   Click on the 'Save changes' button
   Check that 'G2 D1' has 'Tags: g22' showing under the discussion name.
 
@@ -278,11 +281,11 @@ TGS09 / admin
   Change 'separate groups' dropdown to show 'All participants'
   Click on 'G2 D1' link
   Click on 'Edit tags' button
-  Check that 'g22' is showing in the 'Discussion tags' text area
-  Click in the 'Discussion tags' text area.
+  Check that 'g22' is showing above the 'Discussion tags' field
+  Click in the arrow in the 'Discussion tags' field.
   Check that a javascript dropdown/box appears which has the following entries in it.
-     g2, Set, 0 discussions
-     g23, Set, 0 discussions
+     g2
+     g23
   Check that entries for 'g1, g12, g13' are not shown.
   Click on 'Cancel' button
 
@@ -290,10 +293,10 @@ TGS10 / U.ET (change)
   Return to the forum view page
   Change 'separate groups' dropdown to show 'All participants'
   Click on the 'Edit set tags' button
-  Check that 'Set tags for G1' text area contains 'g1, g12, g13'
-  Check that 'Set tags for G2' text area contains 'g2, g22, g23'
-  Check that 'Set tags for forum' text area does not exists
-  Click in 'Set tags for G2' text area and add ', g24' to the list after 'g23' making sure that you put a ',' after the g23
+  Check that 'Set tags for G1' field has the tags 'g1', 'g12', 'g13' above
+  Check that 'Set tags for G2' field has the tags 'g2', 'g22', 'g23' above
+  Check that 'Set tags for forum' field does not exist
+  Click in 'Set tags for G2' type 'g24' to add the 'g24' tag to the list.
   Click on the 'Save changes' button
 
 TGS11 / admin (change)
@@ -307,10 +310,10 @@ TGS12 / U.ET (change)
   Return to the forum view page
   'Separate groups: G2' should be shown where the separate groups' dropdown was previously
   Click on 'Edit set tags'
-  Check that 'Set tags for G2' text area contains 'g2, g22, g23, g24'
-  Check that 'Set tags for forum' text area does not exists
-  Check that 'Set tags for G1' text area does not exists
-  Click in 'Set tags for G2' text area and remove 'g24' from the list
+  Check that 'Set tags for G2' field had the tags 'g2', 'g22', 'g23', 'g24' above
+  Check that 'Set tags for forum' field does not exist
+  Check that 'Set tags for G1' field does not exist
+  Click 'x' next to 'g24' in 'Set tags for G2' field to remove it form the list.
   Click on the 'Save changes' button
 
 TGS13 / admin (change)
@@ -324,9 +327,9 @@ TGS14 / U.ET (change)
   Return to the forum view page
   Change 'separate groups' dropdown to show 'All participants'
   Click on the 'Edit set tags' button
-  Check that 'Set tags for G1' text area contains 'g1, g12, g13'
-  Check that 'Set tags for G2' text area contains 'g2, g22, g23'
-  Check that 'Set tags for forum' text area does not exists
+  Check that 'Set tags for G1' field has the tags 'g1', 'g12', 'g13' above
+  Check that 'Set tags for G2' field has the tags 'g2', 'g22', 'g23' above
+  Check that 'Set tags for forum' field does not exist
   Click on 'Cancel' button
 
 TGS15 / U.S1 (change)
@@ -347,8 +350,7 @@ TGS17 / U.S1
   Return to the forum view page
   Click on 'G1 D3' discussion link
   Click on 'Edit tags' button
-  Click in the 'Discussion tags' text area
-  Add ', d14' to the list after after the last item  making sure that you put a ',' after the last item
+  Type 'd14' in the 'Discussion tags' field to add the tag to the list
   Click on the 'Save changes' button
 
 TGS18 / U.S1
@@ -362,30 +364,30 @@ Test Set Manage Tags
 TSM01 / admin (change)
   Return to the forum view page.
   Click on 'Edit Set tags' button
-  Check that 'Set tags for forum' text area contains 'set 1, set 2, set 3,'
-  Check that 'Set tags for G1' text area contains 'g1, g12, g13'
-  Check that 'Set tags for G2' text area contains 'g2, g22, g23'
-  Click in 'Set tags for forum' text area and add 'set 4' to the list
-  Click in 'Set tags for G1' text area and add ', g14' to the list after 'g13' making sure that you put a ',' after the g13
-  Click in 'Set tags for G2' text area and add ', g24' to the list after 'g23' making sure that you put a ',' after the g23
+  Check that 'Set tags for forum' field has the tags 'set 1', 'set 2', 'set 3' above
+  Check that 'Set tags for G1' field has the tags 'g1, g12, g13' above
+  Check that 'Set tags for G2' field has the tags 'g2, g22, g23' above
+  Click in 'Set tags for forum' field and add 'set 4' to the list
+  Click in 'Set tags for G1' field and type 'g14' to add it to the list
+  Click in 'Set tags for G2' field and type 'g24' to add it to the list
   Click on the 'Save changes' button
 
 TSM02 / admin
   Return to the forum view page
   Click on 'G2 D1' link
   Click on 'Edit tags' button
-  Check that 'g22' is showing in the 'Discussion tags' text area
-  Click in the 'Discussion tags' text area.
+  Check that 'g22' is showing above the 'Discussion tags' field
+  Click in the arrow in the 'Discussion tags' field.
   Check that a javascript dropdown/box appears which has the following entries in it.
-     g2, Set, 0 discussions
-     g23, Set, 0 discussions
-     g24, Set, 0 discussions
-     set 1, Set, 0 discussions
-     set 2, Set, 0 discussions
-     set 3, Set, 0 discussions
-     set 4, Set, 0 discussions
+     g2
+     g23
+     g24
+     set 1
+     set 2
+     set 3
+     set 4
   Check that entries for 'g1, g12, g13' are not shown.
-  Click on the entry for 'g24, Set, 0 discussions'
-  Click on the entry for 'set 3, Set, 0 discussions'
+  Click on the entry for 'g24'
+  Click on the entry for 'set 3'
   Click on the 'Save changes' button.
   Check that 'G2 D1' has 'Tags: g22, g24, set 3' showing under the discussion name.
