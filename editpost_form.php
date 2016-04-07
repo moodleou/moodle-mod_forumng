@@ -297,6 +297,7 @@ class mod_forumng_editpost_form extends moodleform {
     }
 
     public function validation($data, $files) {
+        global $USER;
         $errors = parent::validation($data, $files);
         if (isset($data['timeend'])
             && ($data['timeend']!=0) && ($data['timestart']!=0)
@@ -313,6 +314,24 @@ class mod_forumng_editpost_form extends moodleform {
                         $errors['emailadd'] = get_string('invalidemails', 'forumng');
                         break;
                     }
+                }
+            }
+        }
+        if (!empty($data['subject'])) {
+            // Sometimes broken browsers/password managers autocomplete the
+            // subject field with the student's OUCU or PI. We do not allow
+            // them to submit the post in this case.
+            $subject = core_text::strtolower($data['subject']);
+            if ($subject === core_text::strtolower($USER->username) ||
+                    $subject === core_text::strtolower($USER->idnumber)) {
+                if ($this->_customdata['isroot']) {
+                    $errors['subject'] = 'You have set the subject line to your login details. (This ' .
+                            'may have been done automatically by your browser or password manager.) ' .
+                            'To continue, change the subject text.';
+                } else {
+                    $errors['subject'] = 'You have set the subject line to your login details. (This ' .
+                            'may have been done automatically by your browser or password manager.) ' .
+                            'To continue, delete or change the subject text.';
                 }
             }
         }
