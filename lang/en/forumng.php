@@ -930,3 +930,6 @@ $string['forumng:viewallratings'] = 'View all raw ratings given by individuals';
 $string['forumngcrontaskemails'] = 'Forumng email sending job';
 $string['forumngcrontaskdaily'] = 'Forumng daily maintenance job';
 $string['forumngcrontaskdigest'] = 'Forumng email digest job';
+
+$string['error_identityinsubject_discussion'] = 'You have set the subject line to your login details. (This may have been done automatically by your browser or password manager.) To continue, change the subject text.';
+$string['error_identityinsubject_reply'] = 'You have set the subject line to your login details. (This may have been done automatically by your browser or password manager.) To continue, delete or change the subject text.';

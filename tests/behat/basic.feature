@@ -339,7 +339,7 @@ Feature: Add forumng activity and test basic functionality
     And "REPLY2" "link" should exist
     And I log out
 
-    Scenario: Test subscription buttons
+  Scenario: Test subscription buttons
     Given I log in as "student1"
     And I am on site homepage
     And I follow "Course 1"

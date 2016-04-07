@@ -325,13 +325,9 @@ class mod_forumng_editpost_form extends moodleform {
             if ($subject === core_text::strtolower($USER->username) ||
                     $subject === core_text::strtolower($USER->idnumber)) {
                 if ($this->_customdata['isroot']) {
-                    $errors['subject'] = 'You have set the subject line to your login details. (This ' .
-                            'may have been done automatically by your browser or password manager.) ' .
-                            'To continue, change the subject text.';
+                    $errors['subject'] = get_string('error_identityinsubject_discussion', 'forumng');
                 } else {
-                    $errors['subject'] = 'You have set the subject line to your login details. (This ' .
-                            'may have been done automatically by your browser or password manager.) ' .
-                            'To continue, delete or change the subject text.';
+                    $errors['subject'] = get_string('error_identityinsubject_reply', 'forumng');
                 }
             }
         }
