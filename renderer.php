@@ -1167,7 +1167,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
                 }
             }
             // Group pictures if any - only for expanded version
-            if ($expanded) {
+            if ($expanded && !$options[mod_forumng_post::OPTION_PARTICIPATION]) {
                 $grouppics = $post->display_group_pictures();
                 if ($grouppics) {
                     $out .= '<div class="forumng-grouppicss">' . $grouppics .

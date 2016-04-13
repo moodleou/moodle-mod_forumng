@@ -65,6 +65,7 @@ class mod_forumng_post {
     const OPTION_FIRST_UNREAD = 'first_unread';
     const OPTION_UNREAD_NOT_HIGHLIGHTED = 'unread_not_highlighted';
     const OPTION_SINGLE_POST = 'single_post';
+    const OPTION_PARTICIPATION = 'in_participation_screen';
 
     /** Constant indicating that post is not rated by user */
     const NO_RATING = 999;
@@ -2345,6 +2346,9 @@ WHERE
                     $options[self::OPTION_VIEW_ANON_INFO] = false;
                 }
             }
+        }
+        if (!array_key_exists(self::OPTION_PARTICIPATION, $options)) {
+            $options[self::OPTION_PARTICIPATION] = false;
         }
 
         // Get forum type to do actual display

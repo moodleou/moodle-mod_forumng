@@ -4915,10 +4915,14 @@ WHERE
             $rm = new rating_manager();
             $posts = $rm->get_ratings($ratingoptions);
         }
+        $discussions = array();
         foreach ($posts as $fields) {
             $discussionfields = mod_forumng_utils::extract_subobject($fields, 'fd_');
-            $discussion = new mod_forumng_discussion($this, $discussionfields, false, -1);
-            $result[$fields->id] = new mod_forumng_post($discussion, $fields);
+            if (!isset($discussions[$discussionfields->id])) {
+                $discussions[$discussionfields->id] = new mod_forumng_discussion($this, $discussionfields, false, -1);
+            }
+
+            $result[$fields->id] = new mod_forumng_post($discussions[$discussionfields->id], $fields);
         }
         return $result;
     }
@@ -5005,10 +5009,13 @@ WHERE
             $rm = new rating_manager();
             $posts = $rm->get_ratings($ratingoptions);
         }
+        $discussions = array();
         foreach ($posts as $fields) {
             $discussionfields = mod_forumng_utils::extract_subobject($fields, 'fd_');
-            $discussion = new mod_forumng_discussion($this, $discussionfields, false, -1);
-            $result[$fields->id] = new mod_forumng_post($discussion, $fields);
+            if (!isset($discussions[$discussionfields->id])) {
+                $discussions[$discussionfields->id] = new mod_forumng_discussion($this, $discussionfields, false, -1);
+            }
+            $result[$fields->id] = new mod_forumng_post($discussions[$discussionfields->id], $fields);
         }
         return $result;
     }

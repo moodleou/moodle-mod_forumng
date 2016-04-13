@@ -265,7 +265,8 @@ foreach ($posts as $postid => $post) {
         $options = array(
             mod_forumng_post::OPTION_NO_COMMANDS => true,
             mod_forumng_post::OPTION_FIRST_UNREAD => false,
-            mod_forumng_post::OPTION_UNREAD_NOT_HIGHLIGHTED => true);
+            mod_forumng_post::OPTION_UNREAD_NOT_HIGHLIGHTED => true,
+            mod_forumng_post::OPTION_PARTICIPATION => true);
         if (empty($download)) {
             print $post->display(true, $options);
         } else {
