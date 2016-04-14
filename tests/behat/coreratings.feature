@@ -44,9 +44,10 @@ Feature: Add forumng activity and test basic ratings functionality
     And I follow "Test forum name"
     And I follow "Admin1"
     When I reply to post "2" with the following data:
-      | Change subject (optional) | Teacher1 |
+      | Change subject (optional) | Teacher1 post |
       | Message | Test 3 |
     Then I should see "Test2"
+    And I should see "Test 3"
     And ".forumng-ratings-standard" "css_element" should exist
     And ".forumng-p1 .forumng-ratings-standard select" "css_element" should exist
     And ".forumng-p2 .forumng-ratings-standard select" "css_element" should exist

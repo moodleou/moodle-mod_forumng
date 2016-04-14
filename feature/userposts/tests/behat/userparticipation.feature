@@ -46,7 +46,7 @@ Feature: Add forumng activity and test basic ratings functionality
     Then I follow "Test forum name"
     And I follow "Admin1"
     And I reply to post "2" with the following data:
-      | Change subject (optional) | Student1 |
+      | Change subject (optional) | Student 1 |
       | Message                   | Test3   |
     And I should see "Test3"
     And I follow "Miscellaneous"
@@ -60,7 +60,7 @@ Feature: Add forumng activity and test basic ratings functionality
     And I follow "Test forum name"
     And I follow "Admin1"
     And I reply to post "1" with the following data:
-      | Change subject (optional) | Student1                     |
+      | Change subject (optional) | Student 1                     |
       | Message                   | Reply by Student 1   |
     And I log out
 
@@ -86,7 +86,7 @@ Feature: Add forumng activity and test basic ratings functionality
 
     And I follow "Disc2"
     And I reply to post "1" with the following data:
-      | Change subject (optional) | Student1                       |
+      | Change subject (optional) | Student 1                       |
       | Message                   | Reply to Disc2 by Student 1   |
     And I should see "Reply to Disc2 by Student 1"
     And I follow "Miscellaneous"

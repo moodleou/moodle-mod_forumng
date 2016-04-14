@@ -185,6 +185,7 @@ class behat_mod_forumng extends behat_base {
         if ($this->running_javascript()) {
             $steps[] = new Given('I switch to "forumng-post-iframe" iframe');
             $steps[] = new Given('I wait until "' . $savebutton . '" "button" exists');
+            $steps[] = new Given('I wait until the page is ready');
             if ($type == 'reply') {
                 $steps[] = new Then('the "' . $savebutton . '" "button" should be disabled');
             }
@@ -198,6 +199,7 @@ class behat_mod_forumng extends behat_base {
             $steps[] = new Then('the "' . $savebutton . '" "button" should be enabled');
             $steps[] = new Given('I press "' . $savebutton . '"');
             $steps[] = new Given('I switch to the main frame');
+            $steps[] = new Given('I wait until "iframe[name=forumng-post-iframe]" "css_element" does not exist');
         } else {
             $steps[] = new Given('I set the following fields to these values:', $data);
             $steps[] = new Given('I press "' . $savebutton . '"');
