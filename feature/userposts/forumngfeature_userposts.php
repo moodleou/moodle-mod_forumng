@@ -30,7 +30,7 @@ require_once(dirname(__FILE__).'/../forumngfeature_discussion_list.php');
  */
 class forumngfeature_userposts extends forumngfeature_discussion_list {
     public function get_order() {
-        return 400;
+        return 100;
     }
 
     public function should_display($forum) {
@@ -57,11 +57,12 @@ class forumngfeature_userposts extends forumngfeature_discussion_list {
         if (has_capability('forumngfeature/userposts:view', $forum->get_context())) {
             $name = get_string('viewpostsbyuser', 'forumngfeature_userposts');
             $script = 'feature/userposts/list.php';
-            return parent::get_button($forum, $name, $script);
+            return parent::get_button($forum, $name, $script, false, array(), '', 'fng-mobile-on');
         } else {
             $name = get_string('viewownposts', 'forumngfeature_userposts');
             $script = 'feature/userposts/user.php';
-            return parent::get_button($forum, $name, $script, false, array('user'=> mod_forumng_utils::get_real_userid()));
+            return parent::get_button($forum, $name, $script, false,
+                    array('user' => mod_forumng_utils::get_real_userid(), 'fng-mobile-on'));
         }
     }
 }

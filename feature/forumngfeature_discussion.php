@@ -63,10 +63,11 @@ abstract class forumngfeature_discussion extends forumngfeature {
      * @param bool $highlight If true, adds a highlight class to the form
      * @param bool $selector If true, adds a selector class to the form (indicating that the
      *   JavaScript post selector should be used)
+     * @param string $extraclass Add extra css class to form
      * @return string HTML code for button
      */
     protected static function get_button($discussion, $name, $script,
-        $post=false, $options=array(), $extrahtml='', $highlight=false, $selector=false) {
+        $post = false, $options = array(), $extrahtml = '', $highlight = false, $selector = false, $extraclass = '') {
         $method = $post ? 'post' : 'get';
         $optionshtml = '';
         $options['d'] = $discussion->get_id();
@@ -88,6 +89,7 @@ abstract class forumngfeature_discussion extends forumngfeature {
         if ($selector) {
             $class .= ' forumng-selectorbutton';
         }
+        $class .= $extraclass;
         if ($class !== '') {
             $class = ' class="' . trim($class) . '"';
         }

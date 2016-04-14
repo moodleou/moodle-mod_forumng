@@ -43,6 +43,6 @@ class forumngfeature_markallread  extends forumngfeature_discussion_list {
                     $forum->get_course_module());
         }
         return parent::get_button($forum, get_string('markallread', 'forumngfeature_markallread'),
-                'markread.php', true, $params);
+                'markread.php', true, $params, '', 'fng-mobile-on');
     }
 }

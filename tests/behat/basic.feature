@@ -15,14 +15,9 @@ Feature: Add forumng activity and test basic functionality
     And the following "course enrolments" exist:
       | user | course | role |
       | student1 | C1 | student |
-    And I log in as "admin"
-    And I am on site homepage
-    And I follow "Course 1"
-    And I turn editing mode on
-    And I add a "ForumNG" to section "1" and I fill the form with:
-      | Forum name | Test forum name |
-      | Forum introduction | Test forum description |
-    And I log out
+    And the following "activities" exist:
+      | activity | name            | intro                  | course | idnumber |
+      | forumng  | Test forum name | Test forum description | C1     | forumng1 |
 
   Scenario: Access forum as student
     Given I log in as "student1"
@@ -69,7 +64,7 @@ Feature: Add forumng activity and test basic functionality
     And I reply to post "1" with the following data:
       | Message | HELLO |
     And I follow "Test forum name"
-    Then I should see "2" in the "//table[contains(@class,'forumng-discussionlist')]/tbody/tr[3]//td[3]" "xpath_element"
+    Then I should see "2" in the "//table[contains(@class,'forumng-discussionlist')]/tbody/tr[3]//td[4]" "xpath_element"
     Given I follow "Posts"
     Then I should see "Discussion 1" in the "//table[contains(@class,'forumng-discussionlist')]/tbody/tr[3]//td[1]" "xpath_element"
     Given I follow "Posts"
@@ -94,8 +89,8 @@ Feature: Add forumng activity and test basic functionality
     And I follow "Course 1"
     Then I should see "(Unread posts)"
     Given I follow "Test forum name"
-    Then I should see "3" in the "//table[contains(@class,'forumng-discussionlist')]/tbody/tr[1]//td[3]" "xpath_element"
-    And I should see "3" in the "//table[contains(@class,'forumng-discussionlist')]/tbody/tr[1]//td[4]" "xpath_element"
+    Then I should see "3" in the "//table[contains(@class,'forumng-discussionlist')]/tbody/tr[1]//td[4]" "xpath_element"
+    And I should see "3" in the "//table[contains(@class,'forumng-discussionlist')]/tbody/tr[1]//td[2]" "xpath_element"
     Given I follow "Discussion 1"
     Then "li.forumng-edit" "css_element" should not exist
     And "li.forumng-delete" "css_element" should not exist
@@ -116,11 +111,11 @@ Feature: Add forumng activity and test basic functionality
       | Message | REPLY3 EDIT |
     Then I should see "REPLY3 EDIT"
     Given I click on "#forumng-arrowback a" "css_element"
-    Then I should see "5" in the "//table[contains(@class,'forumng-discussionlist')]/tbody/tr[1]//td[3]" "xpath_element"
-    And I should see "" in the "//table[contains(@class,'forumng-discussionlist')]/tbody/tr[1]//td[4]" "xpath_element"
+    Then I should see "5" in the "//table[contains(@class,'forumng-discussionlist')]/tbody/tr[1]//td[4]" "xpath_element"
+    And I should see "" in the "//table[contains(@class,'forumng-discussionlist')]/tbody/tr[1]//td[2]" "xpath_element"
     Given I press "Change"
     Then I should see "Manually mark as read"
-    And I should see "" in the "//table[contains(@class,'forumng-discussionlist')]/tbody/tr[1]//td[4]" "xpath_element"
+    And I should see "" in the "//table[contains(@class,'forumng-discussionlist')]/tbody/tr[1]//td[2]" "xpath_element"
     Given I follow "Course 1"
     Then I should not see "(unread posts)"
     And I log out
@@ -129,24 +124,24 @@ Feature: Add forumng activity and test basic functionality
     And I follow "Course 1"
     Then I should see "(Unread posts)"
     Given I follow "Test forum name"
-    And I should see "5" in the "//table[contains(@class,'forumng-discussionlist')]/tbody/tr[1]//td[3]" "xpath_element"
-    And I should see "2" in the "//table[contains(@class,'forumng-discussionlist')]/tbody/tr[1]//td[4]" "xpath_element"
+    And I should see "5" in the "//table[contains(@class,'forumng-discussionlist')]/tbody/tr[1]//td[4]" "xpath_element"
+    And I should see "2" in the "//table[contains(@class,'forumng-discussionlist')]/tbody/tr[1]//td[2]" "xpath_element"
     When I press "Change"
     Then I should see "Manually mark as read"
-    And I should see "2" in the "//table[contains(@class,'forumng-discussionlist')]/tbody/tr[1]//td[4]" "xpath_element"
+    And I should see "2" in the "//table[contains(@class,'forumng-discussionlist')]/tbody/tr[1]//td[2]" "xpath_element"
     Given I follow "Discussion 1"
     Then ".forumng-p4 .forumng-markread" "css_element" should exist
     And ".forumng-p5 .forumng-markread" "css_element" should exist
     When I click on ".forumng-p4 .forumng-markread a" "css_element"
     Then ".forumng-p4 .forumng-markread" "css_element" should not exist
     Given I follow "Test forum name"
-    And I should see "1" in the "//table[contains(@class,'forumng-discussionlist')]/tbody/tr[1]//td[4]" "xpath_element"
+    And I should see "1" in the "//table[contains(@class,'forumng-discussionlist')]/tbody/tr[1]//td[2]" "xpath_element"
     Given I follow "Discussion 1"
     When I click on ".forumng-p5 .forumng-markread a" "css_element"
     Then ".forumng-p5 .forumng-markread" "css_element" should not exist
     Given I follow "Test forum name"
     And I should see "Manually mark as read"
-    And I should see "" in the "//table[contains(@class,'forumng-discussionlist')]/tbody/tr[1]//td[4]" "xpath_element"
+    And I should see "" in the "//table[contains(@class,'forumng-discussionlist')]/tbody/tr[1]//td[2]" "xpath_element"
     Given I follow "Discussion 1"
     When I press "Show readers"
     Then I should see "Student 1"
@@ -393,3 +388,30 @@ Feature: Add forumng activity and test basic functionality
     When I follow "Test forum name"
     Then I should see "You receive messages from this forum via email to"
     And I should see "This forum does not allow you to unsubscribe"
+
+  @javascript
+  Scenario: Test forum feature buttons on mobile
+    Given I log in as "admin"
+    And I am on site homepage
+    And I follow "Course 1"
+    And I follow "Test forum name"
+    Then "Show usage" "button" should be visible
+    And "Participation by user" "button" should be visible
+    And "..." "button" should not exist
+    Given I change window size to "320x768"
+    And I wait "1" seconds
+    Then "Show usage" "button" should not be visible
+    And "Participation by user" "button" should be visible
+    And "..." "button" should exist
+    Given I change window size to "large"
+    And I wait "1" seconds
+    Then "Show usage" "button" should be visible
+    And "Participation by user" "button" should be visible
+    And "..." "button" should not be visible
+    Given I change window size to "320x768"
+    And I wait "1" seconds
+    When I press "..."
+    Then "Show usage" "button" should be visible
+    Given I change window size to "large"
+    And I wait "1" seconds
+    Then "..." "button" should not be visible

@@ -29,6 +29,7 @@ class forumngfeature_options extends forumngfeature_discussion {
 
     public function display($discussion) {
         return parent::get_button($discussion,
-            get_string('discussionoptions', 'forumng'), 'editpost.php');
+            get_string('discussionoptions', 'forumng'), 'editpost.php', false, array(), '', false,
+                false, 'fng-mobile-on');
     }
 }

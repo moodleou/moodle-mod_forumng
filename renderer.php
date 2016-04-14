@@ -123,47 +123,54 @@ class mod_forumng_renderer extends plugin_renderer_base {
             $sortdata[$possiblesort] = $data;
         }
 
+        if ($forum->can_mark_read()) {
+            $unreadpart = "{$th}1 forumng-unreadcount'>" .
+                    $sortdata[mod_forumng::SORT_UNREAD]->before .
+                    get_string('unread', 'forumng') .
+                    $sortdata[mod_forumng::SORT_UNREAD]->after .
+                    "</th>";
+            $nextnum = 2;
+        } else {
+            $unreadpart = '';
+            $nextnum = 1;
+        }
+
         // Check group header
         if ($groupid == mod_forumng::ALL_GROUPS) {
-            $grouppart = $sortdata[mod_forumng::SORT_GROUP]->before .
-                get_string('group') . $sortdata[mod_forumng::SORT_GROUP]->after .
-                "</th>{$th}3'>";
-            $nextnum = 4;
+            $grouppart = "{$th}$nextnum'>" .
+                    $sortdata[mod_forumng::SORT_GROUP]->before .
+                    get_string('group') . $sortdata[mod_forumng::SORT_GROUP]->after .
+                    "</th>";
+            $nextnum++;
         } else {
             $grouppart = '';
-            $nextnum = 3;
         }
-        $afternum = $nextnum + 1;
-
-        if ($forum->can_mark_read()) {
-            $unreadpart = "</th>{$th}$nextnum forumng-unreadcount'>" .
-                $sortdata[mod_forumng::SORT_UNREAD]->before .
-                get_string('unread', 'forumng') .
-                $sortdata[mod_forumng::SORT_UNREAD]->after .
-                "</th>{$th}$afternum lastcol'>";
-
-        } else {
-            $unreadpart = "</th>{$th}$nextnum lastcol'>";
-        }
+        $lpnum = $nextnum + 1;
+        $npnum = $nextnum + 2;
+        $sbnum = $nextnum + 3;
 
         return "<table class='generaltable forumng-discussionlist'><thead><tr>" .
             "{$th}0'>" .
             $sortdata[mod_forumng::SORT_SUBJECT]->before .
             get_string('discussion', 'forumng') .
             $sortdata[mod_forumng::SORT_SUBJECT]->after .
-            "</th>{$th}1'>" .
-            $sortdata[mod_forumng::SORT_AUTHOR]->before .
-            get_string('startedby', 'forumng') .
-            $sortdata[mod_forumng::SORT_AUTHOR]->after .
-            "</th>{$th}2'>" .
-            $grouppart .
-            $sortdata[mod_forumng::SORT_POSTS]->before .
-            get_string('posts', 'forumng') .
-            $sortdata[mod_forumng::SORT_POSTS]->after .
+            "</th>" .
             $unreadpart .
+            $grouppart .
+            "{$th}{$lpnum}'>" .
             $sortdata[mod_forumng::SORT_DATE]->before .
             get_string('lastpost', 'forumng') .
             $sortdata[mod_forumng::SORT_DATE]->after .
+            "</th>" .
+            "{$th}{$npnum} forumng-postscol'>" .
+            $sortdata[mod_forumng::SORT_POSTS]->before .
+            get_string('posts', 'forumng') .
+            $sortdata[mod_forumng::SORT_POSTS]->after .
+            "</th>" .
+            "{$th}{$sbnum} lastcol'>" .
+            $sortdata[mod_forumng::SORT_AUTHOR]->before .
+            get_string('startedby', 'forumng') .
+            $sortdata[mod_forumng::SORT_AUTHOR]->after .
             '</th></tr></thead><tbody>';
     }
 
@@ -171,9 +178,10 @@ class mod_forumng_renderer extends plugin_renderer_base {
      * Renders discussion author details in the list item
      * @param mod_forumng_discussion $discussion object
      * @param int $courseid of the course
+     * @param int $num Cur cell number
      * @return string td html tag containing the discussion last post details
      */
-    public function render_discussion_list_item_author($discussion, $courseid) {
+    public function render_discussion_list_item_author($discussion, $courseid, $num) {
         $posteranon = $discussion->get_poster_anon();
         $poster = $discussion->get_poster();
         $userimage = $this->user_picture($poster, array('courseid' => $courseid));
@@ -184,7 +192,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
             $userimage = str_replace('&amp;course=' . $courseid, '', $userimage);
         }
 
-        $result = "<td class='forumng-startedby cell c1'>";
+        $result = "<td class='forumng-startedby cell c$num lastcol'>";
         $wrapper = html_writer::start_tag('div', array('class' => 'forumng-startedby-wrapper'));
         $user = $discussion->get_forum()->display_user_link($poster);
         $br = html_writer::empty_tag('br', array());
@@ -222,7 +230,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
      */
     public function render_discussion_list_item_lastpost($discussion, $lastposteranon, $num) {
         $br = html_writer::empty_tag('br', array());
-        $result = '<td class="cell c' . $num .' lastcol forumng-lastpost">';
+        $result = '<td class="cell c' . $num .' forumng-lastpost">';
         $lastposter = $discussion->get_last_post_user();
         $lastuserlink = $discussion->get_forum()->display_user_link($lastposter);
         $timestr = mod_forumng_utils::display_date($discussion->get_time_modified());
@@ -330,51 +338,53 @@ class mod_forumng_renderer extends plugin_renderer_base {
                 $discussion->get_link_params(mod_forumng::PARAM_HTML) . "'>" .
                 format_string($discussion->get_subject(true), true, $courseid) . "</a>$taglinks</td>";
 
-        // Author.
-        $result .= $this->render_discussion_list_item_author($discussion, $courseid);
-
-        $num = 2;
-
-        // Group
-        if ($showgroups) {
-            $result .= '<td class="cell c' . $num . '">'
-                . ($discussion->get_group_name()) . '</td>';
-            $num++;
-        }
-
-        // Number of posts
-        $result .= '<td class="cell c' . $num . '">'
-            . ($discussion->get_num_posts()) . '</td>';
-
-        $num++;
-
-        // Number of unread posts
+        $num = 1;
+        // Number of unread posts.
         if ($canmarkread) {
-            $result .= '<td class="cell forumng-unreadcount c3">';
+            $result .= '<td class="cell forumng-unreadcount c1">';
             if ($unreadposts) {
                 $result .=
-                '<a href="discuss.php?' . $discussion->get_link_params(mod_forumng::PARAM_HTML) .
-                '#firstunread">' . $unreadposts . '</a>' .
-                '<form method="post" action="markread.php"><div>&nbsp;&nbsp;&nbsp;'.
-                $discussion->get_link_params(mod_forumng::PARAM_FORM) .
-                '<input type="hidden" name="back" value="view" />' .
-                '<input type="image" title="' .
-                    get_string('markdiscussionread', 'forumng') .
-                    '" src="' . $this->pix_url('clear', 'mod_forumng') . '" ' .
-                    'class="iconsmall" alt="' .
-                    get_string('markdiscussionread', 'forumng') .
-                '" /></div></form>';
+                        '<a href="discuss.php?' . $discussion->get_link_params(mod_forumng::PARAM_HTML) .
+                        '#firstunread">' . $unreadposts . '</a>' .
+                        '<form method="post" action="markread.php"><div>&nbsp;&nbsp;&nbsp;'.
+                        $discussion->get_link_params(mod_forumng::PARAM_FORM) .
+                        '<input type="hidden" name="back" value="view" />' .
+                        '<input type="image" title="' .
+                        get_string('markdiscussionread', 'forumng') .
+                        '" src="' . $this->pix_url('clear', 'mod_forumng') . '" ' .
+                        'class="iconsmall" alt="' .
+                        get_string('markdiscussionread', 'forumng') .
+                        '" /></div></form>';
             } else {
                 $result .= $unreadposts;
             }
 
             $result .= '</td>';
-            $num = 4;
+            $num++;
         }
+
+        // Group.
+        if ($showgroups) {
+            $result .= '<td class="cell c' . $num . '">'
+                    . ($discussion->get_group_name()) . '</td>';
+            $num++;
+        }
+
         // Update last post user profile link.
         // Last post.
-        $lastpostcell = $this->render_discussion_list_item_lastpost($discussion, $discussion->get_last_post_anon(), $num);
-        $result .= $lastpostcell . "</tr>";
+        $result .= $this->render_discussion_list_item_lastpost($discussion, $discussion->get_last_post_anon(), $num);
+        $num++;
+
+        // Number of posts.
+        $result .= '<td class="cell c' . $num . ' forumng-postscol">'
+                . ($discussion->get_num_posts()) . '</td>';
+
+        $num++;
+
+        // Author.
+        $result .= $this->render_discussion_list_item_author($discussion, $courseid, $num);
+
+        $result .= '</tr>';
         return $result;
     }
 
@@ -660,7 +670,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
 
         // Author.
         $lastposteranon = $discussion->get_last_post_anon();
-        $result .= $this->render_discussion_list_item_author($discussion, $courseid);
+        $result .= $this->render_discussion_list_item_author($discussion, $courseid, 1);
         $num = 2;
 
         // Update last post user profile link.
@@ -881,7 +891,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
                     '<input type="hidden" name="g" value="' . $currentgroupid . '" />';
             }
 
-            $out .= '&nbsp;<form action="subscribe.php" method="post"><div>' .
+            $out .= '<form action="subscribe.php" method="post"><div>' .
                 $forum->get_link_params(mod_forumng::PARAM_FORM) .
                 '<input type="hidden" name="back" value="view" />' .
                 $outsubmit . '</div></form>';
@@ -927,7 +937,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
             $discussion->get_link_params(mod_forumng::PARAM_FORM) .
             '<input type="hidden" name="back" value="discuss" />' .
             '<input type="submit" name="' . $submit . '" value="' .
-            $button . '" /></div></form></div>' . $info;
+            $button . '" /></div></form>' . $info . '</div>';
     }
 
     /**

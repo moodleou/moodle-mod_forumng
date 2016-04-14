@@ -42,6 +42,6 @@ class forumngfeature_markdiscussionread  extends forumngfeature_discussion {
         $params = $discussion->get_link_params_array();
         return parent::get_button($discussion,
                 get_string('markdiscussionread', 'forumngfeature_markdiscussionread'),
-                'markread.php', true, $params);
+                'markread.php', true, $params, '', false, false, 'fng-mobile-on');
     }
 }

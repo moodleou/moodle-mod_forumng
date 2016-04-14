@@ -2435,6 +2435,7 @@ WHERE
      * @return string HTML code for all feature buttons in this discussion
      */
     public function display_forumngfeature_discussions() {
+        global $PAGE;
         // Get forum type
         $type = $this->get_forum()->get_type();
 
@@ -2449,7 +2450,11 @@ WHERE
             }
         }
         if ($features) {
-            print '<div id="forumng-features">' . $features . '</div>';
+            $PAGE->requires->string_for_js('tooltip_show_features', 'mod_forumng');
+            $PAGE->requires->js_call_amd('mod_forumng/featurebtns', 'initMobileHide');
+            return '<div id="forumng-features">' . $features . '</div>';
+        } else {
+            return '';
         }
     }
 

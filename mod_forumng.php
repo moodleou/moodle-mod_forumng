@@ -3531,10 +3531,13 @@ WHERE
      * Displays discussion list features for this forum. Features are the
      * plugins in the 'feature' subfolder - basically a row of buttons along
      * the bottom.
+     * Will call JS AMD module for these buttons.
+     *
      * @param int $groupid Group ID
      * @return string HTML code for discussion list features
      */
     public function display_forumngfeature_discussion_lists($groupid) {
+        global $PAGE;
         // Print discussion list feature buttons (userposts button)
         $features = '';
         foreach (forumngfeature_discussion_list::get_all() as $feature) {
@@ -3545,6 +3548,8 @@ WHERE
             }
         }
         if ($features) {
+            $PAGE->requires->string_for_js('tooltip_show_features', 'mod_forumng');
+            $PAGE->requires->js_call_amd('mod_forumng/featurebtns', 'initMobileHide');
             return '<div id="forumng-features">' . $features . '</div>';
         } else {
             return '';
