@@ -1871,6 +1871,9 @@ M.mod_forumng = {
     select_init_post : function(post, on) {
         if (on) {
             var info = post.one('div.forumng-info');
+            if (!info) {
+                return;
+            }
             var span = this.Y.Node.create('<span/>');
             var spanseparator = this.Y.Node.create('<span/>');
             info.appendChild(span);
@@ -1910,7 +1913,9 @@ M.mod_forumng = {
                 window.forumng_select_changed();
             }, this);
         } else {
-            post.extraSpan.remove();
+            if (post.extraSpan) {
+                post.extraSpan.remove();
+            }
             post.removeClass('forumng-deselected');
             this.links_enable(document.body);
         }
