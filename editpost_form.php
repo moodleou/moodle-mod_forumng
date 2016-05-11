@@ -96,8 +96,11 @@ class mod_forumng_editpost_form extends moodleform {
 
             $editorattributes = array('id' => 'id_message',
                     'cols' => 50, 'rows' => !empty($params['iframe']) ? 15 : 30);
-            $editoroptions = array('maxfiles' => EDITOR_UNLIMITED_FILES,
-                    'context' => $forum->get_context(true));
+            $editoroptions = array(
+                'maxfiles' => EDITOR_UNLIMITED_FILES,
+                'context' => $forum->get_context(true),
+                'maxbytes' => $forum->get_max_bytes()
+            );
             $mform->addElement('editor', 'message', get_string('message', 'forumng'),
                     $editorattributes, $editoroptions);
             $mform->setType('message', PARAM_RAW);
