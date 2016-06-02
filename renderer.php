@@ -2020,7 +2020,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
      */
     public function render_tag_filter($taglist, $forum, $selectid = null) {
         $baseurl = 'view.php?' . $forum->get_link_params(mod_forumng::PARAM_HTML);
-        if (isset($selectid)) {
+        if (!empty($selectid)) {
             $tagname = htmlspecialchars($taglist[$selectid]->displayname);
             $taglink = get_string('removefiltering', 'forumng', $tagname);
             $taglink .= '&nbsp;(';
