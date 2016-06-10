@@ -5451,6 +5451,7 @@ ORDER BY
 
             foreach ($rs as $tag) {
                 $tag->displayname = strtolower(tag_display_name($tag, TAG_RETURN_TEXT));
+                $tag->rawname = strtolower($tag->rawname);
                 if (array_key_exists($tag->id, $settags)) {
                     $tag->label = get_string('settag_label', 'forumng');
                 }
@@ -5465,7 +5466,7 @@ ORDER BY
                         $obj = new stdClass();
                         $obj->id = $key;
                         $obj->label = get_string('settag_label', 'forumng');
-                        $obj->name = $value;
+                        $obj->name = strtolower($value);
                         $obj->rawname = $value;
                         $obj->tagtype = 'default';
                         $obj->count = 0;
