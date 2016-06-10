@@ -971,6 +971,7 @@ WHERE
         $postobj->discussionid = $this->discussionfields->id;
         $postobj->parentpostid = $parentpost ? $parentpost->get_id() : null;
         $postobj->userid = $userid;
+        $postobj->u_id = $userid;
         $postobj->created = time();
         $postobj->deleted = 0;
         $postobj->mailstate = $mailnow
