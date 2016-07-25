@@ -1100,3 +1100,349 @@ padding-top: 1em;
 .forumng_subinfo_mail {
 	font-size: .9em;
 }
+
+/* RTL Fixes */
+
+/*
+// CSS column layout
+////////////////////
+*/
+.dir-rtl#page-mod-forumng-view #left-column {
+    float:right;
+}
+.dir-rtl#page-mod-forumng-view #right-column {
+    float:left;
+}
+.dir-rtl#page-mod-forumng-view #middle-column.has-right-column {
+    margin-left:13em;
+}
+.dir-rtl#page-mod-forumng-view #middle-column.has-left-column {
+    margin-right:13em;
+}
+.dir-rtl#page-mod-forumng-view #footer {
+    clear:right;
+}
+
+/*
+// View page styles
+///////////////////
+*/
+
+.dir-rtl#page-mod-forumng-view .generaltable th,
+.dir-rtl#page-mod-forumng-feature-deletedposts-list .generaltable th {
+    text-align: right;
+}
+.dir-rtl .forumng-startedby img {
+    margin-left:12px;
+}
+
+.dir-rtl form.forumng-paste-buttons {
+    margin-right: 0.85em;
+    padding: 0.7em 0.5em;
+}
+.dir-rtl .ie7 form.forumng-paste-buttons {
+    padding: 0.5em 0.5em;
+}
+
+.dir-rtl #forumng-buttons {
+    margin:0 0 1em;
+}
+
+.dir-rtl .forumng_discuss_tagfilter .helptooltip {
+    margin-left: 5px;
+}
+
+.dir-rtl .forumng-subscribe-options form {
+    margin-right: 1em;
+}
+
+.dir-rtl .forumng-subject img {
+    float:right;
+    margin-left:8px;
+}
+
+.dir-rtl .forumng-sortcurrent {
+    padding-right:0.3em;
+}
+
+.dir-rtl .forumng-drafts {
+    margin: 1em 0 2em;
+}
+.dir-rtl .forumng-drafts .forumng-heading,
+.dir-rtl .forumng-flagged .forumng-heading {
+    margin: 0 0 0.5em;
+}
+.dir-rtl .forumng-flagged {
+    margin: 2em 0 1em;
+}
+
+.dir-rtl div.forumng-flag,
+.dir-rtl div.forumng-flagpost {
+    padding-left: 0.5em;
+}
+
+.dir-rtl form.forumng-flag,
+.dir-rtl form.forumng-flagpost {
+    padding-right: 0.5em;
+}
+.dir-rtl div.forumng-flagpost a img {
+    padding-left: 0.5em;
+}
+
+.dir-rtl .forumng-shareinfo {
+    margin: 2em 0 2em;
+}
+
+.dir-rtl .forumng-startedby-wrapper {
+    margin-right: 51px;
+}
+
+.dir-rtl .forumng-startedbyimage {
+    float: right;
+    margin-left: 5px;
+}
+
+.dir-rtl .forumng-startedbyuser {
+    text-align: right;
+}
+
+/*
+// Discussion page styles
+/////////////////////////
+*/
+
+.dir-rtl .forumng-replies {
+    margin-right: 40px;
+}
+
+.dir-rtl h2.accesshide {
+    margin: 0 40px 5px 0;
+    padding-right:0.5em;
+    right: -10000px;
+}
+
+.dir-rtl h2.forumng-author {
+    padding-left:0.5em;
+}
+
+.dir-rtl .forumng-replies .forumng-replies .forumng-replies .forumng-replies .forumng-replies {
+    margin-right: 30px;
+}
+
+.dir-rtl .forumng-replies .forumng-replies .forumng-replies .forumng-replies .forumng-replies
+.dir-rtl .forumng-replies .forumng-replies .forumng-replies .forumng-replies .forumng-replies {
+    margin-right: 20px;
+}
+
+.dir-rtl #forumng-main .forumng-stop-indent .forumng-replies{
+    margin-right: 0px;
+}
+
+.dir-rtl .forumng-nojs
+.dir-rtl .forumng-replies .forumng-replies .forumng-replies .forumng-replies .forumng-replies
+.dir-rtl .forumng-replies .forumng-replies .forumng-replies .forumng-replies .forumng-replies
+.dir-rtl .forumng-replies .forumng-replies .forumng-replies .forumng-replies .forumng-replies
+.dir-rtl .forumng-replies .forumng-replies .forumng-replies .forumng-replies .forumng-replies {
+    margin-right: 0px;
+}
+
+.dir-rtl .forumng-post {
+    padding:0.5em;
+}
+
+.dir-rtl .forumng-pic {
+    float:right;
+}
+.dir-rtl .forumng-subject,
+.dir-rtl .forumng-info,
+.dir-rtl .forumng-summary,
+.dir-rtl .forumng-deleted-info {
+    margin-right:35px;
+    padding-right:0.5em;
+}
+
+.dir-rtl .forumng-info {
+    padding-left: 16px;
+}
+.dir-rtl .forumng-info .forumng-flag .forumng-flagpost {
+    left: -0.5em;
+}
+
+.dir-rtl .forumng-postmain {
+    margin-right:35px;
+    padding-right:0.5em;
+}
+.dir-rtl .forumng-postfooter {
+    margin:0.5em 0 0;
+    text-align:left;
+}
+
+.dir-rtl ul.forumng-commands {
+    float: right;
+}
+.dir-rtl ul.forumng-commands li {
+    margin:0 2em 0 0;
+}
+.dir-rtl .forumng-endpost {
+    clear:right;
+}
+
+.dir-rtl .forumng-attachments {
+    text-align:left;
+    margin: 0 0 0.5em;
+}
+.dir-rtl .forumng-attachments li {
+    margin:0 2em 0 0;
+}
+
+.dir-rtl #forumng-expandall {
+    text-align:left;
+}
+
+
+.dir-rtl .forumng-selectmode {
+    padding: 0.5em 0 0;
+}
+
+.dir-rtl .forumng-selectintro {
+    padding: 0.5em 0 0;
+    margin: 0 0 1em;
+}
+.dir-rtl .forumng-buttons input,
+.dir-rtl .forumng-selectoutro input {
+    margin-left: 10px;
+}
+
+/*
+// Edit/reply form within discussion
+////////////////////////////////////
+*/
+.forumng-iframe.dir-rtl#page-mod-forumng-editpost .fcontainer {
+    margin-right: 0;
+}
+.forumng-iframe.dir-rtl#page-mod-forumng-editpost #fitem_id_message .felement.feditor,
+.forumng-iframe.dir-rtl#page-mod-forumng-editpost #fitem_id_subject .felement,
+.forumng-iframe.dir-rtl#page-mod-forumng-editpost #fitem_id_attachments .felement {
+    clear: right;
+    margin-right: 0;
+}
+.forumng-iframe.dir-rtl#page-mod-forumng-editpost #fgroup_id_buttonar .felement {
+    clear: right;
+    margin-right: 0;
+}
+.forumng-iframe.dir-rtl#page-mod-forumng-editpost #fitem_id_subject .fitemtitle,
+.forumng-iframe.dir-rtl#page-mod-forumng-editpost #fitem_id_message .fitemtitle,
+.forumng-iframe.dir-rtl#page-mod-forumng-editpost #fitem_id_attachments .fitemtitle {
+    margin-right: 0;
+    text-align: right;
+}
+.mobiletheme.forumng-iframe.dir-rtl#page-mod-forumng-editpost #fitem_id_subject .felement,
+.mobiletheme.forumng-iframe.dir-rtl#page-mod-forumng-editpost #fitem_id_message .felement.feditor,
+.mobiletheme.forumng-iframe.dir-rtl#page-mod-forumng-editpost #fitem_id_attachments .felement,
+.mobiletheme.forumng-iframe.dir-rtl#page-mod-forumng-editpost #fitem_id_subject .fitemtitle,
+.mobiletheme.forumng-iframe.dir-rtl#page-mod-forumng-editpost #fitem_id_message .fitemtitle,
+.mobiletheme.forumng-iframe.dir-rtl#page-mod-forumng-editpost #fitem_id_attachments .fitemtitle,
+.mobiletheme.forumng-iframe.dir-rtl#page-mod-forumng-editpost #fgroup_id_buttonar .felement {
+    margin-right: 0;
+}
+
+/*
+// Ratings within discussion
+////////////////////////////
+*/
+
+.dir-rtl .forumng-ratings .forumng-rating {
+    margin-left: 0.5em;
+}
+.dir-rtl .forumng-ratings-standard {
+    float: right;
+}
+
+/*
+// Confirm dialog within discussion
+///////////////////////////////////
+
+// Note: Dialog width including padding etc. must be 350 pixels
+*/
+
+.dir-rtl .forumng-confirmdialog h4 {
+    margin: 0 0 0.5em;
+}
+
+/*
+// Features section (discussion)
+////////////////////////////////
+*/
+
+
+.dir-rtl #forumng-features form {
+    margin-left: 1em;
+}
+.dir-rtl #forumng-features .forum-feature-edittags form {
+    margin-right: 1em;
+}
+
+
+/*
+// Add attachment
+/////////////////
+*/
+
+
+.dir-rtl .forumng-addattachment-file {
+    float:right;
+}
+
+.dir-rtl .forumng-addattachment-submit {
+    float:right;
+    margin-right: 8px;
+}
+
+.dir-rtl#page-mod-forumng-addattachment .notifyproblem {
+    margin: 0 0 0.5em;
+    text-align: right;
+}
+
+
+/*
+// Printable view
+/////////////////
+*/
+.dir-rtl#page-mod-forumng-feature-print-print .forumng-printable-backlink {
+    float:right;
+}
+.dir-rtl#page-mod-forumng-feature-print-print .forumng-printable-date {
+    float:left;
+}
+
+/*
+// Search page
+//////////////
+*/
+
+.dir-rtl#page-mod-forumng-search h2 {
+    clear: right;
+}
+
+/*
+// forumngfeature_discussion_list
+/////////////////////////
+*/
+.dir-rtl#page-mod-forumng-feature-userposts-user .forumng-post {
+    margin: 0.5em 0 1em;
+}
+
+/*
+// forumfeature deletedposts
+////////////////////////////
+*/
+.dir-rtl#page-mod-forumng-feature-deletedposts-deletedpostslist .individualselector,
+.dir-rtl#page-mod-forumng-feature-deletedposts-list .individualselector {
+    margin-left:0.5em;
+}
+/*
+// Discusion selector
+*/
+.dir-rtl .forumng-discussion-short td .dselectorcheck {
+    float: right;
+}
