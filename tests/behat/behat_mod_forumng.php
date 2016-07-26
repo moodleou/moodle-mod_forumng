@@ -27,9 +27,7 @@
 
 require_once(__DIR__ . '/../../../../lib/behat/behat_base.php');
 
-use Behat\Behat\Context\Step\Given as Given,
-    Behat\Gherkin\Node\TableNode as TableNode;
-use Behat\Behat\Context\Step\Then;
+use Behat\Gherkin\Node\TableNode as TableNode;
 use Behat\Mink\Exception\ElementNotFoundException;
 
 /**
@@ -50,18 +48,16 @@ class behat_mod_forumng extends behat_base {
      * @param TableNode $data
      */
     public function i_add_a_dicussion_with_the_following_data(TableNode $data) {
-        $steps = array(
-            new Given('I press "' . get_string('addanewdiscussion', 'mod_forumng') . '"'),
-            new Given('I set the following fields to these values:', $data),
-        );
+        $this->execute('behat_forms::press_button', array(get_string('addanewdiscussion', 'mod_forumng')));
+        $this->execute('behat_forms::i_set_the_following_fields_to_these_values', array($data));
         if ($this->running_javascript()) {
-            $steps[] = new Given('I wait until "#id_submitbutton[disabled]" "css_element" does not exist');
+            $this->execute('behat_general::wait_until_does_not_exists',
+                    array('#id_submitbutton[disabled]', 'css_element'));
         }
-        $steps[] = new Given('I press "' . get_string('postdiscussion', 'forumng') . '"');
+        $this->execute('behat_forms::press_button', array(get_string('postdiscussion', 'mod_forumng')));
         if ($this->running_javascript()) {
-            $steps[] = new Given('I wait until the page is ready');
+            $this->execute('behat_general::wait_until_the_page_is_ready', array());
         }
-        return $steps;
     }
 
     /**
@@ -130,7 +126,7 @@ class behat_mod_forumng extends behat_base {
      * @param TableNode $data
      */
     public function i_reply_to_post_with_the_following_data($post, TableNode $data) {
-        return $this->interact_with_post('reply', $post, $data);
+        $this->interact_with_post('reply', $post, $data);
     }
 
     /**
@@ -143,7 +139,7 @@ class behat_mod_forumng extends behat_base {
      * @param TableNode $data
      */
     public function i_edit_post_with_the_following_data($post, TableNode $data) {
-        return $this->interact_with_post('edit', $post, $data);
+        $this->interact_with_post('edit', $post, $data);
     }
 
     /**
@@ -156,7 +152,7 @@ class behat_mod_forumng extends behat_base {
      * @param TableNode $data
      */
     public function i_reply_to_post_as_draft_with_the_following_data($post, TableNode $data) {
-        return $this->interact_with_post('draft', $post, $data);
+        $this->interact_with_post('draft', $post, $data);
     }
 
     /**
@@ -176,37 +172,39 @@ class behat_mod_forumng extends behat_base {
         } else if ($type == 'draft') {
             $savebutton = get_string('savedraft', 'forumng');
         }
-        $steps = array();
-        if ($expand = $this->i_expand_post($post)) {
-            $steps = array_merge($steps, $expand);
-        }
-        $steps[] = new Given('I click on ".forumng-post.forumng-p' . $post . ' .forumng-commands .' . $link .' a" "css_element"');
+        $this->i_expand_post($post);
+        $this->execute('behat_general::i_click_on', array('.forumng-post.forumng-p' . $post .
+                ' .forumng-commands .' . $link .' a', 'css_element'));
         // Switch steps depending on javascript as page acts differently.
         if ($this->running_javascript()) {
-            $steps[] = new Given('I switch to "forumng-post-iframe" iframe');
-            $steps[] = new Given('I wait until "' . $savebutton . '" "button" exists');
-            $steps[] = new Given('I wait until the page is ready');
+            $this->execute('behat_general::switch_to_iframe', array('forumng-post-iframe'));
+            $this->execute('behat_general::wait_until_exists', array($savebutton, 'button'));
+            $this->execute('behat_general::wait_until_the_page_is_ready', array());
             if ($type == 'reply') {
-                $steps[] = new Then('the "' . $savebutton . '" "button" should be disabled');
+                $this->execute('behat_general::the_element_should_be_disabled',
+                        array($savebutton, 'button'));
             }
-            $steps[] = new Given('I set the following fields to these values:', $data);
+            $this->execute('behat_forms::i_set_the_following_fields_to_these_values', array($data));
             // Wait for save button to become enabled (otherwise will skip submit).
             if ($type == 'draft') {
-                $steps[] = new Given('I wait until "#id_savedraft[disabled]" "css_element" does not exist');
+                $this->execute('behat_general::wait_until_does_not_exists',
+                        array('#id_savedraft[disabled]', 'css_element'));
             } else {
-                $steps[] = new Given('I wait until "#id_submitbutton[disabled]" "css_element" does not exist');
+                $this->execute('behat_general::wait_until_does_not_exists',
+                        array('#id_submitbutton[disabled]', 'css_element'));
             }
-            $steps[] = new Then('the "' . $savebutton . '" "button" should be enabled');
-            $steps[] = new Given('I press "' . $savebutton . '"');
-            $steps[] = new Given('I switch to the main frame');
-            $steps[] = new Given('I wait until "iframe[name=forumng-post-iframe]" "css_element" does not exist');
+            $this->execute('behat_general::the_element_should_be_enabled',
+                    array($savebutton, 'button'));
+            $this->execute('behat_forms::press_button', array($savebutton));
+            $this->execute('behat_general::switch_to_the_main_frame', array());
+            $this->execute('behat_general::wait_until_does_not_exists',
+                    array('iframe[name=forumng-post-iframe]', 'css_element'));
         } else {
-            $steps[] = new Given('I set the following fields to these values:', $data);
-            $steps[] = new Given('I press "' . $savebutton . '"');
+            $this->execute('behat_forms::i_set_the_following_fields_to_these_values', array($data));
+            $this->execute('behat_forms::press_button', array($savebutton));
             // Ensure always expanded as sometimes seem not to be when JS disabled.
-            $steps[] = new Given('I expand post "0"');
+            $this->execute('behat_mod_forumng::i_expand_post', array('0'));
         }
-        return $steps;
     }
 
     /**
@@ -223,16 +221,19 @@ class behat_mod_forumng extends behat_base {
             if (empty($post)) {
                 if ($this->find('css', '.forumng-expandall-link', $exc, false, 3)) {
                     // Ensure all posts available for reply as we found expand link.
-                    return array(new Given('I follow "' . get_string('expandall', 'mod_forumng') . '"'));
+                    $this->execute('behat_general::click_link',
+                            array(get_string('expandall', 'mod_forumng')));
                 }
             } else {
                 if ($this->find('css', '.forumng-p' . $post . ' .forumng-expandlink', $exc, false, 3)) {
                     // Ensure all posts available for reply as we found expand link.
-                    return array(new Given('I click on ".forumng-p' . $post . ' .forumng-expandlink" "css_element"'));
+                    $this->execute('behat_general::i_click_on', array(
+                            '.forumng-p' . $post . ' .forumng-expandlink', 'css_element'));
                 }
             }
         } catch (ElementNotFoundException $e) {
-            return null;
+            // I guess we ignore this? Don't know why.
+            return;
         }
     }
 }
