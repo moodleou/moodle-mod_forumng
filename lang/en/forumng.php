@@ -917,6 +917,14 @@ $string['forumngdiscusstagfilter'] = 'View forum discussions by tag';
 $string['forumngdiscusstagfilter_help'] = 'Select a tag option to view/filter forum discussions by';
 $string['removefiltering'] = ' Viewing discussions with tag \'{$a}\'';
 $string['filterdiscussions'] = 'View discussions with tag';
+
+$string['tagarea_forumng_discussions'] = 'Forumng discussions';
+$string['tagcollection_forumng_discussions'] = 'Forumng discussions';
+$string['tagarea_forumng'] = 'Forumng activity';
+$string['tagcollection_forumng_set'] = 'Forumng activity';
+$string['tagarea_groups'] = 'Forumng activity groups';
+$string['tagcollection_forumng_group_set'] = 'Forumng activity group';
+
 $string['remove'] = 'Remove';
 $string['show_all'] = 'Show all';
 $string['settags'] = 'Set discussion tags';

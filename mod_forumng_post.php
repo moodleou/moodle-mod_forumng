@@ -271,7 +271,7 @@ FROM
     $join
 WHERE
     p1.id = ?
-", array($parentid), '*', MUST_EXIST);
+", array($parentid), MUST_EXIST);
             for ($depth = 1; $depth <= $maxdepth; $depth++) {
                 $var = "s$depth";
                 $var2 = "d$depth";
@@ -803,7 +803,7 @@ FROM
     INNER JOIN {course_modules} cm ON cm.instance = f.id AND cm.course = f.course
     INNER JOIN {modules} m ON cm.module = m.id
 WHERE
-    fp.id = ? AND m.name = 'forumng'", array($document->intref1), '*', IGNORE_MISSING);
+    fp.id = ? AND m.name = 'forumng'", array($document->intref1), IGNORE_MISSING);
         if (!$result) {
             return false;
         }

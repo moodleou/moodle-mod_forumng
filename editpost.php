@@ -198,7 +198,7 @@ try {
         $pagename = get_string('addanewdiscussion', 'forumng');
         $forumtags = array();
         foreach ($forum->get_tags_used($groupid, true) as $tag) {
-            $forumtags[tag_display_name($tag, TAG_RETURN_TEXT)] = tag_display_name($tag);
+            $forumtags[core_tag_tag::make_display_name($tag, false)] = core_tag_tag::make_display_name($tag, true);
         }
 
     } else if ($replytoid ||
@@ -256,7 +256,7 @@ try {
         $tags = $discussion->get_tags(true);
         $forumtags = array();
         foreach ($forum->get_tags_used($discussion->get_group_id(), true) as $tag) {
-            $forumtags[tag_display_name($tag, TAG_RETURN_TEXT)] = tag_display_name($tag);
+            $forumtags[core_tag_tag::make_display_name($tag, false)] = core_tag_tag::make_display_name($tag, true);
         }
     } else {
         // To edit existing posts, p (forum post id) is required

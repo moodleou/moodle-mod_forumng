@@ -134,19 +134,19 @@ class mod_forumng_mod_form extends moodleform_mod {
         }
 
         // Add tagging to discussions.
-        if ($CFG->usetags) {
+        if ($CFG->usetags && core_tag_tag::is_enabled('mod_forumng', 'forumng')) {
             $mform->addElement('header', '', get_string('tagging', 'forumng'));
             // Enable tagging.
-            $mform->addElement('checkbox', 'tags', get_string('enabletagging', 'forumng'));
-            $mform->addHelpButton('tags', 'tagging', 'forumng');
+            $mform->addElement('checkbox', 'enabletags', get_string('enabletagging', 'forumng'));
+            $mform->addHelpButton('enabletags', 'tagging', 'forumng');
             // Add 'Set' forumng wide named tags to discussion tagging dropdowns.
             $settags = null;
             if ($forumng) {
                 $settags = mod_forumng::get_set_tags($this->_instance);
                 // Create 'Set' forumng wide tags.
                 $mform->addElement('tags', 'settags', get_string('setforumtags', 'forumng'),
-                        array('display' => 'noofficial'));
-                $mform->disabledIf('settags', 'tags', 'notchecked');
+                        array('itemtype' => 'forumng', 'component' => 'mod_forumng'));
+                $mform->disabledIf('settags', 'enabletags', 'notchecked');
                 $mform->setType('settags', PARAM_TAGLIST);
                 $mform->setDefault('settags', $settags);
                 $mform->addHelpButton('settags', 'settags', 'forumng');
@@ -483,8 +483,8 @@ class mod_forumng_mod_form extends moodleform_mod {
             $data->canpostanon = 0;
         }
         // Set the tags to 0 if empty so that they are consistency.
-        if (empty($data->tags)) {
-            $data->tags = 0;
+        if (empty($data->enabletags)) {
+            $data->enabletags = 0;
         }
         // Set the removeto to null if the default option 'Delete permanently' was select
         if (empty($data->removeto)) {

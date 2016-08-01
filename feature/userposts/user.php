@@ -40,7 +40,7 @@ $tab = optional_param('tab', 0, PARAM_INT);
 $student = false;
 $groupid = -1;
 
-$pageparams = array('id' => $cmid, 'user' => $userid, 'download' => $download);
+$pageparams = array('id' => $cmid, 'user' => $userid);
 if ($cloneid) {
     $pageparams['clone'] = $cloneid;
 }
@@ -193,7 +193,7 @@ $pageurl->param('rated', $rated);
 $pageurl->param('ratedstart', $ratedstart);
 $pageurl->param('ratedend', $ratedend);
 
-$table = new forumng_participation_table('mod-forumng-participation');
+$table = new flexible_table('mod-forumng-participation');
 $table->set_attribute('class', 'flexible generaltable');
 $table->set_attribute('width', '100%');
 $table->define_columns(array('c1', 'c2', 'c3'));

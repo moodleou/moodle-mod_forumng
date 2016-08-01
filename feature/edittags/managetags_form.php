@@ -34,9 +34,14 @@ class mod_forumng_managetags_form extends moodleform {
 
         $i = 0;
         foreach ($groups as $group) {
+            if ($group->id === 0) {
+                $options = array('itemtype' => 'forumng', 'component' => 'mod_forumng');
+            } else {
+                $options = array('itemtype' => 'groups', 'component' => 'mod_forumng');
+            }
             // Add 'Set' forumng wide and group named tags to discussion tagging dropdowns.
             $mform->addElement('tags', 'settags_' . $group->id, get_string('gettagsgrouplabel',
-                    'forumngfeature_edittags', $group->name), array('display' => 'noofficial'));
+                    'forumngfeature_edittags', $group->name), $options);
             $mform->setType('settags_' . $group->id, PARAM_TAGLIST);
             $mform->setDefault('settags_' . $group->id, $tags[$i]);
             if ($group->id == 0) {

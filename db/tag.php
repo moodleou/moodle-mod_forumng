@@ -15,15 +15,30 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version.
+ * Define tags.
  *
  * @package mod_forumng
- * @copyright 2014 The Open University
+ * @copyright 2016 The Open University
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$plugin->version = 2016080100;
-$plugin->requires = 2016052300;
-$plugin->component = 'mod_forumng';
-$plugin->maturity = MATURITY_STABLE;
-$plugin->release = '3.1 r1';
+$tagareas = array(
+    array(
+        'itemtype' => 'forumng_discussions',
+        'component' => 'mod_forumng',
+        'collection' => 'forumng_discussions',
+        'searchable' => false,
+    ),
+    array(
+        'itemtype' => 'forumng',
+        'component' => 'mod_forumng',
+        'collection' => 'forumng_set',
+        'searchable' => false,
+    ),
+    array(
+        'itemtype' => 'groups',
+        'component' => 'mod_forumng',
+        'collection' => 'forumng_group_set',
+        'searchable' => false,
+    ),
+);

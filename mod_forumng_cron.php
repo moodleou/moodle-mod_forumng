@@ -294,7 +294,7 @@ $mainquery", $mainparams);
                         // Reset exception count; while some posts are
                         // successful, we'll keep trying to send them out
                         $exceptioncount = 0;
-                    } catch (exception $e) {
+                    } catch (Exception $e) {
                         mtrace(' Exception while sending post ' . $post->get_id());
                         mtrace($e->__toString());
                         $exceptioncount++;
@@ -772,7 +772,7 @@ $mainquery", $mainparams);
             // From support user
             static $supportuser;
             if (!$supportuser) {
-                $supportuser = generate_email_supportuser();
+                $supportuser = core_user::get_support_user();
             }
             $mail->Sender = $supportuser->email;
 

@@ -1124,7 +1124,8 @@ WHERE
         // Update tags if required.
         if (!is_null($tags)) {
             $context = $this->get_forum()->get_context(true);
-            tag_set('forumng_discussions', $this->discussionfields->id, $tags, 'mod_forumng', $context->id);
+            core_tag_tag::set_item_tags('mod_forumng', 'forumng_discussions', $this->discussionfields->id,
+                    $context, $tags);
         }
         if (count((array)$update)==0) {
             // No change
@@ -1518,7 +1519,7 @@ WHERE
         $DB->delete_records('forumng_flags', array('discussionid' => $this->get_id()));
 
         // Delete the relevant discussion in the tag_instance table.
-        $DB->delete_records('tag_instance', array('itemid' => $this->get_id(), 'itemtype' => 'forumng_discussions'));
+        core_tag_tag::remove_all_item_tags('mod_forumng', 'forumng_discussions', $this->get_id());
 
         // Finally deleting this discussion in the forumng_discussions table.
         $DB->delete_records('forumng_discussions', array('id' => $this->get_id()));
@@ -2659,7 +2660,7 @@ WHERE
         $tags = null;
         $forum = $this->get_forum();
         if ($forum->get_tags_enabled()) {
-            $tags = tag_get_tags_array('forumng_discussions', $this->get_id());
+            $tags = core_tag_tag::get_item_tags_array('mod_forumng', 'forumng_discussions', $this->get_id());
             $tags = array_map('strtolower', $tags);
             if ($htmldecode) {
                 $tags = array_map('htmlspecialchars_decode', $tags);

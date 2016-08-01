@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="mod/forumng/db" VERSION="20150127" COMMENT="ForumNG is a reimplemented variant of the original Moodle forum system. It provides asynchronous discussion facilities."
+<XMLDB PATH="mod/forumng/db" VERSION="20160802" COMMENT="ForumNG is a reimplemented variant of the original Moodle forum system. It provides asynchronous discussion facilities."
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
@@ -37,7 +37,7 @@
         <FIELD NAME="originalcmid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="If this forum is a reference to (clone of) a shared forum, this field is non-null and points to the original forum. (When this is set, other settings in this table are ignored.)"/>
         <FIELD NAME="gradingscale" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="grading scale"/>
         <FIELD NAME="canpostanon" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="This flag is set to 1 if the user can post anonymously as a moderator , 0 if not."/>
-        <FIELD NAME="tags" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="field to indicate whether tags can be added to forumng discussions"/>
+        <FIELD NAME="enabletags" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="field to indicate whether tags can be added to forumng discussions"/>
         <FIELD NAME="enableratings" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="enable ratings"/>
       </FIELDS>
       <KEYS>

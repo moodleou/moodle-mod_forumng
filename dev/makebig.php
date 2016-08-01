@@ -31,7 +31,7 @@ require_once($CFG->dirroot.'/mod/forumng/mod_forumng_exception.php');
 require_login();
 require_capability('moodle/site:config', context_system::instance());
 if (!debugging('', DEBUG_DEVELOPER)) {
-    error('Available only in debug mode');
+    throw new moodle_exception('Available only in debug mode');
 }
 
 /**
@@ -315,6 +315,7 @@ function make_student($courseid, $username) {
 }
 
 function make_students($courseid, $count) {
+    global $DB;
     print "<h3>Making $count students</h3><pre>";
     $time = time();
     $transaction = $DB->start_delegated_transaction();
@@ -353,24 +354,24 @@ class make_big_form extends moodleform {
         $mform->setDefault('readusers', 1000);
 
         $mform->addElement('text', 'discussions', 'Number of discussions per forum (avg)');
-        $mform->setType('discussions', PARAM_NUMBER);
+        $mform->setType('discussions', PARAM_FLOAT);
         $mform->setDefault('discussions', 100);
 
         $mform->addElement('text', 'posts', 'Number of posts per discussion (avg)');
-        $mform->setType('posts', PARAM_NUMBER);
+        $mform->setType('posts', PARAM_FLOAT);
         $mform->setDefault('posts', 10);
 
         $mform->addElement('text', 'readpercent',
                 '% of recent discussions (that include read data)');
-        $mform->setType('readpercent', PARAM_NUMBER);
+        $mform->setType('readpercent', PARAM_FLOAT);
         $mform->setDefault('readpercent', 10);
 
         $mform->addElement('text', 'subscribepercent', '% of users who subscribe');
-        $mform->setType('subscribepercent', PARAM_NUMBER);
+        $mform->setType('subscribepercent', PARAM_FLOAT);
         $mform->setDefault('subscribepercent', 50);
 
         $mform->addElement('text', 'ratingpercent', '% chance of each user rating each post');
-        $mform->setType('ratingpercent', PARAM_NUMBER);
+        $mform->setType('ratingpercent', PARAM_FLOAT);
         $mform->setDefault('ratingpercent', 0.1);
 
         $mform->addElement('submit', 'submitcreate', 'Create forums');
@@ -393,7 +394,9 @@ class make_big_form extends moodleform {
 }
 $mform = new make_big_form();
 
-print_header('Make big forums', 'Make big forums');
+$PAGE->set_heading('Make big forums');
+$PAGE->set_title('Make big forums');
+echo $OUTPUT->header();
 
 // Standard moodleform if statement.
 if ($mform->is_cancelled()) {
@@ -410,7 +413,7 @@ if ($mform->is_cancelled()) {
             // TODO Ratings aren't done yet!!
     } else if (isset($fromform->submitwipe)) {
         if (required_param('confirm', PARAM_ALPHA) != 'yes') {
-            error('You didn\'t type yes to confirm the wipe.');
+            throw new moodle_exception('You didn\'t type yes to confirm the wipe.');
         }
         wipe_forums($fromform->course);
     } else if (isset($fromform->submitstudents)) {

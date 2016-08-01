@@ -80,14 +80,14 @@ function forumng_update_instance($forumng) {
     $forum->updated($previous);
     if (isset($forumng->settags)) {
         $context = $forum->get_context(true);
-        tag_set('forumng', $forumng->id, $forumng->settags, 'mod_forumng', $context->id);
+        core_tag_tag::set_item_tags('mod_forumng', 'forumng', $forumng->id, $context, $forumng->settags);
     }
 
     return true;
 }
 
 function forumng_delete_instance($id) {
-    global $DB;
+    global $DB, $OUTPUT;
     require_once(dirname(__FILE__).'/mod_forumng.php');
 
     $cm = get_coursemodule_from_instance('forumng', $id);
@@ -106,8 +106,8 @@ function forumng_delete_instance($id) {
             try {
                 course_delete_module($clone->context->instanceid);
             } catch (moodle_exception $e) {
-                notify("Could not delete the Clone
-                        forumng (coursemoduleid) $clone->context->instanceid ");
+                $OUTPUT->notification("Could not delete the Clone
+                        forumng (coursemoduleid) $clone->context->instanceid ", 'error');
                 return false;
             }
             rebuild_course_cache($clone->courseid, true);

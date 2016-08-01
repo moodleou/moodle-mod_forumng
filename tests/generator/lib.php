@@ -50,7 +50,7 @@ class mod_forumng_generator extends testing_module_generator {
      * @return stdClass Activity record, with extra cmid field
      */
     public function create_instance($record = null, array $options = null) {
-        global $CFG;
+        global $CFG, $DB;
         require_once($CFG->dirroot . '/mod/forumng/lib.php');
 
         // Count generated modules.

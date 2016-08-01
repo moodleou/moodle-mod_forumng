@@ -1216,7 +1216,8 @@ WHERE
         $DB->delete_records('forumng_discussions', array('forumngid' => $this->forumfields->id));
 
         // Delete tag instances.
-        tag_delete_instances('mod_forumng', $this->context->id);
+        core_tag_tag::delete_instances('mod_forumng', 'forumng', $this->context->id);
+        core_tag_tag::delete_instances('mod_forumng', 'groups', $this->context->id);
     }
 
     /**
@@ -1528,7 +1529,7 @@ WHERE $conditions AND m.name = 'forumng' AND $restrictionsql",
 
         // If tags add to tag_instance records.
         if ($tags != null) {
-            tag_set('forumng_discussions', $discussionobj->id, $tags, 'mod_forumng', $this->context->id);
+            core_tag_tag::set_item_tags('mod_forumng', 'forumng_discussions', $discussionobj->id, $this->context, $tags);
         }
 
         $transaction->allow_commit();
@@ -2942,6 +2943,7 @@ WHERE
      * @param string $idnumber May be specified during forum creation when
      *   there isn't a course-module yet; otherwise leave blank to get from
      *   course-module
+     * @throws coding_exception
      */
     private function grade_item_update($grades = array(), $idnumber=null) {
         global $DB;
@@ -2950,10 +2952,11 @@ WHERE
             // When $cm has been retrieved via get_fast_modinfo, it doesn't include
             // the idnumber field :(
             if (!property_exists($cm, 'idnumber')) {
-                $cm->idnumber = $DB->get_field('course_modules',
+                $idnumber = $DB->get_field('course_modules',
                         'idnumber', array('id' => $cm->id));
+            } else {
+                $idnumber = $cm->idnumber;
             }
-            $idnumber = $cm->idnumber;
         }
         $params = array(
             'itemname' => $this->get_name(),
@@ -5349,8 +5352,8 @@ ORDER BY
     public function get_tags_enabled() {
         global $CFG;
 
-        if ($CFG->usetags) {
-            return $this->forumfields->tags;
+        if ($CFG->usetags && core_tag_tag::is_enabled('mod_forumng', 'forumng')) {
+            return $this->forumfields->enabletags;
         } else {
             return false;
         }
@@ -5450,7 +5453,7 @@ ORDER BY
             $settags = self::get_set_tags($this->forumfields->id, $groupid);
 
             foreach ($rs as $tag) {
-                $tag->displayname = strtolower(tag_display_name($tag, TAG_RETURN_TEXT));
+                $tag->displayname = strtolower(core_tag_tag::make_display_name($tag));
                 $tag->rawname = strtolower($tag->rawname);
                 if (array_key_exists($tag->id, $settags)) {
                     $tag->label = get_string('settag_label', 'forumng');
@@ -5544,7 +5547,7 @@ ORDER BY
         // Create tags associative array with tagid as key and tag name as value.
         $tags = array();
         foreach ($rs as $tag) {
-            $tags[$tag->id] = strtolower(tag_display_name($tag, TAG_RETURN_TEXT));
+            $tags[$tag->id] = strtolower(core_tag_tag::make_display_name($tag, false));
         }
 
         return $tags;
@@ -5562,10 +5565,11 @@ ORDER BY
      */
     public static function set_group_tags($forumid, $groupid, $tags) {
         global $DB, $CFG, $USER;
-        require_once($CFG->dirroot . '/tag/lib.php');
 
         $forum = self::get_from_id($forumid, self::CLONE_DIRECT);
         $context = $forum->get_context(true);
+
+        $tagcollid = core_tag_area::get_collection('mod_forumng', 'groups');
 
         $transaction = $DB->start_delegated_transaction();
         // Get existing tags used.
@@ -5592,9 +5596,9 @@ ORDER BY
             $DB->delete_records_select('tag_instance', "id $delsql", $delparams);
         }
         // Add/get new tag records.
-        $existingtags = tag_get_id($tags, TAG_RETURN_ARRAY);
+        $existingtags = core_tag_tag::get_by_name_bulk($tagcollid, $tags, '*');
         // Normalize tags passed so can match to existing tags array.
-        $normaltags = tag_normalize($tags);
+        $normaltags = core_tag_tag::normalize($tags);
         // Add tag instances (where needed).
         $ordering = 0;
         foreach ($normaltags as $rawname => $name) {
@@ -5603,27 +5607,25 @@ ORDER BY
                 $ordering++;
                 continue;
             }
-            $tagid = 0;
             if (!array_key_exists($name, $existingtags) || empty($existingtags[$name])) {
-                // Need to add tag.
-                $newtag = tag_add($rawname);
-                $tagid = array_pop($newtag);
+                // Need to add tag, use core method.
+                core_tag_tag::add_item_tag('mod_forumng', 'groups', $groupid, $context, $rawname);
             } else {
-                $tagid = $existingtags[$name];
-            }
-            // Create instance (like tag_assign()).
-            $tag_instance_object = new stdClass();
-            $tag_instance_object->tagid = $tagid;
-            $tag_instance_object->component = 'mod_forumng';
-            $tag_instance_object->itemid = $groupid;
-            $tag_instance_object->itemtype = 'groups';
-            $tag_instance_object->contextid = $context->id;
-            $tag_instance_object->ordering = $ordering;
-            $tag_instance_object->timecreated = time();
-            $tag_instance_object->timemodified = $tag_instance_object->timecreated;
-            $tag_instance_object->tiuserid = self::get_group_taginstance_userid($groupid, $tagid);
+                // Need to add tag instance only, cannot use core for this.
+                $tagid = $existingtags[$name]->id;
+                $tag_instance_object = new stdClass();
+                $tag_instance_object->tagid = $tagid;
+                $tag_instance_object->component = 'mod_forumng';
+                $tag_instance_object->itemid = $groupid;
+                $tag_instance_object->itemtype = 'groups';
+                $tag_instance_object->contextid = $context->id;
+                $tag_instance_object->ordering = $ordering;
+                $tag_instance_object->timecreated = time();
+                $tag_instance_object->timemodified = $tag_instance_object->timecreated;
+                $tag_instance_object->tiuserid = self::get_group_taginstance_userid($groupid, $tagid);
 
-            $DB->insert_record('tag_instance', $tag_instance_object);
+                $DB->insert_record('tag_instance', $tag_instance_object);
+            }
             $ordering++;
         }
         $DB->commit_delegated_transaction($transaction);

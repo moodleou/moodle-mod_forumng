@@ -178,7 +178,7 @@ abstract class forumngtype {
     public static function get_all() {
         global $CFG;
         // Get directory listing (excluding simpletest, CVS, etc)
-        $list = get_plugin_list('forumngtype');
+        $list = core_component::get_plugin_list('forumngtype');
 
         $results = array();
         foreach ($list as $name => $location) {

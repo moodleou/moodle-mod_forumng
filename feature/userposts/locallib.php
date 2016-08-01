@@ -143,24 +143,6 @@ function forumngfeature_userposts_display_user_grade($cmid, mod_forumng $forumng
     }
 }
 
-require_once($CFG->libdir . '/tablelib.php');
-/**
- * Class forumng_participation_table
- * extends flexible_table to override download rules
- */
-class forumng_participation_table extends flexible_table {
-
-    /**
-     * This function is not part of the public api.
-     *
-     * Overriding here to avoid downloading in unsupported formats
-     */
-    public function get_download_menu() {
-        $exportclasses = array('csv' => get_string('downloadcsv', 'table'));
-        return $exportclasses;
-    }
-}
-
 
 class forumng_participation_table_form extends moodleform {
 

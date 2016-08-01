@@ -265,5 +265,17 @@ function xmldb_forumng_upgrade($oldversion=0) {
         // Forumng savepoint reached.
         upgrade_mod_savepoint(true, 2015060502, 'forumng');
     }
+    if ($oldversion < 2016080100) {
+
+        // Rename field tags on table forumng to enabletags (core now uses a tags field in modules).
+        $table = new xmldb_table('forumng');
+        $field = new xmldb_field('tags', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'canpostanon');
+
+        // Launch rename field enabletags.
+        $dbman->rename_field($table, $field, 'enabletags');
+
+        // Forumng savepoint reached.
+        upgrade_mod_savepoint(true, 2016080100, 'forumng');
+    }
     return true;
 }

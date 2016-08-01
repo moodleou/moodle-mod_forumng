@@ -77,7 +77,7 @@ $tags = $discussion->get_tags(true);
 
 $forumtags = array();
 foreach ($forum->get_tags_used($groupid, true) as $tag) {
-    $forumtags[$tag->name] = tag_display_name($tag);
+    $forumtags[$tag->name] = core_tag_tag::make_display_name($tag);
 }
 
 $customdata = array(

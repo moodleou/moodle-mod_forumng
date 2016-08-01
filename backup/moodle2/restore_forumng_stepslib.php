@@ -245,7 +245,8 @@ class restore_forumng_activity_structure_step extends restore_activity_structure
         $data = (object)$data;
         $oldid = $data->id;
 
-        if (empty($CFG->usetags)) { // Tags disabled in server, nothing to process.
+        if (empty($CFG->usetags) || !core_tag_tag::is_enabled('mod_forumng', 'forumng_discussions')) {
+            // Tags disabled in server, nothing to process.
             return;
         }
 
@@ -254,7 +255,7 @@ class restore_forumng_activity_structure_step extends restore_activity_structure
         $forumid = $this->get_new_parentid('forumng');
 
         $cm = get_coursemodule_from_instance('forumng', $forumid);
-        tag_set_add('forumng_discussions', $itemid, $tag, 'mod_forumng', context_module::instance($cm->id)->id);
+        core_tag_tag::add_item_tag('mod_forumng', 'forumng_discussions', $itemid, context_module::instance($cm->id), $tag);
     }
 
     protected function process_forumng_forumtaginstance($data) {
@@ -263,7 +264,8 @@ class restore_forumng_activity_structure_step extends restore_activity_structure
         $data = (object)$data;
         $oldid = $data->id;
 
-        if (empty($CFG->usetags)) { // Tags disabled in server, nothing to process.
+        if (empty($CFG->usetags) || !core_tag_tag::is_enabled('mod_forumng', 'forumng')) {
+            // Tags disabled in server, nothing to process.
             return;
         }
 
@@ -271,7 +273,7 @@ class restore_forumng_activity_structure_step extends restore_activity_structure
         $forumid = $this->get_new_parentid('forumng');
 
         $cm = get_coursemodule_from_instance('forumng', $forumid);
-        tag_set_add('forumng', $forumid, $tag, 'mod_forumng', context_module::instance($cm->id)->id);
+        core_tag_tag::add_item_tag('mod_forumng', 'forumng', $forumid, context_module::instance($cm->id), $tag);
     }
 
     protected function process_forumng_forumgrouptaginstance($data) {

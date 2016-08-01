@@ -100,7 +100,7 @@ abstract class forumngfeature {
     public static function get_all() {
         global $CFG;
         // Get directory listing (excluding simpletest, CVS, etc)
-        $list = get_plugin_list('forumngfeature');
+        $list = core_component::get_plugin_list('forumngfeature');
 
         // Create array and put one of each object in it
         $results = array();

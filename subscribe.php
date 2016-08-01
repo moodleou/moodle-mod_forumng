@@ -392,7 +392,7 @@ if ($cmid || $discussionid) {
     $out = $forum->init_page($pageurl, get_string(
         $subscribe ? 'subscribeshort' : 'unsubscribeshort', 'forumng'));
     print $out->header();
-    print $out->notification($confirmtext, 'notifysuccess');
+    print $out->notification($confirmtext, 'success');
     print $out->continue_button($backurl);
     print $out->footer();
 } else {
@@ -403,7 +403,7 @@ if ($cmid || $discussionid) {
     $PAGE->set_title($COURSE->shortname);
     $out = forum_utils::get_renderer();
     print $out->header();
-    print $out->notification($confirmtext, 'notifysuccess');
+    print $out->notification($confirmtext, 'success');
     print $out->continue_button($backurl);
     print $out->footer();
 }

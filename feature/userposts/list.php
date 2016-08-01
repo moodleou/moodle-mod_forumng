@@ -35,7 +35,7 @@ $cmid = required_param('id', PARAM_INT);
 $cloneid = optional_param('clone', 0, PARAM_INT);
 $page = optional_param('page', 0, PARAM_INT);
 $download   = optional_param('download', '', PARAM_TEXT);
-$pageparams = array('id' => $cmid, 'download' => $download, 'page' => $page);
+$pageparams = array('id' => $cmid, 'page' => $page);
 $perpage = 100;
 if ($cloneid) {
     $pageparams['clone'] = $cloneid;
@@ -114,7 +114,7 @@ $thisurl->param('start', $start);
 $thisurl->param('end', $end);
 
 $sort = '';
-$ptable = new forumng_participation_table('mod-forumng-participation');
+$ptable = new flexible_table('mod-forumng-participation');
 $ptable->set_attribute('class', 'flexible generaltable');
 $ptable->set_attribute('width', '100%');
 $c5value = 'c5';
