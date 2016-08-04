@@ -1977,6 +1977,11 @@ WHERE $conditions AND m.name = 'forumng' AND $restrictionsql",
      */
     public function get_subscription_info($userid=0, $expectingquery=false) {
         global $DB, $FORUMNG_CACHE;
+
+        if(!is_object($FORUMNG_CACHE)){
+            $FORUMNG_CACHE = new stdclass();
+        }
+
         $userid = mod_forumng_utils::get_real_userid($userid);
 
         if (!isset($FORUMNG_CACHE)) {
