@@ -339,7 +339,7 @@ FROM
         global $CFG;
 
         // We usually only mail out posts after a delay of maxeditingtime.
-        $mailtime = $time - $CFG->maxeditingtime;
+        $mailtime = $time - $CFG->forumng_emailafter;
 
         // In case cron has not run for a while
         $safetynet = $this->get_safety_net($time);

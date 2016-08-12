@@ -1264,13 +1264,7 @@ ORDER BY
         } else {
             $update->important = 0;
         }
-        if ($this->postfields->mailstate==mod_forumng::MAILSTATE_NOT_MAILED &&
-            $mailnow) {
-            $update->mailstate = mod_forumng::MAILSTATE_NOW_NOT_MAILED;
-        } else if ($this->postfields->mailstate==mod_forumng::MAILSTATE_NOW_NOT_MAILED &&
-            !$mailnow) {
-            $update->mailstate = mod_forumng::MAILSTATE_NOT_MAILED;
-        }
+        $update->mailstate = mod_forumng::MAILSTATE_NOT_MAILED;
         $update->modified = $now;
         $update->edituserid = mod_forumng_utils::get_real_userid($userid);
 

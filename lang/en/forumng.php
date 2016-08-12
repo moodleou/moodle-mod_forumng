@@ -944,3 +944,6 @@ $string['error_identityinsubject_reply'] = 'You have set the subject line to you
 
 $string['tooltip_show_features'] = 'Show other options';
 
+$string['emailafter'] = 'Email after delay';
+$string['configemailafter'] = 'Email post to subscribed users with a delay after post creation.';
+

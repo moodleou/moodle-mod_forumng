@@ -116,10 +116,6 @@ class mod_forumng_editpost_form extends moodleform {
 
             // If you can mail now, we show this option.
             $attachmentlist = '';
-            if (!$edit && $forum->can_mail_now()) {
-                $mform->addElement('checkbox', 'mailnow', get_string('mailnow', 'forumng'));
-                $mform->addHelpButton('mailnow', 'mailnow', 'forumng');
-            }
             if ($forum->can_set_important() && !$isdiscussion && !$isroot && !$islock) {
                 $mform->addElement('checkbox', 'setimportant',
                         get_string('setimportant', 'forumng'));

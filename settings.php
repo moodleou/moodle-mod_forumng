@@ -119,3 +119,7 @@ $settings->add(new admin_setting_configtext('forumng_reportunacceptable',
 $settings->add(new admin_setting_configcheckbox('forumng_enableadvanced',
     get_string('enableadvanced', 'forumng'),
     get_string('configenableadvanced', 'forumng'), 0));
+
+$settings->add(new admin_setting_configduration('forumng_emailafter',
+    get_string('emailafter', 'forumng'),
+    get_string('configemailafter', 'forumng'), 120));

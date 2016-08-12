@@ -29,7 +29,7 @@ $tasks = array(
     array(
         'classname' => 'mod_forumng\task\email_normal',
         'blocking' => 0,
-        'minute' => '0',
+        'minute' => '*/10',
         'hour' => '*',
         'day' => '*',
         'month' => '*',
