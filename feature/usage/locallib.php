@@ -35,13 +35,15 @@ function forumngfeature_usage_show_mostreaders($params, $forum = null) {
         $forum = mod_forumng::get_from_cmid($params['id'], $cloneid);
     }
     $groupwhere = '';
+    $groupwhere2 = '';
     $groupparams = array();
     $groupid = 0;
     if (!empty($params['group']) && $params['group'] != mod_forumng::NO_GROUPS &&
             $params['group'] != mod_forumng::ALL_GROUPS) {
-        $groupwhere = 'AND (fd.groupid = :groupid OR fd.groupid IS NULL)';
+        $groupwhere = 'AND (fd.groupid = :groupid1 OR fd.groupid IS NULL)';
+        $groupwhere2 = 'AND (fd.groupid = :groupid2 OR fd.groupid IS NULL)';
         $groupid = $params['group'];
-        $groupparams = array('groupid' => $groupid);
+        $groupparams = array('groupid1' => $groupid, 'groupid2' => $groupid);
     }
     if (has_capability('mod/forumng:viewreadinfo', $forum->get_context())) {
         if (!$PAGE->has_set_url()) {
@@ -49,31 +51,32 @@ function forumngfeature_usage_show_mostreaders($params, $forum = null) {
             $PAGE->set_context($forum->get_context());
         }
         $renderer = $PAGE->get_renderer('forumngfeature_usage');
-        // Only get enrolled users - speeds up query significantly on large forums.
+        // Only include enrolled users.
         list($sql, $params) = get_enrolled_sql($forum->get_context(), '', $groupid, true);
         // View discussions read.
-        $readers = $DB->get_recordset_sql("
+        $readers = $DB->get_recordset_sql($sql = "
                 SELECT COUNT(fr.userid) AS count, fr.discussionid
-                  FROM {forumng_discussions} fd
-            RIGHT JOIN (
-		                SELECT discussionid, userid
-		                  FROM (
-		                        SELECT * FROM {forumng_read}
-		                     UNION ALL
-		                        SELECT frp.id, frp.userid, fp.discussionid, frp.time
-                                  FROM {forumng_posts} fp
-                            RIGHT JOIN {forumng_read_posts} frp ON fp.id = frp.postid
-                                 WHERE fp.deleted = 0 AND fp.oldversion = 0
-                        ) frp GROUP BY discussionid, userid
-                ) fr ON fr.discussionid = fd.id
-                 WHERE fd.forumngid = :courseid
-                   AND fd.deleted = 0
-                $groupwhere
-                   AND fr.userid IN($sql)
+                  FROM (
+                       SELECT fd.id AS discussionid, fr.userid
+                         FROM {forumng_discussions} fd
+                         JOIN {forumng_read} fr ON fr.discussionid = fd.id
+                        WHERE fd.forumngid = :forumid1 AND fd.deleted = 0
+                              $groupwhere
+                    UNION ALL
+                       SELECT fd.id AS discussionid, frp.userid
+                         FROM {forumng_discussions} fd
+                         JOIN {forumng_posts} fp ON fp.discussionid = fd.id
+                         JOIN {forumng_read_posts} frp ON frp.postid = fp.id
+                        WHERE fd.forumngid = :forumid2 AND fp.deleted = 0
+                              AND fp.oldversion = 0 AND fd.deleted = 0
+                              $groupwhere2
+                       ) fr
+                 WHERE fr.userid IN ($sql)
               GROUP BY fr.discussionid
               ORDER BY count desc, fr.discussionid desc", array_merge(
-                        array('courseid' => $forum->get_id()), $groupparams, $params), 0, 5);
-                $readerlist = array();
+                        array('forumid1' => $forum->get_id(), 'forumid2' => $forum->get_id()),
+                        $groupparams, $params), 0, 5);
+        $readerlist = array();
         foreach ($readers as $discuss) {
             $discussion = mod_forumng_discussion::get_from_id($discuss->discussionid, $cloneid);
             list($content, $user) = $renderer->render_usage_discussion_info($forum, $discussion);

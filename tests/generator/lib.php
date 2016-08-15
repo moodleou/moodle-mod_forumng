@@ -88,7 +88,7 @@ class mod_forumng_generator extends testing_module_generator {
      * Function to create a dummy discussion.
      *
      * @param array|stdClass $record
-     * @return stdClass the discussion object
+     * @return int[] Array containing discussion id and post id
      */
     public function create_discussion($record = null) {
         global $CFG;
