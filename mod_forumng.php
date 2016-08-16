@@ -4059,7 +4059,7 @@ WHERE
 
         // Get most recent N discussions from db
         $rs = mod_forumng_discussion::query_discussions(
-            'fd.forumngid = ' . $this->get_id() . ' AND fd.deleted = 0', -1,
+            'fd.forumngid = ? AND fd.deleted = 0', array($this->get_id()), -1,
             'timemodified DESC', 0, $items);
         $result = array();
         foreach ($rs as $rec) {
