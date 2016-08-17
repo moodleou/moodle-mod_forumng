@@ -382,8 +382,10 @@ M.mod_forumng = {
 
     /**
      * Removes iframe and marks it closed.
+     *
+     * @param scrollToParent If true (default), scrolls to parent after removing iframe
      */
-    remove_iframe : function(iframe) {
+    remove_iframe : function(iframe, scrollToParent) {
         var parent = iframe.get('parentNode');
         parent.removeChild(iframe);
         if (M.is_mobile) {
@@ -393,7 +395,9 @@ M.mod_forumng = {
             Y.one('window').detach('scroll');
         }
         this.nowediting = false;
-        this.scroll_page(parent.get('parentNode'));
+        if (scrollToParent === undefined || scrollToParent) {
+            this.scroll_page(parent.get('parentNode'));
+        }
         this.links_enable(document.body);
     },
 
@@ -726,7 +730,7 @@ M.mod_forumng = {
 
                 // Remove the iframe.
                 // This needs to be palced here for mobile devices to work.
-                t.remove_iframe(iframe);
+                t.remove_iframe(iframe, false);
                 window.iframe_success = null;
 
                 // Scroll to it (must do this after frame removed or height will be incorrect).
