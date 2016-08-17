@@ -188,7 +188,10 @@ if ($filteredposts) {
     $deleteddata->cusername = $cname;
     $deleteddata->dusername = $dname;
 
-    $info = get_string('nodeletedpostsfound', 'forumngfeature_deletedposts', $deleteddata);
+    $info = html_writer::start_div('forumng-deleted-posts-info');
+    $info .= get_string('nodeletedpostsfound', 'forumngfeature_deletedposts', $deleteddata);
+    $info .= html_writer::end_div();
+
     echo $info;
 }
 
