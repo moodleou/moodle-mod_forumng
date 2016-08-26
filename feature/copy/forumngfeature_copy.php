@@ -23,18 +23,46 @@
  */
 class forumngfeature_copy extends forumngfeature_discussion {
     public function get_order() {
-        return 360;
+        global $PAGE;
+        if ($PAGE->pagetype == 'mod-forumng-view') {
+            return 320;
+        } else {
+            return 360;
+        }
     }
 
     public function should_display($discussion) {
         global $SESSION;
-        return has_capability('mod/forumng:copydiscussion',
+        if (is_a($discussion, 'mod_forumng_discussion')) {
+            return has_capability('mod/forumng:copydiscussion',
                 $discussion->get_forum()->get_context()) && (!isset($SESSION->forumng_copyfrom) ||
-                $SESSION->forumng_copyfrom!=$discussion->get_id());
+                $SESSION->forumng_copyfrom != $discussion->get_id());
+        } else if (is_a($discussion, 'mod_forumng')) {
+            return has_capability('mod/forumng:copydiscussion',
+                $discussion->get_context()) && (!isset($SESSION->forumng_copyfrom));
+        }
     }
 
     public function display($discussion) {
-        return parent::get_button($discussion,
+        if (is_a($discussion, 'mod_forumng_discussion')) {
+            return parent::get_button($discussion,
                 get_string('copy_discussion', 'forumngfeature_copy'), 'feature/copy/copy.php');
+        } else if (is_a($discussion, 'mod_forumng')) {
+            $params['exclude'] = 'forumng-deleted,forumng-locked';
+            $excludedget = array_merge($params, $_GET);
+            return forumngfeature_discussion_list::get_button(
+                    $discussion,
+                    get_string('copy_discussion', 'forumngfeature_copy'),
+                    'feature/copy/copyall.php',
+                    false,
+                    $excludedget,
+                    '',
+                    'forumng-dselectorbutton');
+        }
     }
+
+    public function supports_discussion_list() {
+        return true;
+    }
+
 }

@@ -1100,3 +1100,11 @@ padding-top: 1em;
 .forumng_subinfo_mail {
 	font-size: .9em;
 }
+
+@media (min-width: 1200px) {
+    /* Checkbox align on wide (ForumNG - feature copy multiple discussions) */
+    body#page-mod-forumng-feature-copy-copyall .mform:not(.unresponsive) #id_hidelater {
+        margin-top: -4px;
+    }
+}
+

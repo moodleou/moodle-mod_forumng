@@ -22,9 +22,9 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 $string['copy_discussion'] = 'Copy';
-$string['copy_info'] = 'To copy this discussion into another forum:<ol>
+$string['copy_info'] = 'To copy the discussion(s) into another forum:<ol>
 <li>Click <strong>Begin copy</strong> to confirm this form.</li>
-<li>Go to the forum that you want to copy it into. (This may be the same forum,
+<li>Go to the forum that you want to copy it/them into. (This may be the same forum,
 perhaps in a different group; a different forum on the same course; or a
 forum on a different course.)</li>
 <li>Click <strong>Paste discussion</strong> to finish the copy, or
@@ -32,4 +32,5 @@ the <strong>Cancel</strong> button alongside if you change your mind.</li>
 </ol>';
 $string['copy_begin'] = 'Begin copy';
 $string['copy_title'] = 'Copy discussion';
+$string['copyall_title'] = 'Copy discussion(s)';
 $string['pluginname'] = 'Copy discussion';
