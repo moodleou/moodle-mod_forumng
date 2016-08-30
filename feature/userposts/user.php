@@ -30,6 +30,7 @@ require_once('../../../../config.php');
 require_once($CFG->dirroot . '/mod/forumng/mod_forumng.php');
 require_once($CFG->dirroot . '/mod/forumng/feature/userposts/locallib.php');
 require_once($CFG->dirroot.'/mod/forumng/locallib.php');
+require_once($CFG->libdir . '/tablelib.php');
 
 $cmid = required_param('id', PARAM_INT);
 $userid = required_param('user', PARAM_INT);

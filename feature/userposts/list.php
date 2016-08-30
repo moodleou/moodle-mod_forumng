@@ -28,6 +28,7 @@ require_once('../../../../config.php');
 require_once($CFG->dirroot . '/mod/forumng/mod_forumng.php');
 require_once($CFG->dirroot. '/mod/forumng/feature/userposts/locallib.php');
 require_once($CFG->dirroot . '/lib/gradelib.php');
+require_once($CFG->libdir . '/tablelib.php');
 
 global $OUTPUT;
 
