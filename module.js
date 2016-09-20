@@ -936,7 +936,9 @@ M.mod_forumng = {
                         location.href = submit.get('form').get('action') + '?all=1' +
                         M.mod_forumng.cloneparam + inputs;
                     }, function() {
-                        outerThis.select_discuss_init(submit, include, exclude);
+                        if (!this.Y.one('div.forumng-main > form')) {
+                            outerThis.select_discuss_init(submit, include, exclude);
+                        }
                     }]);
             }, this);
             return;
@@ -959,6 +961,9 @@ M.mod_forumng = {
                     location.href = submit.get('form').get('action') + '?d=' +
                         M.mod_forumng.discussionid + M.mod_forumng.cloneparam + '&all=1';
                 }, function() {
+                    if (this.Y.one('div.forumng-selectbuttons')) {
+                        outerThis.select_init(null);
+                    }
                     outerThis.select_init(submit);
                 }]);
         }, this);
