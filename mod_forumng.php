@@ -3181,6 +3181,10 @@ WHERE
             'fd.forumngid', $viewhiddenforums);
         list($cfdinviewhiddenforums, $inviewhiddenforumsparams) =
                 mod_forumng_utils::get_in_array_sql('cfd.forumngid', $viewhiddenforums);
+        list($cfdingroups, $ingroupsparams) =
+                mod_forumng_utils::get_in_array_sql('cfd.groupid', $groups);
+        list($cfdinaagforums, $inaagforumsparams) =
+                mod_forumng_utils::get_in_array_sql('cfd.forumngid', $aagforums);
 
         // This array of additional results is used later if combining
         // standard results with single-forum calls.
@@ -3355,7 +3359,12 @@ SELECT
             AND (cfd.timeend = 0 OR cfd.timeend > ?))
             OR ($cfdinviewhiddenforums)
         )
-        ) AS f_numdiscussions,
+        AND (
+             (cfd.groupid IS NULL)
+             OR ($cfdingroups)
+             OR cm.groupmode = " . VISIBLEGROUPS . "
+             OR ($cfdinaagforums)
+        )) AS f_numdiscussions,
     $readtracking
 FROM
     {forumng} f
@@ -3365,7 +3374,8 @@ FROM
 WHERE
     $conditions
 ORDER BY
-    $orderby", array_merge(array($now, $now), $inviewhiddenforumsparams, $readtrackingparams,
+    $orderby", array_merge(array($now, $now), $inviewhiddenforumsparams,
+                $ingroupsparams, $inaagforumsparams, $readtrackingparams,
                 $conditionsparams));
         if (count($plusresult) > 0) {
             foreach ($plusresult as $key => $value) {

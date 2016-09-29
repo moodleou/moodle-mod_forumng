@@ -583,4 +583,124 @@ class mod_forumng_discussion_testcase  extends forumng_test_lib {
         $this->assertTrue($dis3->is_locked());
         $this->assertTrue($dis3->is_auto_locked());
     }
+
+    public function test_get_num_discussions_empty() {
+        $this->resetAfterTest(true);
+        $this->setAdminUser();
+
+        // Create the generator object and do standard checks.
+        $generator = self::getDataGenerator()->get_plugin_generator('mod_forumng');
+
+        // Create course.
+        $record = new stdClass();
+        $record->shortname = 'testcourse';
+        $course = self::getDataGenerator()->create_course($record);
+
+        $user1 = $this->get_new_user();
+        $this->getDataGenerator()->enrol_user($user1->id, $course->id, 'student');
+
+        // Create forum.
+        $forumrecord = $generator->create_instance(array('course' => $course->id));
+        $forums = \mod_forumng::get_course_forums($course, $user1->id, mod_forumng::UNREAD_DISCUSSIONS, array($forumrecord->cmid));
+        $forum = reset($forums);
+        $this->assertEquals(0, $forum->get_num_discussions());
+
+    }
+
+    public function test_get_num_discussions() {
+        global $USER;
+        $this->resetAfterTest(true);
+        $this->setAdminUser();
+
+        // Create the generator object and do standard checks.
+        $generator = self::getDataGenerator()->get_plugin_generator('mod_forumng');
+
+        // Create course.
+        $record = new stdClass();
+        $record->shortname = 'testcourse';
+        $course = self::getDataGenerator()->create_course($record);
+
+        $user1 = $this->get_new_user();
+
+        $this->getDataGenerator()->enrol_user($user1->id, $course->id, 'student');
+
+        // Create forum.
+        $forumrecord = $generator->create_instance(array('course' => $course->id));
+
+        // Generate $n discussions
+        $n = $generator->create_discussions($course->id, $forumrecord->id, $user1->id);
+
+        $forums = \mod_forumng::get_course_forums($course, $user1->id, mod_forumng::UNREAD_DISCUSSIONS, array($forumrecord->cmid));
+        $forum = reset($forums);
+        $this->assertEquals($n, $forum->get_num_discussions());
+
+    }
+
+    public function test_get_num_discussions_groups() {
+        global $DB, $USER;
+        $this->resetAfterTest(true);
+        $this->setAdminUser();
+
+        // Create the generator object and do standard checks.
+        $generator = self::getDataGenerator()->get_plugin_generator('mod_forumng');
+
+        // Create course.
+        $record = new stdClass();
+        $record->shortname = 'testcourse';
+        $course = self::getDataGenerator()->create_course($record);
+
+        // Create groups.
+        $group1 = $this->get_new_group($course->id);
+        $group2 = $this->get_new_group($course->id);
+
+        $grouping = $this->getDataGenerator()->create_grouping(array('courseid' => $course->id));
+
+        $this->getDataGenerator()->create_grouping_group(array('groupingid' => $grouping->id, 'groupid' => $group1->id));
+        $this->getDataGenerator()->create_grouping_group(array('groupingid' => $grouping->id, 'groupid' => $group2->id));
+
+        $user1 = $this->get_new_user();
+        $user2 = $this->get_new_user();
+
+        $this->getDataGenerator()->enrol_user($user1->id, $course->id, 'student');
+        $this->getDataGenerator()->enrol_user($user2->id, $course->id, 'student');
+
+        $this->getDataGenerator()->create_group_member(array('userid' => $user1->id, 'groupid' => $group1->id));
+        $this->getDataGenerator()->create_group_member(array('userid' => $user2->id, 'groupid' => $group2->id));
+
+        // Create forum.
+        $forumrecord = $generator->create_instance(array('course' => $course->id, 'enabletags' => true,
+                'groupmode' => SEPARATEGROUPS, 'groupingid' => $grouping->id));
+
+        // Create $n discussions in group 1.
+        $n = $generator->create_discussions($course->id, $forumrecord->id, $user1->id, $group1->id);
+
+        // Create $m discussions in group 2.
+        $m = $generator->create_discussions($course->id, $forumrecord->id, $user2->id, $group2->id);
+
+        $forums = \mod_forumng::get_course_forums($course, $user1->id, mod_forumng::UNREAD_DISCUSSIONS, array($forumrecord->cmid));
+        $forum = reset($forums);
+        $this->assertEquals($n, $forum->get_num_discussions());
+
+        $forums = \mod_forumng::get_course_forums($course, $user2->id, mod_forumng::UNREAD_DISCUSSIONS, array($forumrecord->cmid));
+        $forum = reset($forums);
+        $this->assertEquals($m, $forum->get_num_discussions());
+
+        // Admin user can view all groups
+        $forums = \mod_forumng::get_course_forums($course, $USER->id, mod_forumng::UNREAD_DISCUSSIONS, array($forumrecord->cmid));
+        $forum = reset($forums);
+        $this->assertEquals($n + $m, $forum->get_num_discussions());
+
+        // Change the group mode to VISIBLEGROUPS.
+        $DB->set_field('course_modules', 'groupmode', VISIBLEGROUPS, array('id' => $forumrecord->cmid));
+        rebuild_course_cache($course->id);
+
+        $forums = \mod_forumng::get_course_forums($course, $user1->id, mod_forumng::UNREAD_DISCUSSIONS, array($forumrecord->cmid));
+        $forum = reset($forums);
+        $this->assertEquals($n + $m, $forum->get_num_discussions());
+
+        $forums = \mod_forumng::get_course_forums($course, $user2->id, mod_forumng::UNREAD_DISCUSSIONS, array($forumrecord->cmid));
+        $forum = reset($forums);
+        $this->assertEquals($n + $m, $forum->get_num_discussions());
+    }
+
 }
