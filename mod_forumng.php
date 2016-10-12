@@ -3288,6 +3288,7 @@ WHERE
   INNER JOIN {course_modules} cm2 ON cm2.instance = fd.forumngid
              AND cm2.module = (SELECT id FROM {modules} WHERE name = 'forumng')
        WHERE fplast.modified > ?
+         AND (f.type != ? OR fpfirst.userid = ? OR ($inviewhiddenforums))
          AND (
              (fd.groupid IS NULL)
              OR ($ingroups)
@@ -3307,8 +3308,8 @@ WHERE
     $indreadpart
        WHERE discussions.forumngid = f.id
     $indreadwhere";
-            $sharedqueryparams = array_merge(array($userid, $endtime), $ingroupsparams,
-                    $inaagforumsparams, array($now, $now), $inviewhiddenforumsparams,
+            $sharedqueryparams = array_merge(array($userid, $endtime, 'studyadvice', $userid),
+                    $inviewhiddenforumsparams, $ingroupsparams, $inaagforumsparams, array($now, $now), $inviewhiddenforumsparams,
                     array($userid, $userid), $restrictionparams, $indreadparms);
 
             // Note: There is an unusual case in which this number can
@@ -3353,12 +3354,14 @@ SELECT
     " . mod_forumng_utils::select_course_fields('c') . ",
     (SELECT COUNT(1)
         FROM {forumng_discussions} cfd
+        JOIN {forumng_posts} cfp ON cfd.postid = cfp.id
         WHERE cfd.forumngid = f.id AND cfd.deleted = 0
         AND (
             ((cfd.timestart = 0 OR cfd.timestart <= ?)
             AND (cfd.timeend = 0 OR cfd.timeend > ?))
             OR ($cfdinviewhiddenforums)
         )
+        AND (f.type != ? OR cfp.userid = ? OR ($cfdinviewhiddenforums))
         AND (
              (cfd.groupid IS NULL)
              OR ($cfdingroups)
@@ -3375,6 +3378,7 @@ WHERE
     $conditions
 ORDER BY
     $orderby", array_merge(array($now, $now), $inviewhiddenforumsparams,
+                array('studyadvice', $userid), $inviewhiddenforumsparams,
                 $ingroupsparams, $inaagforumsparams, $readtrackingparams,
                 $conditionsparams));
         if (count($plusresult) > 0) {

@@ -703,4 +703,56 @@ class mod_forumng_discussion_testcase  extends forumng_test_lib {
         $this->assertEquals($n + $m, $forum->get_num_discussions());
     }
 
+    /**
+     * In study advice mode, each student should only see the count of their own discussions.
+     */
+    public function test_get_num_discussions_studyadvice() {
+        global $USER;
+        $this->resetAfterTest(true);
+        $this->setAdminUser();
+
+        // Create the generator object and do standard checks.
+        $generator = self::getDataGenerator()->get_plugin_generator('mod_forumng');
+
+        // Create course.
+        $record = new stdClass();
+        $record->shortname = 'testcourse';
+        $course = self::getDataGenerator()->create_course($record);
+
+        $user1 = $this->get_new_user();
+        $user2 = $this->get_new_user();
+
+        $this->getDataGenerator()->enrol_user($user1->id, $course->id, 'student');
+        $this->getDataGenerator()->enrol_user($user2->id, $course->id, 'student');
+
+        // Create forum.
+        $forumrecord = $generator->create_instance(array('course' => $course->id, 'type' => 'studyadvice'));
+
+        // Generate $n discussions for user 1.
+        $n = $generator->create_discussions($course->id, $forumrecord->id, $user1->id);
+        // Generate $m discussions for user 1.
+        $m = $generator->create_discussions($course->id, $forumrecord->id, $user2->id);
+
+        if ($m === $n) {
+            // Generate some extra discussions so the two counts are different.
+            $m += $generator->create_discussions($course->id, $forumrecord->id, $user2->id);
+        }
+
+        $forums = \mod_forumng::get_course_forums($course, $user1->id, mod_forumng::UNREAD_DISCUSSIONS, array($forumrecord->cmid));
+        $forum = reset($forums);
+        $this->assertEquals($n, $forum->get_num_discussions());
+        $this->assertEquals(0, $forum->get_num_unread_discussions());
+
+        $forums = \mod_forumng::get_course_forums($course, $user2->id, mod_forumng::UNREAD_DISCUSSIONS, array($forumrecord->cmid));
+        $forum = reset($forums);
+        $this->assertEquals($m, $forum->get_num_discussions());
+        $this->assertEquals(0, $forum->get_num_unread_discussions());
+
+        // Admin can view all discussions
+        $forums = \mod_forumng::get_course_forums($course, $USER->id, mod_forumng::UNREAD_DISCUSSIONS, array($forumrecord->cmid));
+        $forum = reset($forums);
+        $this->assertEquals($n + $m, $forum->get_num_discussions());
+        $this->assertEquals($n + $m, $forum->get_num_unread_discussions());
+    }
+
 }
