@@ -112,7 +112,7 @@ if ($mform->is_cancelled()) {
             if ($group->id) {
                 mod_forumng::set_group_tags($forum->get_id(), $group->id, $fromform->$settagsindex);
             } else {
-                core_tag_tag::set_item_tags('mod_formng', 'forumng', $fid, $context, $fromform->$settagsindex);
+                core_tag_tag::set_item_tags('mod_forumng', 'forumng', $fid, $context, $fromform->$settagsindex);
             }
         }
     }
