@@ -261,7 +261,7 @@ abstract class forumngfeature_discussion_selector extends forumngfeature_post_se
                 // Check access.
                 foreach ($selectedids as $id) {
                     $discuss = mod_forumng_discussion::get_from_id($id, $cloneid);
-                    if ($forum->get_type()->can_view_discussion($discuss)) {
+                    if ($discuss->can_view()) {
                         $postids[] = $id;
                     }
                 }
@@ -293,7 +293,7 @@ abstract class forumngfeature_discussion_selector extends forumngfeature_post_se
                 $discussionsarr = array_merge($list->get_sticky_discussions(), $list->get_normal_discussions());
                 // Double check ID is valid and user can view.
                 for ($a = 0; $a < count($discussionsarr); $a++) {
-                    if ($forum->get_type()->can_view_discussion($discussionsarr[$a])) {
+                    if ($discussionsarr[$a]->can_view()) {
                         $postids[] = $discussionsarr[$a]->get_id();
                     }
                 }

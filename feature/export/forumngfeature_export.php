@@ -60,6 +60,10 @@ class forumngfeature_export extends forumngfeature_discussion {
             return false;
         }
 
+        if (is_a($discussion, 'mod_forumng')) {
+            return $discussion->can_view_discussions();
+        }
+
         return true;
     }
 
