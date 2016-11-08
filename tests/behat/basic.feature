@@ -415,3 +415,24 @@ Feature: Add forumng activity and test basic functionality
     Given I change window size to "large"
     And I wait "1" seconds
     Then "..." "button" should not be visible
+
+  @javascript
+  Scenario: Add discussions and check button disable
+    Given I log in as "admin"
+    And I am on site homepage
+    And I follow "Course 1"
+    And I follow "Test forum name"
+    And I add a discussion with the following data:
+      | Subject | Discussion 1 |
+      | Message | abc |
+    And I reply to post "1" with the following data:
+      | Message | REPLY1 |
+    And I click on "Reply" "link"
+    Then ".forumng-p2 .forumng-delete a.forumng-disabled" "css_element" should exist
+    Then ".forumng-p2 .forumng-edit a.forumng-disabled" "css_element" should exist
+    Then ".forumng-p2 .forumng-replylink a.forumng-disabled" "css_element" should exist
+    And I switch to "forumng-post-iframe" iframe
+    And I press "Cancel"
+    Then ".forumng-p2 .forumng-delete a.forumng-disabled" "css_element" should not exist
+    Then ".forumng-p2 .forumng-edit a.forumng-disabled" "css_element" should not exist
+    Then ".forumng-p2 .forumng-replylink a.forumng-disabled" "css_element" should not exist

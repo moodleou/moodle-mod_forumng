@@ -611,18 +611,24 @@ M.mod_forumng = {
                         var subject = subjectinput.get('value');
                         subjectinput.remove();
 
-                        // Find breadcrumb that displays subject (last <li>).
-                        var navbaritems = t.Y.one('#page-header .navbar ul').all('li');
-                        var breadcrumb = navbaritems.item(navbaritems.size() - 1);
+                        if (Y.one('#page-header .navbar ul')) {
+                            // Find breadcrumb that displays subject (last <li>).
+                            var navbaritems = Y.one('#page-header .navbar ul').all('li');
+                            var breadcrumb = navbaritems.item(navbaritems.size() - 1);
 
-                        // Find the span in this (last span).
-                        var list = breadcrumb.all('span');
-                        var lastspan = list.item(list.size() - 1);
+                            // Find the span in this (last span).
+                            if (breadcrumb.find('span') != null) {
+                                var list = breadcrumb.all('span');
+                                var lastspan = list.item(list.size() - 1);
 
-                        // Text is inside here, replace it.
-                        if (lastspan) {
-                            lastspan.get('childNodes').each(function(node, index, list) { node.remove(); });
-                            lastspan.appendChild(document.createTextNode(' ' + subject));
+                                // Text is inside here, replace it.
+                                if (lastspan) {
+                                    lastspan.get('childNodes').each(function (node, index, list) {
+                                        node.remove();
+                                    });
+                                    lastspan.appendChild(document.createTextNode(' ' + subject));
+                                }
+                            }
                         }
                     }
 
@@ -1040,7 +1046,9 @@ M.mod_forumng = {
             };
             links[j].style.cursor = 'default';
             links[j].tabIndex = -1;
-            links[j].className += ' forumng-disabled';
+            if (links[j].className.indexOf('forumng-disabled') === -1) {
+                links[j].className += ' forumng-disabled';
+            }
         }
     },
 
