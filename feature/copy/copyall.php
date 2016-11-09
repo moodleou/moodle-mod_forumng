@@ -32,13 +32,11 @@ class copy_discussion_selector extends forumngfeature_discussion_selector {
     }
 
     public function get_form($forum, $all, $selected = array()) {
-        global $CFG, $PAGE;
-
         if (get_user_preferences('forumng_hidecopyhelp', 0)) {
             return null;
         } else {
             foreach ($selected as $discussionid) {
-                $params['selectd'.$discussionid] = $discussionid;
+                $params['selectd' . $discussionid] = $discussionid;
             }
             $params['id'] = $forum->get_course_module_id();
             $params['clone'] = optional_param('clone', 0, PARAM_INT);
@@ -56,6 +54,7 @@ class copy_discussion_selector extends forumngfeature_discussion_selector {
 
         $forum = $discussion;
         $clone  = optional_param('clone', 0, PARAM_INT);
+        $groupid = null;
         // Make sure that only non-deleted and non-locked discussions are selected
         // just in case "All discussion shown" is chose.
         $selectd = array();
@@ -63,12 +62,25 @@ class copy_discussion_selector extends forumngfeature_discussion_selector {
             $discussion = mod_forumng_discussion::get_from_id($discussionid, $clone);
             if (!$discussion->is_deleted() && !$discussion->is_locked()) {
                 $selectd[] = $discussionid;
+                $dgrpid = $discussion->get_group_id();
+                if ($groupid == null) {
+                    $groupid = $dgrpid == null ? mod_forumng::NO_GROUPS : $dgrpid;
+                } else if ($dgrpid != $groupid) {
+                    // Multiple groups - set to all participants.
+                    $groupid = mod_forumng::NO_GROUPS;
+                }
             }
         }
         if (!empty($selectd)) {
             // Remember in session that the discussions are being copied.
             $SESSION->forumng_copyfrom = $selectd;
             $SESSION->forumng_copyfromclone = $clone;
+            $SESSION->forumng_copyfromforum = $forum->get_id();
+            if ($forum->get_group_mode() != NOGROUPS) {
+                $SESSION->forumng_copyfromgroup = $groupid;
+            } else {
+                $SESSION->forumng_copyfromgroup = mod_forumng::NO_GROUPS;
+            }
         }
         if (!empty($formdata->hidelater)) {
             set_user_preference('forumng_hidecopyhelp', 1);

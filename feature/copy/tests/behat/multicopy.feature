@@ -50,28 +50,28 @@ Feature: Copy discussions from main forum page
     And I set the field "Visible groups" to "Group 1"
     When I press "Go"
     Then I should see "To be copied 1"
-    Then I should see "To be copied 2"
+    And I should see "To be copied 2"
     And I press "Copy"
     And I press "All discussions shown"
-    And I press "Begin copy"
-    Then "Paste discussion" "button" should exist
-    Then "Cancel" "button" should exist
-    Then I should see "Test group forum"
-    And I press "Cancel"
-    Then "Paste discussion" "button" should not exist
+    When I press "Begin copy"
+    Then "Paste discussions" "button" should not exist
+    And I should see "Test group forum"
+    When I press "Cancel paste"
+    Then "Cancel paste" "button" should not exist
     And I press "Copy"
     And I press "All discussions shown"
-    And I press "Begin copy"
+    When I press "Begin copy"
     And I set the field "Visible groups" to "Group 2"
-    And I press "Go"
+    When I press "Go"
     Then I should not see "To be copied 1"
-    Then I should not see "To be copied 2"
-    And I press "Paste discussion"
+    And I should not see "To be copied 2"
+    And "Cancel" "button" should exist
+    When I press "Paste discussions"
     Then I should see "To be copied 1"
-    Then I should see "To be copied 2"
-    And I follow "To be copied 1"
+    And I should see "To be copied 2"
+    When I follow "To be copied 1"
     Then I should see "message 1"
-    Then I should see "re message 1"
+    And I should see "re message 1"
 
   Scenario: Copy discussions from group to another course forum
     Given I log in as "admin"
@@ -86,8 +86,8 @@ Feature: Copy discussions from main forum page
     And I am on site homepage
     And I follow "Course 2"
     And I follow "Test course forum"
-    Then "Paste discussion" "button" should exist
-    And I press "Paste discussion"
+    Then "Paste discussions" "button" should exist
+    And I press "Paste discussions"
     Then I should see "To be copied 1"
     Then I should see "To be copied 2"
     And I follow "To be copied 1"

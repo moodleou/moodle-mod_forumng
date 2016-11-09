@@ -44,17 +44,18 @@ Feature: Copy discussions to another forum
     Then I should see "abc"
     Given I press "Copy"
     When I press "Begin copy"
-    Then "Paste discussion" "button" should exist
-    And "Cancel" "button" should exist
-    And I should see "To be copied"
-    Given I press "Cancel"
     Then "Paste discussion" "button" should not exist
+    And "Cancel paste" "button" should exist
+    And I should see "To be copied"
+    Given I press "Cancel paste"
+    Then "Cancel paste" "button" should not exist
     Given I follow "To be copied"
     When I press "Copy"
     And I press "Begin copy"
     And I set the field "Visible groups" to "Group 2"
     And I press "Go"
     Then I should not see "To be copied"
+    And "Cancel" "button" should exist
     Given I press "Paste discussion"
     Then I should see "To be copied"
     Given I follow "To be copied"
@@ -65,6 +66,8 @@ Feature: Copy discussions to another forum
     Given I press "Copy"
     And I press "Begin copy"
     And I follow "Test group forum"
+    And I set the field "Visible groups" to "Group 1"
+    And I press "Go"
     When I press "Paste discussion"
     Then I should see "To be copied again"
 

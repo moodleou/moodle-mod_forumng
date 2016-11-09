@@ -555,6 +555,8 @@ $string['convert_noneselected'] = 'No forums selected for conversion! Please sel
 forums.';
 $string['convert_noforums'] = 'There are no old forums on this course to convert.';
 $string['pastediscussion']='Paste discussion';
+$string['pastediscussions']='Paste discussions';
+$string['pastediscussion_cancel'] = 'Cancel paste';
 $string['switchto_simple_text']='The standard view of this forum does not always work well with
 assistive technology. We also provide a simpler view, which still contains all features.';
 $string['switchto_standard_text']='You are using the simple view of this forum, which should work

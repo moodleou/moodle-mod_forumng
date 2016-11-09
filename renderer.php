@@ -798,12 +798,26 @@ class mod_forumng_renderer extends plugin_renderer_base {
     public function render_paste_button($forum, $groupid) {
         global $SESSION;
         if (isset($SESSION->forumng_copyfrom)) {
+            $pastlang = (is_array($SESSION->forumng_copyfrom) &&
+                    count($SESSION->forumng_copyfrom) > 1) ?
+                    get_string('pastediscussions', 'forumng') :
+                    get_string('pastediscussion', 'forumng');
+            $cancel = get_string('cancel');
+            $paste = '<input type="submit" name="paste" value="' . $pastlang . '" />';
+
+            if ((!empty($SESSION->forumng_copyfromforum) &&
+                    $SESSION->forumng_copyfromforum == $forum->get_id()) &&
+                    (isset($SESSION->forumng_copyfromgroup) &&
+                    $SESSION->forumng_copyfromgroup == $groupid)) {
+                // Don't show paste button if pasting to copy location, change cancel text.
+                $paste = '';
+                $cancel = get_string('pastediscussion_cancel', 'forumng');
+            }
             $cmid = required_param('id', PARAM_INT);
             return '<form action="feature/copy/paste.php" method="get" '.
                     'class="forumng-paste-buttons">' .
-                    '<div><input type="submit" name="paste" value="' .
-                    get_string('pastediscussion', 'forumng') . '" />' .
-                    '<input type="submit" name="cancel" value="' . get_string('cancel') . '" />' .
+                    '<div>' . $paste .
+                    '<input type="submit" name="cancel" value="' . $cancel . '" />' .
                     '<input type="hidden" name="cmid" value="' . $cmid . '" />' .
                     $forum->get_clone_param(mod_forumng::PARAM_FORM) .
                     ($groupid != mod_forumng::NO_GROUPS

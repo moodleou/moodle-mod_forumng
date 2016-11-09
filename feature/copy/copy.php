@@ -56,6 +56,12 @@ if ($mform->is_cancelled()) {
     // Remember in session that the discussion is being copied
     $SESSION->forumng_copyfrom = $d;
     $SESSION->forumng_copyfromclone = $cloneid;
+    $SESSION->forumng_copyfromforum = $forum->get_id();
+    if ($forum->get_group_mode() != NOGROUPS) {
+        $SESSION->forumng_copyfromgroup = $discussion->get_group_id();
+    } else {
+        $SESSION->forumng_copyfromgroup = mod_forumng::NO_GROUPS;
+    }
 
     if (!empty($fromform->hidelater)) {
         set_user_preference('forumng_hidecopyhelp', 1);
