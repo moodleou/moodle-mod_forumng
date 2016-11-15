@@ -197,15 +197,13 @@ if ($rss) {
     header('Content-type: application/atom+xml');
     $updated = count($feeddata)==0 ? time() : reset($feeddata)->pubdate;
 
-    // The summary is not always valid XML (sometimes it has <br>) which can cause the resulting
-    // Atom file to be invalid too. Let's make it into proper XML if not blank.
     if (trim($feedsummary) === '') {
         $feedsummary = '';
     } else {
-        $dom = new DOMDocument();
-        $dom->loadHTML($feedsummary);
-        $feedsummary = preg_replace('~^.*<body>(.*)</body>.*~', '$1',
-                $dom->saveXML($dom->documentElement));
+        // A valid atom feed requires plain text in the subtitle tag, or html if
+        // the subtitle tag contains the attribute type="html". This html option
+        // is not available in the atomlib, so lets convert html to text here.
+        $feedsummary = strip_tags($feedsummary);
     }
 
     echo atom_standard_header($FULLME , $FULLME, $updated, $feedname, $feedsummary);
