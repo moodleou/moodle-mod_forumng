@@ -3285,10 +3285,11 @@ WHERE
   INNER JOIN {forumng_posts} fplast ON fd.lastpostid = fplast.id
   INNER JOIN {forumng_posts} fpfirst ON fd.postid = fpfirst.id
    LEFT JOIN {forumng_read} fr ON fd.id = fr.discussionid AND fr.userid = ?
+  INNER JOIN {forumng} f1 ON f1.id = fd.forumngid
   INNER JOIN {course_modules} cm2 ON cm2.instance = fd.forumngid
              AND cm2.module = (SELECT id FROM {modules} WHERE name = 'forumng')
        WHERE fplast.modified > ?
-         AND (f.type != ? OR fpfirst.userid = ? OR ($inviewhiddenforums))
+         AND (f1.type != ? OR fpfirst.userid = ? OR ($inviewhiddenforums))
          AND (
              (fd.groupid IS NULL)
              OR ($ingroups)
