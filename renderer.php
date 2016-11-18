@@ -1497,8 +1497,12 @@ class mod_forumng_renderer extends plugin_renderer_base {
                 // Mark post read.
                 if ($CFG->forumng_trackreadposts && !isguestuser() && $post->is_unread()
                     && !mod_forumng::mark_read_automatically()) {
+                    $params = array('p' => $post->get_id());
+                    if ($post->get_forum()->is_shared()) {
+                        $params['clone'] = $post->get_forum()->get_course_module_id();
+                    }
                     $commandsarray['forumng-markread'] = html_writer::link(
-                            new moodle_url('/mod/forumng/markread.php', array('p' => $post->get_id())),
+                            new moodle_url('/mod/forumng/markread.php', $params),
                             get_string('markpostread', 'forumng'));
                 }
 
