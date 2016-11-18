@@ -88,7 +88,7 @@ class mod_forumng_generator extends testing_module_generator {
      * Function to create a dummy discussion.
      *
      * @param array|stdClass $record
-     * @return stdClass the discussion object
+     * @return int[] Array containing discussion id and post id
      */
     public function create_discussion($record = null) {
         global $CFG;
@@ -144,6 +144,31 @@ class mod_forumng_generator extends testing_module_generator {
                 false, $record['userid']);
 
         return $discussionid;
+    }
+
+    /**
+     * Generate a random number of discussions in a forum for a particular user
+     *
+     * @param int $courseid The course the forum is in
+     * @param int $forumid The ID of the forum instance
+     * @param int $userid The ID of the user to create the discussion as
+     * @param null|int $groupid The ID of the group the discussion is in (null for no group)
+     * @return int The number of discussions created.
+     */
+    public function create_discussions($courseid, $forumid, $userid, $groupid = null) {
+        $n = rand(2, 10);
+        for ($i = 0; $i < $n; $i++) {
+            $record = new stdClass();
+            $record->course = $courseid;
+            $record->forum = $forumid;
+            $record->userid = $userid;
+            $record->timestart = time();
+            if (!is_null($groupid)) {
+                $record->groupid = $groupid;
+            }
+            $this->create_discussion($record);
+        }
+        return $n;
     }
 
     /**

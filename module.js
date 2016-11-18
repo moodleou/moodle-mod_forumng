@@ -382,8 +382,10 @@ M.mod_forumng = {
 
     /**
      * Removes iframe and marks it closed.
+     *
+     * @param scrollToParent If true (default), scrolls to parent after removing iframe
      */
-    remove_iframe : function(iframe) {
+    remove_iframe : function(iframe, scrollToParent) {
         var parent = iframe.get('parentNode');
         parent.removeChild(iframe);
         if (M.is_mobile) {
@@ -393,7 +395,9 @@ M.mod_forumng = {
             Y.one('window').detach('scroll');
         }
         this.nowediting = false;
-        this.scroll_page(parent.get('parentNode'));
+        if (scrollToParent === undefined || scrollToParent) {
+            this.scroll_page(parent.get('parentNode'));
+        }
         this.links_enable(document.body);
     },
 
@@ -726,7 +730,7 @@ M.mod_forumng = {
 
                 // Remove the iframe.
                 // This needs to be palced here for mobile devices to work.
-                t.remove_iframe(iframe);
+                t.remove_iframe(iframe, false);
                 window.iframe_success = null;
 
                 // Scroll to it (must do this after frame removed or height will be incorrect).
@@ -844,9 +848,9 @@ M.mod_forumng = {
     /**
      * Initialises the feature buttons that run along the bottom of a discussion. Some
      * of these may use the 'post selector' feature, which requires JavaScript.
-     * 
+     *
      * Looks for some ou-specific links that are treated as the real buttons
-     * 
+     *
      * @param islist True if discussion list
      */
     init_feature_buttons: function(islist) {
@@ -1558,10 +1562,10 @@ M.mod_forumng = {
         fadepanel.setStyle('opacity', '0.0');
 
         var anim = new this.Y.Anim({
-            node : fadepanel,
-            from : { 'opacity' : 0.0 },
-            to : { 'opacity' : 0.5 },
-            duration : 0.25,
+            node: fadepanel,
+            from: {'opacity': 0.0},
+            to: {'opacity': 0.5},
+            duration: 0.25,
             easing : this.Y.Easing.easeNone});
         anim.run();
 
@@ -1604,12 +1608,28 @@ M.mod_forumng = {
         var region = this.Y.DOM.viewportRegion();
         region.height = region.bottom - region.top;
         region.width = region.right - region.left;
-        dialog.setStyle('top', (region.top + region.height/3) + "px");
-        // Dialog width is 350px, centre it
-        dialog.setStyle('left', (region.left + region.width/2 - 175) + "px");
+        dialog.setStyle('top', (region.top + region.height / 3) + "px");
+
+        // Set the dialog box width according to the browser window size.
+        var pixelsWidth = this.Y.DOM.docWidth();
+        var leftAdjuster = 0;
+        var requiredBoxWidth = 630;
+        if (pixelsWidth < 700) {
+            requiredBoxWidth = pixelsWidth - 40;
+            leftAdjuster = 5;
+        }
+        dialog.setStyle('width', (requiredBoxWidth - 10) + "px");
+        // Centre Dialog box.
+        var leftValue = region.left + region.width / 2 - (requiredBoxWidth / 2) - leftAdjuster;
+        // Ensure that the left property is not less than 0.
+        if ((leftValue) < 1) {
+            leftValue = 0;
+        }
+        dialog.setStyle('left', (leftValue) + "px");
 
         var messagediv = document.createElement('div');
         messagediv.className = 'forumng-message';
+        messagediv.tabIndex = -1;
         messagediv.innerHTML = message;
         messagediv = this.Y.one(messagediv);
         dialog.appendChild(messagediv);
@@ -1631,10 +1651,11 @@ M.mod_forumng = {
             }
         }, this);
 
-        for (var i=0; i<actiontext.length; i++) {
-            buttondiv.appendChild(this.confirm_make_button(actiontext[i], action[i], cancel, i==0));
+        for (var i = 0; i < actiontext.length; i++) {
+            buttondiv.appendChild(this.confirm_make_button(actiontext[i], action[i], cancel, false));
         }
 
+        this.focus(messagediv);
         buttondiv.appendChild(cancel);
     },
 

@@ -196,6 +196,18 @@ if ($rss) {
 } else {
     header('Content-type: application/atom+xml');
     $updated = count($feeddata)==0 ? time() : reset($feeddata)->pubdate;
+
+    // The summary is not always valid XML (sometimes it has <br>) which can cause the resulting
+    // Atom file to be invalid too. Let's make it into proper XML if not blank.
+    if (trim($feedsummary) === '') {
+        $feedsummary = '';
+    } else {
+        $dom = new DOMDocument();
+        $dom->loadHTML($feedsummary);
+        $feedsummary = preg_replace('~^.*<body>(.*)</body>.*~', '$1',
+                $dom->saveXML($dom->documentElement));
+    }
+
     echo atom_standard_header($FULLME , $FULLME, $updated, $feedname, $feedsummary);
     echo atom_add_items($feeddata);
     echo atom_standard_footer();

@@ -764,22 +764,19 @@ form.markread input {
 
 // Note: Dialog width including padding etc. must be 350 pixels
 */
+.forumng-confirmdialog div.forumng-buttons input[type='button'] {
+    margin-bottom: 10px;
+}
 
 .forumng-confirmdialog {
-    width: 390px;
     background: white;
     border: 1px solid #aaa;
     padding: 10px;
 }
-.safari .forumng-confirmdialog {
-    width: 375px;
-}
-.ie8 .forumng-confirmdialog {
-    width: 400px;
-}
 
 .forumng-confirmdialog .forumng-message {
     margin-bottom: 10px;
+    outline-style: none;
 }
 
 .forumng-confirmdialog h4 {

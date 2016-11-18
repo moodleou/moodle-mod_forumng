@@ -3178,6 +3178,10 @@ WHERE
             'fd.forumngid', $viewhiddenforums);
         list($cfdinviewhiddenforums, $inviewhiddenforumsparams) =
                 mod_forumng_utils::get_in_array_sql('cfd.forumngid', $viewhiddenforums);
+        list($cfdingroups, $ingroupsparams) =
+                mod_forumng_utils::get_in_array_sql('cfd.groupid', $groups);
+        list($cfdinaagforums, $inaagforumsparams) =
+                mod_forumng_utils::get_in_array_sql('cfd.forumngid', $aagforums);
 
         // This array of additional results is used later if combining
         // standard results with single-forum calls.
@@ -3281,6 +3285,7 @@ WHERE
   INNER JOIN {course_modules} cm2 ON cm2.instance = fd.forumngid
              AND cm2.module = (SELECT id FROM {modules} WHERE name = 'forumng')
        WHERE fplast.modified > ?
+         AND (f.type != ? OR fpfirst.userid = ? OR ($inviewhiddenforums))
          AND (
              (fd.groupid IS NULL)
              OR ($ingroups)
@@ -3300,8 +3305,8 @@ WHERE
     $indreadpart
        WHERE discussions.forumngid = f.id
     $indreadwhere";
-            $sharedqueryparams = array_merge(array($userid, $endtime), $ingroupsparams,
-                    $inaagforumsparams, array($now, $now), $inviewhiddenforumsparams,
+            $sharedqueryparams = array_merge(array($userid, $endtime, 'studyadvice', $userid),
+                    $inviewhiddenforumsparams, $ingroupsparams, $inaagforumsparams, array($now, $now), $inviewhiddenforumsparams,
                     array($userid, $userid), $restrictionparams, $indreadparms);
 
             // Note: There is an unusual case in which this number can
@@ -3346,13 +3351,20 @@ SELECT
     " . mod_forumng_utils::select_course_fields('c') . ",
     (SELECT COUNT(1)
         FROM {forumng_discussions} cfd
+        JOIN {forumng_posts} cfp ON cfd.postid = cfp.id
         WHERE cfd.forumngid = f.id AND cfd.deleted = 0
         AND (
             ((cfd.timestart = 0 OR cfd.timestart <= ?)
             AND (cfd.timeend = 0 OR cfd.timeend > ?))
             OR ($cfdinviewhiddenforums)
         )
-        ) AS f_numdiscussions,
+        AND (f.type != ? OR cfp.userid = ? OR ($cfdinviewhiddenforums))
+        AND (
+             (cfd.groupid IS NULL)
+             OR ($cfdingroups)
+             OR cm.groupmode = " . VISIBLEGROUPS . "
+             OR ($cfdinaagforums)
+        )) AS f_numdiscussions,
     $readtracking
 FROM
     {forumng} f
@@ -3362,7 +3374,9 @@ FROM
 WHERE
     $conditions
 ORDER BY
-    $orderby", array_merge(array($now, $now), $inviewhiddenforumsparams, $readtrackingparams,
+    $orderby", array_merge(array($now, $now), $inviewhiddenforumsparams,
+                array('studyadvice', $userid), $inviewhiddenforumsparams,
+                $ingroupsparams, $inaagforumsparams, $readtrackingparams,
                 $conditionsparams));
         if (count($plusresult) > 0) {
             foreach ($plusresult as $key => $value) {
@@ -4059,7 +4073,7 @@ WHERE
 
         // Get most recent N discussions from db
         $rs = mod_forumng_discussion::query_discussions(
-            'fd.forumngid = ' . $this->get_id() . ' AND fd.deleted = 0', -1,
+            'fd.forumngid = ? AND fd.deleted = 0', array($this->get_id()), -1,
             'timemodified DESC', 0, $items);
         $result = array();
         foreach ($rs as $rec) {

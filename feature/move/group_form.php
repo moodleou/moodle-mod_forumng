@@ -63,10 +63,6 @@ class mod_forumng_moveall_form extends moodleform {
         $mform = $this->_form;
         $params = $this->_customdata['params'];
 
-        // Informational paragraph.
-        $mform->addElement('static', '', '',
-                get_string('movediscussionsto', 'forumngfeature_move'));
-
         // Get current forum.
         $forum = $this->_customdata['forum'];
         // Get array of forums excluding current forum.
