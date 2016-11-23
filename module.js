@@ -611,25 +611,22 @@ M.mod_forumng = {
                         var subject = subjectinput.get('value');
                         subjectinput.remove();
 
-                        if (Y.one('#page-header .navbar ul')) {
-                            // Find breadcrumb that displays subject (last <li>).
-                            var navbaritems = Y.one('#page-header .navbar ul').all('li');
-                            var breadcrumb = navbaritems.item(navbaritems.size() - 1);
+                        Y.all('.forumng-subject').setHTML(subject);
 
-                            // Find the span in this (last span).
-                            if (breadcrumb.find('span') != null) {
-                                var list = breadcrumb.all('span');
-                                var lastspan = list.item(list.size() - 1);
+                        var navbar = Y.one('#page-header .navbar ul, #page-navbar ul');
+                        if (navbar) {
+                            // Find subject inside the breadcrumb (last <span> in last <li>).
+                            var lastspan = navbar.one('li:last-child > span:last-child');
 
-                                // Text is inside here, replace it.
-                                if (lastspan) {
-                                    lastspan.get('childNodes').each(function (node, index, list) {
-                                        node.remove();
-                                    });
-                                    lastspan.appendChild(document.createTextNode(' ' + subject));
-                                }
+                            // Text is inside here, replace it.
+                            if (lastspan) {
+                                lastspan.get('childNodes').each(function (node, index, list) {
+                                    node.remove();
+                                });
+                                lastspan.appendChild(document.createTextNode(' ' + subject));
                             }
                         }
+
                     }
 
                     // Sort out links.
