@@ -436,3 +436,18 @@ Feature: Add forumng activity and test basic functionality
     Then ".forumng-p2 .forumng-delete a.forumng-disabled" "css_element" should not exist
     Then ".forumng-p2 .forumng-edit a.forumng-disabled" "css_element" should not exist
     Then ".forumng-p2 .forumng-replylink a.forumng-disabled" "css_element" should not exist
+
+  @javascript
+  Scenario: Edit discussion subject
+    Given I log in as "admin"
+    And I am on site homepage
+    And I follow "Course 1"
+    And I follow "Test forum name"
+    And I add a discussion with the following data:
+      | Subject | Discussion original |
+      | Message | abc |
+    When I edit post "1" with the following data:
+      | Subject | Discussion edited |
+    Then I should not see "Discussion original"
+    And I should see "Discussion edited" in the ".forumng-subject" "css_element"
+    And I should see "Discussion edited" in the "#page-navbar" "css_element"
