@@ -347,11 +347,16 @@ WHERE
     }
 
     /**
+     * @param array $options.
      * @return string Message after format_text and replacing file URLs
      */
-    public function get_formatted_message() {
+    public function get_formatted_message($options = null) {
         global $CFG;
         require_once($CFG->dirroot . '/lib/filelib.php');
+        $foremail = false;
+        if (!empty($options) && array_key_exists(self::OPTION_EMAIL, $options)) {
+            $foremail = $options[self::OPTION_EMAIL];
+        }
         $text = $this->postfields->message;
         $forum = $this->get_forum();
         // Add clone param to end of pluginfile requests
@@ -369,8 +374,17 @@ WHERE
             $id = $this->get_parent()->get_id();
         }
         $context = $forum->get_context(true);
-        $text = file_rewrite_pluginfile_urls($text, 'pluginfile.php',
+        if ($foremail) {
+            $fileurlbase = 'mod/forumng/pluginfile.php';
+        } else {
+            $fileurlbase = 'pluginfile.php';
+        }
+        $text = file_rewrite_pluginfile_urls($text, $fileurlbase,
             $context->id, 'mod_forumng', 'message', $id);
+        if ($foremail && (!isset($CFG->slasharguments) || $CFG->slasharguments != 0)) {
+            // Append hash if this post render for email.
+            $text = $this->add_hash_to_image($text);
+        }
         $textoptions = new stdClass();
         // Don't put a <p> tag round post
         $textoptions->para = false;
@@ -2581,5 +2595,64 @@ WHERE
         $completion = new completion_info($course);
         $completion->update_state($cm, $positive ? COMPLETION_COMPLETE : COMPLETION_INCOMPLETE,
                 $this->postfields->userid);
+    }
+
+    /**
+     * Append hash after image link found in the document.
+     *
+     * @param string $html HTML string.
+     * @return string mixed HTML string.
+     */
+    protected function add_hash_to_image($html) {
+        global $CFG;
+        $salt = context_course::instance($this->get_forum()->get_course()->id)->id;
+
+        $doc = new DOMDocument();
+        $previousinternalerrors = libxml_use_internal_errors(true);
+        $doc->loadHTML($html);
+        libxml_clear_errors();
+        libxml_use_internal_errors($previousinternalerrors);
+
+        $tags = $doc->getElementsByTagName('img');
+
+        // Image source will be replace.
+        $srcbefore = array();
+        // Image source will replace.
+        $srcafter = array();
+        $internaldomain = $this->get_domain_from_url($CFG->wwwroot);
+        foreach ($tags as $tag) {
+            $src = $tag->getAttribute('src');
+            $urldomain = $this->get_domain_from_url($src);
+            // Only add the hash to internal image link.
+            if ($internaldomain === $urldomain) {
+                $srcarr = explode('/', $src);
+                $arrlength = count($srcarr);
+                // Get from last to first in case the domain has more slash.
+                $activity = $srcarr[$arrlength - 4];
+                $area = $srcarr[$arrlength - 3];
+                // This image must belong to message area of forumng.
+                if ($activity == 'mod_forumng' && $area == 'message') {
+                    $imagename = urldecode($srcarr[$arrlength - 1]);
+                    $srcbefore[] = $src;
+                    $srcafter[] = $src . '/' . sha1($imagename . $salt);
+                }
+            }
+        }
+
+        return str_replace($srcbefore, $srcafter, $html);
+    }
+
+    /**
+     * @param string $url
+     * @return string mixed
+     */
+    protected function get_domain_from_url($url) {
+        $host = parse_url($url, PHP_URL_HOST);
+        if (!$host) {
+            $host = explode('/', $host);
+            $host = $host[0];
+        }
+        $regex = '/^www.(.*)/';
+        return preg_replace($regex, '$1', $host);
     }
 }

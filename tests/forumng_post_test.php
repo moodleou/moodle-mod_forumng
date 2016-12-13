@@ -585,4 +585,68 @@ class mod_forumng_post_test extends forumng_test_lib {
         $this->assertEquals(0, $s1forums[$forum2->get_id()]->get_num_unread_discussions());
 
     }
+
+    public function test_get_formatted_message_normal() {
+        global $USER;
+        $this->resetAfterTest(true);
+        $this->setAdminUser();
+        $adminid = $USER->id;
+        $course = $this->get_new_course();
+        $generator = $this->getDataGenerator()->get_plugin_generator('mod_forumng');
+        $forum1 = $this->get_new_forumng($course->id, array('groupmode' => VISIBLEGROUPS));
+        $did1 = $generator->create_discussion(array('course' => $course,
+            'forum' => $forum1->get_id(), 'userid' => $adminid));
+        $post1 = $generator->create_post(
+            array(
+                'discussionid' => $did1[0],
+                'parentpostid' => $did1[1],
+                'userid' => $adminid,
+                'message' => '<img src="@@PLUGINFILE@@/filename.testing.jpg" alt="description">'
+                    . '<img src="http://externalhost.com/images.jpg" alt="description" />'
+                    . '<img src="http://www.example.com/pluginfile.php/31/mod_bookingsystem/intro/test_image.png" '
+                    . 'alt="description" />'
+            ));
+        $postobj = mod_forumng_post::get_from_id($post1->id, 0);
+        $expected = '<img src="http://www.example.com/moodle/pluginfile.php/'
+            . $forum1->get_context()->id . '/mod_forumng/message/'
+            . $postobj->get_id() . '/filename.testing.jpg" alt="description" />'
+            . '<img src="http://externalhost.com/images.jpg" alt="description" />'
+            . '<img src="http://www.example.com/pluginfile.php/31/mod_bookingsystem/intro/test_image.png" '
+            . 'alt="description" />';
+        $actual = $postobj->get_formatted_message();
+        $this->assertEquals($expected, $actual);
+    }
+
+    public function test_get_formatted_message_email() {
+        global $USER;
+        $this->resetAfterTest(true);
+        $this->setAdminUser();
+        $adminid = $USER->id;
+        $course = $this->get_new_course();
+        $salt = context_course::instance($course->id)->id;
+        $generator = $this->getDataGenerator()->get_plugin_generator('mod_forumng');
+        $forum1 = $this->get_new_forumng($course->id, array('groupmode' => VISIBLEGROUPS));
+        $did1 = $generator->create_discussion(array('course' => $course,
+            'forum' => $forum1->get_id(), 'userid' => $adminid));
+        $post1 = $generator->create_post(
+            array(
+                'discussionid' => $did1[0],
+                'parentpostid' => $did1[1],
+                'userid' => $adminid,
+                'message' => '<img src="@@PLUGINFILE@@/filename.testing.jpg" alt="description">'
+                    . '<img src="http://externalhost.com/images.jpg" alt="description" />'
+                    . '<img src="http://www.example.com/pluginfile.php/31/mod_bookingsystem/intro/test_image.png" '
+                    . 'alt="description"/>'
+            ));
+        $postobj = mod_forumng_post::get_from_id($post1->id, 0);
+        $expected = '<img src="http://www.example.com/moodle/mod/forumng/pluginfile.php/'
+            . $forum1->get_context()->id . '/mod_forumng/message/'
+            . $postobj->get_id() . '/filename.testing.jpg/' . sha1('filename.testing.jpg' . $salt) . '" alt="description" />'
+            . '<img src="http://externalhost.com/images.jpg" alt="description" />'
+            . '<img src="http://www.example.com/pluginfile.php/31/mod_bookingsystem/intro/test_image.png" alt="description" />';
+        $actual = $postobj->get_formatted_message(array(
+            'email' => true
+        ));
+        $this->assertEquals($expected, $actual);
+    }
 }

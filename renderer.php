@@ -1370,7 +1370,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
 
         // Get content of actual message in HTML
         if ($html) {
-            $message = $post->get_formatted_message();
+            $message = $post->get_formatted_message($options);
 
             if (!$expanded && !$deletedhide) {
                 // When not expanded and no subject, we include a summary of the
