@@ -1129,7 +1129,8 @@ WHERE
         $gradechanged = false;
         if ($previousfields->grading != $this->forumfields->grading ||
             $previousfields->ratingscale != $this->forumfields->ratingscale ||
-            $previousfields->gradingscale != $this->forumfields->gradingscale) {
+            $previousfields->gradingscale != $this->forumfields->gradingscale ||
+            $previousfields->name != $this->forumfields->name) {
             $this->update_grades();
         }
 
