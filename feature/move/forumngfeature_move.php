@@ -71,7 +71,7 @@ class forumngfeature_move extends forumngfeature_discussion {
                     continue;
                 }
                 $othercontext = context_module::instance($other->id);
-                if (has_capability('mod/forumng:movediscussions', $othercontext)) {
+                if (has_capability('mod/forumng:movediscussions', $othercontext) && $other->uservisible) {
                     $results[$other->id] = $other->name;
                 }
             }
