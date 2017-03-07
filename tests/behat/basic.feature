@@ -408,13 +408,6 @@ Feature: Add forumng activity and test basic functionality
     Then "Show usage" "button" should be visible
     And "Participation by user" "button" should be visible
     And "..." "button" should not be visible
-    Given I change window size to "320x768"
-    And I wait "1" seconds
-    When I press "..."
-    Then "Show usage" "button" should be visible
-    Given I change window size to "large"
-    And I wait "1" seconds
-    Then "..." "button" should not be visible
 
   @javascript
   Scenario: Add discussions and check button disable
@@ -448,6 +441,5 @@ Feature: Add forumng activity and test basic functionality
       | Message | abc |
     When I edit post "1" with the following data:
       | Subject | Discussion edited |
-    Then I should not see "Discussion original"
     And I should see "Discussion edited" in the ".forumng-subject" "css_element"
     And I should see "Discussion edited" in the "#page-navbar" "css_element"

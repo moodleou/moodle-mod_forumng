@@ -1621,7 +1621,8 @@ M.mod_forumng = {
         dialog.setStyle('top', (region.top + region.height / 3) + "px");
 
         // Set the dialog box width according to the browser window size.
-        var pixelsWidth = this.Y.DOM.docWidth();
+        var page = this.Y.DOM.region(Y.one("#page"));
+        var pixelsWidth = page.right - page.left;
         var leftAdjuster = 0;
         var requiredBoxWidth = 630;
         if (pixelsWidth < 700) {

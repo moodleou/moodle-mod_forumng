@@ -29,7 +29,7 @@ Feature: Lock multiple discussions
       | Subject | D2 |
       | Message | 123 |
     And I press "Delete"
-    And I click on "input[value=Delete]" "css_element"
+    And I press "Delete"
     And I follow "Test forum"
     And I add a discussion with the following data:
       | Subject | D3 |

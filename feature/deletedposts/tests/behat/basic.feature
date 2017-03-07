@@ -33,6 +33,7 @@ Feature: View deleted discussions and posts
       | groupmode | Separate groups |
     And I log out
 
+  @javascript
   Scenario: View deleted discussions
     Given I log in as "student1"
     And I am on site homepage
@@ -72,17 +73,18 @@ Feature: View deleted discussions and posts
     Given I follow "Test group forum"
     And I follow "G1 deleted"
     And I press "Delete"
-    When I click on "input[value=Delete]" "css_element"
+    And I click on "Delete" "button" in the ".forumng-confirmdialog .forumng-buttons" "css_element"
+    And I press "Send and delete"
     Then ".forumng-deleted" "css_element" should exist
     Given I follow "G2 deleted"
     And I press "Delete"
-    When I click on "input[value=Delete]" "css_element"
-    Then "//tr[contains(@class, 'forumng-deleted')][2]" "xpath_element" should exist
+    And I click on "Delete" "button" in the ".forumng-confirmdialog .forumng-buttons" "css_element"
+    And I press "Send and delete"
+    Then "//tbody/tr[contains(@class, 'forumng-deleted')][2]" "xpath_element" should exist
     Given I press "View deleted"
     Then I should see "G1 deleted"
     And I should see "G2 deleted"
     Given I set the field "Separate groups" to "Group 1"
-    When I press "Go"
     Then I should see "G1 deleted"
     And I should not see "G2 deleted"
     Given I follow "Deleted posts"
@@ -135,7 +137,7 @@ Feature: View deleted discussions and posts
     And the "View deleted posts created by" select box should contain "Student 1"
     And the "View deleted posts created by" select box should contain "Student 2"
     And the "View deleted posts created by" select box should not contain "Admin User"
-    # Check group and user views.
+  # Check group and user views.
     Given I set the field "View deleted posts deleted by" to "Student 1"
     When I click on "/descendant::input[@value='Go'][2]" "xpath_element"
     Then I should see "REPLY1"

@@ -35,7 +35,7 @@ Feature: Export discussions using portfolio
     And I log in as "admin"
     And I am on site homepage
     And I navigate to "Manage portfolios" node in "Site administration > Plugins > Portfolios"
-    And I set the field with xpath "//form[@id='applytodownload']/div/select" to "Enabled and visible"
+    And I set the field with xpath "//form[@id='applytodownload']/select" to "Enabled and visible"
     And I click on "form#applytodownload input[type='submit']" "css_element"
     And I press "Save"
     And I am on site homepage
@@ -49,13 +49,12 @@ Feature: Export discussions using portfolio
     And I log in as "admin"
     And I am on site homepage
     And I navigate to "Manage portfolios" node in "Site administration > Plugins > Portfolios"
-    And I set the field with xpath "//form[@id='applytodownload']/div/select" to "Enabled and visible"
+    And I set the field with xpath "//form[@id='applytodownload']/select" to "Enabled and visible"
     And I click on "form#applytodownload input[type='submit']" "css_element"
     And I press "Save"
     And I am on site homepage
     And I follow "Course 1"
-    Given I expand "Users" node
-    And I click on "Permissions" "link"
+    And I navigate to "Permissions" node in "Course administration > Users"
     And I override the system permissions of "Student" role with:
       | mod/forumng:viewdiscussion | Prevent |
     And I log out
@@ -71,7 +70,7 @@ Feature: Export discussions using portfolio
     And I log in as "admin"
     And I am on site homepage
     And I navigate to "Manage portfolios" node in "Site administration > Plugins > Portfolios"
-    And I set the field with xpath "//form[@id='applytodownload']/div/select" to "Enabled and visible"
+    And I set the field with xpath "//form[@id='applytodownload']/select" to "Enabled and visible"
     And I click on "form#applytodownload input[type='submit']" "css_element"
     And I press "Save"
     And I am on site homepage
@@ -103,7 +102,7 @@ Feature: Export discussions using portfolio
     And I log in as "admin"
     And I am on site homepage
     And I navigate to "Manage portfolios" node in "Site administration > Plugins > Portfolios"
-    And I set the field with xpath "//form[@id='applytodownload']/div/select" to "Enabled and visible"
+    And I set the field with xpath "//form[@id='applytodownload']/select" to "Enabled and visible"
     And I click on "form#applytodownload input[type='submit']" "css_element"
     And I press "Save"
     And I am on site homepage

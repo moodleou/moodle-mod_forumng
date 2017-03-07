@@ -79,8 +79,7 @@ Feature: Delete discussions
     Given I navigate to "Site policies" node in "Site administration > Security"
     And I set the field "Maximum time to edit posts" to "1 minutes"
     And I press "Save changes"
-    Given I follow "Courses"
-    And I follow "Miscellaneous"
+    And I am on site homepage
     And I follow "Course 1"
     And I follow "Test forum name"
     When I add a discussion with the following data:
@@ -122,6 +121,7 @@ Feature: Delete discussions
     Given I click on "Delete and email" "button" in the ".forumng-confirmdialog .forumng-buttons" "css_element"
     Then I should see "Delete and email author"
     And I should see "Notify other contributors"
+    And I press "Cancel"
     Given I log out
     And I log in as "student2"
     And I am on site homepage

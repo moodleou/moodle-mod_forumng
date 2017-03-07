@@ -30,7 +30,7 @@ Feature: View flagged discussions
       | Subject | D2 |
       | Message | 123 |
     And I press "Delete"
-    And I click on "input[value=Delete]" "css_element"
+    And I press "Delete"
     And I log out
     Given I log in as "student1"
     And I am on site homepage
