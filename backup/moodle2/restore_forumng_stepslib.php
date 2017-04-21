@@ -31,7 +31,7 @@ class restore_forumng_activity_structure_step extends restore_activity_structure
      * ID of forum processed in this step
      * @var int
      */
-    private $forumngid, $shared, $type;
+    private $forumngid, $shared, $type, $moveintrofiles;
     private $grouptags = array();
 
     protected function define_structure() {
@@ -79,6 +79,16 @@ class restore_forumng_activity_structure_step extends restore_activity_structure
         $data = (object)$data;
         $oldid = $data->id;
         $data->course = $this->get_courseid();
+
+        // If we are restoring an old backup, introduction will not be present, and
+        // what was previously in intro needs to be moved to introduction. Will also need to handle files.
+        if (!isset($data->introduction)) {
+            $data->introduction = $data->intro;
+            $data->introductionformat = $data->introformat;
+            $data->intro = '';
+            $data->introformat = FORMAT_HTML;
+            $this->moveintrofiles = true;
+        }
 
         $data->postingfrom = $this->apply_date_offset($data->postingfrom);
         $data->postinguntil = $this->apply_date_offset($data->postinguntil);
@@ -303,11 +313,24 @@ class restore_forumng_activity_structure_step extends restore_activity_structure
         // Add forumng related files, no need to match by
         // itemname (just internally handled context)
         $this->add_related_files('mod_forumng', 'intro', null);
+        if (!$this->moveintrofiles) {
+            $this->add_related_files('mod_forumng', 'introduction', null);
+        }
 
         // Add post related files, matching by itemname = 'forumng_post'
         $this->add_related_files('mod_forumng', 'message', 'forumng_post');
         $this->add_related_files('mod_forumng', 'attachment', 'forumng_post');
         $this->add_related_files('mod_forumng', 'draft', 'forumng_draft');
+
+        if ($this->moveintrofiles) {
+            $DB->execute("
+                    UPDATE {files}
+                       SET filearea = 'introduction'
+                     WHERE component = 'mod_forumng'
+                       AND filearea = 'intro'
+                       AND contextid = ?
+                    ", array($this->task->get_contextid()));
+        }
 
         // Now fix the lastpostid for each discussion
         // TODO Does this work on MySQL? No idea.

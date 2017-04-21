@@ -39,7 +39,7 @@ class backup_forumng_activity_structure_step extends backup_activity_structure_s
         // Define each element separated
 
         $forumng = new backup_nested_element('forumng', array('id'), array(
-            'name', 'intro', 'introformat', 'type',
+            'name', 'intro', 'introformat', 'introduction', 'introductionformat', 'type',
             'ratingscale', 'ratingfrom', 'ratinguntil',
             'ratingthreshold', 'grading', 'attachmentmaxbytes',
             'reportingemail', 'subscription', 'feedtype', 'feeditems',
@@ -254,6 +254,7 @@ class backup_forumng_activity_structure_step extends backup_activity_structure_s
 
         // Define file annotations
         $forumng->annotate_files('mod_forumng', 'intro', null); // This file area hasn't itemid
+        $forumng->annotate_files('mod_forumng', 'introduction', null); // This file area hasn't itemid
         $post->annotate_files('mod_forumng', 'message', 'id');
         $post->annotate_files('mod_forumng', 'attachment', 'id');
         $draft->annotate_files('mod_forumng', 'draft', 'id');

@@ -22,7 +22,13 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-function forumng_add_instance($forumng) {
+/**
+ * Add a forumng instance.
+ * @param stdClass $data the data to use to create the new forum.
+ * @param mod_forumng_mod_form $mform if this call came from a forum submit.
+ * @return int new forumng instance id
+ */
+function forumng_add_instance($forumng, $mform = null) {
     global $DB;
 
     // Avoid including forum libraries in large areas of Moodle code that
@@ -43,7 +49,10 @@ function forumng_add_instance($forumng) {
             'name' => $originalforumng->name,
             'course' => $forumng->course,
             'type' => 'clone',
-            'originalcmid' => $originalcm->id);
+            'originalcmid' => $originalcm->id,
+            'coursemodule' => $forumng->coursemodule,
+            'introductioneditor' => array('text' => '', 'format' => FORMAT_HTML),
+        );
     }
 
     // Pick a random magic number
@@ -54,6 +63,11 @@ function forumng_add_instance($forumng) {
     }
     $forumng->magicnumber = $part1.$part2;
 
+    if ($mform) {
+        $forumng->introduction       = $forumng->introductioneditor['text'];
+        $forumng->introductionformat = $forumng->introductioneditor['format'];
+    }
+
     $id = $DB->insert_record('forumng', $forumng);
 
     // Handle post-creation actions (but only if a new forum actually was
@@ -61,6 +75,20 @@ function forumng_add_instance($forumng) {
     if (!$useshared) {
         $forum = mod_forumng::get_from_id($id, mod_forumng::CLONE_DIRECT, false);
         $forum->created($forumng->cmidnumber);
+    }
+
+    // Handle any content in the introduction editor, including files.
+    // Some places that programmatically create forums will not have
+    // set this, which is fine, because in that case nothing need be done.
+    $context = context_module::instance($forumng->coursemodule);
+    if ($mform and !empty($forumng->introductioneditor['itemid'])) {
+        $draftitemid = $forumng->introductioneditor['itemid'];
+        $introduction = file_save_draft_area_files($draftitemid, $context->id,
+                'mod_forumng', 'introduction', 0, array('subdirs' => 1), $forumng->introduction);
+        if ($introduction != $forumng->introduction) {
+            $DB->set_field('forumng', 'introduction', $introduction, array('id' => $id));
+            $forumng->introduction = $introduction;
+        }
     }
 
     return $id;
@@ -72,6 +100,20 @@ function forumng_update_instance($forumng) {
     // Get the tag lib.php.
     require_once($CFG->dirroot . '/tag/lib.php');
 
+    // Handle any content in the introduction editor, including files.
+    // Some places that programmatically update forums will not have
+    // set this, which is fine, because in that case nothing need be done.
+    if (!empty($forumng->introductioneditor)) {
+        $context = context_module::instance($forumng->coursemodule);
+        $forumng->introduction = $forumng->introductioneditor['text'];
+        $forumng->introductionformat = $forumng->introductioneditor['format'];
+        $draftitemid = $forumng->introductioneditor['itemid'];
+        if ($draftitemid) {
+            $forumng->introduction = file_save_draft_area_files($draftitemid, $context->id, 'mod_forumng', 'introduction',
+                    0, array('subdirs' => 1), $forumng->introduction);
+        }
+    }
+
     $forumng->id = $forumng->instance;
     $previous = $DB->get_record('forumng', array('id' => $forumng->id), '*', MUST_EXIST);
     $DB->update_record('forumng', $forumng);
@@ -79,7 +121,9 @@ function forumng_update_instance($forumng) {
     $forum = mod_forumng::get_from_id($forumng->id, mod_forumng::CLONE_DIRECT);
     $forum->updated($previous);
     if (isset($forumng->settags)) {
-        $context = $forum->get_context(true);
+        if (!isset($context)) {
+            $context = $forum->get_context(true);
+        }
         core_tag_tag::set_item_tags('mod_forumng', 'forumng', $forumng->id, $context, $forumng->settags);
     }
 
@@ -185,12 +229,22 @@ function forumng_get_extra_capabilities() {
  */
 function forumng_get_coursemodule_info($coursemodule) {
     global $DB;
-    if ($forumng = $DB->get_record('forumng',
-            array('id' => $coursemodule->instance), 'id, name, type')) {
-        $info = new cached_cm_info();
-        $info->customdata = (object)array('type' => $forumng->type);
-        return $info;
+
+    $forumng = $DB->get_record('forumng',
+            array('id' => $coursemodule->instance), 'id, name, type, intro, introformat');
+    if (!$forumng) {
+        return null;
     }
+
+    $info = new cached_cm_info();
+    $info->customdata = (object)array('type' => $forumng->type);
+
+    if ($coursemodule->showdescription) {
+        // Convert intro to html. Do not filter cached version, filters run at display time.
+        $info->content = format_module_intro('forumng', $forumng, $coursemodule->id, false);
+    }
+
+    return $info;
 }
 
 /**
@@ -316,6 +370,7 @@ function forumng_supports($feature) {
         case FEATURE_IDNUMBER:                return true;
         case FEATURE_GROUPINGS:               return true;
         case FEATURE_MOD_INTRO:               return true;
+        case FEATURE_SHOW_DESCRIPTION:        return true;
         case FEATURE_COMPLETION_TRACKS_VIEWS: return true;
         case FEATURE_COMPLETION_HAS_RULES:    return true;
         case FEATURE_GRADE_HAS_GRADE:         return true;
@@ -385,6 +440,18 @@ function forumng_get_post_actions() {
 function mod_forumng_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload) {
     global $CFG, $USER;
     require_once($CFG->dirroot . '/mod/forumng/mod_forumng.php');
+
+    if ($filearea == 'introduction') {
+        $filename = array_pop($args);
+        $filepath = $args ? '/'.implode('/', $args).'/' : '/';
+        $fs = get_file_storage();
+        $file = $fs->get_file($context->id, 'mod_forumng', $filearea, 0, $filepath, $filename);
+        if (!($file) || $file->is_directory()) {
+            send_file_not_found();
+        }
+        $lifetime = isset($CFG->filelifetime) ? $CFG->filelifetime : 86400;
+        send_stored_file($file, $lifetime, 0);
+    }
 
     // Check remaining slash arguments, might have hash for image so the args may be 2 or 3.
     if (count($args) != 2 && count($args) != 3) {

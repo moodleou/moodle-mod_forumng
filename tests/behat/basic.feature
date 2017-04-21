@@ -16,7 +16,7 @@ Feature: Add forumng activity and test basic functionality
       | user | course | role |
       | student1 | C1 | student |
     And the following "activities" exist:
-      | activity | name            | intro                  | course | idnumber |
+      | activity | name            | introduction           | course | idnumber |
       | forumng  | Test forum name | Test forum description | C1     | forumng1 |
 
   Scenario: Access forum as student
@@ -442,4 +442,3 @@ Feature: Add forumng activity and test basic functionality
     When I edit post "1" with the following data:
       | Subject | Discussion edited |
     And I should see "Discussion edited" in the ".forumng-subject" "css_element"
-    And I should see "Discussion edited" in the "#page-navbar" "css_element"

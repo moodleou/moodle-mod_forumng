@@ -139,7 +139,7 @@ if ($d) {
     $feedsummary = '';
 } else {
     $feedname = format_string($forum->get_name());
-    $feedsummary = $forum->get_intro();
+    $feedsummary = $forum->get_introduction();
 }
 
 $feeddata = array();

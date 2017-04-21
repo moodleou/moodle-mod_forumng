@@ -57,6 +57,7 @@ class restore_forumng_activity_task extends restore_activity_task {
         $contents = array();
 
         $contents[] = new restore_decode_content('forumng', array('intro'));
+        $contents[] = new restore_decode_content('forumng', array('introduction'));
         $contents[] = new restore_decode_content('forumng_posts', array('message'));
 
         return $contents;

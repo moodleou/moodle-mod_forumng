@@ -9,8 +9,10 @@
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="course" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Moodle course ID"/>
         <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="Name of activity."/>
-        <FIELD NAME="intro" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Introductory text that displays on the forum view page. This text is optional; if set to null, there is no such text."/>
-        <FIELD NAME="introformat" TYPE="int" LENGTH="4" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Text format for intro field"/>
+        <FIELD NAME="intro" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Description which appear on the course page, if that option is tured on."/>
+        <FIELD NAME="introformat" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Text format for intro field"/>
+        <FIELD NAME="introduction" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Introductory text that displays on the forum view page. This text is optional; if set to null, there is no such text."/>
+        <FIELD NAME="introductionformat" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Text format for introduction field"/>
         <FIELD NAME="type" TYPE="char" LENGTH="255" NOTNULL="true" DEFAULT="general" SEQUENCE="false" COMMENT="Forum type that will be used to display this forum. May be NULL for default type."/>
         <FIELD NAME="ratingscale" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="0 to disable ratings. Positive integer to use numeric 0..N scale. Negative number to select a scale by (negative) scale ID."/>
         <FIELD NAME="ratingfrom" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Time (in seconds since epoch). Users can only rate posts that are created on or after this time. 0 if no limit."/>

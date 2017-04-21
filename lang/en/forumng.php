@@ -93,7 +93,8 @@ $string['forumtype'] = 'Forum type';
 $string['forumtype_help'] = 'Different types of forum are available for specific purposes or
 teaching methods. The standard forum type is appropriate for all normal use.';
 $string['forumtype_link'] = 'mod/forumng/forumtypes';
-$string['forumintro'] = 'Forum introduction';
+$string['forumintro'] = 'Forum introduction (shown above the list of discussions)';
+$string['forumdescription'] = 'Forum description (shown beside links to this forum, if the option below is on)';
 $string['ratingtime'] = 'Restrict ratings to posts with dates in this range:';
 $string['ratings'] = 'Ratings';
 $string['grading'] = 'Grade';

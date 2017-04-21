@@ -280,9 +280,8 @@ Feature: Add forumng activity and test basic tagging functionality
 
     # Enrol users into groups
     Given I follow "Course 1"
-    And I expand "Users" node
-    And I click on "Groups" "link"
-    Given "Groups" "select" should exist
+    And I navigate to "Users > Groups" in current page administration
+    Then "Groups" "select" should exist
 
     Given I set the field "Groups" to "Group 1 (0)"
     Then I click on "Add/remove users" "button"
@@ -306,10 +305,9 @@ Feature: Add forumng activity and test basic tagging functionality
     Given I log in as "admin"
     And I am on site homepage
     And I follow "Course 1"
-    Given I expand "Users" node
-    And I click on "Permissions" "link"
+    And I navigate to "Users > Permissions" in current page administration
     Given I override the system permissions of "Teacher" role with:
-    | forumngfeature/edittags:editsettags | Prevent |
+      | forumngfeature/edittags:editsettags | Prevent |
     And I click on "Back to Course: Course 1" "link"
     And I log out
 
@@ -325,9 +323,9 @@ Feature: Add forumng activity and test basic tagging functionality
     And I am on site homepage
     And I follow "Course 1"
     And I follow "Test forum name"
-    And I click on "Permissions" "link"
+    And I navigate to "Permissions" in current page administration
     Given I override the system permissions of "Teacher" role with:
-    | forumngfeature/edittags:editsettags | Allow |
+      | forumngfeature/edittags:editsettags | Allow |
     And I click on "Back to ForumNG: Test forum name" "link"
     And I log out
 
@@ -347,9 +345,9 @@ Feature: Add forumng activity and test basic tagging functionality
     And I am on site homepage
     And I follow "Course 1"
     And I follow "Test forum name"
-    And I click on "Permissions" "link"
+    And I navigate to "Permissions" in current page administration
     Given I override the system permissions of "Teacher" role with:
-    | moodle/site:accessallgroups | Prevent |
+      | moodle/site:accessallgroups | Prevent |
     And I click on "Back to ForumNG: Test forum name" "link"
     And I log out
 
@@ -364,9 +362,6 @@ Feature: Add forumng activity and test basic tagging functionality
     And I should not see "Set tags for Group 2"
     And I should not see "Set tags for forum"
 
-    # Exit from test
-    And I log out
-
   Scenario: Add group tagging to forums
     And I log in as "admin"
     And I am on site homepage
@@ -374,18 +369,18 @@ Feature: Add forumng activity and test basic tagging functionality
     And I follow "Course 1"
     And I turn editing mode on
     And I add a "ForumNG" to section "1" and I fill the form with:
-      | Forum name | Test forum name |
-      | Forum introduction | Test forum description |
-      |Enable discussion tagging | 1 |
-      # No Groups default
-   And I follow "Test forum name"
-   And I add a discussion with the following data:
+      | Forum name                | Test forum name        |
+      | Forum introduction        | Test forum description |
+      | Enable discussion tagging | 1                      |
+    # No Groups default
+    And I follow "Test forum name"
+    And I add a discussion with the following data:
       | Subject | Discussion 1 |
-      | Message | abc |
+      | Message | abc          |
     And I follow "Test forum name"
     And I add a discussion with the following data:
       | Subject | Discussion 2 |
-      | Message | def |
+      | Message | def          |
     And I follow "Test forum name"
     # Check that 'Edit Set tags' button is displayed.
     Given I click on "Edit Set tags" "button"
@@ -398,11 +393,11 @@ Feature: Add forumng activity and test basic tagging functionality
     # Make use of forum wide tags
     Then I click on "Discussion 1" "link"
     Then I click on "Edit tags" "button"
-    When I click on "#fitem_id_tags .form-autocomplete-downarrow" "css_element"
+    When I click on " .form-autocomplete-downarrow" "css_element"
     Then I should see "f1"
     And I should see "f2"
     And I should see "f3"
-    Given I click on "#fitem_id_tags ul.form-autocomplete-suggestions li[data-value='f1']" "css_element"
+    Given I click on "f1" "list_item"
     And I click on "Save changes" "button"
     # Returns to discuss.php page
     Then I should see "Discussion tags: f1"
@@ -413,11 +408,11 @@ Feature: Add forumng activity and test basic tagging functionality
     Given I click on "Test forum name" "link"
     Then I click on "Discussion 2" "link"
     Then I click on "Edit tags" "button"
-    When I click on "#fitem_id_tags .form-autocomplete-downarrow" "css_element"
+    When I click on " .form-autocomplete-downarrow" "css_element"
     Then I should see "f1"
     And I should see "f2"
     And I should see "f3"
-    Given I click on "#fitem_id_tags ul.form-autocomplete-suggestions li[data-value='f3']" "css_element"
+    Given I click on "f3" "list_item"
     And I click on "Save changes" "button"
     # Returns to discuss.php page
     Then I should see "Discussion tags: f3"
@@ -426,8 +421,8 @@ Feature: Add forumng activity and test basic tagging functionality
     And "f1" "link" in the "tr.forumng-discussion-short.r1.lastrow" "css_element" should be visible
 
     # Set up groups for the forum
-    Then I click on "Edit settings" "link"
-    And I click on "Common module settings" "link"
+    Then I navigate to "Edit settings" in current page administration
+    And I expand all fieldsets
     Then I should see "Visible"
     And the "Group mode" select box should contain "Separate groups"
     Given I set the field "Group mode" to "Separate groups"
@@ -454,26 +449,26 @@ Feature: Add forumng activity and test basic tagging functionality
     Then I should see "Set tags for forum"
     And I should see "Set tags for Group 1"
     And I should see "Set tags for Group 2"
-    And I should see "f1" in the ".fitem_fautocomplete:first-child" "css_element"
-    And I should see "f2" in the ".fitem_fautocomplete:first-child" "css_element"
-    And I should see "f3" in the ".fitem_fautocomplete:first-child" "css_element"
+    And I should see "f1" in the ".form-group.row:first-child" "css_element"
+    And I should see "f2" in the ".form-group.row:first-child" "css_element"
+    And I should see "f3" in the ".form-group.row:first-child" "css_element"
 
     # Create group tags
     When I set the field "Set tags for Group 1" to "g1, g2, g3"
     And I set the field "Set tags for Group 2" to "g4, g5, g6"
     And I press "Save changes"
     And I press "Edit Set tags"
-    Then I should see "g1" in the ".fitem_fautocomplete:nth-child(2)" "css_element"
-    And I should see "g2" in the ".fitem_fautocomplete:nth-child(2)" "css_element"
-    And I should see "g3" in the ".fitem_fautocomplete:nth-child(2)" "css_element"
-    And I should see "g4" in the ".fitem_fautocomplete:last-child" "css_element"
-    And I should see "g5" in the ".fitem_fautocomplete:last-child" "css_element"
-    And I should see "g6" in the ".fitem_fautocomplete:last-child" "css_element"
+    Then I should see "g1" in the ".form-group.row:nth-child(2)" "css_element"
+    And I should see "g2" in the ".form-group.row:nth-child(2)" "css_element"
+    And I should see "g3" in the ".form-group.row:nth-child(2)" "css_element"
+    And I should see "g4" in the ".form-group.row:last-child" "css_element"
+    And I should see "g5" in the ".form-group.row:last-child" "css_element"
+    And I should see "g6" in the ".form-group.row:last-child" "css_element"
 
     Given I press "Cancel"
     And I follow "Discussion 1"
     And I press "Edit tags"
-    When I click on "#fitem_id_tags .form-autocomplete-downarrow" "css_element"
+    And I click on " .form-autocomplete-downarrow" "css_element"
     Then I should see "g1"
     And I should not see "g4"
 
@@ -487,15 +482,15 @@ Feature: Add forumng activity and test basic tagging functionality
     Then I should see "Set tags for forum"
     And I should see "Set tags for Group 1"
     And I should see "Set tags for Group 2"
-    And I should see "f1" in the ".fitem_fautocomplete:first-child" "css_element"
-    And I should see "f2" in the ".fitem_fautocomplete:first-child" "css_element"
-    And I should see "f3" in the ".fitem_fautocomplete:first-child" "css_element"
-    And I should see "g1" in the ".fitem_fautocomplete:nth-child(2)" "css_element"
-    And I should see "g2" in the ".fitem_fautocomplete:nth-child(2)" "css_element"
-    And I should see "g3" in the ".fitem_fautocomplete:nth-child(2)" "css_element"
-    And I should see "g4" in the ".fitem_fautocomplete:last-child" "css_element"
-    And I should see "g5" in the ".fitem_fautocomplete:last-child" "css_element"
-    And I should see "g6" in the ".fitem_fautocomplete:last-child" "css_element"
+    And I should see "f1" in the ".form-group.row:first-child" "css_element"
+    And I should see "f2" in the ".form-group.row:first-child" "css_element"
+    And I should see "f3" in the ".form-group.row:first-child" "css_element"
+    And I should see "g1" in the ".form-group.row:nth-child(2)" "css_element"
+    And I should see "g2" in the ".form-group.row:nth-child(2)" "css_element"
+    And I should see "g3" in the ".form-group.row:nth-child(2)" "css_element"
+    And I should see "g4" in the ".form-group.row:last-child" "css_element"
+    And I should see "g5" in the ".form-group.row:last-child" "css_element"
+    And I should see "g6" in the ".form-group.row:last-child" "css_element"
 
     # Exit from test
     And I log out

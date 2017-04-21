@@ -694,20 +694,18 @@ class mod_forumng_renderer extends plugin_renderer_base {
      * @param mod_forumng $forum Forum
      * @return string Intro HTML or '' if none
      */
-    public function render_intro($forum) {
+    public function render_introduction($forum) {
         // Don't output anything if no text, so we don't get styling around
         // something blank
-        $text = $forum->get_intro();
+        $text = $forum->get_introduction();
         if (trim($text) === '') {
             return '';
         }
 
-        // Make fake activity object in required format, and use to format
-        // intro for module with standard function (which handles images etc.)
-        $activity = (object)array('intro' => $forum->get_intro(),
-                'introformat' => $forum->get_intro_format());
-        $intro = format_module_intro(
-                'forumng', $activity, $forum->get_course_module_id(true));
+        $context = context_module::instance($forum->get_course_module_id(true));
+        $options = array('noclean' => true, 'para' => false, 'filter' => true, 'context' => $context, 'overflowdiv' => true);
+        $intro = file_rewrite_pluginfile_urls($forum->get_introduction(), 'pluginfile.php', $context->id, 'mod_forumng', 'introduction', null);
+        $intro = format_text($intro, $forum->get_introduction_format(), $options, null);
 
         // Box styling appears to be consistent with some other modules
         $intro = html_writer::tag('div', $intro, array('class' => 'generalbox box',

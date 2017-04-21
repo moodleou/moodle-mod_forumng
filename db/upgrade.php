@@ -265,6 +265,7 @@ function xmldb_forumng_upgrade($oldversion=0) {
         // Forumng savepoint reached.
         upgrade_mod_savepoint(true, 2015060502, 'forumng');
     }
+
     if ($oldversion < 2016080100) {
 
         // Rename field tags on table forumng to enabletags (core now uses a tags field in modules).
@@ -277,5 +278,102 @@ function xmldb_forumng_upgrade($oldversion=0) {
         // Forumng savepoint reached.
         upgrade_mod_savepoint(true, 2016080100, 'forumng');
     }
+
+    if ($oldversion < 2017042100) {
+
+        // First, replace any nulls with default.
+        // There is historic data where it is null in some of our systems.
+        $DB->set_field_select('forumng', 'introformat', 0, 'introformat IS NULL');
+
+        // Changing nullability of field introformat on table forumng to not null.
+        $table = new xmldb_table('forumng');
+        $field = new xmldb_field('introformat', XMLDB_TYPE_INTEGER, '4', null, XMLDB_NOTNULL, null, '0', 'intro');
+
+        // Launch change of nullability for field introformat.
+        $dbman->change_field_notnull($table, $field);
+
+        // Forumng savepoint reached.
+        upgrade_mod_savepoint(true, 2017042100, 'forumng');
+    }
+
+    if ($oldversion < 2017042101) {
+
+        // Rename field intro on table forumng to introduction.
+        $table = new xmldb_table('forumng');
+        $field = new xmldb_field('intro', XMLDB_TYPE_TEXT, null, null, null, null, null, 'name');
+
+        // Launch rename field intro.
+        $dbman->rename_field($table, $field, 'introduction');
+
+        // Forumng savepoint reached.
+        upgrade_mod_savepoint(true, 2017042101, 'forumng');
+    }
+
+    if ($oldversion < 2017042102) {
+
+        // Move corresponding files.
+        $DB->execute("
+                UPDATE {files}
+                   SET filearea = 'introduction'
+                 WHERE component = 'mod_forumng'
+                   AND filearea = 'intro'");
+
+        // Forumng savepoint reached.
+        upgrade_mod_savepoint(true, 2017042102, 'forumng');
+    }
+
+    if ($oldversion < 2017042103) {
+
+        // Rename field introformat on table forumng to introductionformat.
+        $table = new xmldb_table('forumng');
+        $field = new xmldb_field('introformat', XMLDB_TYPE_TEXT, null, null, null, null, null, 'intro');
+
+        // Launch rename field introformat.
+        $dbman->rename_field($table, $field, 'introductionformat');
+
+        // Forumng savepoint reached.
+        upgrade_mod_savepoint(true, 2017042103, 'forumng');
+    }
+
+    if ($oldversion < 2017042104) {
+
+        // Define field intro to be added to forumng.
+        $table = new xmldb_table('forumng');
+        $field = new xmldb_field('intro', XMLDB_TYPE_TEXT, null, null, null, null, null, 'name');
+
+        // Conditionally launch add field intro.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Forumng savepoint reached.
+        upgrade_mod_savepoint(true, 2017042104, 'forumng');
+    }
+
+    if ($oldversion < 2017042105) {
+
+        // Define field introformat to be added to forumng.
+        $table = new xmldb_table('forumng');
+        $field = new xmldb_field('introformat', XMLDB_TYPE_INTEGER, '4', null, XMLDB_NOTNULL, null, 1, 'intro');
+
+        // Conditionally launch add field introformat.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Forumng savepoint reached.
+        upgrade_mod_savepoint(true, 2017042105, 'forumng');
+    }
+
+    if ($oldversion < 2017042106) {
+
+        // Set a sensible default for the introformat. Moodle standard practice is
+        // to declare the un-sensible default 0 in the DB schema.
+        $DB->set_field('forumng', 'introformat', FORMAT_HTML);
+
+        // Forumng savepoint reached.
+        upgrade_mod_savepoint(true, 2017042106, 'forumng');
+    }
+
     return true;
 }

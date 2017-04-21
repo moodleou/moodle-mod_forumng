@@ -19,7 +19,7 @@ Feature: Export discussions using portfolio
       | user     | course | role    |
       | student1 | C1     | student |
     And the following "activities" exist:
-      | activity | name        | intro                  | course | idnumber |
+      | activity | name        | introduction           | course | idnumber |
       | forumng  | Test forum  | Test forum description | C1     | forumng1 |
 
   Scenario: Button not active without portfolio enabled

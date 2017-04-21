@@ -79,7 +79,7 @@ function print_view_page($forum, $groupid) {
 
     $pagecount = get_page_count(count($normal), $page);
     // Intro.
-    print $out->render_intro($forum);
+    print $out->render_introduction($forum);
 
     print display_paging_bar($baseurl, $pagecount, $page);
 

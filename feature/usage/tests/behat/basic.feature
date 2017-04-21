@@ -21,7 +21,7 @@ Feature: Show discussion readers
       | student2 | C1 | student |
       | student3 | C1 | student |
     And the following "activities" exist:
-      | activity | name                    | intro                          | course | idnumber |
+      | activity | name                    | introduction                   | course | idnumber |
       | forumng  | Test forum name marking | Test forum marking description | C1     | forumng1 |
     And I log in as "admin"
     And I am on site homepage

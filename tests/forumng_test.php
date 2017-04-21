@@ -63,7 +63,7 @@ class mod_forumng_forumng_testcase extends forumng_test_lib {
         $this->resetAfterTest();
         $course = $this->get_new_course();
         // Test get_from_id using test lib.
-        $forum = $this->get_new_forumng($course->id, array('name' => 'TEST', 'intro' => 'abc123'));
+        $forum = $this->get_new_forumng($course->id, array('name' => 'TEST', 'introduction' => 'abc123'));
         $cm = get_coursemodule_from_instance('forumng', $forum->get_id());
         // Check.
         $this->check_forum_settings($forum, $course, $cm);
@@ -108,9 +108,8 @@ class mod_forumng_forumng_testcase extends forumng_test_lib {
      */
     private function check_forum_settings(mod_forumng $forum, $course, $cm) {
         $this->assertEquals('TEST', $forum->get_name());
-        $this->assertEquals('abc123', $forum->get_intro());
-        $this->assertEquals('abc123', $forum->get_intro(true));// Pick up errors in abbreviation.
-        $this->assertEquals(FORMAT_MOODLE, $forum->get_intro_format());
+        $this->assertEquals('abc123', $forum->get_introduction());
+        $this->assertEquals(FORMAT_MOODLE, $forum->get_introduction_format());
         $this->assertEquals($cm->instance, $forum->get_id());
         $this->assertEquals($course->id, $forum->get_course_id());
         $this->assertEquals($course->id, $forum->get_course()->id);

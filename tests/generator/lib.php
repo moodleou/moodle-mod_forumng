@@ -69,11 +69,11 @@ class mod_forumng_generator extends testing_module_generator {
         if (!isset($record->name)) {
             $record->name = get_string('pluginname', 'forumng') . ' ' . $i;
         }
-        if (!isset($record->intro)) {
-            $record->intro = 'Test forum ' . $i;
+        if (!isset($record->introduction)) {
+            $record->introduction = 'Test forum ' . $i;
         }
-        if (!isset($record->introformat)) {
-            $record->introformat = FORMAT_MOODLE;
+        if (!isset($record->introductionformat)) {
+            $record->introductionformat = FORMAT_MOODLE;
         }
 
         if (isset($options['idnumber'])) {

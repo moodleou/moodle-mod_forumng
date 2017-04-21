@@ -19,7 +19,7 @@ Feature: Make discussions sticky
       | student1 | C1 | student |
       | student2 | C1 | student |
     And the following "activities" exist:
-      | activity | name                   | intro                         | course | idnumber |
+      | activity | name                   | introduction                  | course | idnumber |
       | forumng  | Test forum name sticky | Test forum sticky description | C1     | forumng1 |
     And I log in as "admin"
     And I am on site homepage

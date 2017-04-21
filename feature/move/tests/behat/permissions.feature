@@ -15,7 +15,7 @@ Feature: Move discussions permissions
       | user     | course | role    |
       | teacher1 | C1     | teacher |
     And the following "activities" exist:
-      | activity | name    | intro                  | course | idnumber | visible |
+      | activity | name    | introduction           | course | idnumber | visible |
       | forumng  | forum1  | Test forum description | C1     | forumng1 | 1       |
       | forumng  | forum2  | Test forum description | C1     | forumng2 | 1       |
       | forumng  | forum3  | Test forum description | C1     | forumng3 | 1       |

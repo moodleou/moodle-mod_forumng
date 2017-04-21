@@ -110,7 +110,7 @@ class forumngtype_general extends forumngtype {
         }
 
         // Intro
-        print $out->render_intro($forum);
+        print $out->render_introduction($forum);
 
         // Flagged posts skip link.
         $flaggedposts = $forum->get_flagged_posts();

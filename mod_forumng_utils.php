@@ -348,7 +348,8 @@ class mod_forumng_utils {
      */
     public static function select_mod_forumng_fields($alias) {
         return self::select_fields(array('id', 'course', 'name', 'type',
-            'intro', 'ratingscale', 'ratingfrom', 'ratinguntil', 'grading',
+            'intro', 'introformat', 'introduction', 'introductionformat',
+            'ratingscale', 'ratingfrom', 'ratinguntil', 'grading',
             'attachmentmaxbytes', 'reportingemail', 'subscription', 'feedtype', 'feeditems',
             'maxpostsperiod', 'maxpostsblock', 'postingfrom', 'postinguntil',
             'typedata', 'magicnumber', 'originalcmid', 'shared', 'canpostanon', 'enabletags', 'enableratings'), $alias);

@@ -78,7 +78,11 @@ class mod_forumng_mod_form extends moodleform_mod {
         $mform->addHelpButton('type', 'forumtype', 'forumng');
         $mform->setDefault('type', 'general');
 
-        $this->standard_intro_elements(get_string('forumintro', 'forumng'));
+        $this->standard_intro_elements(get_string('forumdescription', 'forumng'));
+
+        $mform->addElement('editor', 'introductioneditor', get_string('forumintro', 'forumng'), array('rows' => 15), array('maxfiles' => EDITOR_UNLIMITED_FILES,
+                'noclean' => true, 'context' => $this->context, 'subdirs' => true));
+        $mform->setType('introductioneditor', PARAM_RAW); // No XSS prevention here, users must be trusted.
 
         // Subscription option displays only if enabled at site level
         if ($CFG->forumng_subscription == -1) {
@@ -398,6 +402,14 @@ class mod_forumng_mod_form extends moodleform_mod {
             $data['limitgroup[enablelimit]'] = 0;
             $data['limitgroup[maxpostsperiod]'] = 60*60*24;
             $data['limitgroup[maxpostsblock]'] = 10;
+        }
+
+        if ($this->current->instance) {
+            $draftitemid = file_get_submitted_draft_itemid('introductioneditor');
+            $data['introductioneditor']['format'] = $data['introductionformat'];
+            $data['introductioneditor']['text']   = file_prepare_draft_area($draftitemid, $this->context->id,
+                    'mod_forumng', 'introduction', 0, array('subdirs'=>true), $data['introduction']);
+            $data['introductioneditor']['itemid'] = $draftitemid;
         }
 
         // Set up the completion checkboxes which aren't part of standard data.

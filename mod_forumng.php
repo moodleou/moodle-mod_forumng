@@ -132,9 +132,6 @@ class mod_forumng {
     /** Obtain the count of unread discussions */
     const UNREAD_DISCUSSIONS = 2;
 
-    /** Length in characters of intro when abbreviated for index page etc */
-    const INTRO_ABBREVIATED_LENGTH = 200;
-
     /** Constant used if there is no post quota in effect */
     const QUOTA_DOES_NOT_APPLY = -1;
 
@@ -696,21 +693,17 @@ WHERE
 
     /**
      * @param $abbreviated If true, cuts down the length
-     * @return string Intro text
+     * @return string Introduction text
      */
-    public function get_intro($abbreviated=false) {
-        if ($abbreviated) {
-            return shorten_text($this->forumfields->intro, self::INTRO_ABBREVIATED_LENGTH);
-        } else {
-            return $this->forumfields->intro;
-        }
+    public function get_introduction() {
+        return $this->forumfields->introduction;
     }
 
     /**
-     * @return int FORMAT_xx constant for intro format
+     * @return int FORMAT_xx constant for introduction format
      */
-    public function get_intro_format() {
-        return $this->forumfields->introformat;
+    public function get_introduction_format() {
+        return $this->forumfields->introductionformat;
     }
 
     /** @return int GRADING_xx constant */
@@ -4413,6 +4406,9 @@ WHERE
             'name' => $forum->name,
             'type' => 'general',
             'intro' => $forum->intro,
+            'introformat' => $forum->introformat,
+            'introduction' => $forum->introduction,
+            'introductionformat' => $forum->introductionformat,
             'ratingscale' => $forum->scale,
             'ratingfrom' => $forum->assesstimestart,
             'ratinguntil' => $forum->assesstimefinish,
