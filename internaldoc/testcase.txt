@@ -1105,7 +1105,8 @@ DED04 / Admin [change]
     Module: {course}'
 
   Select checkbox marked 'Send a copy to yourself'.
-  In the text area marked 'Email address of other recipients' enter valid email address (should not be same as U.S2's email address).
+  In the text area marked 'Email address of other recipients' enter valid email address
+      (should not be same as U.S2's email address).
   Select checkbox marked 'Notify other contributors'
   - That notification message should display:
    'This is a notification to advise you that a discussion you have contributed to
@@ -1361,3 +1362,5 @@ AREAS THAT SHOULD BE TESTED BUT HAVE NOT BEEN
 * Forced/initial subscribe
 
 * Automatic move/delete of old messages
+
+* Introdcution separate from description which can be shown on the module page

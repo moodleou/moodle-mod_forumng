@@ -22,6 +22,8 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+defined('MOODLE_INTERNAL') || die();
+
 $plugin->version = 2017042106;
 $plugin->requires = 2016052300;
 $plugin->component = 'mod_forumng';

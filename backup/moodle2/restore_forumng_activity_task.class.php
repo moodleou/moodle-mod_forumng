@@ -24,34 +24,34 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-// Because it exists (must)
+// Because it exists (must).
 require_once($CFG->dirroot . '/mod/forumng/backup/moodle2/restore_forumng_stepslib.php');
 
 /**
  * forumng restore task that provides all the settings and steps to perform one
- * complete restore of the activity
+ * complete restore of the activity.
  */
 class restore_forumng_activity_task extends restore_activity_task {
 
     /**
-     * Define (add) particular settings this activity can have
+     * Define (add) particular settings this activity can have.
      */
     protected function define_my_settings() {
-        // No particular settings for this activity
+        // No particular settings for this activity.
     }
 
     /**
-     * Define (add) particular steps this activity can have
+     * Define (add) particular steps this activity can have.
      */
     protected function define_my_steps() {
-        // Choice only has one structure step
+        // Choice only has one structure step.
         $this->add_step(new restore_forumng_activity_structure_step('forumng_structure',
                 'forumng.xml'));
     }
 
     /**
      * Define the contents in the activity that must be
-     * processed by the link decoder
+     * processed by the link decoder.
      */
     static public function define_decode_contents() {
         $contents = array();
@@ -65,21 +65,21 @@ class restore_forumng_activity_task extends restore_activity_task {
 
     /**
      * Define the decoding rules for links belonging
-     * to the activity to be executed by the link decoder
+     * to the activity to be executed by the link decoder.
      */
     static public function define_decode_rules() {
         $rules = array();
 
-        // List of forumngs in course
+        // List of forumngs in course.
         $rules[] = new restore_decode_rule('FORUMNGINDEX',
                 '/mod/forumng/index.php?id=$1', 'course');
-        // Forum by cm->id
+        // Forum by cm->id.
         $rules[] = new restore_decode_rule('FORUMNGVIEWBYID',
                 '/mod/forumng/view.php?id=$1', 'course_module');
-        // Link to forumng discussion
+        // Link to forumng discussion.
         $rules[] = new restore_decode_rule('FORUMNGDISCUSSIONVIEW',
                 '/mod/forumng/discuss.php?d=$1', 'forumng_discussion');
-        // Link to discussion with anchor post
+        // Link to discussion with anchor post.
         $rules[] = new restore_decode_rule('FORUMNGDISCUSSIONVIEWINSIDE',
                 '/mod/forumng/discuss.php?d=$1#p$2', array('forumng_discussion', 'forumng_post'));
 
@@ -90,7 +90,7 @@ class restore_forumng_activity_task extends restore_activity_task {
      * Define the restore log rules that will be applied
      * by the {@link restore_logs_processor} when restoring
      * forumng logs. It must return one array
-     * of {@link restore_log_rule} objects
+     * of {@link restore_log_rule} objects.
      */
     static public function define_restore_log_rules() {
         $rules = array();
@@ -147,11 +147,11 @@ class restore_forumng_activity_task extends restore_activity_task {
      * Define the restore log rules that will be applied
      * by the {@link restore_logs_processor} when restoring
      * course logs. It must return one array
-     * of {@link restore_log_rule} objects
+     * of {@link restore_log_rule} objects.
      *
      * Note this rules are applied when restoring course logs
      * by the restore final task, but are defined here at
-     * activity level. All them are rules not linked to any module instance (cmid = 0)
+     * activity level. All them are rules not linked to any module instance (cmid = 0).
      */
     static public function define_restore_log_rules_for_course() {
         $rules = array();

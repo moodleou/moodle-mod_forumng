@@ -188,30 +188,30 @@ $string['allowsubscribe'] = 'Allow people to subscribe';
 $string['initialsubscribe'] = 'Automatically subscribe everyone';
 $string['perforumoption'] = 'Configured separately for each forum';
 $string['configsubscription'] = 'Control email subscription options on all forums across the site.';
-$string['feedtype']='Feed contents';
-$string['feedtype_help']='If enabled, users can subscribe to the forum using an Atom or RSS feed
+$string['feedtype'] = 'Feed contents';
+$string['feedtype_help'] = 'If enabled, users can subscribe to the forum using an Atom or RSS feed
 reader. You can set the feed to include only top-level discussions and not replies, or to include
 all posts.';
-$string['configfeedtype']='Select the information to include in all forum RSS feeds.';
-$string['feedtype_none']='Feed disabled';
-$string['feedtype_discussions']='Contains discussions only';
-$string['feedtype_all_posts']='Contains all posts';
-$string['permanentdeletion']='Wipe unused data after';
-$string['configpermanentdeletion']='After this time period, deleted posts and old versions of
+$string['configfeedtype'] = 'Select the information to include in all forum RSS feeds.';
+$string['feedtype_none'] = 'Feed disabled';
+$string['feedtype_discussions'] = 'Contains discussions only';
+$string['feedtype_all_posts'] = 'Contains all posts';
+$string['permanentdeletion'] = 'Wipe unused data after';
+$string['configpermanentdeletion'] = 'After this time period, deleted posts and old versions of
 edited posts are permanently wiped from the database.';
-$string['permanentdeletion_never']='Never (do not wipe unused data)';
-$string['permanentdeletion_soon']='Wipe as soon as possible';
-$string['usebcc']='Send emails with BCC';
-$string['configusebcc']='Leave this value at 0 to use Moodle default mail handling (safest). Set
+$string['permanentdeletion_never'] = 'Never (do not wipe unused data)';
+$string['permanentdeletion_soon'] = 'Wipe as soon as possible';
+$string['usebcc'] = 'Send emails with BCC';
+$string['configusebcc'] = 'Leave this value at 0 to use Moodle default mail handling (safest). Set
 to a number (e.g. 50)  to group forum emails together using the BCC header so that Moodle only has
 to send a single email which your mail server delivers to many subscribers. This can improve
 performance of email in forum cron, but does not have some features of standard Moodle email such
 as charset options and bounce handling.';
-$string['donotmailafter']='Do not mail after (hours)';
-$string['configdonotmailafter']='To prevent causing a mail flood if the server cron does not run
+$string['donotmailafter'] = 'Do not mail after (hours)';
+$string['configdonotmailafter'] = 'To prevent causing a mail flood if the server cron does not run
 for a time, the forum will not send out emails for posts that are older than this many hours.';
-$string['re']='Re: {$a}'; // I made a new string because I like it better with {$a}
-$string['discussionsunread']='Discussions (unread)';
+$string['re'] = 'Re: {$a}';
+$string['discussionsunread'] = 'Discussions (unread)';
 $string['feeds'] = 'Feeds';
 $string['atom'] = 'Atom';
 $string['subscribe_confirm'] = 'You have been subscribed.';
@@ -448,8 +448,8 @@ $string['selectorselectdisc'] = 'Select discussion';
 $string['selectordiscall'] = 'Do you want to include all discussions listed on this page, or only selected discussions?';
 $string['selectdiscintro'] = 'Tick the box beside each discussion you want to include. When you&rsquo;re done,
 scroll to the bottom and click &lsquo;Confirm selection&rsquo;.';
-$string['setimportant'] = 'Mark posts as important';// Used by moderators, highlight important posts.
-$string['important'] = 'Important post'; // alt text for important icon
+$string['setimportant'] = 'Mark posts as important';
+$string['important'] = 'Important post';
 $string['flaggeddiscussions'] = 'Flagged discussions';
 $string['flaggeddiscussionslink'] = '{$a} flagged discussions';
 $string['flaggedposts'] = 'Flagged posts';
@@ -555,15 +555,15 @@ $string['convert_newforum'] = 'new forum';
 $string['convert_noneselected'] = 'No forums selected for conversion! Please select one or more
 forums.';
 $string['convert_noforums'] = 'There are no old forums on this course to convert.';
-$string['pastediscussion']='Paste discussion';
-$string['pastediscussions']='Paste discussions';
+$string['pastediscussion'] = 'Paste discussion';
+$string['pastediscussions'] = 'Paste discussions';
 $string['pastediscussion_cancel'] = 'Cancel paste';
-$string['switchto_simple_text']='The standard view of this forum does not always work well with
+$string['switchto_simple_text'] = 'The standard view of this forum does not always work well with
 assistive technology. We also provide a simpler view, which still contains all features.';
-$string['switchto_standard_text']='You are using the simple view of this forum, which should work
+$string['switchto_standard_text'] = 'You are using the simple view of this forum, which should work
 better with assistive technology.';
-$string['switchto_simple_link']='Switch to simple view.';
-$string['switchto_standard_link']='Switch to standard view.';
+$string['switchto_simple_link'] = 'Switch to simple view.';
+$string['switchto_standard_link'] = 'Switch to standard view.';
 $string['displayversion'] = 'ForumNG version: <strong>{$a}</strong>';
 
 // OU only.
@@ -733,17 +733,17 @@ This option could be used to save space in the database.</li>
 You can select any forum on the same course.</li>
 </ul>';
 $string['deletepermanently'] = 'Delete permanently';
-$string['housekeepingstarthour']='Start hour of archiving';
-$string['housekeepingstophour']='Stop hour of archiving';
-$string['confighousekeepingstarthour']='Archiving tasks, such as deleting old discussions, will
+$string['housekeepingstarthour'] = 'Start hour of archiving';
+$string['housekeepingstophour'] = 'Stop hour of archiving';
+$string['confighousekeepingstarthour'] = 'Archiving tasks, such as deleting old discussions, will
 begin from this hour each day.';
-$string['confighousekeepingstophour']='Archiving tasks will stop on this hour.';
-$string['invalidforum']='This forum no longer exists';
+$string['confighousekeepingstophour'] = 'Archiving tasks will stop on this hour.';
+$string['invalidforum'] = 'This forum no longer exists';
 $string['errorinvalidforum'] = 'The target forum for archiving old discussions no longer exists.
 Please choose a different forum.';
-$string['archive_errorgrouping']='The forum that receives old discussions has a different group
+$string['archive_errorgrouping'] = 'The forum that receives old discussions has a different group
 setting. Please update the forum and change the <strong>Remove old discussions</strong> options.';
-$string['archive_errortargetforum']='The forum that used to receive old discussions no longer
+$string['archive_errortargetforum'] = 'The forum that used to receive old discussions no longer
 exists. Please update the forum and change the <strong>Remove old discussions</strong> options.';
 $string['error_notwhensharing'] = 'This option is not available when sharing the forum.';
 $string['error_sharingrequiresidnumber'] = 'When sharing the forum, you must enter an ID number

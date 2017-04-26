@@ -22,13 +22,15 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+defined('MOODLE_INTERNAL') || die();
+
 /**
- * Structure step to restore one forumng activity
+ * Structure step to restore one forumng activity.
  */
 class restore_forumng_activity_structure_step extends restore_activity_structure_step {
 
     /**
-     * ID of forum processed in this step
+     * ID of forum processed in this step.
      * @var int
      */
     private $forumngid, $shared, $type, $moveintrofiles;
@@ -95,7 +97,7 @@ class restore_forumng_activity_structure_step extends restore_activity_structure
         $data->ratingfrom = $this->apply_date_offset($data->ratingfrom);
         $data->ratinguntil = $this->apply_date_offset($data->ratinguntil);
 
-        if ($data->ratingscale < 0) { // scale found, get mapping
+        if ($data->ratingscale < 0) { // Scale found, get mapping.
             $data->ratingscale = -($this->get_mappingid_or_null('scale', abs($data->ratingscale)));
         }
 
@@ -118,8 +120,8 @@ class restore_forumng_activity_structure_step extends restore_activity_structure
         $data->timeend = $this->apply_date_offset($data->timeend);
         $data->groupid = $this->get_mappingid_or_null('group', $data->groupid);
 
-        // postid is handled in process_forumng_post
-        // lastpostid is handled in after_execute
+        // Field postid is handled in process_forumng_post.
+        // Field lastpostid is handled in after_execute.
 
         $newitemid = $DB->insert_record('forumng_discussions', $data);
         $this->set_mapping('forumng_discussion', $oldid, $newitemid);
@@ -143,7 +145,7 @@ class restore_forumng_activity_structure_step extends restore_activity_structure
         $data->deleteuserid = $this->get_mappingid_or_null('user', $data->deleteuserid);
         $data->edituserid = $this->get_mappingid_or_null('user', $data->edituserid);
 
-        // If post has parent, map it (it has been already restored)
+        // If post has parent, map it (it has been already restored).
         if (!empty($data->parentpostid)) {
             $data->parentpostid = $this->get_mappingid('forumng_post', $data->parentpostid);
         }
@@ -151,7 +153,7 @@ class restore_forumng_activity_structure_step extends restore_activity_structure
         $newitemid = $DB->insert_record('forumng_posts', $data);
         $this->set_mapping('forumng_post', $oldid, $newitemid, true);
 
-        // If !post->parent, it's the 1st post. Set it in discussion
+        // If !post->parent, it's the 1st post. Set it in discussion.
         if (empty($data->parentpostid)) {
             $DB->set_field('forumng_discussions', 'postid', $newitemid,
                 array('id' => $data->discussionid));
@@ -168,7 +170,7 @@ class restore_forumng_activity_structure_step extends restore_activity_structure
         $data->userid = $this->get_mappingid_or_null('user', $data->userid);
         $data->groupid = $this->get_mappingid_or_null('group', $data->groupid);
 
-        // If post has parent, map it (it has been already restored)
+        // If post has parent, map it (it has been already restored).
         if (!empty($data->parentpostid)) {
             $data->parentpostid = $this->get_mappingid_or_null('forumng_post',
             $data->parentpostid);
@@ -311,13 +313,13 @@ class restore_forumng_activity_structure_step extends restore_activity_structure
         global $DB, $CFG;
 
         // Add forumng related files, no need to match by
-        // itemname (just internally handled context)
+        // itemname (just internally handled context).
         $this->add_related_files('mod_forumng', 'intro', null);
         if (!$this->moveintrofiles) {
             $this->add_related_files('mod_forumng', 'introduction', null);
         }
 
-        // Add post related files, matching by itemname = 'forumng_post'
+        // Add post related files, matching by itemname = 'forumng_post'.
         $this->add_related_files('mod_forumng', 'message', 'forumng_post');
         $this->add_related_files('mod_forumng', 'attachment', 'forumng_post');
         $this->add_related_files('mod_forumng', 'draft', 'forumng_draft');
@@ -332,7 +334,7 @@ class restore_forumng_activity_structure_step extends restore_activity_structure
                     ", array($this->task->get_contextid()));
         }
 
-        // Now fix the lastpostid for each discussion
+        // Now fix the lastpostid for each discussion.
         // TODO Does this work on MySQL? No idea.
         $DB->execute("
 UPDATE {forumng_discussions} SET lastpostid=(
@@ -491,7 +493,7 @@ UPDATE {forumng_discussions} SET lastpostid=(
         $id = '';
         if (strrchr ($str, $suffixexp)) {
             $chunks = explode($suffixexp, $str);
-            $suffix =  array_pop($chunks);
+            $suffix = array_pop($chunks);
             $id = implode('_', $chunks);
         } else {
             $id = $str;

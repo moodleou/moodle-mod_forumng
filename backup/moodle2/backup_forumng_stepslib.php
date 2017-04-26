@@ -23,20 +23,22 @@
  */
 
 /**
- * Define all the backup steps that will be used by the backup_forumng_activity_task
+ * Define all the backup steps that will be used by the backup_forumng_activity_task.
  */
 
+defined('MOODLE_INTERNAL') || die();
+
 /**
- * Define the complete forumng structure for backup, with file and id annotations
+ * Define the complete forumng structure for backup, with file and id annotations.
  */
 class backup_forumng_activity_structure_step extends backup_activity_structure_step {
 
     protected function define_structure() {
 
-        // To know if we are including userinfo
+        // To know if we are including userinfo.
         $userinfo = $this->get_setting_value('userinfo');
 
-        // Define each element separated
+        // Define each element separated.
 
         $forumng = new backup_nested_element('forumng', array('id'), array(
             'name', 'intro', 'introformat', 'introduction', 'introductionformat', 'type',
@@ -115,7 +117,7 @@ class backup_forumng_activity_structure_step extends backup_activity_structure_s
         $forumgrouptaginstance = new backup_nested_element('forumgrouptaginstance', array('id'), array(
                 'name', 'rawname', 'tagid', 'itemtype', 'itemid', 'tiuserid', 'ordering', 'component'));
 
-        // Build the tree
+        // Build the tree.
         $forumng->add_child($discussions);
         $discussions->add_child($discussion);
 
@@ -155,10 +157,10 @@ class backup_forumng_activity_structure_step extends backup_activity_structure_s
         $forumng->add_child($forumgrouptaginstances);
         $forumgrouptaginstances->add_child($forumgrouptaginstance);
 
-        // Define sources
+        // Define sources.
         $forumng->set_source_table('forumng', array('id' => backup::VAR_ACTIVITYID));
 
-        // All these source definitions only happen if we are including user info
+        // All these source definitions only happen if we are including user info.
         if ($userinfo) {
             $discussion->set_source_table('forumng_discussions',
                     array('forumngid' => backup::VAR_PARENTID));
@@ -169,7 +171,7 @@ class backup_forumng_activity_structure_step extends backup_activity_structure_s
             $draft->set_source_table('forumng_drafts',
                     array('forumngid' => backup::VAR_PARENTID));
 
-            // Need posts ordered by id so parents are always before childs on restore
+            // Need posts ordered by id so parents are always before childs on restore.
             $post->set_source_sql("SELECT * FROM {forumng_posts} WHERE discussionid = ?" .
                     "ORDER BY id", array(backup::VAR_PARENTID));
 
@@ -223,7 +225,7 @@ class backup_forumng_activity_structure_step extends backup_activity_structure_s
                       backup_helper::is_sqlparam('groups'),
                       backup_helper::is_sqlparam('mod_forumng')));
 
-        // Define id annotations
+        // Define id annotations.
         $forumng->annotate_ids('course_modules', 'originalcmid');
         $forumng->annotate_ids('scale', 'ratingscale');
 
@@ -252,14 +254,14 @@ class backup_forumng_activity_structure_step extends backup_activity_structure_s
 
         $forumgrouptaginstance->annotate_ids('group', 'itemid');
 
-        // Define file annotations
-        $forumng->annotate_files('mod_forumng', 'intro', null); // This file area hasn't itemid
-        $forumng->annotate_files('mod_forumng', 'introduction', null); // This file area hasn't itemid
+        // Define file annotations.
+        $forumng->annotate_files('mod_forumng', 'intro', null); // This file area hasn't itemid.
+        $forumng->annotate_files('mod_forumng', 'introduction', null); // This file area hasn't itemid.
         $post->annotate_files('mod_forumng', 'message', 'id');
         $post->annotate_files('mod_forumng', 'attachment', 'id');
         $draft->annotate_files('mod_forumng', 'draft', 'id');
 
-        // Return the root element (forumng), wrapped into standard activity structure
+        // Return the root element (forumng), wrapped into standard activity structure.
         return $this->prepare_activity_structure($forumng);
     }
 }

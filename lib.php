@@ -22,6 +22,8 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+defined('MOODLE_INTERNAL') || die();
+
 /**
  * Add a forumng instance.
  * @param stdClass $data the data to use to create the new forum.
@@ -32,7 +34,7 @@ function forumng_add_instance($forumng, $mform = null) {
     global $DB;
 
     // Avoid including forum libraries in large areas of Moodle code that
-    // require this lib.php; only include when functions are called
+    // require this lib.php; only include when functions are called.
     require_once(dirname(__FILE__) . '/mod_forumng.php');
 
     $useshared = !empty($forumng->usesharedgroup['useshared']);
@@ -44,7 +46,7 @@ function forumng_add_instance($forumng, $mform = null) {
         $originalforumng = $DB->get_record('forumng', array('id' => $originalcm->instance), '*',
                 MUST_EXIST);
 
-        // Create appropriate data for forumng table
+        // Create appropriate data for forumng table.
         $forumng = (object)array(
             'name' => $originalforumng->name,
             'course' => $forumng->course,
@@ -55,10 +57,10 @@ function forumng_add_instance($forumng, $mform = null) {
         );
     }
 
-    // Pick a random magic number
+    // Pick a random magic number.
     $part1 = mt_rand(0, 99999999);
     $part2 = mt_rand(0, 99999999);
-    while (strlen($part2)<8) {
+    while (strlen($part2) < 8) {
         $part2 = '0' . $part2;
     }
     $forumng->magicnumber = $part1.$part2;
@@ -71,7 +73,7 @@ function forumng_add_instance($forumng, $mform = null) {
     $id = $DB->insert_record('forumng', $forumng);
 
     // Handle post-creation actions (but only if a new forum actually was
-    // created, and not just a new reference to a shared one!)
+    // created, and not just a new reference to a shared one!).
     if (!$useshared) {
         $forum = mod_forumng::get_from_id($id, mod_forumng::CLONE_DIRECT, false);
         $forum->created($forumng->cmidnumber);
@@ -272,14 +274,12 @@ function forumng_get_file_info($browser, $areas, $course, $cm, $context, $filear
     if (!in_array($filearea, $fileareas)) {
         return null;
     }
-    //echo "$filearea :: $itemid:: $filepath :: $filename";
     try {
         // This will not work for users who can only access the clone forum but cannot access
         // the origin forumng. The ideal way is to pass in the real cloneid instead of using
         // CLONE_DIRECT which means always get the origin forum.
         // But we cannot get the cloneid in here without doing expensive querys such as get all
         // the clone forums and check them one by one.
-        //error_log("POSTID=$itemid");
         $post = mod_forumng_post::get_from_id($itemid, mod_forumng::CLONE_DIRECT);
 
     } catch (coding_exception $e) {
@@ -351,7 +351,7 @@ function forumng_print_overview($courses, &$htmlarray) {
                 $htmlarray[$course->id] = array();
             }
             if (!array_key_exists('forumng', $htmlarray[$course->id])) {
-                $htmlarray[$course->id]['forumng'] = ''; // initialize, avoid warnings
+                $htmlarray[$course->id]['forumng'] = ''; // Initialize, avoid warnings.
             }
             $htmlarray[$course->id]['forumng'] .= $str;
         }
@@ -374,8 +374,6 @@ function forumng_supports($feature) {
         case FEATURE_COMPLETION_TRACKS_VIEWS: return true;
         case FEATURE_COMPLETION_HAS_RULES:    return true;
         case FEATURE_GRADE_HAS_GRADE:         return true;
-            // case FEATURE_GRADE_OUTCOMES:          return true;
-            // case FEATURE_RATE:                    return true;
         case FEATURE_BACKUP_MOODLE2:          return true;
         default: return null;
     }
@@ -393,7 +391,7 @@ function forumng_supports($feature) {
  *   value depends on comparison type)
  */
 function forumng_get_completion_state($course, $cm, $userid, $type) {
-    // Use forum object to handle this request
+    // Use forum object to handle this request.
     $forum = mod_forumng::get_from_cmid($cm->id, mod_forumng::CLONE_DIRECT);
     return $forum->get_completion_state($userid, $type);
 }
@@ -461,7 +459,7 @@ function mod_forumng_pluginfile($course, $cm, $context, $filearea, $args, $force
     $filename = urldecode($filename);
 
     if ($filearea == 'attachment' || $filearea == 'message') {
-        // Get post object and check permissions
+        // Get post object and check permissions.
         $cloneid = optional_param('clone', 0, PARAM_INT);
         $post = mod_forumng_post::get_from_id($itemid, $cloneid);
         $requirelogin = true;
@@ -478,7 +476,7 @@ function mod_forumng_pluginfile($course, $cm, $context, $filearea, $args, $force
             $post->require_view();
         }
         if ($cloneid) {
-            // File is actually in other context
+            // File is actually in other context.
             $context = $post->get_forum()->get_context(true);
         }
     } else if ($filearea == 'draft' || $filearea == 'draftmessage') {
@@ -494,7 +492,7 @@ function mod_forumng_pluginfile($course, $cm, $context, $filearea, $args, $force
         send_file_not_found();
     }
 
-    // Get file object and send it
+    // Get file object and send it.
     $fs = get_file_storage();
     $file = $fs->get_file($context->id, 'mod_forumng', $filearea, $itemid, '/', $filename);
     if (!($file) || $file->is_directory()) {
@@ -509,7 +507,7 @@ function mod_forumng_cm_info_view(cm_info $cm) {
     require_once($CFG->dirroot . '/mod/forumng/mod_forumng.php');
     static $forums = null;
     if ($forums === null) {
-        // Read tracking is for real users only
+        // Read tracking is for real users only.
         if (mod_forumng::enabled_read_tracking() && !isguestuser() && isloggedin()) {
             $forums = mod_forumng::get_course_forums(
                     $cm->get_course(), 0, mod_forumng::UNREAD_BINARY);
@@ -518,7 +516,7 @@ function mod_forumng_cm_info_view(cm_info $cm) {
         }
     }
 
-    // If current forum is listed, check whether it's unread or not
+    // If current forum is listed, check whether it's unread or not.
     if (array_key_exists($cm->instance, $forums)) {
         if ($forums[$cm->instance]->has_unread_discussions()) {
             $cm->set_after_link('<span class="unread">' .
@@ -658,13 +656,14 @@ function forumng_rating_permissions($contextid, $component, $ratingarea) {
  *            itemid => int the ID of the [FORUMNG-POST] object being rated [required]
  *            scaleid => int the scale from which the user can select a rating. Used for bounds checking. [required]
  *            rating => int the submitted rating
- *            rateduserid => int the id of the user whose items have been rated. NOT the user who submitted the ratings. 0 to update all. [required]
+ *            rateduserid => int the id of the user whose items have been rated. NOT the user who submitted the ratings.
+ *                           0 to update all. [required]
  *            aggregation => int the aggregation method to apply when calculating grades ie RATING_AGGREGATE_AVERAGE [optional]
  * @return boolean true if the rating is valid. Will throw rating_exception if not
  */
 function forumng_rating_validate($params) {
     global $DB, $USER;
-    // Check the component is mod_forum
+    // Check the component is mod_forum.
     if ($params['component'] != 'mod_forumng') {
         throw new rating_exception('invalidcomponent');
     }

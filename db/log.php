@@ -60,5 +60,5 @@ $logs = array(
     array('module' => 'forumng', 'action' => 'view usageinfo', 'mtable' => 'forumng', 'field' => 'name'),
     array('module' => 'forumng', 'action' => 'view user participation', 'mtable' => 'forumng', 'field' => 'name'),
     array('module' => 'forumng', 'action' => 'view participation list', 'mtable' => 'forumng', 'field' => 'name'),
-	array('module' => 'forumng', 'action' => 'edit set tags', 'mtable' => 'forumng', 'field' => 'name')
+    array('module' => 'forumng', 'action' => 'edit set tags', 'mtable' => 'forumng', 'field' => 'name')
 );
