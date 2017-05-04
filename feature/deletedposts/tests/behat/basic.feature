@@ -72,6 +72,7 @@ Feature: View deleted discussions and posts
     # Delete the 2 'deleted' discussions and check they show.
     Given I follow "Test group forum"
     And I follow "G1 deleted"
+    Given I change window size to "large"
     And I press "Delete"
     And I click on "Delete" "button" in the ".forumng-confirmdialog .forumng-buttons" "css_element"
     And I press "Send and delete"
@@ -80,6 +81,7 @@ Feature: View deleted discussions and posts
     And I press "Delete"
     And I click on "Delete" "button" in the ".forumng-confirmdialog .forumng-buttons" "css_element"
     And I press "Send and delete"
+    Given I change window size to "medium"
     Then "//tbody/tr[contains(@class, 'forumng-deleted')][2]" "xpath_element" should exist
     Given I press "View deleted"
     Then I should see "G1 deleted"

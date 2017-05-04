@@ -104,6 +104,7 @@ Feature: Delete discussions
     And I follow "Course 1"
     Given I follow "Test forum name"
     And I follow "Discussion 2"
+    Given I change window size to "large"
     When I press "Delete"
     And I click on "Delete" "button" in the ".forumng-confirmdialog .forumng-buttons" "css_element"
     Then I should see "Delete and email author"
@@ -122,6 +123,7 @@ Feature: Delete discussions
     Then I should see "Delete and email author"
     And I should see "Notify other contributors"
     And I press "Cancel"
+    Given I change window size to "medium"
     Given I log out
     And I log in as "student2"
     And I am on site homepage
