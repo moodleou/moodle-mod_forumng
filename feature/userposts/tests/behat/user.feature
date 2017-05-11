@@ -1,4 +1,4 @@
-@mod @mod_forumng @ou @ou_vle @forumng_feature_userposts
+@mod @mod_forumng @ou @ou_vle @forumng_feature_userposts @javascript
 Feature: Add forumng activity and test userposts filtering
   In order to easily evaluate user posts
   As a teacher
@@ -48,7 +48,6 @@ Feature: Add forumng activity and test userposts filtering
     And I follow "Discussion 1"
     And I set the following fields to these values:
       | rating | 10 |
-    And I press "Rate"
     And I log out
     And I amend the forumng rated posts to new rated date:
      | student1 |  Discussion 1 | 2014-12-02 |
@@ -59,8 +58,7 @@ Feature: Add forumng activity and test userposts filtering
     And I reply to post "1" with the following data:
       | Change subject (optional) | Discussion 1 reply by student1                |
       | Message                   | This is reply text by student1 (Discussion 1) |
-    And I follow "Miscellaneous"
-    And I follow "Course 1"
+    And I follow "C1"
     And I follow "Test forum name"
     And I press "My participation"
     And I follow "Posts I rated"
@@ -149,14 +147,11 @@ Feature: Add forumng activity and test userposts filtering
     And I follow "Discussion 2"
     And I set the following fields to these values:
       | rating | 10 |
-    And I press "Rate"
-    And I follow "Miscellaneous"
-    And I follow "Course 1"
+    And I follow "C1"
     And I follow "Test forum name"
     And I follow "Discussion 1"
     And I set the following fields to these values:
       | rating | 9 |
-    And I press "Rate"
     And I log out
 
     And I log in as "admin"
@@ -167,7 +162,6 @@ Feature: Add forumng activity and test userposts filtering
     And I follow "Show all posts by Student 1"
     And I set the following fields to these values:
       | rating | 7 |
-    And I press "Rate"
 
     # Results.
 
@@ -253,7 +247,9 @@ Feature: Add forumng activity and test userposts filtering
       | Message                   | This is reply text by student1 (Discussion 1) |
 
     # View all posts for student1
-    And I follow "ForumNG"
+    And I am on site homepage
+    And I follow "Course 1"
+    And I follow "Test forum name"
     And I press "My participation"
     And I should see "Posts rated by others"
     And I should see "Discussion 1 reply by student1"
@@ -285,7 +281,6 @@ Feature: Add forumng activity and test userposts filtering
     And I follow "Show all posts by Student 2"
     And I set the following fields to these values:
       | rating | 10 |
-    And I press "Rate"
     And I log out
 
     And I log in as "student2"
@@ -295,13 +290,18 @@ Feature: Add forumng activity and test userposts filtering
     And I reply to post "1" with the following data:
       | Change subject (optional) | Discussion 1 reply 2 by student2                |
       | Message                   | This is reply text 2 by student2 (Discussion 1) |
-    And I follow "ForumNG"
+    And I am on site homepage
+    And I follow "Course 1"
+    And I follow "Test forum name"
     And I follow "Discussion 2"
     And I reply to post "1" with the following data:
       | Change subject (optional) | Discussion 2 reply by student2                 |
       | Message                   | This is reply text by student2 (Discussion 2)  |
 
     # View posts for student2
+    And I am on site homepage
+    And I follow "Course 1"
+    And I follow "Test forum name"
     And I follow "ForumNG"
     And I press "My participation"
     And I should see "This is reply text by student2 (Discussion 1)"
