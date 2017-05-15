@@ -49,13 +49,11 @@ Feature: Add forumng activity and test basic ratings functionality
       | Change subject (optional) | Student 1 |
       | Message                   | Test3   |
     And I should see "Test3"
-    And I follow "Miscellaneous"
     And I follow "Course 1"
     And I follow "Test forum name"
     And I add a discussion with the following data:
       | Subject | Disc2   |
       | Message | Test2   |
-    And I follow "Miscellaneous"
     And I follow "Course 1"
     And I follow "Test forum name"
     And I follow "Admin1"
@@ -89,7 +87,6 @@ Feature: Add forumng activity and test basic ratings functionality
       | Change subject (optional) | Student 1                       |
       | Message                   | Reply to Disc2 by Student 1   |
     And I should see "Reply to Disc2 by Student 1"
-    And I follow "Miscellaneous"
     And I log out
 
     And I log in as "teacher1"
@@ -99,7 +96,6 @@ Feature: Add forumng activity and test basic ratings functionality
     And I set the following fields to these values:
       | rating | 4 |
     And I press "Rate"
-    And I follow "Miscellaneous"
     And I follow "Course 1"
     And I follow "Test forum name"
     And I press "Participation by user"
