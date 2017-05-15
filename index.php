@@ -131,7 +131,7 @@ foreach ($forums as $forum) {
     // Get name and intro
     $row[] =   "<a href='view.php?id={$cm->id}' $style>" .
         format_string($forum->get_name()) . '</a>';
-    $activity = (object) array('intro' => $forum->get_intro(),
+    $activity = (object) array('intro' => $forum->get_introduction(),
             'introformat' => FORMAT_HTML);
     $row[] = format_module_intro('forumng', $activity, $forum->get_course_module_id(true));
 
