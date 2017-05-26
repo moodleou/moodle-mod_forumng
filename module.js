@@ -611,7 +611,10 @@ M.mod_forumng = {
                         var subject = subjectinput.get('value');
                         subjectinput.remove();
 
-                        Y.all('.forumng-subject').setHTML(subject);
+                        if (Y.one('.forumng_discussion_title')) {
+                            // OSEP theme discussion title
+                            Y.all('.forumng_discussion_title').setHTML(subject);
+                        }
 
                         var navbar = Y.one('#page-header .navbar ul, #page-navbar ul');
                         if (navbar) {
