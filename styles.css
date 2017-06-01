@@ -636,14 +636,9 @@ ul.forumng-commands li.forumng-replylink {
 .forumng-iframe#page-mod-forumng-editpost .fcontainer {
     margin-left: 0;
 }
-.forumng-iframe#page-mod-forumng-editpost .fm-empty-container,
 .forumng-iframe#page-mod-forumng-editpost .dndupload-target {
     padding-top: 0;
 }
-.forumng-iframe#page-mod-forumng-editpost .filemanager-container {
-    min-height: 40px;
-}
-.forumng-iframe#page-mod-forumng-editpost .dndupload-arrow,
 #page-mod-forumng-editpost .fp-pathbar,
 .forumng-iframe#page-mod-forumng-editpost .fp-pathbar {
     display: none;
