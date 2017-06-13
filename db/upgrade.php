@@ -377,5 +377,28 @@ function xmldb_forumng_upgrade($oldversion=0) {
         upgrade_mod_savepoint(true, 2017042106, 'forumng');
     }
 
+    if ($oldversion < 2017042107) {
+
+        // Add timemodified field for applying global search to forumng activity
+        $table = new xmldb_table('forumng');
+        $field = new xmldb_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
+
+        // Conditionally launch add field timemodified.
+        if (!$dbman->field_exists($table, $field)) {
+            // Add the field but allowing nulls.
+            $dbman->add_field($table, $field);
+            // Set the field to 0 for everything.
+            $DB->set_field('forumng', 'timemodified', '0');
+            // Changing nullability of field timemodified to not null.
+            $field = new xmldb_field('timemodified', XMLDB_TYPE_INTEGER, '10', null,
+                    XMLDB_NOTNULL, null, null);
+            // Launch change of nullability for field themetype.
+            $dbman->change_field_notnull($table, $field);
+        }
+
+        // Forumng savepoint reached.
+        upgrade_mod_savepoint(true, 2017042107, 'forumng');
+    }
+
     return true;
 }

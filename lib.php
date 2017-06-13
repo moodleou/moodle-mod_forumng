@@ -57,6 +57,8 @@ function forumng_add_instance($forumng, $mform = null) {
         );
     }
 
+    $forumng->timemodified = time();
+
     // Pick a random magic number.
     $part1 = mt_rand(0, 99999999);
     $part2 = mt_rand(0, 99999999);
@@ -101,6 +103,8 @@ function forumng_update_instance($forumng) {
     require_once(dirname(__FILE__).'/mod_forumng.php');
     // Get the tag lib.php.
     require_once($CFG->dirroot . '/tag/lib.php');
+
+    $forumng->timemodified = time();
 
     // Handle any content in the introduction editor, including files.
     // Some places that programmatically update forums will not have

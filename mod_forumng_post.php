@@ -733,10 +733,11 @@ WHERE
      * @param bool $usecache True to use cache when retrieving the discussion
      * @param int $userid User ID to get post on behalf of (controls flag data
      *   retrieved)
-     * @return mod_forumng_post Post object
+     * @param int $allowmissing Allow missing post or not, if not throw exception
+     * @return mod_forumng_post|boolean Post object
      */
     public static function get_from_id($id, $cloneid,
-            $wholediscussion=false, $usecache=false, $userid=0) {
+            $wholediscussion=false, $usecache=false, $userid=0, $allowmissing = false) {
         global $CFG, $USER;
         require_once($CFG->dirroot . '/rating/lib.php');
         if ($wholediscussion) {
@@ -749,6 +750,9 @@ WHERE
             $records = self::query_posts('fp.id = ?', array($id), 'fp.id', true,
                     true, false, $userid);
             if (count($records)!=1) {
+                if ($allowmissing === true) {
+                    return false;
+                }
                 throw new coding_exception("Invalid post ID $id");
             }
             $postfields = reset($records);

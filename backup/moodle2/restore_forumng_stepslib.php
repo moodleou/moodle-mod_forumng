@@ -101,6 +101,10 @@ class restore_forumng_activity_structure_step extends restore_activity_structure
             $data->ratingscale = -($this->get_mappingid_or_null('scale', abs($data->ratingscale)));
         }
 
+        if (empty($data->timemodified)) {
+            $data->timemodified = time();
+        }
+
         $newitemid = $DB->insert_record('forumng', $data);
         $this->apply_activity_instance($newitemid);
         $this->forumngid = $newitemid;

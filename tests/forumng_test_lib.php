@@ -75,6 +75,32 @@ abstract class forumng_test_lib extends advanced_testcase {
     }
 
     /**
+     * Create a new grouping and add it into a course
+     *
+     * @param int $courseid
+     * @return stdClass
+     */
+    public function get_new_grouping($courseid) {
+        $grouping = new stdClass();
+        $grouping->courseid = $courseid;
+        return $this->getDataGenerator()->create_grouping($grouping);
+    }
+
+    /**
+     * Add a group to a grouping
+     *
+     * @param int $groupingid
+     * @param int $groupid
+     * @return bool
+     */
+    public function get_new_grouping_group($groupingid, $groupid) {
+        $groupmember = new stdClass();
+        $groupmember->groupid = $groupid;
+        $groupmember->groupingid = $groupingid;
+        return $this->getDataGenerator()->create_grouping_group($groupmember);
+    }
+
+    /**
      * Create new forumng instance using generator, returns instance record + cm
      * @param int $courseid
      * @param array $options
