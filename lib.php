@@ -386,17 +386,30 @@ function mod_forumng_pluginfile($course, $cm, $context, $filearea, $args, $force
     global $CFG, $USER;
     require_once($CFG->dirroot . '/mod/forumng/mod_forumng.php');
 
-    // Check remaining slash arguments
-    if (count($args) != 2) {
+    // Check remaining slash arguments, might have hash for image so the args may be 2 or 3.
+    if (count($args) != 2 && count($args) != 3) {
         send_file_not_found();
     }
     list ($itemid, $filename) = $args;
+    $filename = urldecode($filename);
 
     if ($filearea == 'attachment' || $filearea == 'message') {
         // Get post object and check permissions
         $cloneid = optional_param('clone', 0, PARAM_INT);
         $post = mod_forumng_post::get_from_id($itemid, $cloneid);
-        $post->require_view();
+        $requirelogin = true;
+        if (array_key_exists(2, $args) && $filearea == 'message') {
+            // Check server hash and receive hash.
+            $hash = $args[2];
+            $salt = context_course::instance($course->id)->id;
+            $serverhash = sha1($filename . $salt);
+            if ($serverhash == $hash) {
+                $requirelogin = false;
+            }
+        }
+        if ($requirelogin) {
+            $post->require_view();
+        }
         if ($cloneid) {
             // File is actually in other context
             $context = $post->get_forum()->get_context(true);

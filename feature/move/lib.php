@@ -198,7 +198,7 @@ function get_other_course_forums($currentforum) {
             continue;
         }
         $othercontext = context_module::instance($other->id);
-        if (has_capability('mod/forumng:movediscussions', $othercontext)) {
+        if (has_capability('mod/forumng:movediscussions', $othercontext) && $other->uservisible) {
             $results[$other->id] = $other->name;
         }
     }
