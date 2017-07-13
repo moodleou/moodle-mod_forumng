@@ -232,4 +232,20 @@ class mod_forumng_generator extends testing_module_generator {
 
         return $record;
     }
+
+    /**
+     * Create tags for a discussion.
+     *
+     * @param int $discussionid
+     * @param context $context
+     * @param array $tags
+     * @return core_tag_tag[] each object contains additional fields taginstanceid, taginstancecontextid and ordering
+     */
+    public function create_tag_instance($discussionid, context $context, array $tags = array()) {
+        core_tag_tag::set_item_tags('mod_forumng', 'forumng_discussions', $discussionid,
+            $context, $tags);
+
+        return array_values(core_tag_tag::get_item_tags('mod_forumng', 'forumng_discussions',
+                $discussionid));
+    }
 }

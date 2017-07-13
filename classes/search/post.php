@@ -62,17 +62,18 @@ class post extends \core_search\base_mod {
                    fp.id as forumpostid, fp.discussionid, fp.parentpostid, fp.userid, fp.created,
                    fp.modified as postmodified, fp.deleted,
                    fp.deleteuserid, fp.important, fp.mailstate, fp.oldversion, fp.edituserid, fp.subject, fp.message,
-                   fp.messageformat, fp.attachments, fp.asmoderator
+                   fp.messageformat, fp.attachments, fp.asmoderator,
+                   fd.modified as discussionmodified, GREATEST(fp.modified, fd.modified) as modifyorder
               FROM {forumng_posts} fp
               JOIN {forumng_discussions} fd ON fp.discussionid = fd.id
               JOIN {forumng} f ON fd.forumngid = f.id
-             WHERE fp.modified >= ?
+             WHERE (fp.modified >= ? OR fd.modified >= ?)
                    AND fp.deleted = 0
                    AND fd.deleted = 0
                    AND fp.oldversion = 0
-          ORDER BY fp.modified ASC';
+          ORDER BY modifyorder ASC';
 
-        return $DB->get_recordset_sql($querystring, array($modifiedfrom));
+        return $DB->get_recordset_sql($querystring, array($modifiedfrom, $modifiedfrom));
     }
 
     /**
@@ -93,6 +94,13 @@ class post extends \core_search\base_mod {
             return false;
         }
 
+        // Remember to check time modified between post and discussion.
+        if ($record->discussionmodified > $record->postmodified) {
+            $timemodified = $record->discussionmodified;
+        } else {
+            $timemodified = $record->postmodified;
+        }
+
         // Construct the document instance to return.
         $doc = \core_search\document_factory::instance(
                 $record->forumpostid, $this->componentname, $this->areaname);
@@ -108,11 +116,16 @@ class post extends \core_search\base_mod {
                 self::FILEAREA['MESSAGE'], $record->forumpostid);
         $doc->set('content', content_to_text($content, FORMAT_HTML));
 
+        // Set document description1: discussion tags.
+        $itemtags = $this->get_tag_by_discussion($record->discussionid);
+        $itemtagstr = implode(' ', $itemtags);
+        $doc->set('description1', content_to_text($itemtagstr, false));
+
         // Set other search metadata.
         $doc->set('contextid', $context->id);
         $doc->set('type', \core_search\manager::TYPE_TEXT);
         $doc->set('courseid', $record->course);
-        $doc->set('modified', $record->postmodified);
+        $doc->set('modified', $timemodified);
         $doc->set('itemid', $record->forumpostid);
         $doc->set('owneruserid', \core_search\manager::NO_OWNER_ID);
         $doc->set('userid', $record->userid);
@@ -227,5 +240,16 @@ class post extends \core_search\base_mod {
      */
     protected function get_module_name() {
         return substr($this->componentname, 4);
+    }
+
+    /**
+     * Returns array of tag display names
+     *
+     * @param int $discussionid
+     * @return string[]
+     */
+    public function get_tag_by_discussion($discussionid) {
+        return \core_tag_tag::get_item_tags_array('mod_forumng', 'forumng_discussions',
+            $discussionid);
     }
 }

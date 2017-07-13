@@ -1499,6 +1499,7 @@ WHERE $conditions AND m.name = 'forumng' AND $restrictionsql",
         $discussionobj->deleted = 0;
         $discussionobj->locked = $locked ? 1 : 0;
         $discussionobj->sticky = $sticky ? 1 : 0;
+        $discussionobj->modified = time();
 
         // Create discussion
         $transaction = $DB->start_delegated_transaction();

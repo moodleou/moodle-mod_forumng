@@ -1121,16 +1121,32 @@ WHERE
         if ($sticky != $this->discussionfields->sticky) {
             $update->sticky = $sticky;
         }
+
         // Update tags if required.
         if (!is_null($tags)) {
+            // Get old item tags and compare with new item tags to detect changes.
+            sort($tags);
+            $taggeditems = core_tag_tag::get_item_tags_array('mod_forumng', 'forumng_discussions',
+                $this->discussionfields->id);
+            $taggeditems = array_values($taggeditems);
+            sort($taggeditems);
+            $tagupdated = !($taggeditems == $tags);
+            if ($tagupdated) {
+                // We need to update time modified for re-indexing discussion only when item tags are changed.
+                $update->modified = time();
+            }
             $context = $this->get_forum()->get_context(true);
             core_tag_tag::set_item_tags('mod_forumng', 'forumng_discussions', $this->discussionfields->id,
                     $context, $tags);
         }
+
         if (count((array)$update)==0) {
             // No change
+
             $transaction->allow_commit();
             return;
+        } else {
+            $update->modified = time();
         }
         $update->id = $this->discussionfields->id;
         $DB->update_record('forumng_discussions', $update);

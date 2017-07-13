@@ -88,6 +88,12 @@ class mod_forumng_search_post_testcase extends forumng_test_lib {
                 'parentpostid' => $did1[1],
                 'userid' => $suser2->id));
 
+        $cm = get_coursemodule_from_instance('forumng', $forum1->get_id(), $forum1->get_course_id());
+        $context = \context_module::instance($cm->id);
+
+        // Create discussion tags.
+        $generator->create_tag_instance($did1[0], $context, array('distag1'));
+
         // Now check we get results.
         $results = self::recordset_to_array($page->get_recordset_by_timestamp());
         $this->assertCount(3, $results);
@@ -96,8 +102,7 @@ class mod_forumng_search_post_testcase extends forumng_test_lib {
         $out = $page->get_document($results[1], array('lastindexedtime' => 0));
         $this->assertEquals('Post 1', $out->get('title'));
         $this->assertEquals('Message 1', $out->get('content'));
-        $cm = get_coursemodule_from_instance('forumng', $results[1]->id, $results[1]->course);
-        $context = \context_module::instance($cm->id);
+        $this->assertEquals('distag1', $out->get('description1'));
         $this->assertEquals($context->id, $out->get('contextid'));
         $this->assertEquals(\core_search\manager::TYPE_TEXT, $out->get('type'));
         $this->assertEquals($course->id, $out->get('courseid'));

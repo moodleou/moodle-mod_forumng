@@ -379,7 +379,7 @@ function xmldb_forumng_upgrade($oldversion=0) {
 
     if ($oldversion < 2017042107) {
 
-        // Add timemodified field for applying global search to forumng activity
+        // Add timemodified field for applying global search to forumng activity.
         $table = new xmldb_table('forumng');
         $field = new xmldb_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
 
@@ -398,6 +398,29 @@ function xmldb_forumng_upgrade($oldversion=0) {
 
         // Forumng savepoint reached.
         upgrade_mod_savepoint(true, 2017042107, 'forumng');
+    }
+
+    if ($oldversion < 2017071900) {
+
+        // Add timemodified field for applying global search to forumng discussion.
+        $table = new xmldb_table('forumng_discussions');
+        $field = new xmldb_field('modified', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
+
+        // Conditionally launch add field modified.
+        if (!$dbman->field_exists($table, $field)) {
+            // Add the field but allowing nulls.
+            $dbman->add_field($table, $field);
+            // Set the field to 0 for everything.
+            $DB->set_field('forumng_discussions', 'modified', '0');
+            // Changing nullability of field modified to not null.
+            $field = new xmldb_field('modified', XMLDB_TYPE_INTEGER, '10', null,
+                    XMLDB_NOTNULL, null, null);
+            // Launch change of nullability for field modified.
+            $dbman->change_field_notnull($table, $field);
+        }
+
+        // Forumng savepoint reached.
+        upgrade_mod_savepoint(true, 2017071900, 'forumng');
     }
 
     return true;

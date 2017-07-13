@@ -53,7 +53,7 @@ class backup_forumng_activity_structure_step extends backup_activity_structure_s
         $discussions = new backup_nested_element('discussions');
 
         $discussion = new backup_nested_element('discussion', array('id'), array(
-            'groupid', 'timestart', 'timeend', 'deleted', 'locked', 'sticky'));
+            'groupid', 'timestart', 'timeend', 'deleted', 'locked', 'sticky', 'modified'));
 
         $posts = new backup_nested_element('posts');
 

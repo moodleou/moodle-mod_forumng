@@ -123,6 +123,7 @@ class restore_forumng_activity_structure_step extends restore_activity_structure
         $data->timestart = $this->apply_date_offset($data->timestart);
         $data->timeend = $this->apply_date_offset($data->timeend);
         $data->groupid = $this->get_mappingid_or_null('group', $data->groupid);
+        $data->modified = time();
 
         // Field postid is handled in process_forumng_post.
         // Field lastpostid is handled in after_execute.
