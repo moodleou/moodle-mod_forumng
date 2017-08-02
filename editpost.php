@@ -381,6 +381,8 @@ try {
             }
             if (!isset($fromform->tags)) {
                 $fromform->tags = null;
+            } else if (empty($fromform->tags)) {
+                $fromform->tags = array();
             }
             // The form time is midnight, but because we want it to be
             // inclusive, set it to 23:59:59 on that day.

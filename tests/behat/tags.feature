@@ -54,8 +54,12 @@ Feature: Add forumng activity and test basic tagging functionality
       | Subject | Discussion 4 |
       | Message | ghi |
       | tags | four, fourA, fourB |
-
-
+    And I follow "Test forum name"
+    And I add a discussion with the following data:
+      | Subject | Discussion 5 |
+      | Message | no tags      |
+    And I press "Discussion options"
+    And I press "Save changes"
     And I follow "Course 1"
     And I follow "Test forum name"
 
@@ -75,20 +79,20 @@ Feature: Add forumng activity and test basic tagging functionality
     Then the "tag" select box should contain "threeb (1)"
 
     # Check correct tags are displayed for each discusssion
-    Given "tr.forumng-discussion-short:nth-child(2)" "css_element" should exist
-    Then "three" "link" should exist in the "tr.forumng-discussion-short:nth-child(2)" "css_element"
-    Then "threea" "link" should exist in the "tr.forumng-discussion-short:nth-child(2)" "css_element"
-    Then "threeb" "link" should exist in the "tr.forumng-discussion-short:nth-child(2)" "css_element"
-
     Given "tr.forumng-discussion-short:nth-child(3)" "css_element" should exist
-    Then "two" "link" should exist in the "tr.forumng-discussion-short:nth-child(3)" "css_element"
-    Then "twoa" "link" should exist in the "tr.forumng-discussion-short:nth-child(3)" "css_element"
-    Then "twob" "link" should exist in the "tr.forumng-discussion-short:nth-child(3)" "css_element"
+    Then "three" "link" should exist in the "tr.forumng-discussion-short:nth-child(3)" "css_element"
+    Then "threea" "link" should exist in the "tr.forumng-discussion-short:nth-child(3)" "css_element"
+    Then "threeb" "link" should exist in the "tr.forumng-discussion-short:nth-child(3)" "css_element"
 
     Given "tr.forumng-discussion-short:nth-child(4)" "css_element" should exist
-    Then "one" "link" should exist in the "tr.forumng-discussion-short:nth-child(4)" "css_element"
-    Then "onea" "link" should exist in the "tr.forumng-discussion-short:nth-child(4)" "css_element"
-    Then "oneb" "link" should exist in the "tr.forumng-discussion-short:nth-child(4)" "css_element"
+    Then "two" "link" should exist in the "tr.forumng-discussion-short:nth-child(4)" "css_element"
+    Then "twoa" "link" should exist in the "tr.forumng-discussion-short:nth-child(4)" "css_element"
+    Then "twob" "link" should exist in the "tr.forumng-discussion-short:nth-child(4)" "css_element"
+
+    Given "tr.forumng-discussion-short:nth-child(5)" "css_element" should exist
+    Then "one" "link" should exist in the "tr.forumng-discussion-short:nth-child(5)" "css_element"
+    Then "onea" "link" should exist in the "tr.forumng-discussion-short:nth-child(5)" "css_element"
+    Then "oneb" "link" should exist in the "tr.forumng-discussion-short:nth-child(5)" "css_element"
 
     # Check that the correct discussion is displayed if we click on a tag link
     When I click on "oneb" "link"
@@ -102,9 +106,9 @@ Feature: Add forumng activity and test basic tagging functionality
     # Check that we return to view page when the 'Show all' link is clicked on
     When I click on "Show all" "link"
     Then "tr.forumng-discussion-short:nth-child(2)" "css_element" should exist
-    And "Discussion 3" "link" should exist in the "tr.forumng-discussion-short:nth-child(2)" "css_element"
-    Then "tr.forumng-discussion-short:nth-child(3)" "css_element" should exist
+    And "Discussion 3" "link" should exist in the "tr.forumng-discussion-short:nth-child(3)" "css_element"
     Then "tr.forumng-discussion-short:nth-child(4)" "css_element" should exist
+    Then "tr.forumng-discussion-short:nth-child(5)" "css_element" should exist
 
     # Check that we can display a discussion
     When I click on "Discussion 3" "link"
