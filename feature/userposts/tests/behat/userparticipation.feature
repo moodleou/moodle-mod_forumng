@@ -1,5 +1,5 @@
 @mod @mod_forumng @ou @ou_vle @forumng_userparticipation
-Feature: Add forumng activity and test basic ratings functionality
+Feature: Add forumng activity and test user ratings
   In order to effectively teach
   As a teacher
   I need to easily view students forum post ratings

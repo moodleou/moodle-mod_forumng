@@ -25,7 +25,7 @@ Feature: Delete discussions
       | Forum introduction | Test forum description |
     And I log out
 
-  Scenario: Access forum as student
+  Scenario: Delete discussion from forum
     Given I log in as "student1"
     And I am on site homepage
     And I follow "Course 1"

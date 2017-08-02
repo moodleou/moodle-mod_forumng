@@ -1,5 +1,5 @@
 @mod @mod_forumng @ou @ou_vle @forumngfeature_manualmark
-Feature: Make discussions sticky
+Feature: Manually mark discussions read
   In order to mark discussions read
   As a student
   I need to be able to use both features that make discussions marked as read

@@ -1,5 +1,5 @@
 @mod @mod_forumng @ou @ou_vle @forumngfeature_usage
-Feature: Show discussion readers
+Feature: Show usage statistics for ForumNG
   In order view all readers of discussions
   As an administrator
   I need to use the forumng feature that shows readers
@@ -45,7 +45,7 @@ Feature: Show discussion readers
 
   # JS required or fails to find forumng_usage_list elements on the page
   @javascript
-  Scenario: Testing the 'show readers' option
+  Scenario: Testing the usage statistics report
     Given I log in as "student1"
     And I am on site homepage
     And I follow "Course 1"

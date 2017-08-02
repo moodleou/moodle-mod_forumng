@@ -29,7 +29,7 @@ Feature: Study advice discussions
       | Message | abc |
     And I log out
 
-  Scenario: View flagged discussions
+  Scenario: Test study advice forum
     Given I log in as "student1"
     And I am on site homepage
     And I follow "Course 1"

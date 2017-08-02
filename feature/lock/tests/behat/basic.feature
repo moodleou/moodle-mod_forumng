@@ -45,7 +45,7 @@ Feature: Lock multiple discussions
       | Message | 456 |
     And I log out
 
-  Scenario: View flagged discussions
+  Scenario: Lock discussions
     Given I log in as "admin"
     And I am on site homepage
     And I follow "Course 1"
