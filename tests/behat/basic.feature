@@ -22,7 +22,7 @@ Feature: Add forumng activity and test basic functionality
   Scenario: Access forum as student
     Given I log in as "student1"
     And I am on site homepage
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test forum name"
     Then I should see "Test forum description"
     And "Start a new discussion" "button" should exist
@@ -30,7 +30,7 @@ Feature: Add forumng activity and test basic functionality
   Scenario: Add discussions and check sorting and sticky
     Given I log in as "admin"
     And I am on site homepage
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test forum name"
     And I add a discussion with the following data:
       | Subject | Discussion 1 |
@@ -74,7 +74,7 @@ Feature: Add forumng activity and test basic functionality
   Scenario: Check discussion post replies, unread and editing
     Given I log in as "admin"
     And I am on site homepage
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test forum name"
     And I add a discussion with the following data:
       | Subject | Discussion 1 |
@@ -86,7 +86,7 @@ Feature: Add forumng activity and test basic functionality
     And I log out
     Given I log in as "student1"
     And I am on site homepage
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     Then I should see "(Unread posts)"
     Given I follow "Test forum name"
     Then I should see "3" in the "//table[contains(@class,'forumng-discussionlist')]/tbody/tr[1]//td[4]" "xpath_element"
@@ -116,12 +116,12 @@ Feature: Add forumng activity and test basic functionality
     Given I press "Change"
     Then I should see "Manually mark as read"
     And I should see "" in the "//table[contains(@class,'forumng-discussionlist')]/tbody/tr[1]//td[2]" "xpath_element"
-    Given I follow "Course 1"
+    Given I am on "Course 1" course homepage
     Then I should not see "(unread posts)"
     And I log out
     Given I log in as "admin"
     And I am on site homepage
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     Then I should see "(Unread posts)"
     Given I follow "Test forum name"
     And I should see "5" in the "//table[contains(@class,'forumng-discussionlist')]/tbody/tr[1]//td[4]" "xpath_element"
@@ -146,14 +146,14 @@ Feature: Add forumng activity and test basic functionality
     When I press "Show readers"
     Then I should see "Student 1"
     And I should see "Admin User"
-    When I follow "Course 1"
+    When I am on "Course 1" course homepage
     Then I should not see "(Unread posts)"
 
   Scenario: Deleting + locking discussions + posts
     # NOTE - this is non-js specific, will fail if @javascript enabled on this scenario.
     Given I log in as "admin"
     And I am on site homepage
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test forum name"
     And I add a discussion with the following data:
       | Subject | Discussion 1 |
@@ -198,7 +198,7 @@ Feature: Add forumng activity and test basic functionality
   Scenario: Flagging (and removing flag) posts without javascript
     Given I log in as "admin"
     And I am on site homepage
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test forum name"
     And I add a discussion with the following data:
       | Subject | Discussion 1 |
@@ -269,7 +269,7 @@ Feature: Add forumng activity and test basic functionality
   Scenario: Flagging (and removing flag) posts with javascript
     Given I log in as "admin"
     And I am on site homepage
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test forum name"
     And I add a discussion with the following data:
       | Subject | Discussion 1 abc |
@@ -337,7 +337,7 @@ Feature: Add forumng activity and test basic functionality
   Scenario: Test subscription buttons
     Given I log in as "student1"
     And I am on site homepage
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     When I follow "Test forum name"
     Then I should see "You do not currently receive messages from this forum"
     And "Subscribe" "button" should exist
@@ -377,14 +377,14 @@ Feature: Add forumng activity and test basic functionality
     Given I log out
     And I log in as "admin"
     And I am on site homepage
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test forum name"
     And I follow "Edit settings"
     And I set the field "subscription" to "3"
     And I press "Save and display"
     When I log out
     And I log in as "student1"
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     When I follow "Test forum name"
     Then I should see "You receive messages from this forum via email to"
     And I should see "This forum does not allow you to unsubscribe"
@@ -393,7 +393,7 @@ Feature: Add forumng activity and test basic functionality
   Scenario: Test forum feature buttons on mobile
     Given I log in as "admin"
     And I am on site homepage
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test forum name"
     Then "Show usage" "button" should be visible
     And "Participation by user" "button" should be visible
@@ -413,7 +413,7 @@ Feature: Add forumng activity and test basic functionality
   Scenario: Add discussions and check button disable
     Given I log in as "admin"
     And I am on site homepage
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test forum name"
     And I add a discussion with the following data:
       | Subject | Discussion 1 |
@@ -434,7 +434,7 @@ Feature: Add forumng activity and test basic functionality
   Scenario: Edit discussion subject
     Given I log in as "admin"
     And I am on site homepage
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test forum name"
     And I add a discussion with the following data:
       | Subject | Discussion original |

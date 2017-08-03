@@ -16,7 +16,7 @@ Feature: Add forumng activity and test basic ratings functionality
       | teacher1 | C1 | teacher |
     And I log in as "admin"
     And I am on site homepage
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I turn editing mode on
     When I add a "ForumNG" to section "1" and I fill the form with:
       | Forum name | Test forum name |
@@ -40,7 +40,7 @@ Feature: Add forumng activity and test basic ratings functionality
   Scenario: Access forum as teacher and rate
     Given I log in as "teacher1"
     And I am on site homepage
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test forum name"
     And I follow "Admin1"
     When I reply to post "2" with the following data:
@@ -68,12 +68,12 @@ Feature: Add forumng activity and test basic ratings functionality
     When I follow "Show all posts by Teacher 1"
     Then I should see "Average of ratings: "
     # Switch on grading and check aggregates.
-    Given I follow "Course 1"
+    Given I am on "Course 1" course homepage
     And I log out
     And I wait until the page is ready
     And I log in as "admin"
     And I am on site homepage
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test forum name"
     And I navigate to "Edit settings" node in "ForumNG administration"
     And I set the field "Grade" to "Count of ratings"

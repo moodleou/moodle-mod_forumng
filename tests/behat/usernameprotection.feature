@@ -18,7 +18,7 @@ Feature: Username protection
       | activity | name      | course | idnumber | section |
       | forumng  | TestForum | C1     | WTF      | 0       |
     And I log in as "abc123"
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "TestForum"
 
   @javascript

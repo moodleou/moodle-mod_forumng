@@ -20,7 +20,7 @@ Feature: Add forumng activity and test user ratings
       | student2 | C1     | student |
     And I log in as "admin"
     And I am on site homepage
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I turn editing mode on
     And I add a "ForumNG" to section "1" and I fill the form with:
       | Forum name                  | Test forum name        |
@@ -42,19 +42,19 @@ Feature: Add forumng activity and test user ratings
   Scenario: Access forum as a student, create a discussion and reply to a post and then rate as a teacher
 
     Given I log in as "student1"
-    When I follow "Course 1"
+    When I am on "Course 1" course homepage
     Then I follow "Test forum name"
     And I follow "Admin1"
     And I reply to post "2" with the following data:
       | Change subject (optional) | Student 1 |
       | Message                   | Test3   |
     And I should see "Test3"
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test forum name"
     And I add a discussion with the following data:
       | Subject | Disc2   |
       | Message | Test2   |
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test forum name"
     And I follow "Admin1"
     And I reply to post "1" with the following data:
@@ -63,7 +63,7 @@ Feature: Add forumng activity and test user ratings
     And I log out
 
     And I log in as "teacher1"
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test forum name"
     And I press "Participation by user"
     And I should see "0.0" in the "//div/table//tr[@id='mod-forumng-participation_r0']/td[@class='cell c4']/div[text()]" "xpath_element"
@@ -77,7 +77,7 @@ Feature: Add forumng activity and test user ratings
     And I log out
 
     And I log in as "student1"
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test forum name"
     And "My participation" "button" should exist
     And "Participation by user" "button" should not exist
@@ -90,13 +90,13 @@ Feature: Add forumng activity and test user ratings
     And I log out
 
     And I log in as "teacher1"
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test forum name"
     And I follow "Disc2"
     And I set the following fields to these values:
       | rating | 4 |
     And I press "Rate"
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test forum name"
     And I press "Participation by user"
     And I should see "3.5" in the "//div/table//tr[@id='mod-forumng-participation_r0']/td[@class='cell c4']/div[text()]" "xpath_element"
@@ -125,7 +125,7 @@ Feature: Add forumng activity and test user ratings
     # View with different grade setting
     And I log in as "admin"
     And I am on site homepage
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test forum name"
     And I follow "Edit settings"
     And I set the following fields to these values:
@@ -134,7 +134,7 @@ Feature: Add forumng activity and test user ratings
     And I log out
 
     And I log in as "teacher1"
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test forum name"
     And I press "Participation by user"
     And I should see "Grade"

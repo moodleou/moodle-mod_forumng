@@ -29,7 +29,7 @@ Feature: Move discussions
       | GI3       | g3 |
     And I log in as "admin"
     And I am on site homepage
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I turn editing mode on
     And I add a "ForumNG" to section "1" and I fill the form with:
       | Forum name | No groups |
@@ -56,7 +56,7 @@ Feature: Move discussions
     And I add a discussion with the following data:
       | Subject | Discussion 1 |
       | Message | abc |
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "G1 grouping"
     And I set the field "Separate groups" to "group1"
     And I press "Go"
@@ -69,7 +69,7 @@ Feature: Move discussions
     And I add a discussion with the following data:
       | Subject | Discussion 3 |
       | Message | abc |
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "G2 grouping"
     And I set the field "Separate groups" to "group3"
     And I press "Go"
@@ -87,7 +87,7 @@ Feature: Move discussions
   Scenario: Move discussion from in discussion option.
     Given I log in as "admin"
     And I am on site homepage
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "No groups"
     And I follow "Discussion 1"
     And I set the field "target" to "No groups 2"
@@ -126,7 +126,7 @@ Feature: Move discussions
   Scenario: Move discussions from main forum page.
     Given I log in as "admin"
     And I am on site homepage
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "No groups"
     When I press "Move"
     And I press "All discussions shown"

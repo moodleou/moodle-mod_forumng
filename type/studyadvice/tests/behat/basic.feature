@@ -18,7 +18,7 @@ Feature: Study advice discussions
       | student2 | C1 | student |
     And I log in as "admin"
     And I am on site homepage
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I turn editing mode on
     And I add a "ForumNG" to section "1" and I fill the form with:
       | Forum name | Test forum |
@@ -32,7 +32,7 @@ Feature: Study advice discussions
   Scenario: Test study advice forum
     Given I log in as "student1"
     And I am on site homepage
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test forum"
     Then I should not see "D1"
     Given I add a discussion with the following data:
@@ -41,7 +41,7 @@ Feature: Study advice discussions
     And I log out
     Given I log in as "student2"
     And I am on site homepage
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test forum"
     Then I should not see "D2"
     Given I add a discussion with the following data:
@@ -50,7 +50,7 @@ Feature: Study advice discussions
     And I log out
     Given I log in as "admin"
     And I am on site homepage
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test forum"
     Then I should see "D1"
     And I should see "D2"

@@ -23,9 +23,9 @@ Feature: Make discussions sticky
       | forumng  | Test forum name sticky | Test forum sticky description | C1     | forumng1 |
     And I log in as "admin"
     And I am on site homepage
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I turn editing mode on
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test forum name sticky"
     And I add a discussion with the following data:
       | Subject | Discussion 1 |
@@ -47,7 +47,7 @@ Feature: Make discussions sticky
   Scenario: Testing the 'Make discussion sticky' options
     Given I log in as "admin"
     And I am on site homepage
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test forum name sticky"
     Then I should see "Test forum sticky description"
 
@@ -178,7 +178,7 @@ Feature: Make discussions sticky
     # Test Student does not get option to make things multi-sticky
     Given I log in as "student1"
     And I am on site homepage
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test forum name sticky"
 
     # Check discussions states seen as student
@@ -196,7 +196,7 @@ Feature: Make discussions sticky
   Scenario: Testing the 'Discussion options'
     Given I log in as "admin"
     And I am on site homepage
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test forum name sticky"
     Then I should see "Test forum sticky description"
 
@@ -339,7 +339,7 @@ Feature: Make discussions sticky
     # Test student does not see manual 'sticky' options
     Given I log in as "student1"
     And I am on site homepage
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test forum name sticky"
     # Check for unavailability of sticky for Students
     And "Make discussions sticky" "button" should not exist

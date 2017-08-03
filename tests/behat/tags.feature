@@ -26,7 +26,7 @@ Feature: Add forumng activity and test basic tagging functionality
   Scenario: Add tagging to discussions
     And I log in as "admin"
     And I am on site homepage
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I turn editing mode on
     And I add a "ForumNG" to section "1" and I fill the form with:
       | Forum name | Test forum name |
@@ -60,7 +60,7 @@ Feature: Add forumng activity and test basic tagging functionality
       | Message | no tags      |
     And I press "Discussion options"
     And I press "Save changes"
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test forum name"
 
     # Check that 'Groups' dropdown does not exist
@@ -126,7 +126,7 @@ Feature: Add forumng activity and test basic tagging functionality
 
     # Check change of discussion tags has taken place on view page
     When I click on "Save changes" "button"
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test forum name"
     Given "tag" "select" should exist
     Then the "tag" select box should contain "two (2)"
@@ -161,7 +161,7 @@ Feature: Add forumng activity and test basic tagging functionality
     Then the "tag" select box should not contain "setc (0)"
 
     # Add a new forum for checking copying and moving of discussions with tags
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I add a "ForumNG" to section "2" and I fill the form with:
       | Forum name | Test forum name two |
       | Forum introduction | Test forum two description |
@@ -179,12 +179,12 @@ Feature: Add forumng activity and test basic tagging functionality
       | tags | t30, t31, t33 |
 
     # Test the copying of a discussion
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test forum name two"
     And I click on "Discussion two 1" "link"
     When I click on "Copy" "button"
     Then I click on "Begin copy" "button"
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test forum name"
     When I click on "Paste discussion" "button"
     Then I should see "Discussion two 1"
@@ -212,7 +212,7 @@ Feature: Add forumng activity and test basic tagging functionality
     And "foura" "link" should exist
     And "fourb" "link" should exist
 
-    Given I follow "Course 1"
+    Given I am on "Course 1" course homepage
     And I follow "Test forum name"
     Then "Discussion 4" "link" should not exist
     And "four" "link" should not exist
@@ -225,7 +225,7 @@ Feature: Add forumng activity and test basic tagging functionality
     # Log in as a student 1 to test adding discussion tags
     Given I log in as "student1"
     And I am on site homepage
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test forum name"
     Then I should see "Test forum description"
     And "Start a new discussion" "button" should exist
@@ -234,7 +234,7 @@ Feature: Add forumng activity and test basic tagging functionality
       | Message | abc |
 
     # Check that we set/edit tags to new values
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test forum name"
     And I follow "Discussion S1"
     When I click on "Edit tags" "button"
@@ -248,7 +248,7 @@ Feature: Add forumng activity and test basic tagging functionality
     Given I log in as "student2"
     And I am on site homepage
     # Check that we set/edit tags to new values
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test forum name"
     And I follow "Discussion S1"
     Then I should see "Discussion tags: s1, s12, s13"
@@ -260,7 +260,7 @@ Feature: Add forumng activity and test basic tagging functionality
   Scenario: Test system changes
     Given I log in as "admin"
     And I am on site homepage
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I turn editing mode on
     And I add a "ForumNG" to section "1" and I fill the form with:
       | Forum name | Test forum name |
@@ -269,7 +269,7 @@ Feature: Add forumng activity and test basic tagging functionality
       | Group mode | Separate groups |
 
     # Set up groups for the forum
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test forum name"
     Given "Separate groups" "select" should exist
     And I set the field "Separate groups" to "Group 1"
@@ -283,7 +283,7 @@ Feature: Add forumng activity and test basic tagging functionality
       | Message | def |
 
     # Enrol users into groups
-    Given I follow "Course 1"
+    Given I am on "Course 1" course homepage
     And I navigate to "Users > Groups" in current page administration
     Then "Groups" "select" should exist
 
@@ -297,7 +297,7 @@ Feature: Add forumng activity and test basic tagging functionality
     # Test teacher can only see groups from manage 'set' tags screen
     Given I log in as "teacher1"
     And I am on site homepage
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test forum name"
     Then I should see "Test forum description"
     Given I press "Edit Set tags"
@@ -308,7 +308,7 @@ Feature: Add forumng activity and test basic tagging functionality
 
     Given I log in as "admin"
     And I am on site homepage
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I navigate to "Users > Permissions" in current page administration
     Given I override the system permissions of "Teacher" role with:
       | forumngfeature/edittags:editsettags | Prevent |
@@ -317,7 +317,7 @@ Feature: Add forumng activity and test basic tagging functionality
 
     # Test teacher can only see group 2 set tags
     Given I log in as "teacher1"
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test forum name"
     Then I should see "Test forum description"
     And I should not see "Edit Set tags"
@@ -325,7 +325,7 @@ Feature: Add forumng activity and test basic tagging functionality
 
     Given I log in as "admin"
     And I am on site homepage
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test forum name"
     And I navigate to "Permissions" in current page administration
     Given I override the system permissions of "Teacher" role with:
@@ -336,7 +336,7 @@ Feature: Add forumng activity and test basic tagging functionality
     # Test teacher can only see groups from manage 'set' tags screen
     Given I log in as "teacher1"
     And I am on site homepage
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test forum name"
     Then I should see "Test forum description"
     Given I press "Edit Set tags"
@@ -347,7 +347,7 @@ Feature: Add forumng activity and test basic tagging functionality
 
     Given I log in as "admin"
     And I am on site homepage
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test forum name"
     And I navigate to "Permissions" in current page administration
     Given I override the system permissions of "Teacher" role with:
@@ -358,7 +358,7 @@ Feature: Add forumng activity and test basic tagging functionality
     # Test teacher can only see groups from manage 'set' tags screen
     Given I log in as "teacher1"
     And I am on site homepage
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test forum name"
     Then I should see "Test forum description"
     Given I press "Edit Set tags"
@@ -370,7 +370,7 @@ Feature: Add forumng activity and test basic tagging functionality
     And I log in as "admin"
     And I am on site homepage
     # Create 2 Discussions
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I turn editing mode on
     And I add a "ForumNG" to section "1" and I fill the form with:
       | Forum name                | Test forum name        |
@@ -477,7 +477,7 @@ Feature: Add forumng activity and test basic tagging functionality
     And I should not see "g4"
 
     # Test backup and restore
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I duplicate "Test forum name" activity editing the new copy with:
       | Forum name | Duplicated Test forum name |
     # And I click on "Turn editing off" "link"

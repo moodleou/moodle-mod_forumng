@@ -28,7 +28,7 @@ Feature: Add forumng activity and test userposts filtering
   Scenario: Check rating tab rated from and rated to filter
     Given I log in as "admin"
     When I am on site homepage
-    Then I follow "Course 1"
+    Then I am on "Course 1" course homepage
     And I turn editing mode on
     And I add a "ForumNG" to section "1" and I fill the form with:
       | Forum name                  | Test forum name        |
@@ -36,14 +36,14 @@ Feature: Add forumng activity and test userposts filtering
       | Allow posts to be rated     | Ratings (standard)     |
       | ratingscale[modgrade_type]  | point                  |
       | ratingscale[modgrade_point] | 10                     |
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test forum name"
     And I add a discussion with the following data:
       | Subject | Discussion 1 |
       | Message | abc          |
     And I log out
     And I log in as "student1"
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test forum name"
     And I follow "Discussion 1"
     And I set the following fields to these values:
@@ -52,7 +52,7 @@ Feature: Add forumng activity and test userposts filtering
     And I amend the forumng rated posts to new rated date:
      | student1 |  Discussion 1 | 2014-12-02 |
     And I log in as "student1"
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test forum name"
     And I follow "Discussion 1"
     And I reply to post "1" with the following data:
@@ -82,7 +82,7 @@ Feature: Add forumng activity and test userposts filtering
     # Check all ratings options not visible when 'No ratings' enabled in Forum
     And I log in as "admin"
     And I am on site homepage
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test forum name"
     And I navigate to "Edit settings" node in "ForumNG administration"
     And I set the field "id_enableratings" to "No ratings"
@@ -97,7 +97,7 @@ Feature: Add forumng activity and test userposts filtering
   Scenario: Check rating filtering tabs (create posts by a user and rate by another user)
     Given I log in as "admin"
     When I am on site homepage
-    Then I follow "Course 1"
+    Then I am on "Course 1" course homepage
     And I turn editing mode on
     And I add a "ForumNG" to section "1" and I fill the form with:
       | Forum name                  | Test forum name        |
@@ -105,7 +105,7 @@ Feature: Add forumng activity and test userposts filtering
       | Allow posts to be rated     | Ratings (standard)     |
       | ratingscale[modgrade_type]  | point                  |
       | ratingscale[modgrade_point] | 10                     |
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test forum name"
     And I add a discussion with the following data:
       | Subject | Discussion 1 |
@@ -118,7 +118,7 @@ Feature: Add forumng activity and test userposts filtering
     And I log out
 
     And I log in as "student1"
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test forum name"
     And I follow "Discussion 1"
     And I reply to post "1" with the following data:
@@ -132,7 +132,7 @@ Feature: Add forumng activity and test userposts filtering
     And I log out
 
     And I log in as "student2"
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test forum name"
     And I follow "Discussion 1"
     And I reply to post "1" with the following data:
@@ -142,7 +142,7 @@ Feature: Add forumng activity and test userposts filtering
     And I log out
 
     And I log in as "student1"
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test forum name"
     And I follow "Discussion 2"
     And I set the following fields to these values:
@@ -156,7 +156,7 @@ Feature: Add forumng activity and test userposts filtering
 
     And I log in as "admin"
     And I am on site homepage
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test forum name"
     And I press "Participation by user"
     And I follow "Show all posts by Student 1"
@@ -183,7 +183,7 @@ Feature: Add forumng activity and test userposts filtering
     And I log out
 
     And I log in as "student1"
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test forum name"
     And I press "My participation"
     And I should see "My posts"
@@ -207,7 +207,7 @@ Feature: Add forumng activity and test userposts filtering
   Scenario: Add forumng replies and check display by user post
     Given I log in as "admin"
     And I am on site homepage
-    When I follow "Course 1"
+    When I am on "Course 1" course homepage
     Then I turn editing mode on
     And I add a "ForumNG" to section "1" and I fill the form with:
       | Forum name                  | Test forum name        |
@@ -216,7 +216,7 @@ Feature: Add forumng activity and test userposts filtering
       | ratingscale[modgrade_type]  | point                  |
       | ratingscale[modgrade_point] | 10                     |
 
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test forum name"
     And I add a discussion with the following data:
       | Subject | Discussion 1 |
@@ -239,7 +239,7 @@ Feature: Add forumng activity and test userposts filtering
     And I log out
 
     And I log in as "student1"
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test forum name"
     And I follow "Discussion 1"
     And I reply to post "1" with the following data:
@@ -248,7 +248,7 @@ Feature: Add forumng activity and test userposts filtering
 
     # View all posts for student1
     And I am on site homepage
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test forum name"
     And I press "My participation"
     And I should see "Posts rated by others"
@@ -266,7 +266,7 @@ Feature: Add forumng activity and test userposts filtering
     And I log out
 
     And I log in as "student2"
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test forum name"
     And I follow "Discussion 1"
     And I reply to post "1" with the following data:
@@ -275,7 +275,7 @@ Feature: Add forumng activity and test userposts filtering
     And I log out
 
     And I log in as "teacher1"
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test forum name"
     And I press "Participation by user"
     And I follow "Show all posts by Student 2"
@@ -284,14 +284,14 @@ Feature: Add forumng activity and test userposts filtering
     And I log out
 
     And I log in as "student2"
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test forum name"
     And I follow "Discussion 1"
     And I reply to post "1" with the following data:
       | Change subject (optional) | Discussion 1 reply 2 by student2                |
       | Message                   | This is reply text 2 by student2 (Discussion 1) |
     And I am on site homepage
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test forum name"
     And I follow "Discussion 2"
     And I reply to post "1" with the following data:
@@ -300,7 +300,7 @@ Feature: Add forumng activity and test userposts filtering
 
     # View posts for student2
     And I am on site homepage
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test forum name"
     And I follow "ForumNG"
     And I press "My participation"

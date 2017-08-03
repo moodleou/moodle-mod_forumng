@@ -18,7 +18,7 @@ Feature: Delete discussions
       | student2 | C1 | student |
     And I log in as "admin"
     And I am on site homepage
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I turn editing mode on
     And I add a "ForumNG" to section "1" and I fill the form with:
       | Forum name | Test forum name |
@@ -28,7 +28,7 @@ Feature: Delete discussions
   Scenario: Delete discussion from forum
     Given I log in as "student1"
     And I am on site homepage
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test forum name"
     When I add a discussion with the following data:
       | Subject | Discussion 1 |
@@ -50,7 +50,7 @@ Feature: Delete discussions
     Given I log out
     And I log in as "admin"
     And I am on site homepage
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test forum name"
     And I follow "Discussion 1a"
     When I press "Undelete"
@@ -80,14 +80,14 @@ Feature: Delete discussions
     And I set the field "Maximum time to edit posts" to "1 minutes"
     And I press "Save changes"
     And I am on site homepage
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test forum name"
     When I add a discussion with the following data:
       | Subject | Discussion 1 |
       | Message | abc |
     And I log out
     Given I log in as "student2"
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     Given I follow "Test forum name"
     When I add a discussion with the following data:
       | Subject | Discussion 2 |
@@ -101,7 +101,7 @@ Feature: Delete discussions
     Given I log out
     And I log in as "admin"
     And I am on site homepage
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     Given I follow "Test forum name"
     And I follow "Discussion 2"
     Given I change window size to "large"
@@ -127,7 +127,7 @@ Feature: Delete discussions
     Given I log out
     And I log in as "student2"
     And I am on site homepage
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test forum name"
     # Test editing timeout: arbitrary 30 secs as set to 1 min but other steps undertaken take time.
     And I wait "30" seconds

@@ -23,9 +23,9 @@ Feature: Mark discussions read automatically
       | forumng  | Test forum name marking | Test forum marking description | C1     | forumng1 |
     And I log in as "admin"
     And I am on site homepage
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I turn editing mode on
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test forum name marking"
     And I add a discussion with the following data:
       | Subject | Discussion 1 |
@@ -42,7 +42,7 @@ Feature: Mark discussions read automatically
   Scenario: Testing the 'Mark as read' automatically option
     Given I log in as "student1"
     And I am on site homepage
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     Then I should see "(Unread posts)"
     Given I follow "Test forum name marking"
     Then I should see "Test forum marking description"

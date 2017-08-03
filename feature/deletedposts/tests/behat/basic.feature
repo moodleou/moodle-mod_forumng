@@ -26,7 +26,7 @@ Feature: View deleted discussions and posts
       | student2 | G2 |
     And I log in as "admin"
     And I am on site homepage
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I turn editing mode on
     And I add a "ForumNG" to section "1" and I fill the form with:
       | Forum name | Test group forum |
@@ -37,7 +37,7 @@ Feature: View deleted discussions and posts
   Scenario: View deleted discussions
     Given I log in as "student1"
     And I am on site homepage
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test group forum"
     When I add a discussion with the following data:
       | Subject | G1 deleted |
@@ -51,7 +51,7 @@ Feature: View deleted discussions and posts
     And I log out
     Given I log in as "student2"
     And I am on site homepage
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test group forum"
     When I add a discussion with the following data:
       | Subject | G2 deleted |
@@ -65,7 +65,7 @@ Feature: View deleted discussions and posts
     And I log out
     Given I log in as "admin"
     And I am on site homepage
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test group forum"
     When I press "View deleted"
     Then I should see "There are no deleted discussions for this forum"
@@ -95,7 +95,7 @@ Feature: View deleted discussions and posts
   Scenario: View deleted posts
     Given I log in as "student1"
     And I am on site homepage
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test group forum"
     When I add a discussion with the following data:
       | Subject | G1 discussion |
@@ -109,7 +109,7 @@ Feature: View deleted discussions and posts
     And I log out
     Given I log in as "student2"
     And I am on site homepage
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test group forum"
     When I add a discussion with the following data:
       | Subject | G2 discussion |
@@ -123,7 +123,7 @@ Feature: View deleted discussions and posts
     And I log out
     Given I log in as "admin"
     And I am on site homepage
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test group forum"
     When I press "View deleted"
     Then I should see "There are no deleted discussions for this forum"

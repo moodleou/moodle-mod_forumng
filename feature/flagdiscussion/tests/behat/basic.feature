@@ -16,7 +16,7 @@ Feature: View flagged discussions
       | student1 | C1 | student |
     And I log in as "admin"
     And I am on site homepage
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I turn editing mode on
     And I add a "ForumNG" to section "1" and I fill the form with:
       | Forum name | Test forum |
@@ -34,7 +34,7 @@ Feature: View flagged discussions
     And I log out
     Given I log in as "student1"
     And I am on site homepage
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test forum"
     And I add a discussion with the following data:
       | Subject | D3 |
@@ -44,7 +44,7 @@ Feature: View flagged discussions
   Scenario: View flagged discussions
     Given I log in as "student1"
     And I am on site homepage
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test forum"
     And I follow "D1"
     When I press "Flag discussion"
@@ -62,7 +62,7 @@ Feature: View flagged discussions
     And I log out
     Given I log in as "admin"
     And I am on site homepage
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test forum"
     Then I should see "1 flagged discussions"
     Given I follow "D2"

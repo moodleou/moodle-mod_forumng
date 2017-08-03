@@ -26,7 +26,7 @@ Feature: Move discussions permissions
       | moodle/course:viewhiddenactivities | Prevent    | teacher | Activity module | forumng4  |
     And I log in as "teacher1"
     And I am on site homepage
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "forum1"
     And I add a discussion with the following data:
       | Subject | Discussion 1 |
