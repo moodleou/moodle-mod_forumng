@@ -25,7 +25,6 @@ Feature: View deleted discussions and posts
       | student1 | G1 |
       | student2 | G2 |
     And I log in as "admin"
-    And I am on site homepage
     And I am on "Course 1" course homepage
     And I turn editing mode on
     And I add a "ForumNG" to section "1" and I fill the form with:
@@ -36,7 +35,6 @@ Feature: View deleted discussions and posts
   @javascript
   Scenario: View deleted discussions
     Given I log in as "student1"
-    And I am on site homepage
     And I am on "Course 1" course homepage
     And I follow "Test group forum"
     When I add a discussion with the following data:
@@ -50,7 +48,6 @@ Feature: View deleted discussions and posts
     Then "View deleted" "button" should not exist
     And I log out
     Given I log in as "student2"
-    And I am on site homepage
     And I am on "Course 1" course homepage
     And I follow "Test group forum"
     When I add a discussion with the following data:
@@ -64,7 +61,6 @@ Feature: View deleted discussions and posts
     Then "View deleted" "button" should not exist
     And I log out
     Given I log in as "admin"
-    And I am on site homepage
     And I am on "Course 1" course homepage
     And I follow "Test group forum"
     When I press "View deleted"
@@ -94,7 +90,6 @@ Feature: View deleted discussions and posts
 
   Scenario: View deleted posts
     Given I log in as "student1"
-    And I am on site homepage
     And I am on "Course 1" course homepage
     And I follow "Test group forum"
     When I add a discussion with the following data:
@@ -108,7 +103,6 @@ Feature: View deleted discussions and posts
     Then I should see "This post was deleted by"
     And I log out
     Given I log in as "student2"
-    And I am on site homepage
     And I am on "Course 1" course homepage
     And I follow "Test group forum"
     When I add a discussion with the following data:
@@ -122,7 +116,6 @@ Feature: View deleted discussions and posts
     Then I should see "This post was deleted by"
     And I log out
     Given I log in as "admin"
-    And I am on site homepage
     And I am on "Course 1" course homepage
     And I follow "Test group forum"
     When I press "View deleted"

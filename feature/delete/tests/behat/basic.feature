@@ -17,7 +17,6 @@ Feature: Delete discussions
       | student1 | C1 | student |
       | student2 | C1 | student |
     And I log in as "admin"
-    And I am on site homepage
     And I am on "Course 1" course homepage
     And I turn editing mode on
     And I add a "ForumNG" to section "1" and I fill the form with:
@@ -27,7 +26,6 @@ Feature: Delete discussions
 
   Scenario: Delete discussion from forum
     Given I log in as "student1"
-    And I am on site homepage
     And I am on "Course 1" course homepage
     And I follow "Test forum name"
     When I add a discussion with the following data:
@@ -49,7 +47,6 @@ Feature: Delete discussions
     Then I should not see "Discussion 1a"
     Given I log out
     And I log in as "admin"
-    And I am on site homepage
     And I am on "Course 1" course homepage
     And I follow "Test forum name"
     And I follow "Discussion 1a"
@@ -79,7 +76,6 @@ Feature: Delete discussions
     Given I navigate to "Site policies" node in "Site administration > Security"
     And I set the field "Maximum time to edit posts" to "1 minutes"
     And I press "Save changes"
-    And I am on site homepage
     And I am on "Course 1" course homepage
     And I follow "Test forum name"
     When I add a discussion with the following data:
@@ -100,7 +96,6 @@ Feature: Delete discussions
     Then "Delete" "button" should not exist
     Given I log out
     And I log in as "admin"
-    And I am on site homepage
     And I am on "Course 1" course homepage
     Given I follow "Test forum name"
     And I follow "Discussion 2"
@@ -126,7 +121,6 @@ Feature: Delete discussions
     Given I change window size to "medium"
     Given I log out
     And I log in as "student2"
-    And I am on site homepage
     And I am on "Course 1" course homepage
     And I follow "Test forum name"
     # Test editing timeout: arbitrary 30 secs as set to 1 min but other steps undertaken take time.

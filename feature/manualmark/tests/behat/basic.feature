@@ -22,7 +22,6 @@ Feature: Manually mark discussions read
       | activity | name                    | introduction                   | course | idnumber |
       | forumng  | Test forum name marking | Test forum marking description | C1     | forumng1 |
     And I log in as "admin"
-    And I am on site homepage
     And I am on "Course 1" course homepage
     And I turn editing mode on
     And I am on "Course 1" course homepage
@@ -41,7 +40,6 @@ Feature: Manually mark discussions read
   @javascript
   Scenario: Testing the 'Mark as read' options
     Given I log in as "student1"
-    And I am on site homepage
     And I am on "Course 1" course homepage
     Then I should see "(Unread posts)"
     And I follow "Test forum name marking"

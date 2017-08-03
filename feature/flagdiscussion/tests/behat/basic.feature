@@ -15,7 +15,6 @@ Feature: View flagged discussions
       | user | course | role |
       | student1 | C1 | student |
     And I log in as "admin"
-    And I am on site homepage
     And I am on "Course 1" course homepage
     And I turn editing mode on
     And I add a "ForumNG" to section "1" and I fill the form with:
@@ -33,7 +32,6 @@ Feature: View flagged discussions
     And I press "Delete"
     And I log out
     Given I log in as "student1"
-    And I am on site homepage
     And I am on "Course 1" course homepage
     And I follow "Test forum"
     And I add a discussion with the following data:
@@ -43,7 +41,6 @@ Feature: View flagged discussions
 
   Scenario: View flagged discussions
     Given I log in as "student1"
-    And I am on site homepage
     And I am on "Course 1" course homepage
     And I follow "Test forum"
     And I follow "D1"
@@ -61,7 +58,6 @@ Feature: View flagged discussions
     And "form.forumng-flag" "css_element" should not exist
     And I log out
     Given I log in as "admin"
-    And I am on site homepage
     And I am on "Course 1" course homepage
     And I follow "Test forum"
     Then I should see "1 flagged discussions"

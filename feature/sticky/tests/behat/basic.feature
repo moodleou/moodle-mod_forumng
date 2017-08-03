@@ -22,7 +22,6 @@ Feature: Make discussions sticky
       | activity | name                   | introduction                  | course | idnumber |
       | forumng  | Test forum name sticky | Test forum sticky description | C1     | forumng1 |
     And I log in as "admin"
-    And I am on site homepage
     And I am on "Course 1" course homepage
     And I turn editing mode on
     And I am on "Course 1" course homepage
@@ -46,7 +45,6 @@ Feature: Make discussions sticky
 
   Scenario: Testing the 'Make discussion sticky' options
     Given I log in as "admin"
-    And I am on site homepage
     And I am on "Course 1" course homepage
     And I follow "Test forum name sticky"
     Then I should see "Test forum sticky description"
@@ -177,7 +175,6 @@ Feature: Make discussions sticky
 
     # Test Student does not get option to make things multi-sticky
     Given I log in as "student1"
-    And I am on site homepage
     And I am on "Course 1" course homepage
     And I follow "Test forum name sticky"
 
@@ -195,7 +192,6 @@ Feature: Make discussions sticky
 
   Scenario: Testing the 'Discussion options'
     Given I log in as "admin"
-    And I am on site homepage
     And I am on "Course 1" course homepage
     And I follow "Test forum name sticky"
     Then I should see "Test forum sticky description"
@@ -338,7 +334,6 @@ Feature: Make discussions sticky
 
     # Test student does not see manual 'sticky' options
     Given I log in as "student1"
-    And I am on site homepage
     And I am on "Course 1" course homepage
     And I follow "Test forum name sticky"
     # Check for unavailability of sticky for Students

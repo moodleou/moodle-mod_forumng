@@ -24,7 +24,6 @@ Feature: Show usage statistics for ForumNG
       | activity | name                    | introduction                   | course | idnumber |
       | forumng  | Test forum name marking | Test forum marking description | C1     | forumng1 |
     And I log in as "admin"
-    And I am on site homepage
     And I am on "Course 1" course homepage
     And I turn editing mode on
     And I am on "Course 1" course homepage
@@ -47,7 +46,6 @@ Feature: Show usage statistics for ForumNG
   @javascript
   Scenario: Testing the usage statistics report
     Given I log in as "student1"
-    And I am on site homepage
     And I am on "Course 1" course homepage
     Given I follow "Test forum name marking"
     Then I should see "Test forum marking description"
@@ -71,7 +69,6 @@ Feature: Show usage statistics for ForumNG
     And I log out
 
     Given I log in as "student2"
-    And I am on site homepage
     And I am on "Course 1" course homepage
     Given I follow "Test forum name marking"
      # Read and automatically mark discussion
@@ -90,7 +87,6 @@ Feature: Show usage statistics for ForumNG
     And I log out
 
     Given I log in as "student3"
-    And I am on site homepage
     And I am on "Course 1" course homepage
     Given I follow "Test forum name marking"
     And I add a discussion with the following data:
@@ -128,7 +124,6 @@ Feature: Show usage statistics for ForumNG
     And I log out
 
     Given I log in as "admin"
-    And I am on site homepage
     And I am on "Course 1" course homepage
     Given I follow "Test forum name marking"
 

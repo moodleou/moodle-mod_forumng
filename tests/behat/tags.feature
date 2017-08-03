@@ -25,7 +25,6 @@ Feature: Add forumng activity and test basic tagging functionality
 
   Scenario: Add tagging to discussions
     And I log in as "admin"
-    And I am on site homepage
     And I am on "Course 1" course homepage
     And I turn editing mode on
     And I add a "ForumNG" to section "1" and I fill the form with:
@@ -224,7 +223,6 @@ Feature: Add forumng activity and test basic tagging functionality
 
     # Log in as a student 1 to test adding discussion tags
     Given I log in as "student1"
-    And I am on site homepage
     And I am on "Course 1" course homepage
     And I follow "Test forum name"
     Then I should see "Test forum description"
@@ -259,7 +257,6 @@ Feature: Add forumng activity and test basic tagging functionality
 
   Scenario: Test system changes
     Given I log in as "admin"
-    And I am on site homepage
     And I am on "Course 1" course homepage
     And I turn editing mode on
     And I add a "ForumNG" to section "1" and I fill the form with:
@@ -296,7 +293,6 @@ Feature: Add forumng activity and test basic tagging functionality
 
     # Test teacher can only see groups from manage 'set' tags screen
     Given I log in as "teacher1"
-    And I am on site homepage
     And I am on "Course 1" course homepage
     And I follow "Test forum name"
     Then I should see "Test forum description"
@@ -307,7 +303,6 @@ Feature: Add forumng activity and test basic tagging functionality
     And I log out
 
     Given I log in as "admin"
-    And I am on site homepage
     And I am on "Course 1" course homepage
     And I navigate to "Users > Permissions" in current page administration
     Given I override the system permissions of "Teacher" role with:
@@ -324,7 +319,6 @@ Feature: Add forumng activity and test basic tagging functionality
     And I log out
 
     Given I log in as "admin"
-    And I am on site homepage
     And I am on "Course 1" course homepage
     And I follow "Test forum name"
     And I navigate to "Permissions" in current page administration
@@ -335,7 +329,6 @@ Feature: Add forumng activity and test basic tagging functionality
 
     # Test teacher can only see groups from manage 'set' tags screen
     Given I log in as "teacher1"
-    And I am on site homepage
     And I am on "Course 1" course homepage
     And I follow "Test forum name"
     Then I should see "Test forum description"
@@ -346,7 +339,6 @@ Feature: Add forumng activity and test basic tagging functionality
     And I log out
 
     Given I log in as "admin"
-    And I am on site homepage
     And I am on "Course 1" course homepage
     And I follow "Test forum name"
     And I navigate to "Permissions" in current page administration
@@ -357,7 +349,6 @@ Feature: Add forumng activity and test basic tagging functionality
 
     # Test teacher can only see groups from manage 'set' tags screen
     Given I log in as "teacher1"
-    And I am on site homepage
     And I am on "Course 1" course homepage
     And I follow "Test forum name"
     Then I should see "Test forum description"

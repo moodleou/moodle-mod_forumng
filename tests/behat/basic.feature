@@ -21,7 +21,6 @@ Feature: Add forumng activity and test basic functionality
 
   Scenario: Access forum as student
     Given I log in as "student1"
-    And I am on site homepage
     And I am on "Course 1" course homepage
     And I follow "Test forum name"
     Then I should see "Test forum description"
@@ -29,7 +28,6 @@ Feature: Add forumng activity and test basic functionality
 
   Scenario: Add discussions and check sorting and sticky
     Given I log in as "admin"
-    And I am on site homepage
     And I am on "Course 1" course homepage
     And I follow "Test forum name"
     And I add a discussion with the following data:
@@ -73,7 +71,6 @@ Feature: Add forumng activity and test basic functionality
   @mod_forumng_unread
   Scenario: Check discussion post replies, unread and editing
     Given I log in as "admin"
-    And I am on site homepage
     And I am on "Course 1" course homepage
     And I follow "Test forum name"
     And I add a discussion with the following data:
@@ -85,7 +82,6 @@ Feature: Add forumng activity and test basic functionality
       | Message | REPLY2 |
     And I log out
     Given I log in as "student1"
-    And I am on site homepage
     And I am on "Course 1" course homepage
     Then I should see "(Unread posts)"
     Given I follow "Test forum name"
@@ -120,7 +116,6 @@ Feature: Add forumng activity and test basic functionality
     Then I should not see "(unread posts)"
     And I log out
     Given I log in as "admin"
-    And I am on site homepage
     And I am on "Course 1" course homepage
     Then I should see "(Unread posts)"
     Given I follow "Test forum name"
@@ -152,7 +147,6 @@ Feature: Add forumng activity and test basic functionality
   Scenario: Deleting + locking discussions + posts
     # NOTE - this is non-js specific, will fail if @javascript enabled on this scenario.
     Given I log in as "admin"
-    And I am on site homepage
     And I am on "Course 1" course homepage
     And I follow "Test forum name"
     And I add a discussion with the following data:
@@ -197,7 +191,6 @@ Feature: Add forumng activity and test basic functionality
 
   Scenario: Flagging (and removing flag) posts without javascript
     Given I log in as "admin"
-    And I am on site homepage
     And I am on "Course 1" course homepage
     And I follow "Test forum name"
     And I add a discussion with the following data:
@@ -268,7 +261,6 @@ Feature: Add forumng activity and test basic functionality
   @javascript
   Scenario: Flagging (and removing flag) posts with javascript
     Given I log in as "admin"
-    And I am on site homepage
     And I am on "Course 1" course homepage
     And I follow "Test forum name"
     And I add a discussion with the following data:
@@ -336,7 +328,6 @@ Feature: Add forumng activity and test basic functionality
 
   Scenario: Test subscription buttons
     Given I log in as "student1"
-    And I am on site homepage
     And I am on "Course 1" course homepage
     When I follow "Test forum name"
     Then I should see "You do not currently receive messages from this forum"
@@ -376,7 +367,6 @@ Feature: Add forumng activity and test basic functionality
     Then I should see "You do not currently receive messages from this"
     Given I log out
     And I log in as "admin"
-    And I am on site homepage
     And I am on "Course 1" course homepage
     And I follow "Test forum name"
     And I follow "Edit settings"
@@ -392,7 +382,6 @@ Feature: Add forumng activity and test basic functionality
   @javascript
   Scenario: Test forum feature buttons on mobile
     Given I log in as "admin"
-    And I am on site homepage
     And I am on "Course 1" course homepage
     And I follow "Test forum name"
     Then "Show usage" "button" should be visible
@@ -412,7 +401,6 @@ Feature: Add forumng activity and test basic functionality
   @javascript
   Scenario: Add discussions and check button disable
     Given I log in as "admin"
-    And I am on site homepage
     And I am on "Course 1" course homepage
     And I follow "Test forum name"
     And I add a discussion with the following data:
@@ -433,7 +421,6 @@ Feature: Add forumng activity and test basic functionality
   @javascript
   Scenario: Edit discussion subject
     Given I log in as "admin"
-    And I am on site homepage
     And I am on "Course 1" course homepage
     And I follow "Test forum name"
     And I add a discussion with the following data:

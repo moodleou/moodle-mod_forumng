@@ -15,7 +15,6 @@ Feature: Lock multiple discussions
       | user | course | role |
       | student1 | C1 | student |
     And I log in as "admin"
-    And I am on site homepage
     And I am on "Course 1" course homepage
     And I turn editing mode on
     And I add a "ForumNG" to section "1" and I fill the form with:
@@ -36,7 +35,6 @@ Feature: Lock multiple discussions
       | Message | def |
     And I log out
     Given I log in as "student1"
-    And I am on site homepage
     And I am on "Course 1" course homepage
     And I follow "Test forum"
     Then "Lock discussions" "button" should not exist
@@ -47,7 +45,6 @@ Feature: Lock multiple discussions
 
   Scenario: Lock discussions
     Given I log in as "admin"
-    And I am on site homepage
     And I am on "Course 1" course homepage
     And I follow "Test forum"
     When I press "Lock discussions"

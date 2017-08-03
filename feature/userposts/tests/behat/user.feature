@@ -81,7 +81,6 @@ Feature: Add forumng activity and test userposts filtering
 
     # Check all ratings options not visible when 'No ratings' enabled in Forum
     And I log in as "admin"
-    And I am on site homepage
     And I am on "Course 1" course homepage
     And I follow "Test forum name"
     And I navigate to "Edit settings" node in "ForumNG administration"
@@ -155,7 +154,6 @@ Feature: Add forumng activity and test userposts filtering
     And I log out
 
     And I log in as "admin"
-    And I am on site homepage
     And I am on "Course 1" course homepage
     And I follow "Test forum name"
     And I press "Participation by user"
@@ -247,7 +245,6 @@ Feature: Add forumng activity and test userposts filtering
       | Message                   | This is reply text by student1 (Discussion 1) |
 
     # View all posts for student1
-    And I am on site homepage
     And I am on "Course 1" course homepage
     And I follow "Test forum name"
     And I press "My participation"
@@ -290,7 +287,6 @@ Feature: Add forumng activity and test userposts filtering
     And I reply to post "1" with the following data:
       | Change subject (optional) | Discussion 1 reply 2 by student2                |
       | Message                   | This is reply text 2 by student2 (Discussion 1) |
-    And I am on site homepage
     And I am on "Course 1" course homepage
     And I follow "Test forum name"
     And I follow "Discussion 2"
@@ -299,7 +295,6 @@ Feature: Add forumng activity and test userposts filtering
       | Message                   | This is reply text by student2 (Discussion 2)  |
 
     # View posts for student2
-    And I am on site homepage
     And I am on "Course 1" course homepage
     And I follow "Test forum name"
     And I follow "ForumNG"

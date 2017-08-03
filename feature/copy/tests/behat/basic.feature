@@ -14,13 +14,11 @@ Feature: Copy discussions to another forum
       | Group 1 | C1     | G1       |
       | Group 2 | C1     | G2       |
     And I log in as "admin"
-    And I am on site homepage
     And I am on "Course 1" course homepage
     And I turn editing mode on
     And I add a "ForumNG" to section "1" and I fill the form with:
       | Forum name | Test group forum |
       | groupmode | Visible groups |
-    And I am on site homepage
     And I am on "Course 2" course homepage
     And I add a "ForumNG" to section "1" and I fill the form with:
       | Forum name | Test course forum |
@@ -28,7 +26,6 @@ Feature: Copy discussions to another forum
 
   Scenario: Copy discussion to another group on same forum
     Given I log in as "admin"
-    And I am on site homepage
     And I am on "Course 1" course homepage
     And I follow "Test group forum"
     And I set the field "Visible groups" to "Group 1"
@@ -73,7 +70,6 @@ Feature: Copy discussions to another forum
 
   Scenario: Copy discussion from group to another course forum
     Given I log in as "admin"
-    And I am on site homepage
     And I am on "Course 1" course homepage
     And I follow "Test group forum"
     And I set the field "Visible groups" to "Group 1"
@@ -85,7 +81,6 @@ Feature: Copy discussions to another forum
       | Message | def |
     When I press "Copy"
     And I press "Begin copy"
-    And I am on site homepage
     And I am on "Course 2" course homepage
     And I follow "Test course forum"
     Then "Paste discussion" "button" should exist

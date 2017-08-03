@@ -28,7 +28,6 @@ Feature: Move discussions
       | GI3       | g1 |
       | GI3       | g3 |
     And I log in as "admin"
-    And I am on site homepage
     And I am on "Course 1" course homepage
     And I turn editing mode on
     And I add a "ForumNG" to section "1" and I fill the form with:
@@ -86,7 +85,6 @@ Feature: Move discussions
 
   Scenario: Move discussion from in discussion option.
     Given I log in as "admin"
-    And I am on site homepage
     And I am on "Course 1" course homepage
     And I follow "No groups"
     And I follow "Discussion 1"
@@ -125,7 +123,6 @@ Feature: Move discussions
 
   Scenario: Move discussions from main forum page.
     Given I log in as "admin"
-    And I am on site homepage
     And I am on "Course 1" course homepage
     And I follow "No groups"
     When I press "Move"
