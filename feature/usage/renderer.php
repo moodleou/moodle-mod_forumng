@@ -38,7 +38,7 @@ class forumngfeature_usage_renderer extends plugin_renderer_base {
         global $OUTPUT;
         if (is_null($user)) {
             $userimage = html_writer::empty_tag('img',
-                    array('src' => $this->pix_url('u/f2'), 'alt' => ''));
+                    array('src' => $this->image_url('u/f2'), 'alt' => ''));
         } else {
             $userimage = $OUTPUT->user_picture($user);
             if ($forum->is_shared()) {

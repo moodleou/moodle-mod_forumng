@@ -60,7 +60,7 @@ function atom_standard_header($uniqueid, $link, $updated, $title = null, $descri
 
         // Write image info.
         $out = mod_forumng_utils::get_renderer();
-        $atompix = $out->pix_url('/i/rsssitelogo');
+        $atompix = $out->image_url('/i/rsssitelogo');
 
         // Write the info.
         $result .= atom_full_tag('logo', 1, false, $atompix);

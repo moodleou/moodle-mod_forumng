@@ -186,7 +186,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
         $poster = $discussion->get_poster();
         $userimage = $this->user_picture($poster, array('courseid' => $courseid));
         $defaultimage = html_writer::empty_tag('img',
-                array('src' => $this->pix_url('u/f2'), 'alt' => ''));
+                array('src' => $this->image_url('u/f2'), 'alt' => ''));
         if ($discussion->get_forum()->is_shared()) {
             // Strip course id if shared forum.
             $userimage = str_replace('&amp;course=' . $courseid, '', $userimage);
@@ -328,7 +328,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
         foreach ($icons as $index => $icon) {
             $alt = $alts[$index];
             if ($icon) {
-                $url = $this->pix_url($icon[0], $icon[1]);
+                $url = $this->image_url($icon[0], $icon[1]);
                 $result .= "<img src='$url' alt='$alt' title='$alt' /> ";
             } else {
                 $result .= "<span class='accesshide'>$alt:</span> ";
@@ -351,7 +351,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
                         '<input type="hidden" name="back" value="view" />' .
                         '<input type="image" title="' .
                         get_string('markdiscussionread', 'forumng') .
-                        '" src="' . $this->pix_url('clear', 'mod_forumng') . '" ' .
+                        '" src="' . $this->image_url('clear', 'mod_forumng') . '" ' .
                         'class="iconsmall" alt="' .
                         get_string('markdiscussionread', 'forumng') .
                         '" /></div></form>';
@@ -466,7 +466,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
             '<a href="deletedraft.php?draft=' . $draft->get_id() .
             $forum->get_clone_param(mod_forumng::PARAM_PLAIN) .
             '" title="' . get_string('deletedraft', 'forumng') .
-            '"><img src="' . $this->pix_url('t/delete') . '" alt="' .
+            '"><img src="' . $this->image_url('t/delete') . '" alt="' .
             get_string('deletedraft', 'forumng') . '"/></a></td>';
 
         if ($draft->is_reply()) {
@@ -516,7 +516,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
         }
 
         return '<div><a href="#' . $forumngflagged . '">' .
-            '<img src="' . $this->pix_url('flag.on', 'mod_forumng'). '" alt="' .
+            '<img src="' . $this->image_url('flag.on', 'mod_forumng'). '" alt="' .
             get_string('flagon', 'forumng') . '"/> ' . $flaggedtxt. '</a></div>';
     }
 
@@ -588,7 +588,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
                 '<input type="hidden" name="back" value="view" />'.
                 '<input type="hidden" name="flag" value="0" />'.
                 '<input type="image" title="' . get_string('clearflag', 'forumng') .
-                '" src="' . $this->pix_url('flag.on', 'mod_forumng'). '" alt="' .
+                '" src="' . $this->image_url('flag.on', 'mod_forumng'). '" alt="' .
                 get_string('flagon', 'forumng') .
                 '" /></div></form>&nbsp;';
 
@@ -659,7 +659,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
                 '<input type="hidden" name="back" value="view" />'.
                 '<input type="hidden" name="flag" value="0" />'.
                 '<input type="image" title="' . get_string('clearflag', 'forumng') .
-                '" src="' . $this->pix_url('flag.on', 'mod_forumng'). '" alt="' .
+                '" src="' . $this->image_url('flag.on', 'mod_forumng'). '" alt="' .
                 get_string('flagon', 'forumng') .
                 '" /></div></form>&nbsp;';
 
@@ -1219,7 +1219,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
         if ($html) {
             $out .= $lf . '<div class="forumng-info"><h2 class="forumng-author">';
             $out .= $post->is_important() ? '<img src="' .
-            $this->pix_url('exclamation_mark', 'mod_forumng') . '" alt="' .
+            $this->image_url('exclamation_mark', 'mod_forumng') . '" alt="' .
             get_string('important', 'forumng') . '" ' .
             'title = "' . get_string('important', 'forumng') . '"/>' : '';
             if ($export) {
@@ -1676,7 +1676,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
             '</span><ul class="forumng-attachments">';
 
         foreach ($attachments as $attachment) {
-            $iconsrc = $this->pix_url('/f/' . mimeinfo('icon', $attachment));
+            $iconsrc = $this->image_url('/f/' . mimeinfo('icon', $attachment));
             $alt = get_mimetype_description(mimeinfo('type', $attachment));
 
             $out .= '<li><a href="' . $post->get_attachment_url($attachment) . '">' .
@@ -1758,7 +1758,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
                 $discussion->get_link_params(mod_forumng::PARAM_HTML) .
                 '&amp;expand=1#p' .
                 $post->get_id() . '"><span class="forumng-expandtext">' . get_string('expandall', 'forumng') .
-                '</span></a>] <img src="' . $this->pix_url('spacer') .
+                '</span></a>] <img src="' . $this->image_url('spacer') .
                 '" width="16" height="16" alt="" /></span>';
         return $out;
     }
@@ -1914,7 +1914,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
         $stratom = get_string('atom', 'forumng');
         $feed = '<div class="forumng-feedlinks">';
         $feed .= '<a class="forumng-iconlink" href="'. htmlspecialchars($atomurl) . '">';
-        $feed .= "<img src='" . $this->pix_url('i/rss') . "' alt=''/> " .
+        $feed .= "<img src='" . $this->image_url('i/rss') . "' alt=''/> " .
             '<span class="forumng-textbyicon">' . $stratom . '</span></a> ';
         $feed .= '<a href="'. htmlspecialchars($rssurl) . '">' . $strrss . '</a> ';
         $feed .= '</div>';
@@ -1941,7 +1941,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
                 'id' => 'forumng_searchquery', 'value' => $querytext));
         $out .= html_writer::empty_tag('input', array('type' => 'image',
                 'id' => 'ousearch_searchbutton', 'alt' => get_string('search'),
-                'title' => get_string('search'), 'src' => $this->pix_url('i/search')));
+                'title' => get_string('search'), 'src' => $this->image_url('i/search')));
         $out .= html_writer::end_tag('div');
         $out .= html_writer::end_tag('form');
         return $out;

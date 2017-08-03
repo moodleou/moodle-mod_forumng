@@ -3975,7 +3975,7 @@ WHERE
             foreach (array('y', 'n') as $user) {
                 foreach (array('y', 'n') as $public) {
                     $key = "$base-$user-$public";
-                    $starurls[$key] = $out->pix_url($key, 'forumng')->out(false);
+                    $starurls[$key] = $out->image_url($key, 'forumng')->out(false);
                 }
             }
         }
@@ -3991,7 +3991,7 @@ WHERE
                 array($cmid ? $cmid : 0,
                     $this->is_shared() ? $this->get_course_module_id() : 0,
                     $ratingstars, $this->get_remaining_post_quota(),
-                    $out->pix_url('i/ajaxloader')->out(false), $starurls),
+                    $out->image_url('i/ajaxloader')->out(false), $starurls),
                 false, $module);
     }
 
