@@ -603,15 +603,15 @@ class mod_forumng_post_test extends forumng_test_lib {
                 'userid' => $adminid,
                 'message' => '<img src="@@PLUGINFILE@@/filename.testing.jpg" alt="description">'
                     . '<img src="http://externalhost.com/images.jpg" alt="description" />'
-                    . '<img src="http://www.example.com/pluginfile.php/31/mod_bookingsystem/intro/test_image.png" '
+                    . '<img src="https://www.example.com/pluginfile.php/31/mod_bookingsystem/intro/test_image.png" '
                     . 'alt="description" />'
             ));
         $postobj = mod_forumng_post::get_from_id($post1->id, 0);
-        $expected = '<img src="http://www.example.com/moodle/pluginfile.php/'
+        $expected = '<img src="https://www.example.com/moodle/pluginfile.php/'
             . $forum1->get_context()->id . '/mod_forumng/message/'
             . $postobj->get_id() . '/filename.testing.jpg" alt="description" />'
             . '<img src="http://externalhost.com/images.jpg" alt="description" />'
-            . '<img src="http://www.example.com/pluginfile.php/31/mod_bookingsystem/intro/test_image.png" '
+            . '<img src="https://www.example.com/pluginfile.php/31/mod_bookingsystem/intro/test_image.png" '
             . 'alt="description" />';
         $actual = $postobj->get_formatted_message();
         $this->assertEquals($expected, $actual);
@@ -635,15 +635,15 @@ class mod_forumng_post_test extends forumng_test_lib {
                 'userid' => $adminid,
                 'message' => '<img src="@@PLUGINFILE@@/filename.testing.jpg" alt="description">'
                     . '<img src="http://externalhost.com/images.jpg" alt="description" />'
-                    . '<img src="http://www.example.com/pluginfile.php/31/mod_bookingsystem/intro/test_image.png" '
+                    . '<img src="https://www.example.com/pluginfile.php/31/mod_bookingsystem/intro/test_image.png" '
                     . 'alt="description"/>'
             ));
         $postobj = mod_forumng_post::get_from_id($post1->id, 0);
-        $expected = '<img src="http://www.example.com/moodle/mod/forumng/pluginfile.php/'
+        $expected = '<img src="https://www.example.com/moodle/mod/forumng/pluginfile.php/'
             . $forum1->get_context()->id . '/mod_forumng/message/'
             . $postobj->get_id() . '/filename.testing.jpg/' . sha1('filename.testing.jpg' . $salt) . '" alt="description" />'
             . '<img src="http://externalhost.com/images.jpg" alt="description" />'
-            . '<img src="http://www.example.com/pluginfile.php/31/mod_bookingsystem/intro/test_image.png" alt="description" />';
+            . '<img src="https://www.example.com/pluginfile.php/31/mod_bookingsystem/intro/test_image.png" alt="description" />';
         $actual = $postobj->get_formatted_message(array(
             'email' => true
         ));
