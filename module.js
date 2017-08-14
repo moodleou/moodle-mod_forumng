@@ -596,7 +596,7 @@ M.mod_forumng = {
                         // Reload all the images - fixes chrome issue.
                         post.all('img').each(function(img){
                             img.set('src', img.get('src'));
-                        })
+                        });
                     }, newpost);
 
                     // Run script commands.
@@ -786,7 +786,7 @@ M.mod_forumng = {
         div.anchor = div.one(' a');
         div.span = div.one(' span');
         // Get on state from image icon.
-        div.icon = div.one(' img.smallicon');
+        div.icon = div.one(' img.icon');
         div.on = div.icon.get('src').match(/flag\.on/);
         // Remove all other event listeners just in case this func called multiple times.
         this.Y.Event.purgeElement(div.icon, false, 'click');
