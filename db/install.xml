@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="mod/forumng/db" VERSION="20160802" COMMENT="ForumNG is a reimplemented variant of the original Moodle forum system. It provides asynchronous discussion facilities."
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
+<XMLDB PATH="mod/forumng/db" VERSION="20171012" COMMENT="ForumNG is a reimplemented variant of the original Moodle forum system. It provides asynchronous discussion facilities."
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
   <TABLES>
     <TABLE NAME="forumng" COMMENT="Standard module table. Holds information about a forum instance.">
@@ -68,6 +68,9 @@
         <KEY NAME="forumngid" TYPE="foreign" FIELDS="forumngid" REFTABLE="forumng" REFFIELDS="id"/>
         <KEY NAME="groupid" TYPE="foreign" FIELDS="groupid" REFTABLE="groups" REFFIELDS="id"/>
       </KEYS>
+      <INDEXES>
+        <INDEX NAME="modified" UNIQUE="false" FIELDS="modified"/>
+      </INDEXES>
     </TABLE>
     <TABLE NAME="forumng_posts" COMMENT="Holds actual forum post data">
       <FIELDS>
@@ -98,6 +101,7 @@
       <INDEXES>
         <INDEX NAME="created" UNIQUE="false" FIELDS="created" COMMENT="Index on creation date. Used when building remote feeds."/>
         <INDEX NAME="mailstate" UNIQUE="false" FIELDS="mailstate"/>
+        <INDEX NAME="modified" UNIQUE="false" FIELDS="modified"/>
       </INDEXES>
     </TABLE>
     <TABLE NAME="forumng_ratings" COMMENT="Stores post ratings.">

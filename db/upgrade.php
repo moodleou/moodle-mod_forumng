@@ -423,5 +423,26 @@ function xmldb_forumng_upgrade($oldversion=0) {
         upgrade_mod_savepoint(true, 2017071900, 'forumng');
     }
 
+    if ($oldversion < 2017101200) {
+
+        // Add indexes on 'modified' field for the discussion and post. This makes the indexing
+        // query complete more quickly.
+
+        $table = new xmldb_table('forumng_discussions');
+        $index = new xmldb_index('modified', XMLDB_INDEX_NOTUNIQUE, array('modified'));
+        if (!$dbman->index_exists($table, $index)) {
+            $dbman->add_index($table, $index);
+        }
+
+        $table = new xmldb_table('forumng_posts');
+        $index = new xmldb_index('modified', XMLDB_INDEX_NOTUNIQUE, array('modified'));
+        if (!$dbman->index_exists($table, $index)) {
+            $dbman->add_index($table, $index);
+        }
+
+        // Forumng savepoint reached.
+        upgrade_mod_savepoint(true, 2017101200, 'forumng');
+    }
+
     return true;
 }
