@@ -809,7 +809,8 @@ form.markread input {
 }
 #forumng-features .forumng-highlight {
     background: #FFD991;
-    padding: 0.7em 0.5em;
+    padding: 0.5em 0.5em 0.7em 0.5em;
+    margin-right: 10px
 }
 
 #forumng-features .forum-feature-edittags {
