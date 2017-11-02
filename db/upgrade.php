@@ -109,7 +109,7 @@ function xmldb_forumng_upgrade($oldversion=0) {
 
     if ($oldversion < 2014031200) {
         global $DB;
-        set_time_limit(0);
+        core_php_time_limit::raise(0);
         // Fix issue with read table having duplicate entries.
         $select = "SELECT " . $DB->sql_concat('r.userid', "'|'", 'r.discussionid') . ", r.userid, r.discussionid
                      FROM {forumng_read} r
@@ -239,7 +239,7 @@ function xmldb_forumng_upgrade($oldversion=0) {
         if (!$dbman->table_exists($table)) {
             $dbman->create_table($table);
         }
-        set_time_limit(0);
+        core_php_time_limit::raise(0);
         $oldtime = strtotime('730 days ago');
 
         $DB->delete_records_select('forumng_read', 'time < ?', array($oldtime));

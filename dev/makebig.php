@@ -92,7 +92,7 @@ function make_post($discussion, &$allposts, &$userids, $ratingpercent) {
 }
 
 function make_discussion($forum, $posts, $readusers, &$userids, $ratingpercent) {
-    set_time_limit(200);
+    core_php_time_limit::raise(200);
 
     // Make discussion
     static $index = 0;
@@ -184,7 +184,7 @@ function make_forumng($courseid, $starttime, $discussions, $posts,
     }
 
     // Add subscribe users
-    set_time_limit(200);
+    core_php_time_limit::raise(200);
     for ($i=0; $i < $readusers; $i++) {
         if (my_random_percentage($subscribepercent)) {
             $forum->subscribe($userids[$i]);

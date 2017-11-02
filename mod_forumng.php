@@ -3498,7 +3498,7 @@ WHERE
                 if (!$discussionrec->postid) {
                     continue;
                 }
-                set_time_limit($timelimitbefore);
+                core_php_time_limit::raise($timelimitbefore);
                 $discussion = mod_forumng_discussion::get_from_id($discussionrec->id,
                     self::CLONE_DIRECT, -1);
                 $root = $discussion->get_root_post();
