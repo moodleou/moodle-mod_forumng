@@ -18,7 +18,7 @@ defined('MOODLE_INTERNAL') || die();
 
 /**
  * Forum services declarations.
- * 
+ *
  * @package mod_forumng
  * @copyright 2014 The Open University
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -28,6 +28,20 @@ $services = array(
         'Forum list service' => array(
                 'shortname' => 'forumlist',
                 'functions' => array ('mod_forumng_get_forum_list'),
+                'requiredcapability' => '',
+                'restrictedusers' => 0,
+                'enabled' => 1
+        ),
+        'Get posts' => array(
+                'shortname' => 'getposts',
+                'functions' => array ('mod_forumng_get_posts'),
+                'requiredcapability' => '',
+                'restrictedusers' => 0,
+                'enabled' => 1
+        ),
+        'Expand post' => array(
+                'shortname' => 'expandpost',
+                'functions' => array ('mod_forumng_expand_post'),
                 'requiredcapability' => '',
                 'restrictedusers' => 0,
                 'enabled' => 1
@@ -41,5 +55,19 @@ $functions = array(
                 'classpath'   => 'mod/forumng/externallib.php',
                 'description' => 'Lists forums for user on course',
                 'type'        => 'read'
+        ),
+        'mod_forumng_get_posts' => array(
+                'classname'   => 'mod_forumng\local\external\get_posts',
+                'methodname'  => 'get_posts',
+                'description' => 'Get posts belong to discussion',
+                'type'        => 'read',
+                'ajax'        => true
+        ),
+        'mod_forumng_expand_post' => array(
+                'classname'   => 'mod_forumng\local\external\expand_post',
+                'methodname'  => 'expand_post',
+                'description' => 'Get information if post and its replies',
+                'type'        => 'read',
+                'ajax'        => true
         ),
 );

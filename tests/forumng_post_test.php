@@ -649,4 +649,140 @@ class mod_forumng_post_test extends forumng_test_lib {
         ));
         $this->assertEquals($expected, $actual);
     }
+
+    /**
+     * Test get total reply when postfields is or is not set.
+     */
+    public function test_get_total_reply() {
+        global $USER;
+        $this->resetAfterTest(true);
+        $this->setAdminUser();
+
+        // Create the generator object for ForumNG.
+        $generator = self::getDataGenerator()->get_plugin_generator('mod_forumng');
+
+        // Create course.
+        $course = self::getDataGenerator()->create_course(array('shortname' => 'Course 1'));
+
+        // Create forum.
+        $forum = $generator->create_instance(array('course' => $course->id));
+
+        // Create discussion for current user.
+        $record = new stdClass();
+        $record->course = $course->id;
+        $record->forum = $forum->id;
+        $record->userid = $USER->id;
+        $discussion = $generator->create_discussion($record);
+
+        // Create replies for discussion.
+        $reply1 = $generator->create_post(
+            array(
+                'discussionid' => $discussion[0],
+                'parentpostid' => $discussion[1],
+                'userid' => $USER->id,
+                'message' => 'Reply 1'
+            )
+        );
+        // Create reply for Reply 1.
+        $generator->create_post(
+            array(
+                'discussionid' => $discussion[0],
+                'parentpostid' => $reply1->id,
+                'userid' => $USER->id,
+                'message' => 'Reply 1.1'
+            )
+        );
+
+        $post = mod_forumng_post::get_from_id($reply1->id, 0, true);
+
+        // Number of reply should be 1 (Reply 1.1).
+        $this->assertEquals(1, $post->get_total_reply());
+
+        // Create core reply for Reply 1.
+        $generator->create_post(
+            array(
+                'discussionid' => $discussion[0],
+                'parentpostid' => $reply1->id,
+                'userid' => $USER->id,
+                'message' => 'Reply 1.2'
+            )
+        );
+
+        // This will get form postfields and return so the result is still 1.
+        $this->assertEquals(1, $post->get_total_reply());
+
+        // Number of reply should be 2 (Reply 1.1 and Reply 1.2).
+        $post = mod_forumng_post::get_from_id($reply1->id, 0, true);
+        $this->assertEquals(2, $post->get_total_reply());
+    }
+
+    /**
+     * Test get replies when postfields is or is not set.
+     */
+    public function test_get_replies() {
+        global $USER;
+        $this->resetAfterTest(true);
+        $this->setAdminUser();
+
+        // Create the generator object for ForumNG.
+        $generator = self::getDataGenerator()->get_plugin_generator('mod_forumng');
+
+        // Create course.
+        $course = self::getDataGenerator()->create_course(array('shortname' => 'Course 1'));
+
+        // Create forum.
+        $forum = $generator->create_instance(array('course' => $course->id));
+
+        // Create discussion for current user.
+        $record = new stdClass();
+        $record->course = $course->id;
+        $record->forum = $forum->id;
+        $record->userid = $USER->id;
+        $discussion = $generator->create_discussion($record);
+
+        // Create replies for discussion.
+        $reply1 = $generator->create_post(
+            array(
+                'discussionid' => $discussion[0],
+                'parentpostid' => $discussion[1],
+                'userid' => $USER->id,
+                'message' => 'Reply 1'
+            )
+        );
+        // Create reply for Reply 1.
+        $generator->create_post(
+            array(
+                'discussionid' => $discussion[0],
+                'parentpostid' => $reply1->id,
+                'userid' => $USER->id,
+                'message' => 'Reply 1.1'
+            )
+        );
+
+        $post = mod_forumng_post::get_from_id($reply1->id, 0, true);
+
+        // Check we will have 1 reply (Reply 1.1).
+        $this->assertEquals(1, count($post->get_replies()));
+        $this->assertEquals('Reply 1.1', $post->get_replies()[0]->get_raw_message());
+
+        // Create more reply for Reply 1.
+        $generator->create_post(
+            array(
+                'discussionid' => $discussion[0],
+                'parentpostid' => $reply1->id,
+                'userid' => $USER->id,
+                'message' => 'Reply 1.2'
+            )
+        );
+
+        // This call will get value from postfields so replies count will be 1.
+        $this->assertEquals(1, count($post->get_replies()));
+
+        $post = mod_forumng_post::get_from_id($reply1->id, 0, true);
+
+        // Check we will have 2 reply (Reply 1.1, Reply 1.2).
+        $this->assertEquals(2, count($post->get_replies()));
+        $this->assertEquals('Reply 1.1', $post->get_replies()[0]->get_raw_message());
+        $this->assertEquals('Reply 1.2', $post->get_replies()[1]->get_raw_message());
+    }
 }

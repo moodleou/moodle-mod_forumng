@@ -776,4 +776,83 @@ class mod_forumng_discussion_testcase  extends forumng_test_lib {
 
     }
 
+    /**
+     * Test get first level posts with its replies.
+     */
+    public function test_get_first_level_posts() {
+        global $USER;
+        $this->resetAfterTest(true);
+        $this->setAdminUser();
+
+        // Create the generator object for ForumNG.
+        $generator = self::getDataGenerator()->get_plugin_generator('mod_forumng');
+
+        // Create course.
+        $course = self::getDataGenerator()->create_course(array('shortname' => 'Course 1'));
+
+        // Create forum.
+        $forum = $generator->create_instance(array('course' => $course->id));
+
+        // Create discussion for current user.
+        $record = new stdClass();
+        $record->course = $course->id;
+        $record->forum = $forum->id;
+        $record->userid = $USER->id;
+        $discussion = $generator->create_discussion($record);
+
+        // Create replies for discussion.
+        $reply1 = $generator->create_post(
+            array(
+                'discussionid' => $discussion[0],
+                'parentpostid' => $discussion[1],
+                'userid' => $USER->id,
+                'message' => 'Reply 1'
+            )
+        );
+        $generator->create_post(
+            array(
+                'discussionid' => $discussion[0],
+                'parentpostid' => $discussion[1],
+                'userid' => $USER->id,
+                'message' => 'Reply 2'
+            )
+        );
+        // Create reply for Reply 1.
+        $generator->create_post(
+            array(
+                'discussionid' => $discussion[0],
+                'parentpostid' => $reply1->id,
+                'userid' => $USER->id,
+                'message' => 'Reply 1.1'
+            )
+        );
+
+        $discussion = mod_forumng_discussion::get_from_id($discussion[0], 0);
+
+        // Test get only one replies.
+        $posts = $discussion->get_root_post_replies(1);
+        $this->assertEquals(1, count($posts));
+        $this->assertEquals(0, $posts[0]->get_total_reply());
+        $this->assertEquals('Reply 2', $posts[0]->get_raw_message());
+
+        // Test get all replies.
+        $posts = $discussion->get_root_post_replies(0);
+        $this->assertEquals(2, count($posts));
+        $this->assertEquals(1, $posts[0]->get_total_reply());
+        $this->assertEquals(0, $posts[1]->get_total_reply());
+        $this->assertEquals('Reply 1', $posts[0]->get_raw_message());
+        $this->assertEquals('Reply 2', $posts[1]->get_raw_message());
+
+        // Test get all posts with replies.
+        $posts = $discussion->get_root_post_replies(0);
+        $this->assertEquals(2, count($posts));
+        $this->assertEquals(1, $posts[0]->get_total_reply());
+        $this->assertEquals(0, $posts[1]->get_total_reply());
+        $this->assertEquals('Reply 1', $posts[0]->get_raw_message());
+        $this->assertEquals('Reply 2', $posts[1]->get_raw_message());
+        $this->assertEquals(1, count($posts[0]->get_replies()));
+        $this->assertEquals(0, count($posts[1]->get_replies()));
+        $this->assertEquals('Reply 1.1', $posts[0]->get_replies()[0]->get_raw_message());
+        $this->assertEmpty($posts[1]->get_replies());
+    }
 }

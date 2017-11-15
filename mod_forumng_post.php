@@ -2659,4 +2659,37 @@ WHERE
         $regex = '/^www.(.*)/';
         return preg_replace($regex, '$1', $host);
     }
+
+    /**
+     * Count number of replies for current post.
+     *
+     * @param bool $includedeleted true will also count the deleted post, otherwise ignore the deleted post.
+     * @return integer Number of replies belong to this post.
+     */
+    public function get_total_reply($includedeleted = true) {
+        $replies = $this->get_replies();
+        if ($includedeleted) {
+            return count($replies);
+        }
+
+        // Count only un-deleted post.
+        $count = 0;
+        foreach ($replies as $reply) {
+            if ($reply->get_deleted() == 0) {
+                $count++;
+            }
+        }
+
+        return $count;
+    }
+
+    /**
+     * Get replies belong to current post.
+     *
+     * @return array Array of mod_forumng_post.
+     */
+    public function get_replies() {
+        $this->require_children();
+        return $this->children;
+    }
 }

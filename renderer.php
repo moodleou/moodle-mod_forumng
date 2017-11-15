@@ -1735,7 +1735,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
         return $out;
     }
 
-    private static function nice_shorten_text($text, $length=40) {
+    public static function nice_shorten_text($text, $length=40) {
         $text = trim($text);
         $summary = shorten_text($text, $length);
         $summary = preg_replace('~\s*\.\.\.(<[^>]*>)*$~', '$1', $summary);
