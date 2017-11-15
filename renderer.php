@@ -145,33 +145,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
         } else {
             $grouppart = '';
         }
-        $lpnum = $nextnum + 1;
-        $npnum = $nextnum + 2;
-        $sbnum = $nextnum + 3;
-
-        return "<table class='generaltable forumng-discussionlist'><thead><tr>" .
-            "{$th}0'>" .
-            $sortdata[mod_forumng::SORT_SUBJECT]->before .
-            get_string('discussion', 'forumng') .
-            $sortdata[mod_forumng::SORT_SUBJECT]->after .
-            "</th>" .
-            $unreadpart .
-            $grouppart .
-            "{$th}{$lpnum}'>" .
-            $sortdata[mod_forumng::SORT_DATE]->before .
-            get_string('lastpost', 'forumng') .
-            $sortdata[mod_forumng::SORT_DATE]->after .
-            "</th>" .
-            "{$th}{$npnum} forumng-postscol'>" .
-            $sortdata[mod_forumng::SORT_POSTS]->before .
-            get_string('posts', 'forumng') .
-            $sortdata[mod_forumng::SORT_POSTS]->after .
-            "</th>" .
-            "{$th}{$sbnum} lastcol'>" .
-            $sortdata[mod_forumng::SORT_AUTHOR]->before .
-            get_string('startedby', 'forumng') .
-            $sortdata[mod_forumng::SORT_AUTHOR]->after .
-            '</th></tr></thead><tbody>';
+        return $this->render_discussion_list_start_table($forum, $th, $nextnum, $sortdata, $unreadpart, $grouppart);
     }
 
     /**
@@ -334,10 +308,8 @@ class mod_forumng_renderer extends plugin_renderer_base {
                 $result .= "<span class='accesshide'>$alt:</span> ";
             }
         }
-        $result .= "<a href='discuss.php?" .
-                $discussion->get_link_params(mod_forumng::PARAM_HTML) . "'>" .
-                format_string($discussion->get_subject(true), true, $courseid) . "</a>$taglinks</td>";
-
+        $result .= $this->render_discussion_list_item_discussion($courseid, $discussion, $taglinks);
+        $result .= html_writer::end_tag('td');
         $num = 1;
         // Number of unread posts.
         if ($canmarkread) {
@@ -2058,4 +2030,59 @@ class mod_forumng_renderer extends plugin_renderer_base {
         return $out;
     }
 
+    /**
+     * Render discussion list start table heading.
+     *
+     * @param mod_forumng $forum
+     * @param string $th
+     * @param int $nextnum
+     * @param array $sortdata
+     * @param string $unreadpart
+     * @param string $grouppart
+     * @return string
+     */
+    public function render_discussion_list_start_table($forum, $th, $nextnum, $sortdata, $unreadpart, $grouppart) {
+        $lpnum = $nextnum + 1;
+        $npnum = $nextnum + 2;
+        $sbnum = $nextnum + 3;
+        $table = html_writer::start_tag('table', array('class' => 'generaltable forumng-discussionlist'));
+        $table .= html_writer::start_tag('thead');
+        $table .= html_writer::start_tag('tr');
+        // Subject column th.
+        $table .= "{$th}0'>" . $sortdata[mod_forumng::SORT_SUBJECT]->before . get_string('discussion', 'forumng') .
+            $sortdata[mod_forumng::SORT_SUBJECT]->after;
+        $table .= html_writer::end_tag('th');
+        // Last post column.
+        $table .= $unreadpart . $grouppart;
+        $table .= "{$th}{$lpnum}'>" . $sortdata[mod_forumng::SORT_DATE]->before . get_string('lastpost', 'forumng') .
+            $sortdata[mod_forumng::SORT_DATE]->after;
+        // Posts column.
+        $table .= html_writer::end_tag('th');
+        $table .= "{$th}{$npnum} forumng-postscol'>" . $sortdata[mod_forumng::SORT_POSTS]->before .
+            get_string('posts', 'forumng') . $sortdata[mod_forumng::SORT_POSTS]->after;
+        $table .= html_writer::end_tag('th');
+        // Started by column.
+        $table .= "{$th}{$sbnum} lastcol'>" . $sortdata[mod_forumng::SORT_AUTHOR]->before . get_string('startedby', 'forumng') .
+            $sortdata[mod_forumng::SORT_AUTHOR]->after;
+        $table .= html_writer::end_tag('th');
+        $table .= html_writer::end_tag('tr');
+        $table .= html_writer::end_tag('thead');
+        $table .= html_writer::start_tag('tbody');
+        return $table;
+    }
+
+    /**
+     * Render discussion column.
+     *
+     * @param int $courseid
+     * @param mod_forumng_discussion $discussion
+     * @param array $taglinks
+     * @return string
+     */
+    public function render_discussion_list_item_discussion($courseid , $discussion, $taglinks) {
+        $result = html_writer::tag('a', format_string($discussion->get_subject(true), true, $courseid),
+            array('href' => 'discuss.php?' . $discussion->get_link_params(mod_forumng::PARAM_HTML)));
+        $result .= $taglinks;
+        return $result;
+    }
 }

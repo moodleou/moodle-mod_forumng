@@ -2459,7 +2459,7 @@ WHERE
 
         // Print discussion features
         $features = '';
-        foreach (forumngfeature_discussion::get_all() as $feature) {
+        foreach (forumngfeature_discussion::get_all($type) as $feature) {
             if ($feature->should_display($this) &&
                 $type->allow_forumngfeature_discussion($this, $feature)) {
                 $features .= html_writer::start_div('forumngfeature_dis_' . $feature->get_id());
@@ -2688,5 +2688,25 @@ WHERE
             return false;
         }
 
+    }
+
+    /**
+     * Obtains location of In-page discussion forum. Note this results in a DB query if the discussion
+     * was not fully loaded in the first place.
+     * @param bool $expectingquery True if code expects there to be a query;
+     *   this just avoids a debugging() call.
+     * @return string location or null if none
+     */
+    public function get_location($expectingquery = false) {
+        global $DB;
+        if (!isset($this->discussionfields->ipudloc)) {
+            if (!$expectingquery) {
+                debugging('This get method made a DB query; if this is expected,
+                    set the flag to say so', DEBUG_DEVELOPER);
+            }
+            $this->discussionfields->ipudloc = $DB->get_field(
+                'forumng_discussions', 'ipudloc', array('id' => $this->discussionfields->forumngid));
+        }
+        return $this->discussionfields->ipudloc;
     }
 }

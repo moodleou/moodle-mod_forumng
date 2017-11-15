@@ -206,4 +206,35 @@ abstract class forumngtype {
     public function is_user_selectable() {
         return true;
     }
+
+    /**
+     * Obtains the forum renderer.
+     *
+     * @return mod_forumng_renderer
+     */
+    public static function get_renderer() {
+        return mod_forumng_utils::get_renderer();
+    }
+
+    /**
+     * Return list of prevent features.
+     * Default just returns empty array. This could be used to veto prevent features.
+     *
+     * @param forumngfeature_discussion $feature
+     * @return array empty if all features is allowed in this forum.
+     */
+    public static function prevent_forumngfeature_discussion() {
+        return array();
+    }
+
+    /**
+     * Check user has viewrealipud capability base on forum type.
+     * Default implementation just returns true
+     *
+     * @param mod_forumng $forum
+     * @return bool
+     */
+    public function can_mark_read($forum) {
+        return true;
+    }
 }

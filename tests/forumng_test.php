@@ -607,4 +607,24 @@ class mod_forumng_forumng_testcase extends forumng_test_lib {
         $this->assertEquals(mod_forumng::QUOTA_DOES_NOT_APPLY, $limit->get_remaining_post_quota());
         $this->assertEquals(0, $limit->get_remaining_post_quota($student->id));
     }
+
+    /**
+     * Checks get prevent features list.
+     */
+    public function test_prevent_forumngfeature_discussion_list() {
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        $course = $this->get_new_course();
+        $forumipud = $this->get_new_forumng($course->id, array('type' => 'ipud'));
+        $forum = $this->get_new_forumng($course->id);
+        $preventfeature = $forumipud->get_type()->prevent_forumngfeature_discussion();
+        $features = array();
+        foreach ($preventfeature as $pf) {
+            $features[] = forumngfeature::get_new(str_replace('forumngfeature_', '', $pf));
+        }
+        $this->assertNotEquals(forumngfeature::get_all($forum->get_type()),
+            forumngfeature::get_all($forumipud->get_type()));
+        $this->assertNotContains($features, forumngfeature::get_all($forumipud->get_type()));
+    }
 }

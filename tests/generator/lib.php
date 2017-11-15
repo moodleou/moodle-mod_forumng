@@ -111,6 +111,10 @@ class mod_forumng_generator extends testing_module_generator {
             throw new coding_exception('userid must be present, in mod_forumng_generator::create_discussion() $record');
         }
 
+        if (!isset($record['ipudloc'])) {
+            $record['ipudloc'] = '';
+        }
+
         if (!isset($record['groupid'])) {
             $record['groupid'] = -1;
         }

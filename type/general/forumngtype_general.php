@@ -29,7 +29,7 @@ class forumngtype_general extends forumngtype {
      */
     public function print_view_page($forum, $groupid) {
         global $SESSION, $PAGE, $USER;
-        $out = mod_forumng_utils::get_renderer();
+        $out = $forum->get_type()->get_renderer();
         $forumngid = $forum->get_id();
         $baseurl = 'view.php?' . $forum->get_link_params(mod_forumng::PARAM_PLAIN);
 

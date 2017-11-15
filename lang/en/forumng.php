@@ -112,6 +112,8 @@ $string['discussion'] = 'Discussion';
 $string['unread'] = 'Unread';
 $string['lastpost'] = 'Last post';
 $string['group'] = 'Group';
+$string['location'] = 'Forum view';
+$string['linktoforumview'] = 'Link to forum view';
 $string['addanewdiscussion'] = 'Start a new discussion';
 $string['subject'] = 'Subject';
 $string['message'] = 'Message';
@@ -177,6 +179,7 @@ $string['forumng:forwardposts'] = 'Forward posts';
 $string['forumng:postasmoderator'] = 'Indentify self as moderator in post';
 $string['forumng:postanon'] = 'Post as anonymous moderator';
 $string['forumng:addtag'] = 'Allow user to set tags for a discussion';
+$string['forumng:viewrealipud'] = 'View forum discussion column in ipud';
 $string['pluginadministration'] = 'ForumNG administration';
 $string['modulename'] = 'ForumNG';
 $string['pluginname'] = 'ForumNG';
@@ -571,6 +574,8 @@ $string['externaldashboardadd'] = 'Add forum to dashboard';
 $string['externaldashboardremove'] = 'Remove forum from dashboard';
 
 // New error strings.
+$string['error_new_discussion_ipud'] = 'You can not start a new discussion in In-page discussion forum';
+$string['error_reply_ipud'] = 'You can not reply to level two post.'.
 $string['error_fileexception'] = 'A file processing error occurred. This is likely to be caused by
 system problems. You may wish to try again later.';
 $string['error_subscribeparams'] = 'Parameters incorrect: requires either id or course or d.';

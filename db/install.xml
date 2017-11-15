@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="mod/forumng/db" VERSION="20171012" COMMENT="ForumNG is a reimplemented variant of the original Moodle forum system. It provides asynchronous discussion facilities."
+<XMLDB PATH="mod/forumng/db" VERSION="20171113" COMMENT="ForumNG is a reimplemented variant of the original Moodle forum system. It provides asynchronous discussion facilities."
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
@@ -62,6 +62,7 @@
         <FIELD NAME="locked" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="If set to 1, nobody can post to this discussion any more. The post pointed to by lastpostid is the post that was added while locking the thread."/>
         <FIELD NAME="sticky" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="If set to 1, this discussion appears in a special area at the top of the forum thread list."/>
         <FIELD NAME="modified" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Time modified (seconds since epoch). Changes if discussion is edited."/>
+        <FIELD NAME="ipudloc" TYPE="text" NOTNULL="false" SEQUENCE="false" PREVIOUS="modified" COMMENT="The url where discussion is hosted"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>

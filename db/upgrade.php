@@ -444,5 +444,17 @@ function xmldb_forumng_upgrade($oldversion=0) {
         upgrade_mod_savepoint(true, 2017101200, 'forumng');
     }
 
+    if ($oldversion < 2017111300) {
+
+        // Add ipudloc field to discussion table.
+        $table = new xmldb_table('forumng_discussions');
+        $ipudlocfield = new xmldb_field('ipudloc', XMLDB_TYPE_TEXT, null, null, false, null, null, 'modified');
+        if (!$dbman->field_exists($table, $ipudlocfield)) {
+            $dbman->add_field($table, $ipudlocfield);
+        }
+        // Forumng savepoint reached.
+        upgrade_mod_savepoint(true, 2017111300, 'forumng');
+    }
+
     return true;
 }

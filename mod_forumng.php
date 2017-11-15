@@ -1475,12 +1475,13 @@ WHERE $conditions AND m.name = 'forumng' AND $restrictionsql",
      * @param bool $log True to log this
      * @param int $asmoderator values are ASMODERATOR_NO, ASMODERATOR_IDENTIFY or ASMODERATOR_ANON
      * @param array $tags array of tags to add to a discussion
+     * @param string $ipudloc location of source document
      * @return array Array with 2 elements ($discussionid, $postid)
      */
     public function create_discussion($groupid,
             $subject, $message, $format, $attachments=false, $mailnow=false,
             $timestart=0, $timeend=0, $locked=false, $sticky=false,
-            $userid=0, $log=true, $asmoderator = self::ASMODERATOR_NO, $tags = null) {
+            $userid=0, $log=true, $asmoderator = self::ASMODERATOR_NO, $tags = null, $ipudloc = null) {
         global $DB, $CFG;
         require_once($CFG->dirroot . '/tag/lib.php');
 
@@ -1500,6 +1501,7 @@ WHERE $conditions AND m.name = 'forumng' AND $restrictionsql",
         $discussionobj->locked = $locked ? 1 : 0;
         $discussionobj->sticky = $sticky ? 1 : 0;
         $discussionobj->modified = time();
+        $discussionobj->ipudloc = ($ipudloc) ? $ipudloc : '';
 
         // Create discussion
         $transaction = $DB->start_delegated_transaction();
@@ -2595,7 +2597,7 @@ WHERE
         global $CFG, $USER;
         $user = mod_forumng_utils::get_user($userid);
         return $this->can_view_discussions($userid)
-                && $CFG->forumng_trackreadposts && !isguestuser($user);
+                && $CFG->forumng_trackreadposts && !isguestuser($user) && $this->get_type()->can_mark_read($this);
     }
 
     /**
@@ -3572,7 +3574,7 @@ WHERE
         global $PAGE;
         // Print discussion list feature buttons (userposts button)
         $features = '';
-        foreach (forumngfeature_discussion_list::get_all() as $feature) {
+        foreach (forumngfeature_discussion_list::get_all($this->type) as $feature) {
             if ($feature->should_display($this, $groupid)) {
                 $features .= html_writer::start_div('forumngfeature_' . $feature->get_id());
                 $features .= $feature->display($this, $groupid);

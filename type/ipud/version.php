@@ -16,16 +16,12 @@
 
 /**
  * Version.
- *
- * @package mod_forumng
- * @copyright 2014 The Open University
+ * @package forumngtype_ipud
+ * @copyright 2017 The Open University
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
-
-$plugin->version = 2017111300;
-$plugin->requires = 2016052300;
-$plugin->component = 'mod_forumng';
-$plugin->maturity = MATURITY_STABLE;
-$plugin->release = '3.1 r1';
+defined('MOODLE_INTERNAL') || die;
+$plugin->version  = 2017111300;
+$plugin->component = 'forumngtype_ipud';
+$plugin->outestssufficient = true;

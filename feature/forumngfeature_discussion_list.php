@@ -91,10 +91,12 @@ abstract class forumngfeature_discussion_list extends forumngfeature {
 
     /**
      * Returns a new object of each available type.
+     *
+     * @param  forumngtype $forumtype
      * @return array Array of forumngfeature_discussion objects
      */
-    public static function get_all() {
-        $all = forumngfeature::get_all();
+    public static function get_all($forumtype) {
+        $all = forumngfeature::get_all($forumtype);
         $results = array();
         foreach ($all as $feature) {
             if (is_a($feature, 'forumngfeature_discussion_list') ||

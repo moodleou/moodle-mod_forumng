@@ -755,4 +755,25 @@ class mod_forumng_discussion_testcase  extends forumng_test_lib {
         $this->assertEquals($n + $m, $forum->get_num_unread_discussions());
     }
 
+    /*
+     * In ipud,user can't start new discussion.
+     */
+    public function test_discussion_ipud() {
+        $this->resetAfterTest(true);
+        $this->setAdminUser();
+        $user1 = $this->get_new_user();
+
+        // Create course.
+        $course = $this->get_new_course('testcourse');
+        $forumrecord = $this->get_new_forumng($course->id, array('type' => 'ipud'));
+        $forums = \mod_forumng::get_course_forums($course, $user1->id, mod_forumng::UNREAD_DISCUSSIONS,
+            array($forumrecord->get_course_module_id()));
+        $forum = reset($forums);
+        // User can't start discussion.
+        $whynot = '';
+        $this->assertFalse($forum->can_start_discussion(-1, $whynot));
+        $this->assertEquals('error_new_discussion_ipud', $whynot);
+
+    }
+
 }

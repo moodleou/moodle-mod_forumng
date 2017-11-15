@@ -129,6 +129,9 @@ class mod_forumng_utils {
             $file = str_replace($CFG->dirroot . '/', '', $line['file']);
             $file = str_replace('mod/forumng/', '', $file);
             $file = str_replace('.php', '', $file);
+            // For developer using window.
+            $file = str_replace($CFG->dirroot . '\\', '', $file);
+            $file = str_replace('mod\forumng\\', '', $file);
             $info .= $file . ':' . $line['line'] . ',';
         }
 
