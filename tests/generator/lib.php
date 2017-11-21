@@ -145,7 +145,7 @@ class mod_forumng_generator extends testing_module_generator {
         // Create the discussion.
         $discussionid = $forum->create_discussion($record['groupid'], $record['subject'],
                 $record['message'], $record['format'], false, false, $record['timestart'], $record['timeend'], false,
-                false, $record['userid']);
+                false, $record['userid'], true, 0, null, $record['ipudloc']);
 
         return $discussionid;
     }
