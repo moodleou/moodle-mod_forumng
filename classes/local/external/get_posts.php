@@ -106,6 +106,9 @@ class get_posts extends external_api {
      * @param $discussionid
      * @param $numbertoshow
      * @return array
+     * @throws \invalid_parameter_exception
+     * @throws \coding_exception
+     * @throws \moodle_exception
      */
     public static function get_posts($discussionid, $numbertoshow) {
         global $PAGE;
@@ -134,7 +137,7 @@ class get_posts extends external_api {
             $item->replies = array();
             if ($numbertoshow == 0) {
                 foreach ($post->get_replies() as $reply) {
-                    $item->replies[] = mod_forumng_utils::convert_forumng_post_to_object($reply,
+                    $reply = mod_forumng_utils::convert_forumng_post_to_object($reply,
                         $discussion->get_root_post()->get_id());
                     $reply->content = mod_forumng_output_fragment_formatmessage(array(
                         'postid' => $reply->postid,

@@ -99,6 +99,8 @@ class expand_post extends external_api {
      * @param $discussionid integer Dicussion ID
      * @param $postid integer Post ID
      * @return \stdClass
+     * @throws \invalid_parameter_exception
+     * @throws \moodle_exception
      */
     public static function expand_post($discussionid, $postid) {
         $params = self::validate_parameters(self::expand_post_parameters(), array(
