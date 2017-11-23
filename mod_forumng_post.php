@@ -2438,7 +2438,7 @@ WHERE
     public function display_user_picture() {
         $out = mod_forumng_utils::get_renderer();
         return $out->user_picture($this->get_user(),
-                array('courseid'=>$this->get_forum()->get_course_id()));
+                array('courseid'=>$this->get_forum()->get_course_id(), 'size' => 55));
     }
 
     /**
