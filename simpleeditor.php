@@ -15,10 +15,17 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Lang strings.
- * @package forumngtype_ipud
+ * Hacky form for a simple editor with custom option.
+ * @package mod_forumng
  * @copyright 2017 The Open University
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-$string['pluginname'] = 'In-page forum';
-$string['linktodiscussion'] = 'Link to discussion';
+defined('MOODLE_INTERNAL') || die;
+require_once("$CFG->libdir/form/editor.php");
+
+class MoodleQuickForm_ipudsimleeditor extends MoodleQuickForm_editor {
+    public function __construct($elementName = null, $elementLabel = null, $attributes = null, $options = null) {
+        $this->_options['atto:toolbar'] = '';
+        parent::__construct($elementName, $elementLabel, $attributes, $options);
+    }
+}

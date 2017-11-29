@@ -244,7 +244,8 @@ class forumngtype_general extends forumngtype {
      */
     public function print_discussion_page($discussion) {
         global $PAGE;
-        $out = mod_forumng_utils::get_renderer();
+        $forum = $discussion->get_forum();
+        $out = $forum->get_type()->get_renderer();
 
         print $out->render_discussion_header($discussion);
 
@@ -318,7 +319,7 @@ class forumngtype_general extends forumngtype {
 
         // Display content
         print $content;
-
+        print $out->render_content_below_content_discussion($discussion);
         // Link back to forum
         print $discussion->display_link_back_to_forum();
 

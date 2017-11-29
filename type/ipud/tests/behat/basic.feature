@@ -35,6 +35,13 @@ Feature: In-page discussions
     And I should see "Subject for discussion D1"
     And I should see "Message for discussion D1" in the ".forumng-subject" "css_element"
     And I should see "Unread"
+    Then I follow "Link to forum view"
+    And I should not see "Discussion options" in the "#forumng-features" "css_element"
+    And I should not see "Lock" in the "#forumng-features" "css_element"
+    And I should not see "Merge" in the "#forumng-features" "css_element"
+    And I should not see "Merge" in the "#forumng-features" "css_element"
+    And I should not see "Flag discussion" in the "#forumng-features" "css_element"
+    And I should not see "Move" in the "#forumng-features" "css_element"
     And I log out
 
   Scenario: Test ipud forum with student can view original forum to test reply.
@@ -63,10 +70,23 @@ Feature: In-page discussions
     Then I follow "Link to forum view"
     And I should see "Subject for discussion D1"
     And I should see "Message for discussion D1"
-    Then I reply to post "1" with the following data:
-      | Message | post level 1 |
+    And "#forumg_customeditor" "css_element" should exist
+    And I set the following fields to these values:
+      | Message | Test bottom reply in the discussion |
+    And I press "Post reply"
+    And I should see "Test bottom reply in the discussion"
     Then I reply to post "2" with the following data:
       | Message | post level 2 |
     Then I should not see "Reply" in the ".forumng-p3" "css_element"
+    Then I expand post "2"
+    And I should not see "Permalink" in the ".forumng-commands" "css_element"
+    And I click on "Edit" "text" in the ".forumng-commands" "css_element"
+    And I should not see "Subject" in the ".mform" "css_element"
+    And I should not see "Attachments" in the ".mform" "css_element"
+    And I press "Cancel"
+    Then I reply to post "2" with the following data:
+      | Message | post level 2 another one |
+    # Total reply should visible
+    And I should see "2 Replies"
     And I log out
 

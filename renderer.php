@@ -1574,6 +1574,25 @@ class mod_forumng_renderer extends plugin_renderer_base {
                             $expandparam . '">' .
                             get_string('reply', 'forumng', $postnumber) . '</a>';
                 }
+                // Old version post don't have children.we don't need to show total reply.
+                if (!empty($options[mod_forumng_post::OPTION_COMMAND_TOTALREPLY]) && !$post->is_old_version()) {
+                    try {
+                        $totalreply = $post->get_total_reply();
+                    } catch (moodle_exception $e) {
+                        // In case we can't load the children.
+                        $posts = mod_forumng_post::get_from_id($post->get_id(), 0, true);
+                        $totalreply = $posts->get_total_reply();
+                    }
+
+                    if ($totalreply > 1 || $totalreply == 0) {
+                        $totalreplyhtml = html_writer::tag('div', get_string('totalreplies', 'mod_forumng', $totalreply),
+                            array('class' => 'forumng-total-reply'));
+                    } else {
+                        $totalreplyhtml = html_writer::tag('div', get_string('totalreply', 'mod_forumng',
+                            $totalreply), array('class' => 'forumng-total-reply'));
+                    }
+                    $commandsarray['forumng-totalreply'] = $totalreplyhtml;
+                }
 
                 if (count($commandsarray)) {
                     $out .= $lf . $this->render_commands($commandsarray);
@@ -2084,5 +2103,25 @@ class mod_forumng_renderer extends plugin_renderer_base {
             array('href' => 'discuss.php?' . $discussion->get_link_params(mod_forumng::PARAM_HTML)));
         $result .= $taglinks;
         return $result;
+    }
+
+    /**
+     * Render html below content discussion.
+     *
+     * @param mod_forumng_discussion $discussion
+     * @return string
+     */
+    public function render_content_below_content_discussion($discussion) {
+        return '';
+    }
+
+    /**
+     * Render html after header.
+     *
+     * @param mod_forumng_discussion $discussion
+     * @return string
+     */
+    public function render_discussion_after_header($discussion) {
+        return '';
     }
 }

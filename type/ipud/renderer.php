@@ -39,7 +39,7 @@ class forumngtype_ipud_renderer extends mod_forumng_renderer {
      * @param string $grouppart
      * @return string
      */
-    public function render_discussion_list_start_table($forum , $th, $nextnum, $sortdata, $unreadpart, $grouppart) {
+    public function render_discussion_list_start_table($forum, $th, $nextnum, $sortdata, $unreadpart, $grouppart) {
         $lpnum = $nextnum + 1;
         $npnum = $nextnum + 2;
         $sbnum = $nextnum + 3;
@@ -52,7 +52,7 @@ class forumngtype_ipud_renderer extends mod_forumng_renderer {
         $table .= html_writer::end_tag('th');
         // Last post column.
         $table .= $unreadpart . $grouppart;
-        $table .= "{$th}{$lpnum}'>" .  $sortdata[mod_forumng::SORT_DATE]->before . get_string('lastpost', 'forumng') .
+        $table .= "{$th}{$lpnum}'>" . $sortdata[mod_forumng::SORT_DATE]->before . get_string('lastpost', 'forumng') .
             $sortdata[mod_forumng::SORT_DATE]->after;
         // Posts column.
         $table .= html_writer::end_tag('th');
@@ -100,13 +100,121 @@ class forumngtype_ipud_renderer extends mod_forumng_renderer {
      * @param array $taglinks
      * @return string
      */
-    public function render_discussion_list_item_discussion($courseid , $discussion, $taglinks) {
+    public function render_discussion_list_item_discussion($courseid, $discussion, $taglinks) {
         $description = $discussion->get_root_post()->get_formatted_message();
-        $location = $discussion->get_location(true);
+        if (!is_null($discussion->get_group_id())) {
+            $location = $discussion->get_location(true) . '&groupid=' . $discussion->get_group_id();
+        } else {
+            $location = $discussion->get_location(true);
+        }
         $result = html_writer::tag('a', format_string($discussion->get_subject(true), true, $courseid),
             array('href' => $location));
         $result .= html_writer::tag('div', $description, array('class' => 'forumng-description'));
         $result .= $taglinks;
         return $result;
+    }
+
+    /**
+     * Show subscription, marking and rss in header + add unread skip + title + location.
+     * Show first post and location discussion title
+     * Ipud renderer need to use mod_forumng_renderer,so that the theme can override this function.
+     *
+     * @see mod_forumng_renderer::render_discussion_header()
+     */
+    public function render_discussion_header($discussion) {
+        $out = mod_forumng_utils::get_renderer();
+        $html = $out->render_discussion_header($discussion);
+        $html .= $this->render_discussion_after_header($discussion);
+        return $html;
+    }
+
+    /**
+     * Displays a discussion (main part of discussion page) with given options.
+     * @param mod_forumng_discussion $discussion
+     * @param object $options
+     * @return string HTML content of discussion
+     */
+    public function render_discussion($discussion, $options) {
+        $options[mod_forumng_post::OPTION_DONT_DISPLAY_ROOTPOST] = true;
+
+        return parent::render_discussion($discussion, $options);
+    }
+
+    /**
+     * Render content below content discussion. For ipud,we render reply form for rootpost.
+     *
+     * @param mod_forumng_discussion $discussion
+     */
+    public function render_content_below_content_discussion($discussion) {
+        global $CFG;
+        require_once($CFG->dirroot . '/mod/forumng/editpost_form.php');
+        $rootpost = $discussion->get_root_post();
+        $params = array('replyto' => $discussion->get_root_post()->get_id());
+        $params['d'] = $discussion->get_id();
+        $params['replyto'] = $rootpost->get_id();
+        $url = 'editpost.php?d=' . $discussion->get_id() . '&replyto=' . $rootpost->get_id();
+        $replyoption = $discussion->get_forum()->get_type()->get_reply_options(false, true);
+        $mform = new mod_forumng_editpost_form($url,
+            array('params' => $params, 'isdiscussion' => false,
+                  'forum' => $discussion->get_forum(), 'edit' => false, 'ispost' => true, 'islock' => false,
+                  'post' => isset($rootpost) ? $rootpost : null, 'isroot' => false, 'ipud' => true,
+                  'iframe' => false, 'replyoption' => $replyoption,
+                  'timelimit' => !$rootpost->can_ignore_edit_time_limit() ? $rootpost->get_edit_time_limit() : 0,
+                  'draft' => false, 'tags' => false, 'forumtags' => false));
+        return html_writer::tag('div', $mform->get_html(), array('class' => 'forumng-bottom-reply'));
+    }
+
+    /**
+     * Render html after header.
+     *
+     * @param mod_forumng_discussion $discussion
+     * @return string
+     */
+    public function render_discussion_after_header($discussion) {
+        // Add first post content to discussion heading.
+        $out = html_writer::start_div('clearfix') . html_writer::end_div();
+        $out .= html_writer::start_tag('div', array('class' => 'forumng-ipud-description'));
+        $out .= $discussion->get_root_post()->get_formatted_message();
+        $out .= html_writer::end_tag('div');
+        if (!is_null($discussion->get_group_id())) {
+            $location = $discussion->get_location(true) . '&groupid=' . $discussion->get_group_id();
+        } else {
+            $location = $discussion->get_location(true);
+        }
+        if ($location) {
+            $out .= html_writer::start_tag('div', array('class' => 'forumng-ipud-olink'));
+            $out .= html_writer::tag('a', get_string('linktodiscussion', 'forumngtype_ipud'), array('href' => $location));
+            $out .= html_writer::end_tag('div');
+        }
+        return $out;
+    }
+
+    /**
+     * Override the display order and layout of the command buttons
+     * Remove jumpto and add total reply,move edit to first and reply to last.
+     * Ipud renderer need to use mod_forumng_renderer,so that the theme can override this function.
+     *
+     * @param array $commandsarray Array of HTML strings
+     * @return string HTML code for the commands buttons
+     */
+    public function render_commands($commandsarray) {
+        $out = mod_forumng_utils::get_renderer();
+        $html = $out->render_commands($commandsarray);
+        return $html;
+    }
+
+    /**
+     * Change the appearance of expand link by using a image instead of text.
+     * Ipud renderer need to use mod_forumng_renderer,so that the theme can override this function.
+     *
+     * @param string $linkprefix prefix of the expand link url
+     * @param mod_forumng_discussion $discussion object
+     * @param mod_forumng_post $post object
+     * @return string HTML code for the expand link
+     */
+    public function render_expand_link($linkprefix, $discussion, $post) {
+        $out = mod_forumng_utils::get_renderer();
+        $html = $out->render_expand_link($linkprefix, $discussion, $post);
+        return $html;
     }
 }

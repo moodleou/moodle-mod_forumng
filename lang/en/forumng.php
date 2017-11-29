@@ -473,6 +473,8 @@ $string['studyadvice_noyourquestions'] = 'You have not yet started any discussio
 advice forum.';
 $string['studyadvice_noquestions'] = 'Nobody has started any discussions yet in this study advice
 forum.';
+$string['totalreply'] = '{$a} Reply';
+$string['totalreplies'] = '{$a} Replies';
 $string['jumpto'] = 'Jump to:';
 $string['jumpnext'] = 'Next unread';
 $string['jumpprevious'] = 'Previous unread';
@@ -956,3 +958,5 @@ $string['emailafter'] = 'Email after delay';
 $string['configemailafter'] = 'Email post to subscribed users with a delay after post creation.';
 $string['search:post'] = 'ForumNG - posts';
 $string['search:activity'] = 'ForumNG - activity information';
+$string['customeditortoolbar'] = 'Custom editor toolbar for In page discussion';
+$string['configcustomeditortoolbar'] = 'Custom toolbar option for In page discussion';

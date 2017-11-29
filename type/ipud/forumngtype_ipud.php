@@ -96,7 +96,7 @@ class forumngtype_ipud extends forumngtype_general {
      * @return array True to allow
      */
     public static function prevent_forumngfeature_discussion() {
-        $removedfeatures = array('move', 'lock');
+        $removedfeatures = array('move', 'lock', 'merge', 'flagdiscussion', 'export', 'edittags', 'options');
         return $removedfeatures;
     }
 
@@ -127,7 +127,7 @@ class forumngtype_ipud extends forumngtype_general {
     }
 
     /**
-     * Check user has viewrealipud capability base on forum type.
+     * Check user can mark read.
      * For ipud to check viewrealipud capability.
      *
      * @param mod_forumng $forum
@@ -140,4 +140,58 @@ class forumngtype_ipud extends forumngtype_general {
         }
         return false;
     }
+
+    /**
+     * In page discussion don't allow showdirectlink feature
+     * capabilities permit). Default implementation just returns true.
+     * @return bool False to prevent user posting; true to allow it subject
+     *   to normal restrictions
+     */
+    public function can_showdirectlink() {
+        return false;
+    }
+
+    /**
+     * In page discussion don't allow split feature
+     * @return bool False to prevent user split; true to allow it
+     *   to normal restrictions
+     */
+    public function can_split() {
+        return false;
+    }
+
+    /**
+     * Check if forum should show reply option
+     * For In page discussion,we remove all option and button and using custom toolbar for editor.
+     *
+     * @param bool $normalreply check if this forum use normal reply for cancel button to display.
+     * @param bool $renderpostas check if this forum render post as feature in the form.
+     * @return array which option should allow in reply form. True is allow,false is prevent. (array is for toolbar option).
+     */
+    public function get_reply_options($normalreply, $renderpostas) {
+        // We don't need option for message and post button here because they are always required.
+        $toolbaroption = get_config('', 'forumng_customeditortoolbar');
+        $options = array(
+            'subject' => false,
+            'attachments' => false,
+            'markposts' => false,
+            'postas' => ($renderpostas) ? true : false,
+            'cancelbutton' => $normalreply ? true : false,
+            'postasdraftbutton' => false,
+            'toolbaroption' => $toolbaroption,
+            'emailauthor' => false
+        );
+        return $options;
+    }
+
+    /**
+     * Ipud always show total reply in the post.
+     * Default implementation just returns true.
+     *
+     * @return bool . Return false for default.
+     */
+    public function show_total_reply() {
+        return true;
+    }
+
 }
