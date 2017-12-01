@@ -680,17 +680,6 @@ WHERE
             }
         }
 
-        $postobject->numberofreply = $post->get_total_reply();
-
-        // Loop to assign attachment's name and url.
-        $postobject->attachmenturls = array();
-        foreach ($post->get_attachment_names() as $attachmentname) {
-            $attachment = new stdClass();
-            $attachment->name = $attachmentname;
-            $attachment->url = $post->get_attachment_url($attachmentname)->out();
-            $postobject->attachmenturls[] = $attachment;
-        }
-
         // Add report link if report enabled.
         if ($postobject->canreport == 1) {
             $forum = $post->get_forum();

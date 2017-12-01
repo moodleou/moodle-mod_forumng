@@ -40,7 +40,43 @@ require_once($CFG->dirroot . '/course/lib.php');
  */
 class forumng_external_test extends advanced_testcase {
     /**
-     * Tests the get_posts() function. This funcion is the meat of the web service but we cannot
+     * Create sample discussion.
+     *
+     * @return mixed
+     */
+    protected function generate_discussion() {
+        global $USER, $DB;
+        $this->resetAfterTest(true);
+        $this->setAdminUser();
+
+        // Create the generator object for ForumNG.
+        $generator = self::getDataGenerator()->get_plugin_generator('mod_forumng');
+
+        // Create course.
+        $course = self::getDataGenerator()->create_course(array('shortname' => 'Course 1'));
+
+        // Create a student user and enrol them onto the course.
+        $student = self::getDataGenerator()->create_user(array('username' => 'student'));
+        $roleid = $DB->get_field('role', 'id', array('shortname' => 'student'));
+        self::getDataGenerator()->enrol_user($student->id, $course->id, $roleid);
+
+        // Create forum.
+        $forum = $generator->create_instance(array('course' => $course->id));
+
+        // Create discussion for current user.
+        $record = new stdClass();
+        $record->course = $course->id;
+        $record->forum = $forum->id;
+        $record->userid = $USER->id;
+        $discussion = $generator->create_discussion($record);
+
+        $this->setUser($student);
+
+        return $discussion;
+    }
+
+    /**
+     * Tests the get_posts() function. This function is the meat of the web service but we cannot
      * check it as a web service so we just call the function.
      */
     public function test_get_posts() {
@@ -205,7 +241,7 @@ class forumng_external_test extends advanced_testcase {
     }
 
     /**
-     * Tests the test_expandpost() function. This funcion is the meat of the web service but we cannot
+     * Tests the test_expandpost() function. This function is the meat of the web service but we cannot
      * check it as a web service so we just call the function.
      */
     public function test_expand_post() {
@@ -283,5 +319,200 @@ class forumng_external_test extends advanced_testcase {
         $this->assertEquals(2, count($response->replies));
         $this->assertEquals('Reply 2.1', $response->replies[0]->content);
         $this->assertEquals('Reply 2.2', $response->replies[1]->content);
+    }
+
+    /**
+     * Tests the create_reply() function. This function is the meat of the web service but we cannot
+     * check it as a web service so we just call the function.
+     */
+    public function test_create_reply_success() {
+        global $USER;
+
+        $discussion = $this->generate_discussion();
+
+        // Set to prevent exception about session key when construct a form.
+        $_POST['sesskey'] = $USER->sesskey;
+
+        // Check reply for discussion.
+        $response = \mod_forumng\local\external\create_reply::create_reply($discussion[1], 'Subject 1', array(
+            'text' => 'Content 1',
+            'format' => 1
+        ));
+        $this->assertEquals('Subject 1', $response->title);
+        $this->assertEquals('Content 1', $response->content);
+        // Get from database to check if it really created.
+        $post = mod_forumng_post::get_from_id($response->postid, 0);
+        $this->assertEquals('Subject 1', $post->get_subject());
+        $this->assertEquals('Content 1', $post->get_raw_message());
+
+        // Check reply to reply.
+        $response = \mod_forumng\local\external\create_reply::create_reply($post->get_id(), 'Subject 2', array(
+            'text' => 'Content 2',
+            'format' => 1
+        ));
+        $this->assertEquals('Subject 2', $response->title);
+        $this->assertEquals('Content 2', $response->content);
+        // Get from database to check if it really created.
+        $post = mod_forumng_post::get_from_id($response->postid, 0);
+        $this->assertEquals('Subject 2', $post->get_subject());
+        $this->assertEquals('Content 2', $post->get_raw_message());
+    }
+
+    /**
+     * Test reply to post which have been deleted.
+     */
+    public function test_create_reply_to_deleted_post() {
+        global $USER;
+
+        $discussion = $this->generate_discussion();
+
+        // Set to prevent exception about session key when construct a form.
+        $_POST['sesskey'] = $USER->sesskey;
+
+        $newpostid = mod_forumng_post::get_from_id($discussion[1], 0)->reply('Subject', 'Message', 1);
+        $deletedpost = mod_forumng_post::get_from_id($newpostid, 0);
+        $deletedpost->delete();
+
+        // Check reply to post which have been deleted, expect error with message.
+        $this->expectException('moodle_exception');
+        $this->expectExceptionMessage(get_string('reply_notcurrentpost', 'mod_forumng'));
+        \mod_forumng\local\external\create_reply::create_reply($deletedpost->get_id(), 'Subject', array(
+            'text' => 'Content',
+            'format' => 1
+        ));
+    }
+
+    /**
+     * Test reply to post with invalid data.
+     */
+    public function test_create_reply_with_invalid_data() {
+        global $USER;
+
+        $discussion = $this->generate_discussion();
+
+        // Set to prevent exception about session key when construct a form.
+        $_POST['sesskey'] = $USER->sesskey;
+
+        // Check create with invalid data (simple form data by set the message empty and custom validation
+        // by set the subject to current user's username.).
+        $formerrors = array(
+            'subject' => get_string('error_identityinsubject_reply', 'mod_forumng'),
+            'message' => get_string('required')
+        );
+        $this->expectException('moodle_exception');
+        $this->expectExceptionMessage(json_encode($formerrors));
+        \mod_forumng\local\external\create_reply::create_reply($discussion[1], $USER->username, array(
+            'text' => '',
+            'format' => 1
+        ));
+    }
+
+    /**
+     * Tests the edit_post() function. This function is the meat of the web service but we cannot
+     * check it as a web service so we just call the function.
+     */
+    public function test_edit_post_success() {
+        global $USER;
+
+        $discussion = $this->generate_discussion();
+
+        // Set to prevent exception about session key when construct a form.
+        $_POST['sesskey'] = $USER->sesskey;
+
+        // Create first reply for current user.
+        $rootpost = mod_forumng_post::get_from_id($discussion[1], 0);
+        $newpostid = $rootpost->reply('Subject 1', 'Content 1', 1);
+
+        // Edit new post content.
+        $response = \mod_forumng\local\external\edit_post::edit_post($newpostid, 'Subject 2', array(
+            'text' => 'Content 2',
+            'format' => 1
+        ));
+        $this->assertEquals('Subject 2', $response->title);
+        $this->assertEquals('Content 2', $response->content);
+        // Get from database to check if it really updated.
+        $post = mod_forumng_post::get_from_id($response->postid, 0);
+        $this->assertEquals('Subject 2', $post->get_subject());
+        $this->assertEquals('Content 2', $post->get_raw_message());
+
+    }
+
+    /**
+     * Test edit to post which have been deleted.
+     */
+    public function test_edit_deleted_post() {
+        global $USER;
+
+        $discussion = $this->generate_discussion();
+
+        // Set to prevent exception about session key when construct a form.
+        $_POST['sesskey'] = $USER->sesskey;
+
+        $newpostid = mod_forumng_post::get_from_id($discussion[1], 0)->reply('Subject', 'Message', 1);
+        $deletedpost = mod_forumng_post::get_from_id($newpostid, 0);
+        $deletedpost->delete();
+
+        // Check edit the post which have been deleted, expect error.
+        $this->expectException('moodle_exception');
+        $this->expectExceptionMessage(get_string('edit_notcurrentpost', 'mod_forumng'));
+        \mod_forumng\local\external\edit_post::edit_post($deletedpost->get_id(), 'Subject 2', array(
+            'text' => 'Content 2',
+            'format' => 1
+        ));
+    }
+
+    /**
+     * Test edit post with invalid data.
+     */
+    public function test_edit_post_with_invalid_data() {
+        global $USER;
+
+        $discussion = $this->generate_discussion();
+
+        // Set to prevent exception about session key when construct a form.
+        $_POST['sesskey'] = $USER->sesskey;
+
+        $newpostid = mod_forumng_post::get_from_id($discussion[1], 0)->reply('Subject', 'Message', 1);
+
+        // Check edit with invalid data (simple form data by set the message empty and custom validation
+        // by set the subject to current user's username.).
+        $formerrors = array(
+            'subject' => get_string('error_identityinsubject_reply', 'mod_forumng'),
+            'message' => get_string('required')
+        );
+        $this->expectException('moodle_exception');
+        $this->expectExceptionMessage(json_encode($formerrors));
+        \mod_forumng\local\external\edit_post::edit_post($newpostid, $USER->username, array(
+            'text' => '',
+            'format' => 1
+        ));
+    }
+
+    /**
+     * Tests the delete_post() function. This function is the meat of the web service but we cannot
+     * check it as a web service so we just call the function.
+     */
+    public function test_delete_post() {
+        global $USER;
+
+        $discussion = $this->generate_discussion();
+
+        // Create first reply for current user.
+        $rootpost = mod_forumng_post::get_from_id($discussion[1], 0);
+        $newpostid = $rootpost->reply('Subject 1', 'Content 1', 1);
+
+        // Try to delete the post via web service.
+        $response = \mod_forumng\local\external\delete_post::delete_post($newpostid, $newpostid);
+        $this->assertTrue($response->success);
+
+        // Check that post really deleted in DB.
+        $post = mod_forumng_post::get_from_id($newpostid, 0);
+        $this->assertNotEmpty($post->get_deleted());
+        $this->assertEquals($USER->id, $post->get_delete_user()->id);
+
+        // Try to delete deleted post, expect exception.
+        $response = \mod_forumng\local\external\delete_post::delete_post($newpostid, $post->get_id());
+        $this->assertFalse($response->success);
+        $this->assertEquals(get_string('edit_notcurrentpost', 'mod_forumng'), $response->message);
     }
 }

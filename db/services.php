@@ -20,7 +20,7 @@ defined('MOODLE_INTERNAL') || die();
  * Forum services declarations.
  *
  * @package mod_forumng
- * @copyright 2014 The Open University
+ * @copyright 2017 The Open University
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -32,20 +32,19 @@ $services = array(
                 'restrictedusers' => 0,
                 'enabled' => 1
         ),
-        'Get posts' => array(
-                'shortname' => 'getposts',
-                'functions' => array ('mod_forumng_get_posts'),
+        'ForumNG IPUD' => array(
+                'shortname' => 'ipud',
+                'functions' => array(
+                        'mod_forumng_get_posts',
+                        'mod_forumng_expand_post',
+                        'mod_forumng_create_reply',
+                        'mod_forumng_edit_post',
+                        'mod_forumng_delete_post'
+                ),
                 'requiredcapability' => '',
                 'restrictedusers' => 0,
                 'enabled' => 1
         ),
-        'Expand post' => array(
-                'shortname' => 'expandpost',
-                'functions' => array ('mod_forumng_expand_post'),
-                'requiredcapability' => '',
-                'restrictedusers' => 0,
-                'enabled' => 1
-        )
 );
 
 $functions = array(
@@ -68,6 +67,27 @@ $functions = array(
                 'methodname'  => 'expand_post',
                 'description' => 'Get information if post and its replies',
                 'type'        => 'read',
+                'ajax'        => true
+        ),
+        'mod_forumng_create_reply' => array(
+                'classname'   => 'mod_forumng\local\external\create_reply',
+                'methodname'  => 'create_reply',
+                'description' => 'Create reply for post',
+                'type'        => 'write',
+                'ajax'        => true
+        ),
+        'mod_forumng_edit_post' => array(
+                'classname'   => 'mod_forumng\local\external\edit_post',
+                'methodname'  => 'edit_post',
+                'description' => 'Edit post',
+                'type'        => 'write',
+                'ajax'        => true
+        ),
+        'mod_forumng_delete_post' => array(
+                'classname'   => 'mod_forumng\local\external\delete_post',
+                'methodname'  => 'delete_post',
+                'description' => 'Delete post',
+                'type'        => 'write',
                 'ajax'        => true
         ),
 );

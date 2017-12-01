@@ -59,33 +59,7 @@ class get_posts extends external_api {
      */
     public static function get_posts_returns() {
 
-        $replystructure = array(
-            'postid' => new external_value(PARAM_INT, 'Post ID'),
-            'discussionid' => new external_value(PARAM_INT, 'Discussion ID'),
-            'parentid' => new external_value(PARAM_INT, 'Parent post ID'),
-            'title' => new external_value(PARAM_TEXT, 'Post title'),
-            'numberofreply' => new external_value(PARAM_INT, 'Number of reply for this post'),
-            'authorname' => new external_value(PARAM_TEXT, 'Author of this post'),
-            'ismoderator' => new external_value(PARAM_BOOL, 'Is moderator'),
-            'authorprofile' => new external_value(PARAM_TEXT, 'Author profile URL'),
-            'authoravatar' => new external_value(PARAM_TEXT, 'Author avatar URL'),
-            'posttime' => new external_value(PARAM_RAW, 'Post create time'),
-            'lastedittime' => new external_value(PARAM_RAW, 'Post last edit time'),
-            'deletedtime' => new external_value(PARAM_RAW, 'Post edited time, if not deleted return 0'),
-            'content' => new external_value(PARAM_RAW, 'Post content'),
-            'attachmenturls' => new external_multiple_structure(
-                new external_single_structure(array(
-                    'name' => new external_value(PARAM_TEXT, 'Name of attachment'),
-                    'url' => new external_value(PARAM_URL, 'URL of attachment')
-                ), 'Attachment detail'), 'List of attachment'
-            ),
-            'isunread' => new external_value(PARAM_BOOL, 'Is unread post'),
-            'canedit' => new external_value(PARAM_TEXT, 'Can edit this post or not, if not return the reason.'),
-            'candelete' => new external_value(PARAM_TEXT, 'Can delete this post or not, if not return the reason.'),
-            'canreport' => new external_value(PARAM_TEXT, 'Can report this post or not, if not return the reason.'),
-            'canundelete' => new external_value(PARAM_TEXT, 'Can undelete this post or not, if not return the reason.'),
-            'canviewdeleted' => new external_value(PARAM_TEXT, 'Can view deleted post, if not return the reason.'),
-        );
+        $replystructure = \mod_forumng_utils::get_ipud_webservice_post_reply_structure();
 
         $repliesstructure = $replystructure;
         $repliesstructure['replies'] = new external_multiple_structure(

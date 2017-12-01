@@ -390,4 +390,13 @@ class mod_forumng_editpost_form extends moodleform {
     public function get_html() {
         return $this->_form->toHtml();
     }
+
+    /**
+     * Get form's element errors.
+     *
+     * @return array
+     */
+    public function get_form_errors() {
+        return $this->_form->_errors;
+    }
 }

@@ -951,6 +951,7 @@ $string['forumngcrontaskdigest'] = 'Forumng email digest job';
 
 $string['error_identityinsubject_discussion'] = 'You have set the subject line to your login details. (This may have been done automatically by your browser or password manager.) To continue, change the subject text.';
 $string['error_identityinsubject_reply'] = 'You have set the subject line to your login details. (This may have been done automatically by your browser or password manager.) To continue, delete or change the subject text.';
+$string['error_form_validation'] = '{$a}'; // Form error in json format.
 
 $string['tooltip_show_features'] = 'Show other options';
 
