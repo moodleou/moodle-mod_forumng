@@ -115,7 +115,7 @@ class mod_forumng_editpost_form extends moodleform {
                 \MoodleQuickForm::registerElementType('simpleeditor', "$CFG->libdir/form/editor.php",
                     'MoodleQuickForm_ipudsimleeditor');
 
-                $editorattributes = array('id' => 'id_message',
+                $editorattributes = array('id' => 'id_message' . (empty($post) ? '' : $post->get_id()),
                                           'cols' => 60, 'rows' => 10);
                 $editoroptions = array(
                     'maxfiles' => EDITOR_UNLIMITED_FILES,
@@ -132,7 +132,7 @@ class mod_forumng_editpost_form extends moodleform {
                 $mform->addElement('html', html_writer::end_tag('div'));
 
             } else {
-                $editorattributes = array('id' => 'id_message',
+                $editorattributes = array('id' => 'id_message' . (empty($post) ? '' : $post->get_id()),
                                           'cols' => 50, 'rows' => !empty($params['iframe']) ? 15 : 30);
                 $editoroptions = array(
                     'maxfiles' => EDITOR_UNLIMITED_FILES,

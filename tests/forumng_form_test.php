@@ -82,7 +82,7 @@ class mod_forumng_form_testcase extends forumng_test_lib {
         $this->assertContains('input id="id_subject" name="subject" type="hidden" value="Forum post subject 1"', $formhtml);
         $this->assertContains('input name="p" type="hidden" value="' . $post1->id . '"', $formhtml);
         $this->assertContains(
-            'textarea id="id_message" name="message[text]" class="form-control" rows="30" cols="50" spellcheck="true" >&lt;p&gt;Forum message post 1&lt;/p&gt;',
+            'textarea id="id_message' . $post1->id . '" name="message[text]" class="form-control" rows="30" cols="50" spellcheck="true" >&lt;p&gt;Forum message post 1&lt;/p&gt;',
             $formhtml);
     }
 }
