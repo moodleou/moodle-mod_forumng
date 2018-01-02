@@ -2305,15 +2305,32 @@ WHERE
                     // Obtain the list of users who are allowed to see the forum.
                     // As get_users_by_capability can be expensive, we only do this
                     // once we know there actually are subscribers (and force rasing memory).
+                    // We also limit the number to a max that will not cause a memory issue.
                     raise_memory_limit(MEMORY_EXTRA);
                     $allowedusers = get_users_by_capability($context,
-                        'mod/forumng:viewdiscussion', 'u.id', '', '', '',
+                        'mod/forumng:viewdiscussion', 'u.id', 'u.lastaccess DESC', '', 200000,
                         $groups, '', 0, 0, true);
                     // Filter possible users by activity availability.
                     $avail = new \core_availability\info_module($this->get_course_module());
                     $allowedusers = $avail->filter_user_list($allowedusers);
                     mod_forumng_utils::add_admin_users($allowedusers);
                 }
+                $alloweduser = false;
+                if (array_key_exists($rec->u_id, $allowedusers)) {
+                    // User has access to forum + discussion.
+                    $alloweduser = true;
+                } else {
+                    // User does not have access, maybe they were outside limit so get them again.
+                    if (has_capability('mod/forumng:viewdiscussion', $context, $rec->u_id)) {
+                        // Check forum availability.
+                        $isallowed = $avail->filter_user_list(array($rec->u_id => new \stdClass()));
+                        if ($alloweduser = array_key_exists($rec->u_id, $isallowed)) {
+                            // Add user to allowed list in case they have multiple subscriptions.
+                            $allowedusers[$rec->u_id] = new \stdClass();
+                        }
+                    }
+                }
+
                 // Get reference to current user, or make new object if required
                 if (!array_key_exists($rec->u_id, $users)) {
                     $user = mod_forumng_utils::extract_subobject($rec, 'u_');
@@ -2330,7 +2347,7 @@ WHERE
                 if ($rec->discussionid) {
                     $groupok = !$rec->discussiongroupid || $rec->discussiongroupmember ||
                         $groupmode==VISIBLEGROUPS || array_key_exists($user->id, $aagusers);
-                    if (array_key_exists($user->id, $allowedusers) && $groupok) {
+                    if ($alloweduser && $groupok) {
                         $ok = true;
                         $user->discussionids[$rec->discussionid] = $rec->discussiongroupid;
                     }
@@ -2339,7 +2356,7 @@ WHERE
                     $groupok = $groupmode == VISIBLEGROUPS ||
                         ($groupmode == SEPARATEGROUPS &&
                         ($rec->subscriptiongroupmember || array_key_exists($user->id, $aagusers)));
-                    if (array_key_exists($user->id, $allowedusers) && $groupok) {
+                    if ($alloweduser && $groupok) {
                         $user->groupids[$rec->groupid] = $rec->groupid;
                         $ok = true;
                     }
@@ -2348,7 +2365,7 @@ WHERE
                     // extra conditions for forum not separate groups or accessallgroups
                     $groupok = $groupmode != SEPARATEGROUPS ||
                             array_key_exists($user->id, $aagusers);
-                    if (array_key_exists($user->id, $allowedusers) && $groupok) {
+                    if ($alloweduser && $groupok) {
                         $user->wholeforum = true;
                         $ok = true;
                     }

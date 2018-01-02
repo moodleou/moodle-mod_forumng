@@ -41,6 +41,7 @@
         <FIELD NAME="canpostanon" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="This flag is set to 1 if the user can post anonymously as a moderator , 0 if not."/>
         <FIELD NAME="enabletags" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="field to indicate whether tags can be added to forumng discussions"/>
         <FIELD NAME="enableratings" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="enable ratings"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Time (in seconds since epoch)."/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>

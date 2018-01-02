@@ -255,7 +255,12 @@ if (!$orderbyuser) {
 
 // Need to do the sql.
 global $DB;
-$users = $DB->get_records_sql($sql, $params, $offset, $perpage);
+if ($viewgrade) {
+    // For grades we need to use get_records - this may cause memory issues on download.
+    $users = $DB->get_records_sql($sql, $params, $offset, $perpage);
+} else {
+    $users = $DB->get_recordset_sql($sql, $params, $offset, $perpage);
+}
 
 if (!$ptable->is_downloading()) {
     // We may have more users as limited to $perpage, so work out how many.
@@ -277,18 +282,9 @@ if (empty($download)) {
 
     print '<div class="clearer"></div>';
 
-    // Get all users.
-    if (!$users) {
-        // No users, print info and stop.
-        print_string('nothingtodisplay', 'forumng');
-
-        // Display link to the discussion.
-        print link_arrow_left($forum->get_name(), '../../view.php?id=' . $cmid);
-
-        // Display footer.
-        print $out->footer();
-        return;
-    }
+} else {
+    // May need more memory as download is all records.
+    raise_memory_limit(MEMORY_EXTRA);
 }
 
 // Is grading enabled and available for the current user?
@@ -302,7 +298,8 @@ if ($viewgrade) {
 }
 
 $data = array();
-foreach ($users as $id => $u) {
+foreach ($users as $u) {
+    $id = $u->id;
     $row = array();
     $picture = $OUTPUT->user_picture($u, array('courseid' => $course->id));
     $username = fullname($u);
@@ -415,8 +412,24 @@ foreach ($users as $id => $u) {
     }
     $data[] = $row;
 }
+if (!$viewgrade) {
+    // We used recordset, close it to conserve memory.
+    $users->close();
+}
 
 if (empty($download)) {
+
+    if (empty($data)) {
+        // No users, print info and stop.
+        print_string('nothingtodisplay', 'forumng');
+
+        // Display link to the discussion.
+        print link_arrow_left($forum->get_name(), '../../view.php?id=' . $cmid);
+
+        // Display footer.
+        print $out->footer();
+        exit;
+    }
     // Display heading.
     print $out->heading(get_string('userposts', 'forumngfeature_userposts'));
 
