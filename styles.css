@@ -616,6 +616,9 @@ ul.forumng-commands li.forumng-replylink {
 .forumng-iframe#page-mod-forumng-editpost {
     min-width: inherit;
 }
+.gecko.forumng-iframe#page-mod-forumng-editpost .mform {
+    min-width: 605px;
+}
 .forumng-iframe#page-mod-forumng-editpost fieldset {
     border: none;
     padding: 0;
