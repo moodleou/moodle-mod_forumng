@@ -40,6 +40,7 @@ class mod_forumng_editpost_form extends moodleform {
             'toolbaroption' => '',
             'emailauthor' => true,
         );
+        $attorowheight = (!empty($this->_customdata['attorowheight'])) ? $this->_customdata['attorowheight'] : 10;
         $edit = $this->_customdata['edit'];
         $isdiscussion = $this->_customdata['isdiscussion'];
         $isroot = $this->_customdata['isroot'];
@@ -116,7 +117,7 @@ class mod_forumng_editpost_form extends moodleform {
                     'MoodleQuickForm_ipudsimleeditor');
 
                 $editorattributes = array('id' => 'id_message' . (empty($post) ? '' : $post->get_id()),
-                                          'cols' => 60, 'rows' => 10);
+                                          'cols' => 60, 'rows' => $attorowheight);
                 $editoroptions = array(
                     'maxfiles' => EDITOR_UNLIMITED_FILES,
                     'context' => $forum->get_context(true),

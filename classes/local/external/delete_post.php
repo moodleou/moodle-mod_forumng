@@ -98,7 +98,7 @@ class delete_post extends external_api {
                 'postid' => $response->postinfo->postid,
                 'rawmessage' => $response->postinfo->content
             ));
-            $response->postinfo->shortcontent = \mod_forumng_renderer::nice_shorten_text($response->postinfo->content);
+            $response->postinfo->shortcontent = \mod_forumng_renderer::nice_shorten_text(strip_tags($response->postinfo->content));
         } else {
             // User can't delete post, return reason.
             $response->success = false;

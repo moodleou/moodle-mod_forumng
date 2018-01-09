@@ -850,7 +850,8 @@ function mod_forumng_output_fragment_postform($args) {
             'edit' => $editmode,
             'post' => $post,
             'isroot' => false,
-            'replyoption' => $replyoption
+            'replyoption' => $replyoption,
+            'attorowheight' => 7
         )
     );
 

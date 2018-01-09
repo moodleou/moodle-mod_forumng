@@ -16,6 +16,7 @@
 
 defined('MOODLE_INTERNAL') || die;
 require_once($CFG->dirroot . '/mod/forumng/mod_forumng.php');
+require_once($CFG->dirroot . '/mod/forumng/renderer.php');
 
 /**
  * Forum NG Ipud renderer class

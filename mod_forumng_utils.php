@@ -617,6 +617,7 @@ WHERE
     public static function convert_forumng_post_to_object($post, $parentpostid) {
         global $PAGE, $CFG, $USER;
         $userpicture = new user_picture($post->get_user());
+        $userpicture->size = 1;
         $whynot  = '';
 
         $postobject = new stdClass();

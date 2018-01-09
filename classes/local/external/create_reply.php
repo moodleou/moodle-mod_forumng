@@ -146,7 +146,15 @@ class create_reply extends external_api {
                 'postid' => $postobj->postid,
                 'rawmessage' => $postobj->content
             ));
-            $postobj->shortcontent = \mod_forumng_renderer::nice_shorten_text($postobj->content);
+            $postobj->shortcontent = \mod_forumng_renderer::nice_shorten_text(strip_tags($postobj->content));
+
+            // Clear the atto editor saved message.
+            $DB->delete_records('editor_atto_autosave', array(
+                'userid' => $USER->id,
+                'elementid' => 'id_message' . $replypost->get_id(),
+                'contextid' => $forumcontext->id
+            ));
+
             return $postobj;
         } else {
             // Form validation error, return info to user as json.

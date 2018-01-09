@@ -107,7 +107,7 @@ class get_posts extends external_api {
                 'postid' => $item->postid,
                 'rawmessage' => $item->content
             ));
-            $item->shortcontent = \mod_forumng_renderer::nice_shorten_text($item->content);
+            $item->shortcontent = \mod_forumng_renderer::nice_shorten_text(strip_tags($item->content));
             $item->replies = array();
             if ($numbertoshow == 0) {
                 foreach ($post->get_replies() as $reply) {
@@ -117,7 +117,7 @@ class get_posts extends external_api {
                         'postid' => $reply->postid,
                         'rawmessage' => $reply->content
                     ));
-                    $reply->shortcontent = \mod_forumng_renderer::nice_shorten_text($reply->content);
+                    $reply->shortcontent = \mod_forumng_renderer::nice_shorten_text(strip_tags($reply->content));
                     $item->replies[] = $reply;
                 }
             }
