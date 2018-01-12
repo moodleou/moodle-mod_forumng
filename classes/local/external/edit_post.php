@@ -77,7 +77,7 @@ class edit_post extends external_api {
      * @throws \moodle_exception
      */
     public static function edit_post($postid, $subject, $message) {
-        global $PAGE;
+        global $PAGE, $DB, $USER;
 
         $data = array(
             'postid' => $postid,

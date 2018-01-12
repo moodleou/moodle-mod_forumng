@@ -840,6 +840,9 @@ function mod_forumng_output_fragment_postform($args) {
 
     // Hide "Post as?" on fragment form.
     $replyoption['postas'] = 0;
+    if (empty($args['cancelbutton'])) {
+        $replyoption['cancelbutton'] = true;
+    }
 
     $mform = new mod_forumng_editpost_form(null, array(
             'params' => $params,

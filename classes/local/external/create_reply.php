@@ -78,7 +78,7 @@ class create_reply extends external_api {
      * @throws \moodle_exception
      */
     public static function create_reply($replyto, $subject, $message) {
-        global $PAGE;
+        global $PAGE, $DB, $USER;
 
         $data = array(
             'replyto' => $replyto,
