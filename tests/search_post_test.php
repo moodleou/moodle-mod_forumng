@@ -57,6 +57,7 @@ class mod_forumng_search_post_testcase extends forumng_test_lib {
         $generator = $this->getDataGenerator()->get_plugin_generator('mod_forumng');
 
         $course = $this->get_new_course();
+        $course2 = $this->get_new_course();
         $etuser = $this->get_new_user('editingteacher', $course->id);
         $suser1 = $this->get_new_user('student', $course->id);
         $suser2 = $this->get_new_user('student', $course->id);
@@ -70,6 +71,8 @@ class mod_forumng_search_post_testcase extends forumng_test_lib {
 
         $forum1 = $this->get_new_forumng($course->id, array('groupmode' => SEPARATEGROUPS,
             'shared' => false, 'cmidnumber' => 'IPMR'));
+        $forum2 = $this->get_new_forumng($course2->id, array('groupmode' => NOGROUPS,
+                'shared' => false, 'cmidnumber' => 'IPMRII'));
 
         $did1 = $generator->create_discussion(array(
                 'course' => $course,
@@ -189,6 +192,24 @@ class mod_forumng_search_post_testcase extends forumng_test_lib {
                     break;
             }
         }
+
+        // Now check context using get_document_recordset.
+        $did21 = $generator->create_discussion(array(
+                'course' => $course2,
+                'forum' => $forum2->get_id(),
+                'userid' => $etuser->id,
+                'subject' => 'Discussion 2.1'));
+        $post21 = $generator->create_post(array(
+                'discussionid' => $did21[0],
+                'parentpostid' => $did21[1],
+                'userid' => $suser1->id,
+                'subject' => 'Post 2.1',
+                'message' => 'Message 1'));
+        $results2 = self::recordset_to_array($page->get_document_recordset());
+        $this->assertCount(7, $results2);
+        $modulecontext = \context_module::instance($cm->id);
+        $results3 = self::recordset_to_array($page->get_document_recordset(0, $modulecontext));
+        $this->assertCount(5, $results3);
     }
 
     /**

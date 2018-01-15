@@ -49,31 +49,47 @@ class post extends \core_search\base_mod {
     protected static $levels = [CONTEXT_MODULE];
 
     /**
+     * Calls function which returns required data for indexing forumng posts.
+     *
+     * @param int $modifiedfrom
+     * @return \moodle_recordset|null
+     */
+    public function get_recordset_by_timestamp($modifiedfrom = 0) {
+        return $this->get_document_recordset($modifiedfrom);
+    }
+
+    /**
      * Returns recordset containing required data for indexing forumng posts.
      *
      * @param int $modifiedfrom
-     * @return \moodle_recordset
+     * @param \context|null $context
+     * @return \moodle_recordset|null
      */
-    public function get_recordset_by_timestamp($modifiedfrom = 0) {
-        // Get all posts (without being drafts).
+    public function get_document_recordset($modifiedfrom = 0, \context $context = null) {
         global $DB;
-        $querystring = '
-            SELECT f.id, f.course,
-                   fp.id as forumpostid, fp.discussionid, fp.parentpostid, fp.userid, fp.created,
-                   fp.modified as postmodified, fp.deleted,
-                   fp.deleteuserid, fp.important, fp.mailstate, fp.oldversion, fp.edituserid, fp.subject, fp.message,
-                   fp.messageformat, fp.attachments, fp.asmoderator,
-                   fd.modified as discussionmodified, GREATEST(fp.modified, fd.modified) as modifyorder
-              FROM {forumng_posts} fp
-              JOIN {forumng_discussions} fd ON fp.discussionid = fd.id
-              JOIN {forumng} f ON fd.forumngid = f.id
-             WHERE (fp.modified >= ? OR fd.modified >= ?)
+
+        list ($contextjoin, $contextparams) = $this->get_context_restriction_sql(
+                $context, 'forumng', 'f');
+        if ($contextjoin === null) {
+            return null;
+        }
+
+        $sql = "SELECT f.id, f.course,
+                       fp.id as forumpostid, fp.discussionid, fp.parentpostid, fp.userid, fp.created,
+                       fp.modified as postmodified, fp.deleted,
+                       fp.deleteuserid, fp.important, fp.mailstate, fp.oldversion, fp.edituserid, fp.subject, fp.message,
+                       fp.messageformat, fp.attachments, fp.asmoderator,
+                       fd.modified as discussionmodified, GREATEST(fp.modified, fd.modified) as modifyorder
+                  FROM {forumng_posts} fp
+                  JOIN {forumng_discussions} fd ON fp.discussionid = fd.id
+                  JOIN {forumng} f ON fd.forumngid = f.id
+          $contextjoin
+                 WHERE (fp.modified >= ? OR fd.modified >= ?)
                    AND fp.deleted = 0
                    AND fd.deleted = 0
                    AND fp.oldversion = 0
-          ORDER BY modifyorder ASC';
-
-        return $DB->get_recordset_sql($querystring, array($modifiedfrom, $modifiedfrom));
+              ORDER BY modifyorder ASC";
+        return $DB->get_recordset_sql($sql, array_merge($contextparams, [$modifiedfrom, $modifiedfrom]));
     }
 
     /**
