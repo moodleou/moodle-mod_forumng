@@ -753,7 +753,8 @@ WHERE
             'canundelete' => new external_value(PARAM_TEXT, 'Can undelete this post or not, if not return the reason.'),
             'canviewdeleted' => new external_value(PARAM_TEXT, 'Can view deleted post, if not return the reason.'),
             'canreply' => new external_value(PARAM_TEXT, 'Can reply this post or not, if not return the reason.'),
-            'canviewanon' => new external_value(PARAM_RAW, 'Can view hidden moderator post or not.')
+            'canviewanon' => new external_value(PARAM_RAW, 'Can view hidden moderator post or not.'),
+            'reportlink' => new external_value(PARAM_RAW, 'Link lead to report page.', VALUE_DEFAULT, ''),
         );
     }
 }

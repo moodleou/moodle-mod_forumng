@@ -39,7 +39,8 @@ $services = array(
                         'mod_forumng_expand_post',
                         'mod_forumng_create_reply',
                         'mod_forumng_edit_post',
-                        'mod_forumng_delete_post'
+                        'mod_forumng_delete_post',
+                        'mod_forumng_undelete_post'
                 ),
                 'requiredcapability' => '',
                 'restrictedusers' => 0,
@@ -87,6 +88,13 @@ $functions = array(
                 'classname'   => 'mod_forumng\local\external\delete_post',
                 'methodname'  => 'delete_post',
                 'description' => 'Delete post',
+                'type'        => 'write',
+                'ajax'        => true
+        ),
+        'mod_forumng_undelete_post' => array(
+                'classname'   => 'mod_forumng\local\external\undelete_post',
+                'methodname'  => 'undelete_post',
+                'description' => 'Undelete post',
                 'type'        => 'write',
                 'ajax'        => true
         ),

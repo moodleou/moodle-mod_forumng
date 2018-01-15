@@ -515,4 +515,38 @@ class forumng_external_test extends advanced_testcase {
         $this->assertFalse($response->success);
         $this->assertEquals(get_string('edit_notcurrentpost', 'mod_forumng'), $response->message);
     }
+
+    /**
+     * Tests the undelete_post() function. This function is the meat of the web service but we cannot
+     * check it as a web service so we just call the function.
+     */
+    public function test_undelete_post() {
+        global $USER;
+
+        $discussion = $this->generate_discussion();
+
+        // Switch to admin to have capability to undelete post.
+        $this->setAdminUser();
+
+        // Create post then delete the post.
+        $rootpost = mod_forumng_post::get_from_id($discussion[1], 0);
+        $newpostid = $rootpost->reply('Subject 1', 'Content 1', 1);
+        $newpost = mod_forumng_post::get_from_id($newpostid, 0);
+        $newpost->delete();
+
+        // Try to un the post via web service.
+        $response = \mod_forumng\local\external\undelete_post::undelete_post($newpostid);
+        $this->assertTrue($response->success);
+        $this->assertEquals($newpost->get_id(), $response->postinfo->postid);
+        $this->assertEmpty($response->postinfo->deletedtime);
+
+        // Check that post really is not deleted in DB.
+        $post = mod_forumng_post::get_from_id($newpostid, 0);
+        $this->assertEmpty($post->get_deleted());
+
+        // Try to undelete normal post, expect exception.
+        $response = \mod_forumng\local\external\undelete_post::undelete_post($newpostid);
+        $this->assertFalse($response->success);
+        $this->assertEquals(get_string('edit_notdeleted', 'mod_forumng'), $response->message);
+    }
 }

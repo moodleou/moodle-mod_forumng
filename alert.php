@@ -26,6 +26,7 @@ require_once('mod_forumng.php');
 
 $postid = required_param('p', PARAM_INT);
 $cloneid = optional_param('clone', 0, PARAM_INT);
+$rurl = optional_param('rurl', 0, PARAM_TEXT);
 $pageparams = array('p'=>$postid);
 if ($cloneid) {
     $pageparams['clone'] = $cloneid;
@@ -64,7 +65,8 @@ $customdata = (object)array(
         'fullname' => fullname($USER, true),
         'coursename' => $course->shortname,
         'url' => $CFG->wwwroot . '/mod/forumng/discuss.php?' .
-                $discussion->get_link_params(mod_forumng::PARAM_PLAIN) . '#p'.$postid
+                $discussion->get_link_params(mod_forumng::PARAM_PLAIN) . '#p'.$postid,
+        'rurl' => $rurl
 );
 
 $mform = new mod_forumng_alert_form('alert.php', $customdata);
@@ -127,9 +129,11 @@ if ($fromform = $mform->get_data()) {
     print $out->header();
 
     print $out->box(get_string('alert_feedback', 'forumng'));
-    print $out->continue_button('discuss.php?' .
-            $discussion->get_link_params(mod_forumng::PARAM_HTML) . '#p' . $postid);
 
+    $redirecturl = empty($rurl) ? 'discuss.php?' .
+        $discussion->get_link_params(mod_forumng::PARAM_HTML) . '#p' . $postid : $rurl;
+
+    print $out->continue_button($redirecturl);
 } else {
     // Show the alert form.
     print $out->header();

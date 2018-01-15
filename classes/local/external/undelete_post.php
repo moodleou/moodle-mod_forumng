@@ -32,17 +32,17 @@ require_once($CFG->libdir . '/externallib.php');
  * ForumNG services implementation.
  *
  * @package mod_forumng
- * @copyright 2017 The Open University
+ * @copyright 2018 The Open University
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class delete_post extends external_api {
+class undelete_post extends external_api {
 
     /**
      * Gets function parameter metadata.
      *
      * @return external_function_parameters Parameter info
      */
-    public static function delete_post_parameters() {
+    public static function undelete_post_parameters() {
         return new external_function_parameters(array(
             'postid' => new external_value(PARAM_INT, 'Post ID')
         ));
@@ -53,55 +53,57 @@ class delete_post extends external_api {
      *
      * @return external_single_structure
      */
-    public static function delete_post_returns() {
+    public static function undelete_post_returns() {
         $replystructure = \mod_forumng_utils::get_ipud_webservice_post_reply_structure();
 
         return new external_single_structure(array(
-            'success' => new external_value(PARAM_BOOL, 'Delete post successfully or not.'),
-            'message' => new external_value(PARAM_TEXT, 'Message in case delete post failed.'),
+            'success' => new external_value(PARAM_BOOL, 'Undelete post successfully or not.'),
+            'message' => new external_value(PARAM_TEXT, 'Message in case Undelete post failed.'),
             'postinfo' => new external_single_structure($replystructure, '', VALUE_DEFAULT, null)
         ));
     }
 
     /**
-     * Check permission and update post.
+     * Check permission and undelete post.
      *
-     * @param $postid integer Post ID which will be edited.
+     * @param $postid integer Post ID which will be undeleted.
      * @return \stdClass
      */
-    public static function delete_post($postid) {
+    public static function undelete_post($postid) {
         global $PAGE;
 
         // Validate web service's parammeters.
-        self::validate_parameters(self::delete_post_parameters(), array(
+        self::validate_parameters(self::undelete_post_parameters(), array(
             'postid' => $postid,
         ));
 
         // Get info of post being deleted.
-        $deletepost = mod_forumng_post::get_from_id($postid, 0, true);
+        $post = mod_forumng_post::get_from_id($postid, 0, true);
 
         // Check if current user can delete the post.
         $whynot = '';
         $response = new \stdClass();
-        if ($deletepost->can_delete($whynot)) {
-            // Delete the post.
-            $deletepost->delete();
-
+        if ($post->can_undelete($whynot)) {
             // Set context to prevent notice message when convert post to object.
-            $PAGE->set_context($deletepost->get_forum()->get_context());
+            $PAGE->set_context($post->get_forum()->get_context());
+
+            // Delete the post.
+            $post->undelete();
 
             // Get new post from DB to have correct info.
-            $deletepost = mod_forumng_post::get_from_id($deletepost->get_id(), 0, true);
+            $post = mod_forumng_post::get_from_id($post->get_id(), 0, true);
 
             $response->success = true;
             $response->message = '';
-            $response->postinfo = \mod_forumng_utils::convert_forumng_post_to_object($deletepost,
-                $deletepost->get_parent()->get_id());
+            $response->postinfo = \mod_forumng_utils::convert_forumng_post_to_object($post,
+                $post->get_parent()->get_id());
             $response->postinfo->content = mod_forumng_output_fragment_formatmessage(array(
                 'postid' => $response->postinfo->postid,
                 'rawmessage' => $response->postinfo->content
             ));
-            $response->postinfo->shortcontent = \mod_forumng_renderer::nice_shorten_text(strip_tags($response->postinfo->content));
+            $response->postinfo->shortcontent = \mod_forumng_renderer::nice_shorten_text(
+                strip_tags($response->postinfo->content)
+            );
         } else {
             // User can't delete post, return reason.
             $response->success = false;
