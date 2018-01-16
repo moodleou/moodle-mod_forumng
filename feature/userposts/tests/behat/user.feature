@@ -23,19 +23,12 @@ Feature: Add forumng activity and test userposts filtering
     And the following "permission overrides" exist:
       | capability       | permission | role    | contextlevel | reference |
       | mod/forumng:rate | Allow      | student | Course       | C1        |
-
+    And the following "activities" exist:
+      | activity | course | idnumber | name            | introduction           | enableratings | ratingscale | ratingthreshold |
+      | forumng  | C1     | F1       | Test forum name | Test forum description | 2             | 10          | 1               |
 
   Scenario: Check rating tab rated from and rated to filter
     Given I log in as "admin"
-    When I am on site homepage
-    Then I am on "Course 1" course homepage
-    And I turn editing mode on
-    And I add a "ForumNG" to section "1" and I fill the form with:
-      | Forum name                  | Test forum name        |
-      | Forum introduction          | Test forum description |
-      | Allow posts to be rated     | Ratings (standard)     |
-      | ratingscale[modgrade_type]  | point                  |
-      | ratingscale[modgrade_point] | 10                     |
     And I am on "Course 1" course homepage
     And I follow "Test forum name"
     And I add a discussion with the following data:
@@ -95,15 +88,6 @@ Feature: Add forumng activity and test userposts filtering
 
   Scenario: Check rating filtering tabs (create posts by a user and rate by another user)
     Given I log in as "admin"
-    When I am on site homepage
-    Then I am on "Course 1" course homepage
-    And I turn editing mode on
-    And I add a "ForumNG" to section "1" and I fill the form with:
-      | Forum name                  | Test forum name        |
-      | Forum introduction          | Test forum description |
-      | Allow posts to be rated     | Ratings (standard)     |
-      | ratingscale[modgrade_type]  | point                  |
-      | ratingscale[modgrade_point] | 10                     |
     And I am on "Course 1" course homepage
     And I follow "Test forum name"
     And I add a discussion with the following data:
@@ -204,16 +188,6 @@ Feature: Add forumng activity and test userposts filtering
 
   Scenario: Add forumng replies and check display by user post
     Given I log in as "admin"
-    And I am on site homepage
-    When I am on "Course 1" course homepage
-    Then I turn editing mode on
-    And I add a "ForumNG" to section "1" and I fill the form with:
-      | Forum name                  | Test forum name        |
-      | Forum introduction          | Test forum description |
-      | Allow posts to be rated     | Ratings (standard)     |
-      | ratingscale[modgrade_type]  | point                  |
-      | ratingscale[modgrade_point] | 10                     |
-
     And I am on "Course 1" course homepage
     And I follow "Test forum name"
     And I add a discussion with the following data:
