@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="mod/forumng/db" VERSION="20171113" COMMENT="ForumNG is a reimplemented variant of the original Moodle forum system. It provides asynchronous discussion facilities."
+<XMLDB PATH="mod/forumng/db" VERSION="20180118" COMMENT="ForumNG is a reimplemented variant of the original Moodle forum system. It provides asynchronous discussion facilities."
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
@@ -42,12 +42,16 @@
         <FIELD NAME="enabletags" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="field to indicate whether tags can be added to forumng discussions"/>
         <FIELD NAME="enableratings" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="enable ratings"/>
         <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Time (in seconds since epoch)."/>
+        <FIELD NAME="lastemailprocessing" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Time that the most recent email processing started for this forum; the system sends normal emails in order of this time"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
         <KEY NAME="course" TYPE="foreign" FIELDS="course" REFTABLE="course" REFFIELDS="id"/>
         <KEY NAME="originalcmid" TYPE="foreign" FIELDS="originalcmid" REFTABLE="course_modules" REFFIELDS="id"/>
       </KEYS>
+      <INDEXES>
+        <INDEX NAME="lastemailprocessing" UNIQUE="false" FIELDS="lastemailprocessing"/>
+      </INDEXES>
     </TABLE>
     <TABLE NAME="forumng_discussions" COMMENT="Represents a single discussion (thread) in a forum.">
       <FIELDS>
@@ -62,7 +66,7 @@
         <FIELD NAME="locked" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="If set to 1, nobody can post to this discussion any more. The post pointed to by lastpostid is the post that was added while locking the thread."/>
         <FIELD NAME="sticky" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="If set to 1, this discussion appears in a special area at the top of the forum thread list."/>
         <FIELD NAME="modified" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Time modified (seconds since epoch). Changes if discussion is edited."/>
-        <FIELD NAME="ipudloc" TYPE="text" NOTNULL="false" SEQUENCE="false" PREVIOUS="modified" COMMENT="The url where discussion is hosted"/>
+        <FIELD NAME="ipudloc" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="The url where discussion is hosted"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>

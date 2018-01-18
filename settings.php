@@ -136,3 +136,10 @@ $settings->add(new admin_setting_configtextarea('forumng_customeditortoolbar',
     insert = oumaths, chemistry, charmap, table,fontcolor
     html = clear,html',
     PARAM_TEXT));
+
+// Maximum time to spend in cron. The default value is set so that it finishes before the 20 minute
+// cron cycle.
+$settings->add(new admin_setting_configduration('mod_forumng/cronlimit',
+        get_string('cronlimit', 'forumng'),
+        get_string('cronlimit_desc', 'forumng'), 18 * 60));
+

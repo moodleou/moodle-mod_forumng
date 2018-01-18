@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+defined('MOODLE_INTERNAL') || die();
+
 require_once(dirname(__FILE__) . '/mod_forumng.php');
 
 /**
@@ -22,18 +24,14 @@ require_once(dirname(__FILE__) . '/mod_forumng.php');
  *
  * The list only includes posts which are due to be included in digests. The
  * same caveats apply as to mod_forumng_mail_list.
- * @package mod
- * @subpackage forumng
+ *
+ * @package mod_forumng
  * @copyright 2011 The Open University
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class mod_forumng_digest_list extends mod_forumng_mail_list {
     /** Config flag used to prevent sending mails twice */
     const PENDING_MARK_DIGESTED = 'pending_mark_digested';
-
-    public function __construct($tracetimes) {
-        parent::__construct($tracetimes);
-    }
 
     protected function get_pending_flag_name() {
         return self::PENDING_MARK_DIGESTED;
@@ -43,16 +41,22 @@ class mod_forumng_digest_list extends mod_forumng_mail_list {
         return mod_forumng::MAILSTATE_DIGESTED;
     }
 
+    protected function get_limited_forum_id() {
+        return self::FORUMID_NO_RESTRICTION;
+    }
+
     protected function get_safety_net($time) {
         // The digest safety net is 24 hours earlier because digest posts may
         // be delayed by 24 hours.
         return parent::get_safety_net($time) - 24 * 3600;
     }
 
-    protected function get_query_where($time) {
-        global $CFG;
+    protected function get_query_where($time, $forumid) {
+        if ($forumid !== self::FORUMID_NO_RESTRICTION) {
+            throw new coding_exception('Unexpected call without restrictions');
+        }
 
-        // In case cron has not run for a while
+        // In case cron has not run for a while.
         $safetynet = $this->get_safety_net($time);
 
         global $CFG;

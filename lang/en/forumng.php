@@ -963,3 +963,5 @@ $string['customeditortoolbar'] = 'Custom editor toolbar for In page discussion';
 $string['configcustomeditortoolbar'] = 'Custom toolbar option for In page discussion';
 $string['missingparam'] = 'Fragment form require replyto or edit parameter';
 $string['missingparam_formatmessage'] = 'Format message function requires "postid" and "rawmessage" parameter';
+$string['cronlimit'] = 'Time limit for normal email sending';
+$string['cronlimit_desc'] = 'Amount of time spent per scheduled task run for sending out normal emails. After this time limit, sending will resume the next time the task runs.';
