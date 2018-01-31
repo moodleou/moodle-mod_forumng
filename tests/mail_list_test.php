@@ -100,6 +100,8 @@ class mail_list_testcase extends \advanced_testcase
         $list = new \mod_forumng_mail_list(false);
         $this->assertTrue($list->is_finished());
 
+        \mod_forumng_mail_list::reset_static_cache();
+
         // Create a new discussion in forum3 and a new post in forum2.
         list ($discussion3id, $post3id) = $forumgenerator->create_discussion(
                 ['forum' => $forum3->id, 'userid' => $admin->id]);

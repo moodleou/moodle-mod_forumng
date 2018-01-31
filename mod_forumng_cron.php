@@ -152,6 +152,8 @@ $mainquery", $mainparams);
     public static function email_normal() {
         global $USER, $CFG, $PERF;
 
+        mod_forumng_mail_list::reset_static_cache();
+
         $exceptioncount = 0;
 
         // Obtain information about all mails that are due for sending.
@@ -171,6 +173,7 @@ $mainquery", $mainparams);
         $discussionsubscriberstime = 0;
         $buildemailtime = 0;
         $eventlogtime = 0;
+        $totalpostcount = 0;
         $listtimes = [];
 
         $endafter = time() + get_config('mod_forumng', 'cronlimit');
@@ -178,6 +181,7 @@ $mainquery", $mainparams);
             $list = new mod_forumng_mail_list(true);
             if ($list->is_finished()) {
                 mtrace('No more forum posts to send.');
+                self::add_list_times($listtimes, $list);
                 break;
             }
 
@@ -345,13 +349,9 @@ $mainquery", $mainparams);
                 $totalemailcount += $emailcount;
             }
 
-            if ($listtimes === []) {
-                $listtimes = $list->get_times();
-            } else {
-                foreach ($list->get_times() as $key => $time) {
-                    $listtimes[$key] += $time;
-                }
-            }
+            self::add_list_times($listtimes, $list);
+
+            $totalpostcount += $list->get_post_count_so_far();
 
             if (time() > $endafter) {
                 mtrace('Stopping (time limit reached).');
@@ -364,7 +364,6 @@ $mainquery", $mainparams);
             $queryinfo = ', ' . ($PERF->dbqueries - $beforequeries) .
               ' queries';
         }
-        $totalpostcount = $list->get_post_count_so_far();
         $totaltime = microtime(true) - $before;
         mtrace("Email processing ($totalpostcount new posts, $totalemailcount new emails) " .
                 "complete, total time: " . sprintf('%.1Fs', $totaltime)) . $queryinfo;
@@ -380,6 +379,23 @@ $mainquery", $mainparams);
     }
 
     /**
+     * Adds time recording from a mod_forumng_mail_list object into an existing array of times,
+     * if necessary adding new entries into the array.
+     *
+     * @param array $listtimes Array of times (input-output parameter)
+     * @param mod_forumng_mail_list $list List with time data
+     */
+    protected static function add_list_times(array &$listtimes, mod_forumng_mail_list $list) {
+        if ($listtimes === []) {
+            $listtimes = $list->get_times();
+        } else {
+            foreach ($list->get_times() as $key => $time) {
+                $listtimes[$key] += $time;
+            }
+        }
+    }
+
+    /**
      * Utility function to trace out the proportion of time spent doing a thing.
      *
      * @param string $name Name of thing
@@ -387,6 +403,10 @@ $mainquery", $mainparams);
      * @param float $totaltime Total time in seconds
      */
     protected static function show_time_with_percentage($name, $time, $totaltime) {
+        // Hack total time so it doesn't divide by zero.
+        if ($totaltime < 0.1) {
+            $totaltime = 0.1;
+        }
         mtrace('  ' . $name . ': ' . sprintf('%.1Fs', $time) . ' (' .
                 sprintf('%.1F', (100.0 * $time / $totaltime)) . '%)');
     }
@@ -431,7 +451,9 @@ $mainquery", $mainparams);
     }
 
     public static function email_digest() {
-        global $CFG, $PERF;
+        global $PERF;
+
+        mod_forumng_mail_list::reset_static_cache();
 
         // Build current digest.
         mtrace("Beginning forum digest processing...");

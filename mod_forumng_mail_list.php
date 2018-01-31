@@ -50,6 +50,9 @@ class mod_forumng_mail_list {
     /** Special marker used to indicate there is no forum restriction on this run */
     const FORUMID_NO_RESTRICTION = 0;
 
+    /** @var int When querying forums, request at most this many */
+    const MAX_FORUMS_PER_QUERY = 1000;
+
     private $rs;
     private $time;
 
@@ -66,6 +69,13 @@ class mod_forumng_mail_list {
 
     /** @var int[] Array cache of forum IDs that should be processed next, in order */
     protected static $nextforumcache = [];
+
+    /**
+     * Resets the static cache to ensure it will calculate the list of forums again.
+     */
+    public static function reset_static_cache() {
+        self::$nextforumcache = [];
+    }
 
     /**
      * Creates the mail queue and runs query to obtain list of posts that should
@@ -187,7 +197,8 @@ ORDER BY
             list($wheresql, $whereparams) = $this->get_query_where(
                     $this->time, self::FORUMID_NO_RESTRICTION);
 
-            // Get next forums in batches of 1,000 because it can take a long time.
+            // Get next forums in batches of 1,000 because it can take a long time. (This query
+            // takes around 600 seconds on live.)
             $nextforums = $DB->get_records_sql($sql = "
                     SELECT f.id
                       FROM {forumng} f
@@ -203,16 +214,28 @@ ORDER BY
                                   AND fd.forumngid = f.id
                            )
                   ORDER BY f.lastemailprocessing ASC",
-                    $params = array_merge(['forumng', CONTEXT_MODULE], $whereparams), 0, 1000);
+                    $params = array_merge(['forumng', CONTEXT_MODULE], $whereparams), 0,
+                    self::MAX_FORUMS_PER_QUERY);
 
             foreach ($nextforums as $rec) {
                 self::$nextforumcache[] = $rec->id;
+            }
+
+            // If we received less than 1,000 forums (so, all of them) then add a marker indicating
+            // that there are no forums left (this is used so that we don't call the query a second
+            // time at the end of the run).
+            if (count(self::$nextforumcache) < self::MAX_FORUMS_PER_QUERY) {
+                self::$nextforumcache[] = self::FORUMID_NO_MORE_FORUMS;
             }
 
             $this->record_time('Finding next forum', $before);
         }
 
         if (self::$nextforumcache) {
+            if (self::$nextforumcache[0] === self::FORUMID_NO_MORE_FORUMS) {
+                // There are no forums - don't use up the array and force another query.
+                return 0;
+            }
             return array_shift(self::$nextforumcache);
         } else {
             // There are still no forums!
