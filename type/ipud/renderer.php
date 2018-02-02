@@ -86,7 +86,7 @@ class forumngtype_ipud_renderer extends mod_forumng_renderer {
         if ($forum->get_type()->can_mark_read($forum)) {
             $html = html_writer::start_tag('td', array('class' => 'forumng-location cell c' . $num . ' ipud-lastcol'));
             $html .= html_writer::tag('a', get_string('linktoforumview', 'forumng'),
-                array('href' => 'discuss.php?' . $discussion->get_link_params(mod_forumng::PARAM_HTML)));
+                array('href' => 'discuss.php?' . $discussion->get_link_params(mod_forumng::PARAM_PLAIN)));
             $html .= html_writer::end_tag('td');
         }
 

@@ -2100,7 +2100,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
      */
     public function render_discussion_list_item_discussion($courseid , $discussion, $taglinks) {
         $result = html_writer::tag('a', format_string($discussion->get_subject(true), true, $courseid),
-            array('href' => 'discuss.php?' . $discussion->get_link_params(mod_forumng::PARAM_HTML)));
+            array('href' => 'discuss.php?' . $discussion->get_link_params(mod_forumng::PARAM_PLAIN)));
         $result .= $taglinks;
         return $result;
     }
