@@ -171,6 +171,9 @@ class mod_forumng {
     const FORUMNG_RATING_OBSOLETE = 1;// Forumng ratings (obsolete).
     const FORUMNG_STANDARD_RATING = 2;// Ratings (standard).
 
+    // Constants for web services.
+    const IPUD_SHORTEN_LENGTH = 160;
+
     // Static methods
     /*///////////////*/
 

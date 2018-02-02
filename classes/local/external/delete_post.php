@@ -101,7 +101,9 @@ class delete_post extends external_api {
                 'postid' => $response->postinfo->postid,
                 'rawmessage' => $response->postinfo->content
             ));
-            $response->postinfo->shortcontent = \mod_forumng_renderer::nice_shorten_text(strip_tags($response->postinfo->content));
+            $response->postinfo->shortcontent = \mod_forumng_renderer::nice_shorten_text(
+                strip_tags($response->postinfo->content, '<img>'), \mod_forumng::IPUD_SHORTEN_LENGTH
+            );
         } else {
             // User can't delete post, return reason.
             $response->success = false;

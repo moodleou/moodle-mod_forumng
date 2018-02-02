@@ -96,7 +96,8 @@ class expand_post extends external_api {
             'postid' => $returndata->postid,
             'rawmessage' => $returndata->content
         ));
-        $returndata->shortcontent = \mod_forumng_renderer::nice_shorten_text(strip_tags($returndata->content));
+        $returndata->shortcontent = \mod_forumng_renderer::nice_shorten_text(strip_tags($returndata->content, '<img>'),
+            \mod_forumng::IPUD_SHORTEN_LENGTH);
         $returndata->replies = array();
         foreach ($post->get_replies() as $reply) {
             $replyobj = mod_forumng_utils::convert_forumng_post_to_object($reply, $returndata->postid);
@@ -104,7 +105,8 @@ class expand_post extends external_api {
                 'postid' => $replyobj->postid,
                 'rawmessage' => $replyobj->content
             ));
-            $replyobj->shortcontent = \mod_forumng_renderer::nice_shorten_text(strip_tags($replyobj->content));
+            $replyobj->shortcontent = \mod_forumng_renderer::nice_shorten_text(strip_tags($replyobj->content, '<img>'),
+                \mod_forumng::IPUD_SHORTEN_LENGTH);
             $returndata->replies[] = $replyobj;
         }
 

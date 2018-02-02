@@ -1756,10 +1756,14 @@ class mod_forumng_renderer extends plugin_renderer_base {
 
     public static function nice_shorten_text($text, $length=40) {
         $text = trim($text);
+        // Replace image tag by placeholder text.
+        $text = preg_replace('/<img.*?>/', get_string('image_placeholder', 'mod_forumng'), $text);
+        // Trim the multiple spaces to single space and multiple lines to one line.
+        $text = preg_replace('!\s+!', ' ', $text);
         $summary = shorten_text($text, $length);
         $summary = preg_replace('~\s*\.\.\.(<[^>]*>)*$~', '$1', $summary);
         $dots = $summary != $text ? '...' : '';
-        return $summary. $dots;
+        return $summary . $dots;
     }
 
     /**
