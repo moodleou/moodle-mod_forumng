@@ -47,9 +47,13 @@ M.mod_forumng_form = {
                 // are disabled).
                 timelimitinfo.setHTML('<strong>' + M.str.forumng.edit_timeout + '</strong>');
                 timelimitinfo.addClass('forumng-timeoutover');
-                t.Y.one('#id_cancel').on('click',function(){
+                t.Y.one('#id_cancel').on('click', function(){
                     window.top.location.reload();
                 });
+                var buttonsubmit = t.Y.one('#id_submitbutton');
+                if (buttonsubmit) {
+                    buttonsubmit.set('disabled', 'disabled');
+                }
             }, delay < 0 ? 0 : delay * 1000);
         }
 
