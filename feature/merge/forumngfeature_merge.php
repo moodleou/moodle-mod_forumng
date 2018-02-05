@@ -40,10 +40,12 @@ class forumngfeature_merge extends forumngfeature_discussion {
         if (isset($SESSION->forumng_mergefrom)) {
             if ($SESSION->forumng_mergefrom->discussionid == $discussion->get_id() ||
                     $SESSION->forumng_mergefrom->forumid != $discussion->get_forum()->get_id()) {
+                $html = html_writer::tag('div', get_string('cannotmergehere', 'forumngfeature_merge'),
+                    array('class' => 'forumngfeature-merge-extrahtml'));
                 return parent::get_button($discussion,
                         get_string('cancelmerge', 'forumngfeature_merge'),
                         'feature/merge/merge.php', true, array('stage'=>2, 'cancel'=>1),
-                        ' ' . get_string('cannotmergehere', 'forumngfeature_merge'), true);
+                        ' ' . $html, true);
 
             } else {
                 return parent::get_button($discussion,

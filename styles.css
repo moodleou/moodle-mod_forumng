@@ -809,8 +809,29 @@ form.markread input {
 }
 #forumng-features .forumng-highlight {
     background: #FFD991;
-    padding: 0.5em 0.5em 0.7em 0.5em;
-    margin-right: 10px
+    padding: 0.5em 0 0.7em 0.7em;
+    margin-right: 4px;
+}
+
+#forumng-features .forumngfeature_dis_lock input {
+    margin-right: 5px;
+}
+
+#forumng-features .forumngfeature_dis_lock form {
+    margin-right: 0;
+}
+
+#forumng-features .forumngfeature_dis_merge input {
+    margin-left: 6px;
+}
+
+#forumng-features .forumng-highlight input {
+    margin-left: 0;
+    margin-right: 7px;
+}
+
+#forumng-features .forumngfeature-merge-extrahtml {
+    margin-right: 12px;
 }
 
 #forumng-features .forum-feature-edittags {
