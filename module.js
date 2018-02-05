@@ -791,6 +791,9 @@ M.mod_forumng = {
         // Remove all other event listeners just in case this func called multiple times.
         this.Y.Event.purgeElement(div.icon, false, 'click');
         div.anchor.on('click', function(e) {
+            if (div.anchor.hasClass('forumng-disabled')) {
+                return false;
+            }
             var cfg = {
                 method: 'POST',
                 timeout: 10000,
