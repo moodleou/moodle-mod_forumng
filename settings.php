@@ -126,8 +126,7 @@ $settings->add(new admin_setting_configduration('forumng_emailafter',
 
 $settings->add(new admin_setting_configtextarea('forumng_customeditortoolbar',
     get_string('customeditortoolbar', 'forumng'),
-    get_string('configcustomeditortoolbar', 'forumng'), 'style1 = bold,
-    style2 = italic,
+    get_string('configcustomeditortoolbar', 'forumng'), 'style1 = bold, italic
     style3 = link,
     collapse = collapse,
     style4 = underline, strike, subscript, superscript
