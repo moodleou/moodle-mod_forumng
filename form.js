@@ -32,31 +32,34 @@ M.mod_forumng_form = {
         var timelimit = 0;
         if (timelimitfield) {
             timelimit = Number(timelimitfield.get('value'));
-            timelimitinfo = t.Y.one('#id_editlimit');
-
+            var timelimitinfo = t.Y.one('#id_editlimit');
             // Set timers to change the info text at specific points.
-            var now = get_unix_time();
-            var delay = (timelimit - now) - 90;
-            setTimeout(function() {
-                // Text goes bold 90 seconds before timeout.
-                timelimitinfo.setHTML('<strong>' + timelimitinfo.getHTML() + '</strong>');
-            }, delay < 0 ? 0 : delay * 1000);
-            delay += 60;
-            setTimeout(function() {
-                // Use different text 30 seconds before timeout (when buttons
-                // are disabled).
-                timelimitinfo.setHTML('<strong>' + M.str.forumng.edit_timeout + '</strong>');
-                timelimitinfo.addClass('forumng-timeoutover');
-                t.Y.one('#id_cancel').on('click', function(){
-                    window.top.location.reload();
-                });
-                var buttonsubmit = t.Y.one('#id_submitbutton');
-                if (buttonsubmit) {
-                    buttonsubmit.set('disabled', 'disabled');
+            var interval = setInterval(function() {
+                var countdown = timelimit - get_unix_time();
+                if (countdown <= 0) {
+                    // Show message error in timeout.
+                    timelimitinfo.setHTML('<strong>' + M.str.forumng.edit_timeout + '</strong>');
+                    timelimitinfo.addClass('forumng-timeoutover');
+                    // Disabled submit button.
+                    var buttonsubmit = t.Y.one('#id_submitbutton');
+                    if (buttonsubmit) {
+                        buttonsubmit.set('disabled', 'disabled');
+                    }
+                    // Reload page after.
+                    t.Y.one('#id_cancel').on('click', function() {
+                        window.top.location.reload();
+                    });
+                    clearInterval(interval);
+                } else if (countdown <= 30) {
+                    // Test goes red 30 seconds before timeout.
+                    timelimitinfo.setHTML('<strong>' + timelimitinfo.getHTML() + '</strong>');
+                    timelimitinfo.addClass('forumng-timeoutover');
+                } else if (countdown <= 90) {
+                    // Text goes bold 90 seconds before timeout.
+                    timelimitinfo.setHTML('<strong>' + timelimitinfo.getHTML() + '</strong>');
                 }
-            }, delay < 0 ? 0 : delay * 1000);
+            }, 1000);
         }
-
         // Periodic processing to enable/disable the submit button.
         t.finterval = setInterval(function()
         {
