@@ -36,6 +36,7 @@ class mail_list_testcase extends \advanced_testcase
 
         $this->resetAfterTest();
         $this->preventResetByRollback();
+        \mod_forumng_mail_list::reset_static_cache();
 
         // Create three forums.
         $generator = $this->getDataGenerator();
