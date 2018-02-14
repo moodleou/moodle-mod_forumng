@@ -91,11 +91,13 @@ class mod_forumng_rating_testcase extends forumng_test_lib {
         $params['rating'] = 21;
 
         // Check rating valid, should fail with same user + rating too high.
-        $this->setExpectedException('rating_exception', get_string('nopermissiontorate', 'error'));
+        $this->expectException('rating_exception');
+        $this->expectExceptionMessage(get_string('nopermissiontorate', 'error'));
         $rm->check_rating_is_valid($params);
         $params['itemid'] = $post->id;
         $params['rateduserid'] = $suser->id;
-        $this->setExpectedException('rating_exception', get_string('invalidnum', 'error'));
+        $this->expectException('rating_exception');
+        $this->expectExceptionMessage(get_string('invalidnum', 'error'));
         $rm->check_rating_is_valid($params);
         $params['rating'] = 10;
         $result = $rm->check_rating_is_valid($params);

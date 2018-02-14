@@ -407,7 +407,7 @@ class mod_forumng_discussion_testcase  extends forumng_test_lib {
                 'groupmode' => VISIBLEGROUPS));
         $forum2 = mod_forumng::get_from_id($forumrecord2->id, mod_forumng::CLONE_DIRECT, true);
         mod_forumng::set_group_tags($forumrecord2->id, $group1->id, array('t1'));
-        $this->setExpectedException('moodle_exception');
+        $this->expectException('moodle_exception');
         $forumrecord2 = $generator->create_instance(array('course' => $course->id, 'enabletags' => true,
                 'groupmode' => VISIBLEGROUPS));
         $forum2 = mod_forumng::get_from_id($forumrecord2->id, mod_forumng::CLONE_DIRECT, true);
