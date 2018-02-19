@@ -191,7 +191,7 @@ class post extends \core_search\base_mod {
      * @return \mod_forumng_post|boolean Post object
      */
     protected function get_post($postid) {
-        return \mod_forumng_post::get_from_id($postid, 0, false, false, 0, true);
+        return \mod_forumng_post::get_from_id($postid, \mod_forumng::CLONE_DIRECT, false, false, 0, true);
     }
 
     /**
@@ -202,8 +202,8 @@ class post extends \core_search\base_mod {
      */
     public function get_doc_url(\core_search\document $doc) {
         $postintance = $this->get_post($doc->get('itemid'));
-        return new \moodle_url('/mod/forumng/discuss.php?d=' . $postintance->get_discussion()->get_id() .
-                '#p' . $postintance->get_id());
+        return new \moodle_url('/mod/forumng/discuss.php?' .
+                $postintance->get_discussion()->get_link_params(\mod_forumng::PARAM_PLAIN) . '#p' . $postintance->get_id());
     }
 
     /**
