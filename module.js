@@ -336,6 +336,7 @@ M.mod_forumng = {
 
         // Set up flags
         this.init_flags(node);
+        load_client_math();
     },
 
     /**
