@@ -196,9 +196,6 @@ if ($cmid) {
         // The display of the yes/no option is similar to other module behaviour
         // though we could just redirect to login instead.
         $wwwroot = $CFG->wwwroot.'/login/index.php';
-        if (!empty($CFG->loginhttps)) {
-            $wwwroot = str_replace('http:', 'https:', $wwwroot);
-        }
         $out = $forum->init_page($pageurl, get_string('unsubscribeshort', 'forumng'));
         print $out->header();
 
