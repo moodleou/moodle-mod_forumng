@@ -1484,7 +1484,7 @@ WHERE $conditions AND m.name = 'forumng' AND $restrictionsql",
     public function create_discussion($groupid,
             $subject, $message, $format, $attachments=false, $mailnow=false,
             $timestart=0, $timeend=0, $locked=false, $sticky=false,
-            $userid=0, $log=true, $asmoderator = self::ASMODERATOR_NO, $tags = null, $ipudloc = null) {
+            $userid=0, $log=true, $asmoderator = self::ASMODERATOR_NO, $tags = null, $ipudloc = null, $modified = 0) {
         global $DB, $CFG;
         require_once($CFG->dirroot . '/tag/lib.php');
 
@@ -1503,7 +1503,7 @@ WHERE $conditions AND m.name = 'forumng' AND $restrictionsql",
         $discussionobj->deleted = 0;
         $discussionobj->locked = $locked ? 1 : 0;
         $discussionobj->sticky = $sticky ? 1 : 0;
-        $discussionobj->modified = time();
+        $discussionobj->modified = ($modified == 0 ? time() : $modified);
         $discussionobj->ipudloc = ($ipudloc) ? $ipudloc : '';
 
         // Create discussion

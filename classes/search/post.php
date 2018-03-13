@@ -79,7 +79,8 @@ class post extends \core_search\base_mod {
                        fp.modified as postmodified, fp.deleted,
                        fp.deleteuserid, fp.important, fp.mailstate, fp.oldversion, fp.edituserid, fp.subject, fp.message,
                        fp.messageformat, fp.attachments, fp.asmoderator,
-                       fd.modified as discussionmodified, GREATEST(fp.modified, fd.modified) as modifyorder
+                       fd.modified as discussionmodified, GREATEST(fp.modified, fd.modified) as modifyorder,
+                       fd.groupid as groupid
                   FROM {forumng_posts} fp
                   JOIN {forumng_discussions} fd ON fp.discussionid = fd.id
                   JOIN {forumng} f ON fd.forumngid = f.id
@@ -145,6 +146,11 @@ class post extends \core_search\base_mod {
         $doc->set('itemid', $record->forumpostid);
         $doc->set('owneruserid', \core_search\manager::NO_OWNER_ID);
         $doc->set('userid', $record->userid);
+
+        // Store groupid if there is one.
+        if ($record->groupid > 0) {
+            $doc->set('groupid', $record->groupid);
+        }
 
         // Set optional 'new' flag.
         if (isset($options['lastindexedtime']) && ($options['lastindexedtime'] < $record->created)) {
@@ -267,5 +273,29 @@ class post extends \core_search\base_mod {
     public function get_tag_by_discussion($discussionid) {
         return \core_tag_tag::get_item_tags_array('mod_forumng', 'forumng_discussions',
             $discussionid);
+    }
+
+    /**
+     * Indicates that this search area may restrict access by group.
+     *
+     * @return bool True
+     */
+    public function supports_group_restriction() {
+        return true;
+    }
+
+    /**
+     * Used to change ordering within the get_contexts_to_reindex
+     * function.
+     *
+     * It returns 2 values:
+     * - Extra SQL joins (tables course_modules 'cm' and context 'x' already exist).
+     * - An ORDER BY value which must use aggregate functions, by default 'MAX(cm.added) DESC'.
+     *
+     * @return string[] Array with 2 elements; extra joins for the query, and ORDER BY value
+     */
+    protected function get_contexts_to_reindex_extra_sql() {
+        return ['JOIN {forumng_discussions} fd ON fd.forumngid = cm.instance',
+                'MAX(fd.modified) DESC'];
     }
 }
