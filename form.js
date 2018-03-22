@@ -1,13 +1,16 @@
 M.mod_forumng_form = {
     Y : null,
     finterval: null,
+    rootpostid: '',
     /**
      * Main init function called from HTML.
      *
      * @param Y YUI object
+     * @param rootpostid integer
      */
-    init : function(Y) {
+    init : function(Y, rootpostid) {
         this.Y = Y;
+        this.rootpostid = rootpostid || '';
         Y.on("domready", this.dom_init, this);
         if (!String.prototype.trim) {
             String.prototype.trim = function() {
@@ -66,7 +69,7 @@ M.mod_forumng_form = {
             // Collect data for disabling buttons.
             var submit = t.Y.one('#id_submitbutton');
             var savedraft = t.Y.one('#id_savedraft');
-            var textarea = t.Y.one('#id_message');
+            var textarea = t.Y.one('#id_message' + t.rootpostid);
             if (textarea) {
                 var sourcetext = textarea.get('value');
                 if (textarea.getStyle('display') == 'none' && window.tinyMCE &&

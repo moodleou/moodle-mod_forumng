@@ -147,7 +147,7 @@ class forumngtype_ipud_renderer extends mod_forumng_renderer {
      * @param mod_forumng_discussion $discussion
      */
     public function render_content_below_content_discussion($discussion) {
-        global $CFG;
+        global $CFG, $PAGE;
         require_once($CFG->dirroot . '/mod/forumng/editpost_form.php');
         $rootpost = $discussion->get_root_post();
         $params = array('replyto' => $discussion->get_root_post()->get_id());
@@ -162,6 +162,21 @@ class forumngtype_ipud_renderer extends mod_forumng_renderer {
                   'iframe' => false, 'replyoption' => $replyoption,
                   'timelimit' => !$rootpost->can_ignore_edit_time_limit() ? $rootpost->get_edit_time_limit() : 0,
                   'draft' => false, 'tags' => false, 'forumtags' => false));
+
+        // Include form javascript to disabled post reply button when content is empty.
+        $simple = get_user_preferences('forumng_simplemode', '');
+        if ($PAGE->devicetypeinuse == 'legacy' || $simple) {
+            return;
+        }
+        $module = array(
+            'name'      => 'mod_forumng_form',
+            'fullpath'  => '/mod/forumng/form.js',
+            'requires'  => array('base', 'node'),
+            'strings'   => array(array('edit_timeout', 'forumng'))
+        );
+        $PAGE->requires->js_init_call('M.mod_forumng_form.init',
+            array($discussion->get_root_post()->get_id()), false, $module);
+
         return html_writer::tag('div', $mform->get_html(), array('class' => 'forumng-bottom-reply'));
     }
 
