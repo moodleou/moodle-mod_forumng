@@ -127,7 +127,7 @@ class get_posts extends external_api {
         }
 
         return array(
-            'totalpost' => $discussion->get_num_posts() - 1, // Excluding root post.
+            'totalpost' => $discussion->get_num_posts(),
             'data' => $returndata
         );
     }

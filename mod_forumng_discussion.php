@@ -230,8 +230,12 @@ class mod_forumng_discussion {
         if ($this->discussionfields->numreadposts == self::PAST_SELL_BY) {
             return '';
         } else {
-            return $this->discussionfields->numposts
-                - $this->discussionfields->numreadposts;
+            $unreadpost = $this->discussionfields->numposts - $this->discussionfields->numreadposts;
+            $numposts = $this->get_forum()->get_type()->calculate_number_of_unread_posts($unreadpost, $this);
+            if (!is_bool($numposts)) {
+                return $numposts;
+            }
+            return $unreadpost;
         }
     }
 
@@ -242,6 +246,12 @@ class mod_forumng_discussion {
         if (!isset($this->discussionfields->numposts)) {
             throw new coding_exception('Post count not obtained');
         }
+        $numposts = $this->get_forum()->get_type()->calculate_number_of_posts($this->discussionfields->numposts);
+        // Check if number of post return result is not boolean.
+        if (!is_bool($numposts)) {
+            return $numposts;
+        }
+
         return $this->discussionfields->numposts;
     }
 

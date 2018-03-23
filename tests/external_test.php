@@ -76,10 +76,10 @@ class forumng_external_test extends advanced_testcase {
     }
 
     /**
-     * Tests the get_posts() function. This function is the meat of the web service but we cannot
-     * check it as a web service so we just call the function.
+     * Tests the get_posts() function for iPud ForumNG type. This function is the meat of the web service
+     * but we cannot check it as a web service so we just call the function.
      */
-    public function test_get_posts() {
+    public function test_get_posts_ipud() {
         global $USER, $DB;
         $this->resetAfterTest(true);
         $this->setAdminUser();
@@ -96,7 +96,7 @@ class forumng_external_test extends advanced_testcase {
         self::getDataGenerator()->enrol_user($student->id, $course->id, $roleid);
 
         // Create forum.
-        $forum = $generator->create_instance(array('course' => $course->id));
+        $forum = $generator->create_instance(array('course' => $course->id, 'type' => 'ipud'));
 
         // Create discussion for current user.
         $record = new stdClass();

@@ -22,3 +22,4 @@
  */
 $string['pluginname'] = 'In-page forum';
 $string['linktodiscussion'] = 'Link to discussion';
+$string['nopostsyet'] = 'No posts yet';

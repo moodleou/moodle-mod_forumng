@@ -233,4 +233,22 @@ class forumngtype_ipud_renderer extends mod_forumng_renderer {
         $html = $out->render_expand_link($linkprefix, $discussion, $post);
         return $html;
     }
+
+    /**
+     * Renders last post details for a discussion.
+     *
+     * @param mod_forumng_discussion $discussion object
+     * @param int $lastpostanon boolen if last post was anon
+     * @param int $num value for specifying the position the last post details are rendered to in the item list
+     * @returns string the td html tag containing the last post details
+     */
+    public function render_discussion_list_item_lastpost($discussion, $lastposteranon, $num) {
+        $result = parent::render_discussion_list_item_lastpost($discussion, $lastposteranon, $num);
+        if ($discussion->get_num_posts() == 0) {
+            $result = html_writer::start_tag('td', array('class' => 'cell c' . $num . ' forumng-lastpost'));
+            $lastpostcell = get_string('nopostsyet', 'forumngtype_ipud');
+            $result .= $lastpostcell . html_writer::end_tag('td');
+        }
+        return $result;
+    }
 }

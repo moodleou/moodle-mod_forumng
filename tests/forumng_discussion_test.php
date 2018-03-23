@@ -757,23 +757,61 @@ class mod_forumng_discussion_testcase  extends forumng_test_lib {
 
     /*
      * In ipud,user can't start new discussion.
+     * Test unread and readpost count in ipud.
      */
     public function test_discussion_ipud() {
         $this->resetAfterTest(true);
         $this->setAdminUser();
-        $user1 = $this->get_new_user();
+        $generator = self::getDataGenerator()->get_plugin_generator('mod_forumng');
 
         // Create course.
         $course = $this->get_new_course('testcourse');
+        $user1 = $this->get_new_user();
+        $user2 = $this->get_new_user('student', $course->id);
+
         $forumrecord = $this->get_new_forumng($course->id, array('type' => 'ipud'));
         $forums = \mod_forumng::get_course_forums($course, $user1->id, mod_forumng::UNREAD_DISCUSSIONS,
             array($forumrecord->get_course_module_id()));
         $forum = reset($forums);
+        $discussionrecord = new stdClass();
+        $discussionrecord->course = $course->id;
+        $discussionrecord->userid = $user1->id;
+        $discussionrecord->forum = $forumrecord->get_id();
+
+        $newdiscussion = $generator->create_discussion($discussionrecord);
+        $discussionuser1 = mod_forumng_discussion::get_from_id($newdiscussion[0], 0, $user1->id);
+        // Root post always count as read in IPUD.
+        $numposts = $discussionuser1->get_num_posts();
+        $unreadnumposts = $discussionuser1->get_num_unread_posts();
+        $this->assertEquals(0, $numposts);
+        $this->assertEquals(0, $unreadnumposts);
+
+        // Create replies for discussion by student user.
+        $reply1 = $generator->create_post(
+            array(
+                'discussionid' => $newdiscussion[0],
+                'parentpostid' => $newdiscussion[1],
+                'userid' => $user2->id,
+                'message' => 'Reply 1'
+            )
+        );
+        // User 1 shouldn't read User 2 post yet.
+        $discussionuser1updated = mod_forumng_discussion::get_from_id($newdiscussion[0], 0, $user1->id);
+        $numposts = $discussionuser1updated->get_num_posts();
+        $unreadnumposts = $discussionuser1updated->get_num_unread_posts();
+        $discussionuser2 = mod_forumng_discussion::get_from_id($newdiscussion[0], 0, $user2->id);
+        $this->assertEquals(1, $numposts);
+        $this->assertEquals(1, $unreadnumposts);
+        // User 2 should already read his post.
+        $numpostsuser2 = $discussionuser2->get_num_posts();
+        $unreadnumpostsuser2 = $discussionuser2->get_num_unread_posts();
+        $this->assertEquals(1, $numpostsuser2);
+        $this->assertEquals(0, $unreadnumpostsuser2);
+
         // User can't start discussion.
         $whynot = '';
         $this->assertFalse($forum->can_start_discussion(-1, $whynot));
         $this->assertEquals('error_new_discussion_ipud', $whynot);
-
     }
 
     /**

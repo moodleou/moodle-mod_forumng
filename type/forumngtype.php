@@ -279,4 +279,24 @@ abstract class forumngtype {
         return false;
     }
 
+    /**
+     * Calculate number of posts based on forum type with original post number.
+     * Default implementation just returns false.
+     *
+     *  @return bool . Return false for default.
+     */
+    public function calculate_number_of_posts($originalpostnumber) {
+        return false;
+    }
+
+    /**
+     * Calculate number of unread posts based on forum type with original unread post number.
+     * Default implementation just returns false.
+     *
+     *  @return bool . Return false for default.
+     */
+    public function calculate_number_of_unread_posts($originalunreadpostnumber, $discussion) {
+        return false;
+    }
+
 }

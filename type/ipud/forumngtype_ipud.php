@@ -194,4 +194,29 @@ class forumngtype_ipud extends forumngtype_general {
         return true;
     }
 
+    /**
+     * Get number of post base on forum type.
+     *
+     * @param int $originalpostnumber original post number in the discussion.
+     * @return int calculate number of posts.
+     */
+    public function calculate_number_of_posts($originalpostnumber) {
+        return $originalpostnumber - 1; // Remove root post.
+    }
+
+    /**
+     * Calculate number of unread posts based on forum type with original unread post number.
+     *
+     * @param int $originalunreadpostnumber original unread post number in the discussion.
+     * @param mod_forumng_discussion $discussion
+     * @return int calculate number of unread posts.
+     */
+    public function calculate_number_of_unread_posts($originalunreadpostnumber, $discussion) {
+        $unreadrootpost = $discussion->get_root_post()->is_unread();
+        if ($unreadrootpost) {
+           return $originalunreadpostnumber - 1; // Unread rootpost always treat as read for ipud.
+        }
+        return $originalunreadpostnumber;
+    }
+
 }
