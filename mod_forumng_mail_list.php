@@ -100,7 +100,7 @@ class mod_forumng_mail_list {
         // to send out double-posts.
         if ($pending = get_config('forumng', $this->get_pending_flag_name())) {
             list ($time, $forumid) = explode(',', $pending);
-            $this->mark_mailed(explode($time, $forumid));
+            $this->mark_mailed($time, (int) $forumid);
         }
 
         // Get next forum id.
