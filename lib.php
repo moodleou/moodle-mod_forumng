@@ -503,7 +503,8 @@ function mod_forumng_pluginfile($course, $cm, $context, $filearea, $args, $force
         send_file_not_found();
     }
     $lifetime = isset($CFG->filelifetime) ? $CFG->filelifetime : 86400;
-    send_stored_file($file, $lifetime, 0);
+    $download = $filearea == 'attachment' ? true : false;
+    send_stored_file($file, $lifetime, 0, $download);
 }
 
 function mod_forumng_cm_info_view(cm_info $cm) {
