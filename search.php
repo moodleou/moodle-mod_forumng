@@ -81,15 +81,26 @@ $url = $CFG->wwwroot .'/mod/forumng/advancedsearch.php?' . $options;
 $strlink = get_string('advancedsearch', 'forumng');
 print "<div class='advanced-search-link'><a href=\"$url\">$strlink</a>";
 // Add link to search the rest of this website if service available.
-if (!empty($CFG->block_resources_search_baseurl)) {
-    $params = array('course' => $course->id, 'query' => $querytext);
-    $restofwebsiteurl = new moodle_url('/blocks/resources_search/search.php', $params);
-    $strrestofwebsite = get_string('restofwebsite', 'local_ousearch');
-    $altlink = html_writer::start_tag('div');
-    $altlink .= html_writer::link($restofwebsiteurl, $strrestofwebsite);
-    $altlink .= html_writer::end_tag('div');
-    print $altlink;
+$plugins = core_plugin_manager::instance()->get_plugins_of_type('local');
+if (array_key_exists('moodleglobalsearch', $plugins)) {
+    $courseid = $PAGE->course->id;
+    $coursecontext = \context_course::instance($courseid);
+    $enabled = \local_moodleglobalsearch\util::is_course_supported($PAGE->course);
+    if (has_capability('local/moodleglobalsearch:query', $coursecontext) && $enabled === true) {
+        $params = ['contextid' => $coursecontext->id, 'q' => $querytext];
+        $restofwebsiteurl = new moodle_url('/local/moodleglobalsearch/search.php', $params);
+        $strrestofwebsite = get_string('restofwebsite', 'local_ousearch');
+        $altlink = html_writer::start_tag('div');
+        $altlink .= html_writer::link($restofwebsiteurl, $strrestofwebsite);
+        $altlink .= html_writer::end_tag('div');
+        echo $altlink;
+    } else if (!empty($CFG->block_resources_search_baseurl)) {
+        mod_forumng::create_resources_search_course_link($course->id, $querytext);
+    }
+} else if (!empty($CFG->block_resources_search_baseurl)) {
+        mod_forumng::create_resources_search_course_link($course->id, $querytext);
 }
+
 print '</div>';
 
 print $out->footer();
