@@ -24,3 +24,4 @@
 $string['sticky_on'] = 'Make discussions sticky';
 $string['sticky_off'] = 'Make discussions not sticky';
 $string['pluginname'] = 'Option to manually mark discussions sticky';
+$string['privacy:metadata'] = 'The Option to manually mark discussions sticky plugin does not store any personal data.';

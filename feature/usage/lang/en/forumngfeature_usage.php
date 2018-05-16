@@ -84,3 +84,4 @@ $string['forumng_ratings_grading_count_help'] = 'Shows most rated posts by the t
 $string['forumng_ratings_grading_max_help'] = 'Shows most rated posts by their highest maximum rating';
 $string['forumng_ratings_grading_min_help'] = 'Shows most rated posts by  their highest minimum rating';
 $string['forumng_ratings_grading_sum_help'] = 'Shows most rated posts by the total sum of ratings per post';
+$string['privacy:metadata'] = 'The Forum statistics view plugin does not store any personal data.';

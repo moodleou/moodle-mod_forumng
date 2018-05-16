@@ -22,3 +22,4 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 $string['pluginname'] = 'Discussion options';
+$string['privacy:metadata'] = 'The Discussion options plugin does not store any personal data.';

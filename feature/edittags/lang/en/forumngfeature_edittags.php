@@ -34,3 +34,4 @@ $string['edittags:editsettags'] = 'Edit \'Set\' discussion tags';
 $string['edittags:managesettags'] = 'Manage \'Set\' discussion tags';
 $string['setgrptags'] = 'Set discussion tags';
 $string['setgrptags_help'] = 'Enter group wide \'Set\' tags for use in discussions by entering tags separated by commas';
+$string['privacy:metadata'] = 'The  Add \'Set\' discussion tags at group level plugin does not store any personal data.';

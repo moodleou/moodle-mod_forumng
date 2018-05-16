@@ -61,3 +61,4 @@ Subject: {$a->subject}<br />
 Forum: {$a->forum}<br />
 Module: {$a->course}<br/>
 <br/>';
+$string['privacy:metadata'] = 'The Delete/undelete discussion plugin does not store any personal data.';

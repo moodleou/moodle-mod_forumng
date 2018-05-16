@@ -22,3 +22,4 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 $string['pluginname'] = 'Clone forum';
+$string['privacy:metadata'] = 'The Clone forum plugin does not store any personal data.';

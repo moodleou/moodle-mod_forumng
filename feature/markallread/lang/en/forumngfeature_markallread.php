@@ -23,3 +23,4 @@
  */
 $string['markallread'] = 'Mark all posts read';
 $string['pluginname'] = 'Mark all posts read';
+$string['privacy:metadata'] = 'The Mark all posts read plugin does not store any personal data.';

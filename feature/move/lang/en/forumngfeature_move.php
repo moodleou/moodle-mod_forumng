@@ -32,3 +32,4 @@ $string['movediscussions'] = 'Move discussions';
 $string['group_info'] = 'You appear to have moved discussions to a forum that has groups for which some but not all of your moved discussions belong,
                          any discussions that do not have matching groups within that forum will be allocated to all participants and will need to be allocated to groups manually.';
 $string['nogroup_info'] = 'You have moved discussions to a non-group forum. All discussions will be allocated to all participants and group details will be lost';
+$string['privacy:metadata'] = 'The Move discussion plugin does not store any personal data.';

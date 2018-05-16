@@ -24,3 +24,4 @@
 $string['export'] = 'Export';
 $string['pluginname'] = 'Export posts';
 $string['exportallnodisc'] = 'No discussions selected for export';
+$string['privacy:metadata'] = 'The Export posts plugin does not store any personal data.';

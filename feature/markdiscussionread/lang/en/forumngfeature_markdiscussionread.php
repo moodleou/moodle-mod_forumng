@@ -23,3 +23,4 @@
  */
 $string['markdiscussionread'] = 'Mark discussion read';
 $string['pluginname'] = 'Mark discussion read';
+$string['privacy:metadata'] = 'The Mark discussion read plugin does not store any personal data.';
