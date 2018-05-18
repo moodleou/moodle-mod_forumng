@@ -532,6 +532,16 @@ M.mod_forumng = {
                 }
             };
 
+            doc.getElementById('id_savedraft').onclick = function() {
+                var x = setInterval(function() {
+                    var draftexists = innerwin.Y.one('.forumng-draftexists');
+                    if (draftexists) {
+                        t.scroll_page(Y.one('.forumng-inlineform'));
+                        clearInterval(x);
+                    }
+                }, 500);
+            };
+
             // Focus the editor.
             var try_focus = function() {
                 if (innerwin.tinyMCE) {
