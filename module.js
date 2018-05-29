@@ -1080,7 +1080,7 @@ M.mod_forumng = {
             } else {
                 links[j].onclick = function(){};
             }
-            links[j].style.cursor = 'auto';
+            links[j].style.cursor = 'pointer';
             links[j].tabIndex = 0;
             links[j].className = links[j].className.replace(' forumng-disabled', '');
         }
