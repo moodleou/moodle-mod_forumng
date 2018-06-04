@@ -34,3 +34,4 @@ $string['copy_begin'] = 'Begin copy';
 $string['copy_title'] = 'Copy discussion';
 $string['copyall_title'] = 'Copy discussion(s)';
 $string['pluginname'] = 'Copy discussion';
+$string['privacy:metadata:preference:forumng_hidecopyhelp'] = 'Hide instructions when copy the discussion(s) into another forum.';
