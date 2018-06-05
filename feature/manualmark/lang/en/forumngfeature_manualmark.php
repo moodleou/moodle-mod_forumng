@@ -34,3 +34,4 @@ $string['manualmark_change_help'] = '&lsquo;Automatically mark as read&rsquo; ma
 
 This option applies to all forums on this system.';
 $string['pluginname'] = 'Option to manually mark discussions and posts read';
+$string['privacy:metadata:preference:forumng_manualmark'] = 'Manually mark a post or a discussion as read.';
