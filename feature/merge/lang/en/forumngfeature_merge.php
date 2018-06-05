@@ -35,3 +35,4 @@ $string['cancelmerge'] = 'Cancel merge';
 $string['cannotmergehere'] = '(Cannot merge here.)';
 $string['error_wrongforum'] = 'Cannot merge into different forum';
 $string['pluginname'] = 'Merge discussions';
+$string['privacy:metadata:preference:forumng_hidemergehelp'] = 'Hide instruction to merge a discussion into another.';
