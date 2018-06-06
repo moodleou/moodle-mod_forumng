@@ -966,3 +966,67 @@ $string['missingparam_formatmessage'] = 'Format message function requires "posti
 $string['cronlimit'] = 'Time limit for normal email sending';
 $string['cronlimit_desc'] = 'Amount of time spent per scheduled task run for sending out normal emails. After this time limit, sending will resume the next time the task runs.';
 $string['image_placeholder'] = ' [Image] ';
+
+$string['privacy:metadata:forumng_posts'] = 'Information about the post for each forum.';
+$string['privacy:metadata:forumng_posts:created'] = 'Time originally created (seconds since epoch). This time remains the same if the post is edited.';
+$string['privacy:metadata:forumng_posts:modified'] = 'Time modified (seconds since epoch). Initially same as creation time. Changes if post is edited.';
+$string['privacy:metadata:forumng_posts:subject'] = 'Contains the message subject. May be null if there is no change in subject';
+$string['privacy:metadata:forumng_posts:message'] = 'Actual text of message in format specified by format field.';
+$string['privacy:metadata:forumng_posts:userid'] = 'User ID';
+$string['privacy:metadata:forumng_posts:deleted'] = 'Normally 0. If this post was deleted, this field stores the time at which it was deleted. Posts may be \'really\' removed from the database later by cron.';
+$string['privacy:metadata:forumng_posts:messageformat'] = 'Format of text in the \'message\' field, e.g. FORMAT_HTML.';
+$string['privacy:metadata:forumng_posts:mailstate'] = '0 = post has not been mailed yet. 1 = post has not been mailed, is set to \'mail now\'. 2 = post has been mailed. 3 = post has been mailed and included in any digests.';
+$string['privacy:metadata:forumng_posts:attachments'] = 'This flag is set to 1 if there are attachments, 0 if not. Information (count, names, sizes) about the attachments in the post must be obtained by accessing the filesystem folder related to this post ID.';
+$string['privacy:metadata:forumng_posts:asmoderator'] = 'This flag is set to 1 if the user is a moderator, 0 if not.';
+$string['privacy:metadata:forumng_posts:edituserid'] = 'If the post has been edited, this field stores the ID of the user who made this edit.';
+$string['privacy:metadata:forumng_posts:oldversion'] = '0 for all current posts. When a post is edited, a copy of the previous version is added to this table. The copy has this field set to 1, and the parentpostid field set to the ID of the real post. These extra copies may be deleted periodically via cron.';
+$string['privacy:metadata:forumng_posts:important'] = 'If important is equal to 1, highlight the post. Default value is 0.';
+$string['privacy:metadata:forumng_posts:deleteuserid'] = 'If the post has been deleted, this field stores the ID of the user who deleted it. Null if the post has not been deleted.';
+
+$string['privacy:metadata:forumng_ratings'] = 'Information about the post rating for each forum.';
+$string['privacy:metadata:forumng_ratings:userid'] = 'ID of user who rated post';
+$string['privacy:metadata:forumng_ratings:time'] = 'Time at which rating was given (or last updated).';
+$string['privacy:metadata:forumng_ratings:rating'] = 'Actual rating. The meaning of this value depends on the scale used.';
+
+$string['privacy:metadata:forumng_subscriptions'] = 'Information about the subscriptions for each forum.';
+$string['privacy:metadata:forumng_subscriptions:userid'] = 'ID of user who will receive forum email.';
+$string['privacy:metadata:forumng_subscriptions:subscribed'] = 'This field is usually 1. It indicates that the user has chosen to subscribe to the forum. In the case of initial-subscription forums it may be 0, indicating that the user has chosen to unsubscribe. (If the user has not changed the default state, there would be no row for them in this table.)';
+$string['privacy:metadata:forumng_read'] = 'Information about who read the discussion';
+$string['privacy:metadata:forumng_read:userid'] = 'ID of user who\'s read the discussion';
+$string['privacy:metadata:forumng_read:time'] = 'Time at which they read the discussion.';
+$string['privacy:metadata:forumng_read_posts'] = 'Information about who read the post';
+$string['privacy:metadata:forumng_read_posts:userid'] = 'ID of user who\'s read the post.';
+$string['privacy:metadata:forumng_read_posts:time'] = 'Time at which they read the post.';
+
+$string['privacy:metadata:forumng_drafts'] = 'Information about user who wrote this draft post.';
+$string['privacy:metadata:forumng_drafts:userid'] = 'User who wrote this draft post.';
+$string['privacy:metadata:forumng_drafts:subject'] = 'Message subject. Should be null if this reply does not change the subject.';
+$string['privacy:metadata:forumng_drafts:message'] = 'Text of message (required, but may be empty string).';
+$string['privacy:metadata:forumng_drafts:messageformat'] = 'Identifier for Moodle format (e.g. HTML) used for message content.';
+$string['privacy:metadata:forumng_drafts:attachments'] = 'Set to 1 if this draft contains any attachments, 0 otherwise. Attachment files themselves can be determined based on contents of the relevant folder.';
+$string['privacy:metadata:forumng_drafts:saved'] = 'Time last saved in seconds since epoch. (Note: Unlike the created/modified times in forumng_posts, the \'saved\' time is used for both states here.)';
+$string['privacy:metadata:forumng_drafts:options'] = 'This field may be set to contain serialised/encoded values of additional form fields, depending on the state of the form when the draft was created.';
+
+$string['privacy:metadata:forumng_flags'] = 'Information about user who has flagged the post.';
+$string['privacy:metadata:forumng_flags:userid'] = 'User who has flagged the post.';
+$string['privacy:metadata:forumng_flags:flagged'] = 'Time (seconds since epoch) that the post was flagged.';
+$string['privacy:metadata:core_rating'] = 'The forum makes use of the rating subsystem to support the rating of posts.';
+$string['privacy:metadata:core_tag'] = 'The forum makes use of the tag subsystem to support tagging of forum,discussion.';
+$string['privacy:metadata:core_files'] = 'The forum stores files which have been uploaded by the user to form part of a forum post.';
+$string['privacy:metadata:preference:autosubscribe'] = 'Whether to subscribe to discussions when replying to posts within them.';
+$string['privacy:metadata:preference:forumng_manualmark'] = 'Manual mark preference.';
+$string['privacy:metadata:preference:forumng_hidecopyhelp'] = 'Hide copy help preference';
+$string['privacy:metadata:preference:forumng_hidemergehelp'] = 'Hide merge help preference';
+$string['privacy:metadata:preference:maildigest'] = 'The site-wide mail digest preference.';
+$string['privacy:metadata:preference:forumng_simplemode'] = 'Simple mode for view preference';
+$string['privacy:postwasread'] = 'This post was read on {$a->time}';
+$string['privacy:postwasflagged'] = 'This post was flagged';
+$string['privacy:postwasrated'] = 'This post was rated on {$a->time} with rating {$a->customrating}';
+$string['forumngdraft'] = 'Drafts';
+$string['forumngsubscriptions'] = 'Subscriptions';
+$string['forumngreaddiscussion'] = 'Read';
+$string['forumngflagdiscussion'] = 'Flag';
+$string['forumngreadposts'] = 'Read posts';
+$string['forumngflagposts'] = 'Flag posts';
+$string['privacy_you'] = 'You';
+$string['privacy_somebodyelse'] = 'Somebody else';
