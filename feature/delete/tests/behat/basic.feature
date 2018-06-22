@@ -73,7 +73,7 @@ Feature: Delete discussions
   @javascript
   Scenario: Javascript tests
     Given I log in as "admin"
-    Given I navigate to "Site security settings" node in "Site administration > Security"
+    Given I navigate to "Site policies" node in "Site administration > Security"
     And I set the field "Maximum time to edit posts" to "1 minutes"
     And I press "Save changes"
     And I am on "Course 1" course homepage

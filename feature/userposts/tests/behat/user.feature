@@ -1,4 +1,4 @@
-@mod @mod_forumng @ou @ou_vle @forumng_feature_userposts
+@mod @mod_forumng @ou @ou_vle @forumng_feature_userposts @javascript
 Feature: Add forumng activity and test userposts filtering
   In order to easily evaluate user posts
   As a teacher
@@ -12,8 +12,8 @@ Feature: Add forumng activity and test userposts filtering
       | teacher1 | Teacher | 1 | teacher1@asd.com |
       | teacher2 | Teacher | 2 | teacher2@asd.com |
     When the following "courses" exist:
-      | fullname | shortname | category | startdate  |
-      | Course 1 | C1        | 0        | 1420070400 |
+      | fullname | shortname | category |
+      | Course 1 | C1        | 0        |
     Then the following "course enrolments" exist:
       | user | course | role |
       | student1 | C1 | student |
@@ -41,7 +41,6 @@ Feature: Add forumng activity and test userposts filtering
     And I follow "Discussion 1"
     And I set the following fields to these values:
       | rating | 10 |
-    And I press "Rate"
     And I log out
     And I amend the forumng rated posts to new rated date:
      | student1 |  Discussion 1 | 2014-12-02 |
@@ -131,13 +130,11 @@ Feature: Add forumng activity and test userposts filtering
     And I follow "Discussion 2"
     And I set the following fields to these values:
       | rating | 10 |
-    And I press "Rate"
     And I follow "C1"
     And I follow "Test forum name"
     And I follow "Discussion 1"
     And I set the following fields to these values:
       | rating | 9 |
-    And I press "Rate"
     And I log out
 
     And I log in as "admin"
@@ -147,7 +144,7 @@ Feature: Add forumng activity and test userposts filtering
     And I follow "Show all posts by Student 1"
     And I set the following fields to these values:
       | rating | 7 |
-    And I press "Rate"
+
     # Results.
 
     And I should see "User posts"
@@ -255,7 +252,6 @@ Feature: Add forumng activity and test userposts filtering
     And I follow "Show all posts by Student 2"
     And I set the following fields to these values:
       | rating | 10 |
-    And I press "Rate"
     And I log out
 
     And I log in as "student2"

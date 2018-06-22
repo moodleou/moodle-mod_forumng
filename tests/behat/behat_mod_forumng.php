@@ -177,8 +177,6 @@ class behat_mod_forumng extends behat_base {
                 ' .forumng-commands .' . $link .' a', 'css_element'));
         // Switch steps depending on javascript as page acts differently.
         if ($this->running_javascript()) {
-            $this->execute('behat_general::wait_until_the_page_is_ready', array());
-            $this->execute('behat_general::wait_until_exists', array('iframe[name=forumng-post-iframe]', 'css_element'));
             $this->execute('behat_general::switch_to_iframe', array('forumng-post-iframe'));
             $this->execute('behat_general::wait_until_exists', array($savebutton, 'button'));
             $this->execute('behat_general::wait_until_the_page_is_ready', array());
