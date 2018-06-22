@@ -607,4 +607,108 @@ class mod_forumng_forumng_testcase extends forumng_test_lib {
         $this->assertEquals(mod_forumng::QUOTA_DOES_NOT_APPLY, $limit->get_remaining_post_quota());
         $this->assertEquals(0, $limit->get_remaining_post_quota($student->id));
     }
+
+    /**
+     * Checks get prevent features list.
+     */
+    public function test_prevent_forumngfeature_discussion_list() {
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        $course = $this->get_new_course();
+        $forumipud = $this->get_new_forumng($course->id, array('type' => 'ipud'));
+        $forum = $this->get_new_forumng($course->id);
+        $preventfeature = $forumipud->get_type()->prevent_forumngfeature_discussion();
+        $features = array();
+        foreach ($preventfeature as $pf) {
+            $features[] = forumngfeature::get_new(str_replace('forumngfeature_', '', $pf));
+        }
+        $this->assertNotEquals(forumngfeature::get_all($forum->get_type()),
+            forumngfeature::get_all($forumipud->get_type()));
+        $this->assertNotContains($features, forumngfeature::get_all($forumipud->get_type()));
+    }
+
+    /**
+     * Test call to get the format message.
+     *
+     * @throws moodle_exception
+     */
+    public function test_formatmessage_success() {
+        global $USER;
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        // Create course, forum, discussion and post with fake plugin file.
+        $course = $this->get_new_course();
+        $forum = $this->get_new_forumng($course->id, array('name' => 'ForumNG 1', 'intro' => 'Intro'));
+        $discussion = $this->get_new_discussion($forum, array('userid' => $USER->id));
+        $message = '@@PLUGINFILE@@/image.png';
+        $postid = $discussion->get_root_post()->reply('Subject 1', $message, 1);
+
+        $response = mod_forumng_output_fragment_formatmessage(array(
+            'postid' => $postid,
+            'rawmessage' => $message
+        ));
+
+        // Check that @@PLUGINFILE@@ have been replaced by real link.
+        $this->assertContains('https://www.example.com/moodle/pluginfile.php', $response);
+        $this->assertContains('image.png', $response);
+        $this->assertNotContains('@@PLUGINFILE@@', $response);
+    }
+
+    /**
+     * Check call to format message function when missing postid or rawmessage parameters.
+     *
+     * @throws moodle_exception
+     */
+    public function test_formatmessage_missingparameters() {
+        global $USER;
+
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        $this->expectException('moodle_exception');
+        $this->expectExceptionMessage(get_string('missingparam_formatmessage', 'mod_forumng'));
+        mod_forumng_output_fragment_formatmessage(array(
+            'postid' => 1,
+        ));
+
+        mod_forumng_output_fragment_formatmessage(array(
+            'rawmessage' => '@@PLUGINFILE@@/image.png',
+        ));
+    }
+
+    /**
+     *  Test call to format message, expect exception if user not have view permission.
+     *
+     * @throws moodle_exception
+     */
+    public function test_formatmessage_nopermission() {
+        global $USER;
+
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        // Create course, forum, discussion and post with fake plugin file.
+        $course = $this->get_new_course('Course 1');
+        $forum = $this->get_new_forumng($course->id, array(
+            'name' => 'ForumNG 1',
+            'intro' => 'Intro',
+            'groupmode' => SEPARATEGROUPS
+        ));
+        $discussion = $this->get_new_discussion($forum, array('userid' => $USER->id));
+        $message = '@@PLUGINFILE@@/image.png';
+        $postid = $discussion->get_root_post()->reply('Subject 1', $message, 1);
+        $student = $this->get_new_user('student');
+        $this->setUser($student);
+
+        // Expect exception because this student not belong to a group require for this forum.
+        $this->expectException('moodle_exception');
+        $this->expectExceptionMessage(get_string('error_cannotviewdiscussion', 'mod_forumng'));
+
+        mod_forumng_output_fragment_formatmessage(array(
+            'postid' => $postid,
+            'rawmessage' => $message
+        ));
+    }
 }

@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+defined('MOODLE_INTERNAL') || die();
+
 require_once(dirname(__FILE__).'/mod_forumng.php');
 
 /**
@@ -34,14 +36,22 @@ require_once(dirname(__FILE__).'/mod_forumng.php');
  *
  * When used with shared forums, this will return multiple copies of each
  * message (one from each shared forum including the original one).
- * @package mod
- * @subpackage forumng
+ *
+ * @package mod_forumng
  * @copyright 2011 The Open University
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class mod_forumng_mail_list {
     /** Config flag used to prevent sending mails twice */
     const PENDING_MARK_MAILED = 'pending_mark_mailed';
+
+    /** Special marker used to indicate there are no more forums to process */
+    const FORUMID_NO_MORE_FORUMS = -1;
+    /** Special marker used to indicate there is no forum restriction on this run */
+    const FORUMID_NO_RESTRICTION = 0;
+
+    /** @var int When querying forums, request at most this many */
+    const MAX_FORUMS_PER_QUERY = 1000;
 
     private $rs;
     private $time;
@@ -51,13 +61,33 @@ class mod_forumng_mail_list {
 
     private $postcount;
 
+    /** @var int Forum ID that is being processed, 0 if none */
+    protected $forumid;
+
+    /** @var float[] Array of times taken for the 3 operations (only valid at end) */
+    protected $times = [];
+
+    /** @var int[] Array cache of forum IDs that should be processed next, in order */
+    protected static $nextforumcache = [];
+
+    /**
+     * Resets the static cache to ensure it will calculate the list of forums again.
+     */
+    public static function reset_static_cache() {
+        self::$nextforumcache = [];
+    }
+
     /**
      * Creates the mail queue and runs query to obtain list of posts that should
      * be mailed.
-     * @param bool $tracetimes True if it should call mtrace to display
-     *   performance information
+     *
+     * This query includes only one forum, so the system needs to be used repeatedly in order
+     * to process mail for all forums. If there are no forums requiring email it will return
+     * true to is_finished().
+     *
+     * @param bool $output If true, outputs a couple of lines using mtrace to indicate progress
      */
-    public function __construct($tracetimes) {
+    public function __construct($output) {
         global $DB, $CFG;
         $this->time = time();
         $this->forum = null;
@@ -69,14 +99,33 @@ class mod_forumng_mail_list {
         // messages as mailed anyway because it's better to skip some than
         // to send out double-posts.
         if ($pending = get_config('forumng', $this->get_pending_flag_name())) {
-            $this->mark_mailed($pending);
+            list ($time, $forumid) = explode(',', $pending);
+            $this->mark_mailed($time, (int) $forumid);
         }
-        // Note that we are mid-run
-        set_config($this->get_pending_flag_name(), $this->time, 'forumng');
 
-        list ($wheresql, $whereparams) = $this->get_query_where($this->time);
+        // Get next forum id.
+        if ($output) {
+            mtrace('[Forum] ', '');
+        }
+
+        $this->forumid = $this->get_limited_forum_id();
+        if ($this->forumid === self::FORUMID_NO_MORE_FORUMS) {
+            return;
+        }
+        if ($this->forumid !== self::FORUMID_NO_RESTRICTION) {
+            $DB->set_field('forumng', 'lastemailprocessing', $this->time, ['id' => $this->forumid]);
+        }
+
+        // Note that we are mid-run.
+        set_config($this->get_pending_flag_name(), $this->time . ',' . $this->forumid, 'forumng');
+
+        list ($wheresql, $whereparams) = $this->get_query_where($this->time, $this->forumid);
         $querychunk = $this->get_query_from() . $wheresql;
-        $this->rs = $DB->get_recordset_sql($sql="
+        if ($output) {
+            mtrace('[Posts] ', '');
+        }
+        $before = microtime(true);
+        $this->rs = $DB->get_recordset_sql($sql = "
 SELECT
     ".mod_forumng_utils::select_mod_forumng_fields('f').",
     ".mod_forumng_utils::select_discussion_fields('fd').",
@@ -94,11 +143,122 @@ SELECT
 $querychunk
 ORDER BY
     clonecm.course, f.id, fd.id, fp.id", $whereparams);
+        $this->record_time('Getting post list', $before);
 
         if (!empty($CFG->forumng_cronultradebug)) {
             $easyread = mod_forumng_utils::debug_query_for_reading($sql, $whereparams);
             mtrace("\n\n" . $easyread . "\n\n");
         }
+    }
+
+    /**
+     * If we should limit this run-through to a single forum, then returns that ID. Otherwise
+     * returns one of the FORUMID_xx constants.
+     *
+     * @return int FORUMID_xx constant or forum id
+     * @throws dml_exception
+     */
+    protected function get_limited_forum_id() {
+        $forumid = $this->get_next_forum_id_for_email_processing();
+        if ($forumid) {
+            return $forumid;
+        } else {
+            // No forums need processing.
+            return self::FORUMID_NO_MORE_FORUMS;
+        }
+    }
+
+    /**
+     * Records a (cumulative) time.
+     *
+     * @param string $name Name for time
+     * @param float $before Micro-time before this thing was done
+     */
+    protected function record_time($name, $before) {
+        if (!array_key_exists($name, $this->times)) {
+            $this->times[$name] = 0;
+        }
+        $this->times[$name] += microtime(true) - $before;
+    }
+
+    /**
+     * Gets the next forum ID that should be processed.
+     *
+     * @return int ForumNG id or 0 if none requiring processing
+     * @throws dml_exception
+     */
+    protected function get_next_forum_id_for_email_processing() {
+        global $DB;
+
+        // If no forum IDs are in the cache, then work out which forums to process next.
+        if (!self::$nextforumcache) {
+            $before = microtime(true);
+
+            list($wheresql, $whereparams) = $this->get_query_where(
+                    $this->time, self::FORUMID_NO_RESTRICTION);
+
+            // Get next forums in batches of 1,000 because it can take a long time. (This query
+            // takes around 600 seconds on live.)
+            $nextforums = $DB->get_records_sql($sql = "
+                    SELECT f.id
+                      FROM {forumng} f
+                      JOIN {course} c ON c.id = f.course
+                      JOIN {course_modules} cm ON cm.course = f.course AND cm.instance = f.id
+                           AND cm.module = (SELECT id FROM {modules} WHERE name = ?)
+                      JOIN {context} x ON x.instanceid = cm.id AND x.contextlevel = ?
+                     WHERE EXISTS(
+                           SELECT 1
+                             FROM {forumng_discussions} fd
+                             JOIN {forumng_posts} fp ON fp.discussionid = fd.id
+                             $wheresql
+                                  AND fd.forumngid = f.id
+                           )
+                  ORDER BY f.lastemailprocessing ASC",
+                    $params = array_merge(['forumng', CONTEXT_MODULE], $whereparams), 0,
+                    self::MAX_FORUMS_PER_QUERY);
+
+            foreach ($nextforums as $rec) {
+                self::$nextforumcache[] = $rec->id;
+            }
+
+            // If we received less than 1,000 forums (so, all of them) then add a marker indicating
+            // that there are no forums left (this is used so that we don't call the query a second
+            // time at the end of the run).
+            if (count(self::$nextforumcache) < self::MAX_FORUMS_PER_QUERY) {
+                self::$nextforumcache[] = self::FORUMID_NO_MORE_FORUMS;
+            }
+
+            $this->record_time('Finding next forum', $before);
+        }
+
+        if (self::$nextforumcache) {
+            if (self::$nextforumcache[0] === self::FORUMID_NO_MORE_FORUMS) {
+                // There are no forums - don't use up the array and force another query.
+                return 0;
+            }
+            return array_shift(self::$nextforumcache);
+        } else {
+            // There are still no forums!
+            return 0;
+        }
+    }
+
+    /**
+     * Checks if there are any more emails to send.
+     *
+     * @return bool True if there are no forums currently requiring processing
+     */
+    public function is_finished() {
+        return $this->forumid === self::FORUMID_NO_MORE_FORUMS;
+    }
+
+    /**
+     * Gets times as an associative array.
+     *
+     * @return float[] List of times
+     */
+    public function get_times() {
+        return $this->times;
     }
 
     /**
@@ -111,7 +271,7 @@ ORDER BY
      */
     public function next_post(&$post, &$inreplyto) {
         // Make sure we have a forum/discussion setup
-        if ($this->forum==null || $this->discussion==null) {
+        if ($this->forum == null || $this->discussion == null || $this->is_finished()) {
             throw new coding_exception("Cannot call next_post when not inside
                 forum and discussion");
         }
@@ -123,7 +283,7 @@ ORDER BY
         } else {
             if (!$this->rs->valid()) {
                 // End of the line. Mark everything as mailed
-                $this->mark_mailed($this->time);
+                $this->mark_mailed($this->time, $this->forumid);
                 $this->rs->close();
                 $this->rs = null;
                 $this->discussion = null;
@@ -165,7 +325,7 @@ ORDER BY
      */
     public function next_discussion(&$discussion) {
         // Make sure we have a forum setup but no discussion
-        if ($this->forum==null) {
+        if ($this->forum == null || $this->is_finished()) {
             throw new coding_exception("Cannot call next_discussion when not inside
                 forum");
         }
@@ -185,7 +345,7 @@ ORDER BY
         } else {
             if (!$this->rs->valid()) {
                 // End of the line. Mark everything as mailed
-                $this->mark_mailed($this->time);
+                $this->mark_mailed($this->time, $this->forumid);
                 $this->rs->close();
                 $this->forum = null;
                 $this->rs = null;
@@ -220,6 +380,11 @@ ORDER BY
      * @param object &$course Course object (out variable)
      */
     public function next_forum(&$forum, &$cm, &$context, &$course) {
+        // Check not finished.
+        if ($this->is_finished()) {
+            throw new coding_exception('Cannot call next_forum when finished');
+        }
+
         // Skip if required to get to new forum
         while ($this->forum!=null) {
             $this->next_discussion($discussion);
@@ -235,7 +400,7 @@ ORDER BY
         } else {
             if (!$this->rs->valid()) {
                 // End of the line. Mark everything as mailed
-                $this->mark_mailed($this->time);
+                $this->mark_mailed($this->time, $this->forumid);
                 $this->rs->close();
                 $this->rs = null;
                 return false;
@@ -269,13 +434,11 @@ ORDER BY
         return true;
     }
 
-    private function mark_mailed($time) {
-        global $DB;
-        list ($wheresql, $whereparams) = $this->get_query_where($time, 'forumng_posts');
+    private function mark_mailed($time, $forumid) {
+        list ($wheresql, $whereparams) = $this->get_query_where($time, $forumid);
         $querychunk = $this->get_query_from() . $wheresql;
         $before = microtime(true);
 
-        mtrace('Marking processed posts: ', '');
         mod_forumng_utils::update_with_subquery_grrr_mysql("
 UPDATE
     {forumng_posts}
@@ -283,7 +446,7 @@ SET
     mailstate = " . $this->get_target_mail_state() . "
 WHERE
     id %'IN'%", "SELECT fp.id $querychunk", $whereparams);
-        mtrace(round(microtime(true)-$before, 1) . 's.');
+        $this->record_time('Marking posts processed', $before);
 
         unset_config($this->get_pending_flag_name(), 'forumng');
     }
@@ -335,14 +498,19 @@ FROM
         AND clonecm.module = (SELECT id FROM {modules} WHERE name='forumng')";
     }
 
-    protected function get_query_where($time) {
+    protected function get_query_where($time, $forumid) {
         global $CFG;
 
         // We usually only mail out posts after a delay of maxeditingtime.
         $mailtime = $time - $CFG->forumng_emailafter;
 
-        // In case cron has not run for a while
+        // In case cron has not run for a while.
         $safetynet = $this->get_safety_net($time);
+
+        $forumidsql = '';
+        if ($forumid != self::FORUMID_NO_RESTRICTION) {
+            $forumidsql = 'AND f.id = ?';
+        }
 
         $sql = "
 WHERE
@@ -374,9 +542,16 @@ WHERE
     AND fd.deleted = 0
     AND fp.oldversion = 0
 
+    $forumidsql
+
     -- Context limitation
     AND x.contextlevel = 70";
-        $params = array($time, $mailtime, $safetynet, $safetynet, $time, $time);
+        $params = [$time, $mailtime, $safetynet, $safetynet, $time, $time];
+
+        if ($forumid != self::FORUMID_NO_RESTRICTION) {
+            $params[] = $forumid;
+        }
+
         return array($sql, $params);
     }
 }

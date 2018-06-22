@@ -145,33 +145,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
         } else {
             $grouppart = '';
         }
-        $lpnum = $nextnum + 1;
-        $npnum = $nextnum + 2;
-        $sbnum = $nextnum + 3;
-
-        return "<table class='generaltable forumng-discussionlist'><thead><tr>" .
-            "{$th}0'>" .
-            $sortdata[mod_forumng::SORT_SUBJECT]->before .
-            get_string('discussion', 'forumng') .
-            $sortdata[mod_forumng::SORT_SUBJECT]->after .
-            "</th>" .
-            $unreadpart .
-            $grouppart .
-            "{$th}{$lpnum}'>" .
-            $sortdata[mod_forumng::SORT_DATE]->before .
-            get_string('lastpost', 'forumng') .
-            $sortdata[mod_forumng::SORT_DATE]->after .
-            "</th>" .
-            "{$th}{$npnum} forumng-postscol'>" .
-            $sortdata[mod_forumng::SORT_POSTS]->before .
-            get_string('posts', 'forumng') .
-            $sortdata[mod_forumng::SORT_POSTS]->after .
-            "</th>" .
-            "{$th}{$sbnum} lastcol'>" .
-            $sortdata[mod_forumng::SORT_AUTHOR]->before .
-            get_string('startedby', 'forumng') .
-            $sortdata[mod_forumng::SORT_AUTHOR]->after .
-            '</th></tr></thead><tbody>';
+        return $this->render_discussion_list_start_table($forum, $th, $nextnum, $sortdata, $unreadpart, $grouppart);
     }
 
     /**
@@ -334,10 +308,8 @@ class mod_forumng_renderer extends plugin_renderer_base {
                 $result .= "<span class='accesshide'>$alt:</span> ";
             }
         }
-        $result .= "<a href='discuss.php?" .
-                $discussion->get_link_params(mod_forumng::PARAM_HTML) . "'>" .
-                format_string($discussion->get_subject(true), true, $courseid) . "</a>$taglinks</td>";
-
+        $result .= $this->render_discussion_list_item_discussion($courseid, $discussion, $taglinks);
+        $result .= html_writer::end_tag('td');
         $num = 1;
         // Number of unread posts.
         if ($canmarkread) {
@@ -1602,6 +1574,25 @@ class mod_forumng_renderer extends plugin_renderer_base {
                             $expandparam . '">' .
                             get_string('reply', 'forumng', $postnumber) . '</a>';
                 }
+                // Old version post don't have children.we don't need to show total reply.
+                if (!empty($options[mod_forumng_post::OPTION_COMMAND_TOTALREPLY]) && !$post->is_old_version()) {
+                    try {
+                        $totalreply = $post->get_total_reply();
+                    } catch (moodle_exception $e) {
+                        // In case we can't load the children.
+                        $posts = mod_forumng_post::get_from_id($post->get_id(), 0, true);
+                        $totalreply = $posts->get_total_reply();
+                    }
+
+                    if ($totalreply > 1 || $totalreply == 0) {
+                        $totalreplyhtml = html_writer::tag('div', get_string('totalreplies', 'mod_forumng', $totalreply),
+                            array('class' => 'forumng-total-reply'));
+                    } else {
+                        $totalreplyhtml = html_writer::tag('div', get_string('totalreply', 'mod_forumng',
+                            $totalreply), array('class' => 'forumng-total-reply'));
+                    }
+                    $commandsarray['forumng-totalreply'] = $totalreplyhtml;
+                }
 
                 if (count($commandsarray)) {
                     $out .= $lf . $this->render_commands($commandsarray);
@@ -1763,12 +1754,16 @@ class mod_forumng_renderer extends plugin_renderer_base {
         return $out;
     }
 
-    private static function nice_shorten_text($text, $length=40) {
+    public static function nice_shorten_text($text, $length=40) {
         $text = trim($text);
+        // Replace image tag by placeholder text.
+        $text = preg_replace('/<img.*?>/', get_string('image_placeholder', 'mod_forumng'), $text);
+        // Trim the multiple spaces to single space and multiple lines to one line.
+        $text = preg_replace('!\s+!', ' ', $text);
         $summary = shorten_text($text, $length);
         $summary = preg_replace('~\s*\.\.\.(<[^>]*>)*$~', '$1', $summary);
         $dots = $summary != $text ? '...' : '';
-        return $summary. $dots;
+        return $summary . $dots;
     }
 
     /**
@@ -2058,4 +2053,79 @@ class mod_forumng_renderer extends plugin_renderer_base {
         return $out;
     }
 
+    /**
+     * Render discussion list start table heading.
+     *
+     * @param mod_forumng $forum
+     * @param string $th
+     * @param int $nextnum
+     * @param array $sortdata
+     * @param string $unreadpart
+     * @param string $grouppart
+     * @return string
+     */
+    public function render_discussion_list_start_table($forum, $th, $nextnum, $sortdata, $unreadpart, $grouppart) {
+        $lpnum = $nextnum + 1;
+        $npnum = $nextnum + 2;
+        $sbnum = $nextnum + 3;
+        $table = html_writer::start_tag('table', array('class' => 'generaltable forumng-discussionlist'));
+        $table .= html_writer::start_tag('thead');
+        $table .= html_writer::start_tag('tr');
+        // Subject column th.
+        $table .= "{$th}0'>" . $sortdata[mod_forumng::SORT_SUBJECT]->before . get_string('discussion', 'forumng') .
+            $sortdata[mod_forumng::SORT_SUBJECT]->after;
+        $table .= html_writer::end_tag('th');
+        // Last post column.
+        $table .= $unreadpart . $grouppart;
+        $table .= "{$th}{$lpnum}'>" . $sortdata[mod_forumng::SORT_DATE]->before . get_string('lastpost', 'forumng') .
+            $sortdata[mod_forumng::SORT_DATE]->after;
+        // Posts column.
+        $table .= html_writer::end_tag('th');
+        $table .= "{$th}{$npnum} forumng-postscol'>" . $sortdata[mod_forumng::SORT_POSTS]->before .
+            get_string('posts', 'forumng') . $sortdata[mod_forumng::SORT_POSTS]->after;
+        $table .= html_writer::end_tag('th');
+        // Started by column.
+        $table .= "{$th}{$sbnum} lastcol'>" . $sortdata[mod_forumng::SORT_AUTHOR]->before . get_string('startedby', 'forumng') .
+            $sortdata[mod_forumng::SORT_AUTHOR]->after;
+        $table .= html_writer::end_tag('th');
+        $table .= html_writer::end_tag('tr');
+        $table .= html_writer::end_tag('thead');
+        $table .= html_writer::start_tag('tbody');
+        return $table;
+    }
+
+    /**
+     * Render discussion column.
+     *
+     * @param int $courseid
+     * @param mod_forumng_discussion $discussion
+     * @param array $taglinks
+     * @return string
+     */
+    public function render_discussion_list_item_discussion($courseid , $discussion, $taglinks) {
+        $result = html_writer::tag('a', format_string($discussion->get_subject(true), true, $courseid),
+            array('href' => 'discuss.php?' . $discussion->get_link_params(mod_forumng::PARAM_PLAIN)));
+        $result .= $taglinks;
+        return $result;
+    }
+
+    /**
+     * Render html below content discussion.
+     *
+     * @param mod_forumng_discussion $discussion
+     * @return string
+     */
+    public function render_content_below_content_discussion($discussion) {
+        return '';
+    }
+
+    /**
+     * Render html after header.
+     *
+     * @param mod_forumng_discussion $discussion
+     * @return string
+     */
+    public function render_discussion_after_header($discussion) {
+        return '';
+    }
 }

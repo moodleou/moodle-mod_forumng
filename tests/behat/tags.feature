@@ -24,13 +24,12 @@ Feature: Add forumng activity and test basic tagging functionality
       | teacher1 | C1 | editingteacher |
 
   Scenario: Add tagging to discussions
+    Given the following "activities" exist:
+      | activity | course | idnumber | name                | introduction               | enabletags | ratingthreshold |
+      | forumng  | C1     | F1       | Test forum name     | Test forum description     | 1          | 1               |
+      | forumng  | C1     | F1       | Test forum name two | Test forum two description | 1          | 1               |
     And I log in as "admin"
     And I am on "Course 1" course homepage
-    And I turn editing mode on
-    And I add a "ForumNG" to section "1" and I fill the form with:
-      | Forum name | Test forum name |
-      | Forum introduction | Test forum description |
-      |Enable discussion tagging | 1 |
     And I follow "Test forum name"
     And I press "Start a new discussion"
     And I press "Cancel"
@@ -161,10 +160,6 @@ Feature: Add forumng activity and test basic tagging functionality
 
     # Add a new forum for checking copying and moving of discussions with tags
     And I am on "Course 1" course homepage
-    And I add a "ForumNG" to section "2" and I fill the form with:
-      | Forum name | Test forum name two |
-      | Forum introduction | Test forum two description |
-      |Enable discussion tagging | 1 |
 
     And I follow "Test forum name two"
     And I add a discussion with the following data:
@@ -256,14 +251,11 @@ Feature: Add forumng activity and test basic tagging functionality
     And I log out
 
   Scenario: Test system changes
-    Given I log in as "admin"
+    Given the following "activities" exist:
+      | activity | course | idnumber | name            | introduction           | enabletags | groupmode | ratingthreshold |
+      | forumng  | C1     | F1       | Test forum name | Test forum description | 1          | 1         | 1               |
+    And I log in as "admin"
     And I am on "Course 1" course homepage
-    And I turn editing mode on
-    And I add a "ForumNG" to section "1" and I fill the form with:
-      | Forum name | Test forum name |
-      | Forum introduction | Test forum description |
-      | Enable discussion tagging | 1 |
-      | Group mode | Separate groups |
 
     # Set up groups for the forum
     And I am on "Course 1" course homepage
@@ -358,15 +350,13 @@ Feature: Add forumng activity and test basic tagging functionality
     And I should not see "Set tags for forum"
 
   Scenario: Add group tagging to forums
+    Given the following "activities" exist:
+      | activity | course | idnumber | name            | introduction           | enabletags | ratingthreshold |
+      | forumng  | C1     | F1       | Test forum name | Test forum description | 1          | 1               |
     And I log in as "admin"
     And I am on site homepage
     # Create 2 Discussions
     And I am on "Course 1" course homepage
-    And I turn editing mode on
-    And I add a "ForumNG" to section "1" and I fill the form with:
-      | Forum name                | Test forum name        |
-      | Forum introduction        | Test forum description |
-      | Enable discussion tagging | 1                      |
     # No Groups default
     And I follow "Test forum name"
     And I add a discussion with the following data:
@@ -468,7 +458,7 @@ Feature: Add forumng activity and test basic tagging functionality
     And I should not see "g4"
 
     # Test backup and restore
-    And I am on "Course 1" course homepage
+    And I am on "Course 1" course homepage with editing mode on
     And I duplicate "Test forum name" activity editing the new copy with:
       | Forum name | Duplicated Test forum name |
     # And I click on "Turn editing off" "link"

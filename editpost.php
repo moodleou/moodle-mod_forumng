@@ -308,6 +308,7 @@ try {
     if ($iframe) {
         $params['iframe'] = 1;
     }
+    $replyoptions = $forum->get_type()->get_reply_options(true, true);
     // Expand parameter always available
     $params['expand'] = $expand;
     $mform = new mod_forumng_editpost_form('editpost.php',
@@ -317,7 +318,8 @@ try {
             'iframe' => $iframe ? true : false,
             'timelimit' => $ispost && $edit && !$post->can_ignore_edit_time_limit()
                 ? $post->get_edit_time_limit() : 0,
-            'draft' => $draft, 'tags' => $tags, 'forumtags' => $forumtags));
+            'draft' => $draft, 'tags' => $tags, 'forumtags' => $forumtags,
+            'replyoption' => $replyoptions));
 
     if (is_object($post)) {
         // Not a new discussion/post so we are editing a pre-existing post.

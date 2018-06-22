@@ -236,4 +236,40 @@ class behat_mod_forumng extends behat_base {
             return;
         }
     }
+
+    /**
+     * Create a new discussion in course and forum.
+     * Indentified by course shortname and forum id number
+     *      | shortname| forum | group | username | subject | message | timestart  | timeend   | location |
+     * E.g. | C1       | Test  | group | username | Subject | Message | 20/12/2017 |27/12/2017 | Location |
+     * @Given /^I create a new discussion:$/
+     * @param TableNode $data
+     */
+    public function i_create_a_new_discussion(TableNode $data) {
+        global $CFG, $DB;
+        require_once($CFG->dirroot . '/mod/forumng/mod_forumng.php');
+        foreach ($data->getHash() as $rowdata) {
+            $record = array();
+            $record['course'] = $DB->get_record('course', array('shortname' => $rowdata['shortname']));
+            $record['forum'] = $DB->get_record_sql('SELECT f.* from {course_modules} as cm
+            INNER JOIN {forumng} as f ON  f.id = cm.instance
+            INNER JOIN {modules} as m ON m.id = cm.module
+            WHERE cm.idnumber = ? AND f.course = ? AND m.name = ?', array($rowdata['forum'],  $record['course']->id, 'forumng'));
+            $record['group'] = !empty($rowdata['group']) ? $DB->get_record('groups',
+                array('idnumber' => $rowdata['group'],
+                      'courseid' => $record['course']->id)) : null;
+            $record['userid'] = $DB->get_field('user', 'id',array('username' => $rowdata['username']));
+            $record['subject'] = $rowdata['subject'];
+            $record['message'] = $rowdata['message'];
+            $record['timestart'] = (isset($rowdata['timestart'])) ? strtotime($rowdata['timestart']) : 0;
+            $record['timeend'] = (isset($rowdata['timeend'])) ? strtotime($rowdata['timeend']) : 0;
+            $record['format'] = FORMAT_MOODLE;
+            $record['location'] = isset($rowdata['location']) ? $rowdata['location'] : '';
+            $groupid = (!empty($record['group']->id)) ? $record['group']->id : null;
+            $forum = mod_forumng::get_from_id($record['forum']->id, mod_forumng::CLONE_DIRECT);
+            $forum->create_discussion($groupid, $record['subject'],
+                $record['message'], $record['format'], false, false, $record['timestart'], $record['timeend'], false,
+                false, $record['userid'], true, mod_forumng::ASMODERATOR_NO, null, $record['location']);
+        }
+    }
 }

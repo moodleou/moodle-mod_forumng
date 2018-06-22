@@ -616,9 +616,6 @@ ul.forumng-commands li.forumng-replylink {
 .forumng-iframe#page-mod-forumng-editpost {
     min-width: inherit;
 }
-.gecko.forumng-iframe#page-mod-forumng-editpost .mform {
-    min-width: 605px;
-}
 .forumng-iframe#page-mod-forumng-editpost fieldset {
     border: none;
     padding: 0;
@@ -643,7 +640,7 @@ ul.forumng-commands li.forumng-replylink {
 .forumng-iframe#page-mod-forumng-editpost .fp-pathbar {
     display: none;
 }
-.forumng-iframe#page-mod-forumng-editpost #fitem_id_message .felement.feditor,
+.forumng-iframe#page-mod-forumng-editpost div[id^=fitem_id_message] .felement.feditor,
 .forumng-iframe#page-mod-forumng-editpost #fitem_id_subject .felement,
 .forumng-iframe#page-mod-forumng-editpost #fitem_id_attachments .felement {
     clear: left;
@@ -659,22 +656,22 @@ ul.forumng-commands li.forumng-replylink {
     margin-left: 0;
 }
 .forumng-iframe#page-mod-forumng-editpost #fitem_id_subject .fitemtitle,
-.forumng-iframe#page-mod-forumng-editpost #fitem_id_message .fitemtitle,
+.forumng-iframe#page-mod-forumng-editpost div[id^=fitem_id_message] .fitemtitle,
 .forumng-iframe#page-mod-forumng-editpost #fitem_id_attachments .fitemtitle {
     margin-left: 0;
     text-align: left;
     font-weight: bold;
 }
 .mobiletheme.forumng-iframe#page-mod-forumng-editpost #fitem_id_subject .felement,
-.mobiletheme.forumng-iframe#page-mod-forumng-editpost #fitem_id_message .felement.feditor,
+.mobiletheme.forumng-iframe#page-mod-forumng-editpost div[id^=fitem_id_message] .felement.feditor,
 .mobiletheme.forumng-iframe#page-mod-forumng-editpost #fitem_id_attachments .felement,
 .mobiletheme.forumng-iframe#page-mod-forumng-editpost #fitem_id_subject .fitemtitle,
-.mobiletheme.forumng-iframe#page-mod-forumng-editpost #fitem_id_message .fitemtitle,
+.mobiletheme.forumng-iframe#page-mod-forumng-editpost div[id^=fitem_id_message] .fitemtitle,
 .mobiletheme.forumng-iframe#page-mod-forumng-editpost #fitem_id_attachments .fitemtitle,
 .mobiletheme.forumng-iframe#page-mod-forumng-editpost #fgroup_id_buttonar .felement {
     margin-left: 0;
 }
-.forumng-iframe#page-mod-forumng-editpost .mform #fitem_id_message textarea {
+.forumng-iframe#page-mod-forumng-editpost .mform div[id^=fitem_id_message] textarea {
     max-width: 100%;
 }
 
@@ -812,7 +809,8 @@ form.markread input {
 }
 #forumng-features .forumng-highlight {
     background: #FFD991;
-    padding: 0.7em 0.5em;
+    padding: 0.5em 0.5em 0.7em 0.5em;
+    margin-right: 10px
 }
 
 #forumng-features .forum-feature-edittags {

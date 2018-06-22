@@ -95,16 +95,22 @@ abstract class forumngfeature {
 
     /**
      * Returns a new object of each available type.
+     *
+     * @param  forumngtype $forumtype
      * @return array Array of forumngfeature objects
      */
-    public static function get_all() {
+    public static function get_all($forumtype) {
         global $CFG;
         // Get directory listing (excluding simpletest, CVS, etc)
         $list = core_component::get_plugin_list('forumngfeature');
 
         // Create array and put one of each object in it
         $results = array();
+        $preventfeatures = $forumtype->prevent_forumngfeature_discussion();
         foreach ($list as $name => $location) {
+            if (!empty($preventfeatures) && in_array($name, $preventfeatures)) {
+                continue;
+            }
             $results[] = self::get_new(str_replace('forumngfeature_', '', $name));
         }
 

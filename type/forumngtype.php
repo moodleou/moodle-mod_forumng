@@ -206,4 +206,77 @@ abstract class forumngtype {
     public function is_user_selectable() {
         return true;
     }
+
+    /**
+     * Obtains the forum renderer.
+     *
+     * @return mod_forumng_renderer
+     */
+    public static function get_renderer() {
+        return mod_forumng_utils::get_renderer();
+    }
+
+    /**
+     * Return list of prevent features.
+     * Default just returns empty array. This could be used to veto prevent features.
+     *
+     * @param forumngfeature_discussion $feature
+     * @return array empty if all features is allowed in this forum.
+     */
+    public static function prevent_forumngfeature_discussion() {
+        return array();
+    }
+
+    /**
+     * Check user has viewrealipud capability base on forum type.
+     * Default implementation just returns true
+     *
+     * @param mod_forumng $forum
+     * @return bool
+     */
+    public function can_mark_read($forum) {
+        return true;
+    }
+
+    /**
+     * Checks if user is allowed to show direct link to a post on this forum (if
+     * capabilities permit). Default implementation just returns true.
+     * @return bool False to prevent user get direct link; true to allow it
+     *   to normal restrictions
+     */
+    public function can_showdirectlink() {
+        return true;
+    }
+
+    /**
+     * Checks if user is allowed to split to a post on this forum (if
+     * capabilities permit). Default implementation just returns true.
+     * @return bool False to prevent user split; true to allow it
+     *   to normal restrictions
+     */
+    public function can_split() {
+        return true;
+    }
+
+    /**
+     * Check if forum should show reply option.For normal forum,just return empty array.
+     *
+     * @param bool $normalreply check if this forum use normal reply for cancel button to display.
+     * @param bool $renderpostas check if this forum render post as feature in the form.
+     * @return array which option should allow in reply form. Return empty array for default forum..
+     */
+    public function get_reply_options($normalreply, $renderpostas) {
+        return array();
+    }
+
+    /**
+     * Check if forum should show total reply number in the post.
+     * Default implementation just returns true.
+     *
+     * @return bool . Return false for default.
+     */
+    public function show_total_reply() {
+        return false;
+    }
+
 }

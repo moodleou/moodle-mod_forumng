@@ -15,17 +15,10 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version.
- *
- * @package mod_forumng
- * @copyright 2014 The Open University
+ * Lang strings.
+ * @package forumngtype_ipud
+ * @copyright 2017 The Open University
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
-defined('MOODLE_INTERNAL') || die();
-
-$plugin->version = 2018011800;
-$plugin->requires = 2016052300;
-$plugin->component = 'mod_forumng';
-$plugin->maturity = MATURITY_STABLE;
-$plugin->release = '3.1 r1';
+$string['pluginname'] = 'In-page forum';
+$string['linktodiscussion'] = 'Link to discussion';

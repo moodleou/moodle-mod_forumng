@@ -1,0 +1,9 @@
+#forumg_customeditor .collapse_group {
+    float: right;
+    margin-right: 5px;
+}
+.forumng-post .forumng-total-reply {
+    margin-top: 5px;
+    float: right;
+    font-weight: bold;
+}

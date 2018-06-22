@@ -2459,7 +2459,7 @@ WHERE
 
         // Print discussion features
         $features = '';
-        foreach (forumngfeature_discussion::get_all() as $feature) {
+        foreach (forumngfeature_discussion::get_all($type) as $feature) {
             if ($feature->should_display($this) &&
                 $type->allow_forumngfeature_discussion($this, $feature)) {
                 $features .= html_writer::start_div('forumngfeature_dis_' . $feature->get_id());
@@ -2688,5 +2688,75 @@ WHERE
             return false;
         }
 
+    }
+
+    /**
+     * Obtains location of In-page discussion forum. Note this results in a DB query if the discussion
+     * was not fully loaded in the first place.
+     * @param bool $expectingquery True if code expects there to be a query;
+     *   this just avoids a debugging() call.
+     * @return string location or null if none
+     */
+    public function get_location($expectingquery = false) {
+        global $DB;
+        if (!isset($this->discussionfields->ipudloc)) {
+            if (!$expectingquery) {
+                debugging('This get method made a DB query; if this is expected,
+                    set the flag to say so', DEBUG_DEVELOPER);
+            }
+            $this->discussionfields->ipudloc = $DB->get_field(
+                    'forumng_discussions', 'ipudloc', array('id' => $this->discussionfields->forumngid));
+        }
+        return $this->discussionfields->ipudloc;
+    }
+
+    /**
+     * Get first level posts belong to this discussion.
+     *
+     * @param $numbertoshow integer Number of first posts to show, "0" to show all posts.
+     * @return array Array of stdClass contain posts.
+     */
+    public function get_root_post_replies($numbertoshow) {
+        // Get Root post.
+        $rootpost = $this->get_root_post();
+        $rootpostreplies = $rootpost->get_replies();
+
+        // Filter to excluded deleted post if current user don't have permission.
+        $rootpostreplies = array_filter($rootpostreplies, function ($reply) {
+            $whynot = null;
+
+            // If this post is not deleted of user can view this delete post then display.
+            if ($reply->get_deleted() == 0 || $reply->can_view_deleted($whynot)) {
+                return true;
+            }
+            // This post is deleted, and user cannot see this delete post, we now check if this post contain replies
+            // visible to current user or not.
+            $postreplies = $reply->get_replies();
+            foreach ($postreplies as $postreply) {
+                if ($postreply->get_deleted() == 0 || $postreply->can_view_deleted($whynot)) {
+                    return true;
+                }
+            }
+
+            return false;
+        });
+
+        $rootpostreplies = array_values($rootpostreplies);
+
+        if ($numbertoshow == 0) {
+            return $rootpostreplies;
+        }
+
+        $replies = array();
+
+        // Get first latest post.
+        $index = count($rootpostreplies) - 1;
+        while ($numbertoshow > 0 && $index >= 0) {
+            $replies[] = $rootpostreplies[$index];
+            $index --;
+            $numbertoshow --;
+        }
+
+        return $replies;
     }
 }

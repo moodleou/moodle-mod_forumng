@@ -152,189 +152,263 @@ $mainquery", $mainparams);
     public static function email_normal() {
         global $USER, $CFG, $PERF;
 
+        mod_forumng_mail_list::reset_static_cache();
+
         $exceptioncount = 0;
 
-        // Obtain information about all mails that are due for sending
+        // Obtain information about all mails that are due for sending.
         mtrace('Email processing:');
         $before = microtime(true);
         if (!empty($PERF->dbqueries)) {
             $beforequeries = $PERF->dbqueries;
         }
-        mtrace('Initial query: ', '');
-        $list = new mod_forumng_mail_list(true);
-        mtrace(round(microtime(true)-$before, 1) .'s');
 
-        // Cumulative time spent actually sending emails
+        // Cumulative time spent actually sending emails.
         $mailtime = 0;
         $totalemailcount = 0;
 
-        // Forum loop
-        while ($list->next_forum($forum, $cm, $context, $course)) {
-            self::debug("DEBUG: Forum " . $forum->get_name() .
-                    " on course {$course->shortname} " .
-                    "(cmid {$cm->id} contextid {$context->id})");
+        // Cumulative time on other activities.
+        $getsubscriberstime = 0;
+        $filtersubscriberstime = 0;
+        $discussionsubscriberstime = 0;
+        $buildemailtime = 0;
+        $eventlogtime = 0;
+        $totalpostcount = 0;
+        $listtimes = [];
 
-            // We had problems with cron running out of memory when it sends
-            // a lot of emails. On the basis that the PHP garbage collector
-            // might have 'issues', perhaps it may help to call it manually.
-            gc_collect_cycles();
-
-            // Set up course details
-            // Note: This code is a bit sketchy; borrowed from cron_setup_user
-            $PAGE = new moodle_page();
-            $PAGE->set_course($course);
-
-            // Count posts and emails just for logging
-            $postcount = 0;
-            $emailcount = 0;
-
-            // Get subscribers to forum
-            try {
-                $subscribers = $forum->get_subscribers();
-                self::debug("DEBUG: Subscribers before filter " . count($subscribers), '');
-                self::email_filter_subscribers($course, $cm, $forum, $subscribers, false);
-                self::debug(", after " . count($subscribers));
-                if (count($subscribers)==0) {
-                    continue;
-                }
-            } catch (coding_exception $e) {
-                // If an error occurs while getting subscribers, continue
-                // to next forum
-                mtrace(' Exception while getting subscribers for forum ' .
-                        $forum->get_id());
-                mtrace($e->__toString());
-                continue;
+        $endafter = time() + get_config('mod_forumng', 'cronlimit');
+        while (true) {
+            $list = new mod_forumng_mail_list(true);
+            if ($list->is_finished()) {
+                mtrace('No more forum posts to send.');
+                self::add_list_times($listtimes, $list);
+                break;
             }
 
-            while ($list->next_discussion($discussion)) {
-                self::debug("DEBUG: Discussion " . $discussion->get_subject() .
-                        ' (' . $discussion->get_id() . ')');
+            // Forum loop.
+            while ($list->next_forum($forum, $cm, $context, $course)) {
+                // Log forum details.
+                mtrace($course->shortname . ' - ' . $forum->get_name() . ' (cmid ' . $cm->id .
+                        '): ', '');
 
-                // Evaluate list of users based on this discussion (which holds
-                // group info). Organise list by language, timezone and email
-                // type.
-                $langusers = array();
-                foreach ($subscribers as $subscriber) {
-                    // Conditions for each subscriber to get this discussion
-                    if (self::subscriber_receives_discussion(
-                        $forum, $discussion, $subscriber)) {
-                        $oldlang = $USER->lang;
-                        $USER->lang = $subscriber->lang;
-                        $lang = current_language();
-                        $USER->lang = $oldlang;
-                        $langusers[$lang][$subscriber->timezone]
-                            [$subscriber->emailtype][$subscriber->id] =
-                            $subscriber;
+                // We had problems with cron running out of memory when it sends
+                // a lot of emails. On the basis that the PHP garbage collector
+                // might have 'issues', perhaps it may help to call it manually.
+                gc_collect_cycles();
+
+                // Set up course details
+                // Note: This code is a bit sketchy; borrowed from cron_setup_user.
+                $PAGE = new moodle_page();
+                $PAGE->set_course($course);
+
+                // Count posts and emails just for logging.
+                $postcount = 0;
+                $emailcount = 0;
+
+                // Get subscribers to forum.
+                try {
+                    $innerbefore = microtime(true);
+                    $subscribers = $forum->get_subscribers();
+                    $getsubscriberstime += microtime(true) - $innerbefore;
+                    self::debug("DEBUG: Subscribers before filter " . count($subscribers), '');
+                    $innerbefore = microtime(true);
+                    self::email_filter_subscribers($course, $cm, $forum, $subscribers, false);
+                    $filtersubscriberstime += microtime(true) - $innerbefore;
+                    self::debug(", after " . count($subscribers));
+                    if (count($subscribers) == 0) {
+                        continue;
                     }
+                } catch (coding_exception $e) {
+                    // If an error occurs while getting subscribers, continue
+                    // to next forum.
+                    mtrace(' Exception while getting subscribers for forum ' .
+                            $forum->get_id());
+                    mtrace($e->__toString());
+                    continue;
                 }
-                if (self::debug()) {
-                    $debugcount = 0;
-                    foreach ($langusers as $lang => $tzusers) {
-                        foreach ($tzusers as $timezone => $typeusers) {
-                            foreach ($typeusers as $emailtype => $users) {
-                                mtrace("DEBUG: Subscribers for lang [$lang] " .
-                                        "tz [$timezone] type [$emailtype]: " .
-                                        count($users));
-                                $debugcount += count($users);
-                            }
+
+                while ($list->next_discussion($discussion)) {
+                    self::debug("DEBUG: Discussion " . $discussion->get_subject() .
+                            ' (' . $discussion->get_id() . ')');
+
+                    // Evaluate list of users based on this discussion (which holds
+                    // group info). Organise list by language, timezone and email
+                    // type.
+                    $langusers = array();
+                    $innerbefore = microtime(true);
+                    foreach ($subscribers as $subscriber) {
+                        // Conditions for each subscriber to get this discussion.
+                        if (self::subscriber_receives_discussion(
+                                $forum, $discussion, $subscriber)) {
+                            $oldlang = $USER->lang;
+                            $USER->lang = $subscriber->lang;
+                            $lang = current_language();
+                            $USER->lang = $oldlang;
+                            $langusers[$lang][$subscriber->timezone][$subscriber->emailtype][$subscriber->id] = $subscriber;
                         }
                     }
-                    mtrace("DEBUG: Total discussion subscribers: $debugcount");
-                }
-
-                while ($list->next_post($post, $inreplyto)) {
+                    $discussionsubscriberstime += microtime(true) - $innerbefore;
                     if (self::debug()) {
-                        mtrace("DEBUG: Post " . $post->get_id(), '');
-                        $debugcount = $emailcount;
-                    }
-                    try {
-                        $from = $post->get_user();
-
-                        // These loops are intended so that we generate identical
-                        // emails once only, and can then send them in batches
+                        $debugcount = 0;
                         foreach ($langusers as $lang => $tzusers) {
                             foreach ($tzusers as $timezone => $typeusers) {
                                 foreach ($typeusers as $emailtype => $users) {
-
-                                    // We get both plaintext and html versions.
-                                    // The html version will be blank if set to
-                                    // plain text mode.
-                                    $post->build_email($inreplyto, $subject,
-                                        $plaintext, $html, $emailtype & 1,
-                                        $emailtype & 2, $emailtype & 4, $lang,
-                                        $timezone);
-
-                                    if ($post->get_asmoderator() == mod_forumng::ASMODERATOR_ANON) {
-                                        $from->maildisplay = false;
-                                        $from->firstname = get_string('moderator', 'forumng');
-                                        $from->lastname = '';
-                                    }
-
-                                    $beforemail = microtime(true);
-                                    if ($CFG->forumng_usebcc) {
-                                        // Use BCC to send all emails at once
-                                        $emailcount += self::email_send_bcc(
-                                            $users, $from, $subject,
-                                            $html, $plaintext,
-                                            "post " . $post->get_id(),
-                                            $emailtype & 1, $emailtype & 4);
-                                    } else {
-                                        // Loop through subscribers, sending mail to
-                                        // each one
-                                        foreach ($users as $mailto) {
-                                            self::email_send($mailto, $from, $subject,
-                                                $plaintext, $html);
-                                            $emailcount++;
-                                        }
-                                    }
-                                    $mailtime += microtime(true) - $beforemail;
+                                    mtrace("DEBUG: Subscribers for lang [$lang] " .
+                                            "tz [$timezone] type [$emailtype]: " .
+                                            count($users));
+                                    $debugcount += count($users);
                                 }
                             }
                         }
-                        // Reset exception count; while some posts are
-                        // successful, we'll keep trying to send them out
-                        $exceptioncount = 0;
-                    } catch (Exception $e) {
-                        mtrace(' Exception while sending post ' . $post->get_id());
-                        mtrace($e->__toString());
-                        $exceptioncount++;
+                        mtrace("DEBUG: Total discussion subscribers: $debugcount");
+                    }
 
-                        if ($exceptioncount > 100) {
-                            throw new moodle_exception('error_system', 'forumng', '',
-                                'Too many post exceptions in a row, aborting');
+                    while ($list->next_post($post, $inreplyto)) {
+                        if (self::debug()) {
+                            mtrace("DEBUG: Post " . $post->get_id(), '');
+                            $debugcount = $emailcount;
+                        }
+                        try {
+                            $from = $post->get_user();
+
+                            // These loops are intended so that we generate identical
+                            // emails once only, and can then send them in batches.
+                            foreach ($langusers as $lang => $tzusers) {
+                                foreach ($tzusers as $timezone => $typeusers) {
+                                    foreach ($typeusers as $emailtype => $users) {
+
+                                        // We get both plaintext and html versions.
+                                        // The html version will be blank if set to
+                                        // plain text mode.
+                                        $innerbefore = microtime(true);
+                                        $post->build_email($inreplyto, $subject,
+                                                $plaintext, $html, $emailtype & 1,
+                                                $emailtype & 2, $emailtype & 4, $lang,
+                                                $timezone);
+
+                                        if ($post->get_asmoderator() == mod_forumng::ASMODERATOR_ANON) {
+                                            $from->maildisplay = false;
+                                            $from->firstname = get_string('moderator', 'forumng');
+                                            $from->lastname = '';
+                                        }
+                                        $buildemailtime += microtime(true) - $innerbefore;
+
+                                        $innerbefore = microtime(true);
+                                        if ($CFG->forumng_usebcc) {
+                                            // Use BCC to send all emails at once.
+                                            $emailcount += self::email_send_bcc(
+                                                    $users, $from, $subject,
+                                                    $html, $plaintext,
+                                                    "post " . $post->get_id(),
+                                                    $emailtype & 1, $emailtype & 4);
+                                        } else {
+                                            // Loop through subscribers, sending mail to
+                                            // each one.
+                                            foreach ($users as $mailto) {
+                                                self::email_send($mailto, $from, $subject,
+                                                        $plaintext, $html);
+                                                $emailcount++;
+                                            }
+                                        }
+                                        $mailtime += microtime(true) - $innerbefore;
+                                    }
+                                }
+                            }
+                            // Reset exception count; while some posts are
+                            // successful, we'll keep trying to send them out.
+                            $exceptioncount = 0;
+                        } catch (Exception $e) {
+                            mtrace(' Exception while sending post ' . $post->get_id());
+                            mtrace($e->__toString());
+                            $exceptioncount++;
+
+                            if ($exceptioncount > 100) {
+                                throw new moodle_exception('error_system', 'forumng', '',
+                                        'Too many post exceptions in a row, aborting');
+                            }
+                        }
+
+                        $postcount++;
+                        if (self::debug()) {
+                            mtrace(", sent " . ($emailcount - $debugcount) .
+                                    " emails");
                         }
                     }
-
-                    $postcount++;
-                    if (self::debug()) {
-                        mtrace(", sent " . ($emailcount - $debugcount) .
-                                " emails");
-                    }
                 }
+
+                // Trace and log information.
+                $counts = "$postcount posts ($emailcount emails) to " .
+                        count($subscribers) . " subscribers";
+                mtrace("sent $counts");
+                $innerbefore = microtime(true);
+                $params = array('other' => array('type' => 'sub', 'count' => $counts),
+                        'context' => $forum->get_context());
+                $event = \mod_forumng\event\mail_sent::create($params);
+                $event->trigger();
+                $eventlogtime += microtime(true) - $innerbefore;
+                $totalemailcount += $emailcount;
             }
 
-            // Trace and log information
-            $counts = "$postcount posts ($emailcount emails) to " .
-                count($subscribers) . " subscribers";
-            mtrace("Forum ".$forum->get_name() .
-                ": sent $counts");
-            $params = array('other' => array('type' => 'sub', 'count' => $counts),
-                'context' => $forum->get_context());
-            $event = \mod_forumng\event\mail_sent::create($params);
-            $event->trigger();
-            $totalemailcount += $emailcount;
+            self::add_list_times($listtimes, $list);
+
+            $totalpostcount += $list->get_post_count_so_far();
+
+            if (time() > $endafter) {
+                mtrace('Stopping (time limit reached).');
+                break;
+            }
         }
+
         $queryinfo = '';
         if (!empty($PERF->dbqueries)) {
             $queryinfo = ', ' . ($PERF->dbqueries - $beforequeries) .
               ' queries';
         }
-        $totalpostcount = $list->get_post_count_so_far();
-        $totaltime = microtime(true)-$before;
+        $totaltime = microtime(true) - $before;
         mtrace("Email processing ($totalpostcount new posts, $totalemailcount new emails) " .
-                "complete, total: " . round($totaltime, 1) . 's (mail sending ' .
-                round($mailtime, 1) . 's = ' . round(100.0 * $mailtime / $totaltime, 1) . '%)' .
-                $queryinfo);
+                "complete, total time: " . sprintf('%.1Fs', $totaltime)) . $queryinfo;
+        self::show_time_with_percentage('Mail sending', $mailtime, $totaltime);
+        self::show_time_with_percentage('Getting subscribers', $getsubscriberstime, $totaltime);
+        self::show_time_with_percentage('Filtering subscribers', $filtersubscriberstime, $totaltime);
+        self::show_time_with_percentage('Discussion subscribers', $discussionsubscriberstime, $totaltime);
+        self::show_time_with_percentage('Building emails', $buildemailtime, $totaltime);
+        self::show_time_with_percentage('Logging events', $eventlogtime, $totaltime);
+        foreach ($listtimes as $key => $time) {
+            self::show_time_with_percentage($key, $time, $totaltime);
+        }
+    }
+
+    /**
+     * Adds time recording from a mod_forumng_mail_list object into an existing array of times,
+     * if necessary adding new entries into the array.
+     *
+     * @param array $listtimes Array of times (input-output parameter)
+     * @param mod_forumng_mail_list $list List with time data
+     */
+    protected static function add_list_times(array &$listtimes, mod_forumng_mail_list $list) {
+        if ($listtimes === []) {
+            $listtimes = $list->get_times();
+        } else {
+            foreach ($list->get_times() as $key => $time) {
+                $listtimes[$key] += $time;
+            }
+        }
+    }
+
+    /**
+     * Utility function to trace out the proportion of time spent doing a thing.
+     *
+     * @param string $name Name of thing
+     * @param float $time Time in seconds
+     * @param float $totaltime Total time in seconds
+     */
+    protected static function show_time_with_percentage($name, $time, $totaltime) {
+        // Hack total time so it doesn't divide by zero.
+        if ($totaltime < 0.1) {
+            $totaltime = 0.1;
+        }
+        mtrace('  ' . $name . ': ' . sprintf('%.1Fs', $time) . ' (' .
+                sprintf('%.1F', (100.0 * $time / $totaltime)) . '%)');
     }
 
     /**
@@ -377,7 +451,9 @@ $mainquery", $mainparams);
     }
 
     public static function email_digest() {
-        global $CFG, $PERF;
+        global $PERF;
+
+        mod_forumng_mail_list::reset_static_cache();
 
         // Build current digest.
         mtrace("Beginning forum digest processing...");

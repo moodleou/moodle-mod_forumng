@@ -30,6 +30,17 @@ class mod_forumng_editpost_form extends moodleform {
         $mform = $this->_form;
         $params = $this->_customdata['params'];
         $forum = $this->_customdata['forum'];
+        $replyoptions = !empty($this->_customdata['replyoption']) ? $this->_customdata['replyoption'] : array(
+            'subject' => true,
+            'attachments' => true,
+            'markposts' => true,
+            'postas' => true,
+            'cancelbutton' => true,
+            'postasdraftbutton' => true,
+            'toolbaroption' => '',
+            'emailauthor' => true,
+        );
+        $attorowheight = (!empty($this->_customdata['attorowheight'])) ? $this->_customdata['attorowheight'] : 10;
         $edit = $this->_customdata['edit'];
         $isdiscussion = $this->_customdata['isdiscussion'];
         $isroot = $this->_customdata['isroot'];
@@ -76,52 +87,84 @@ class mod_forumng_editpost_form extends moodleform {
                     '<div id="id_postlimit">' . $text . $script . '</div>');
             }
 
-            $mform->addElement('text', 'subject',
-                $isroot ? get_string('subject', 'forumng')
-                : get_string('optionalsubject', 'forumng'),
-                array('id'=>'id_subject'));
-            $mform->setType('subject', PARAM_TEXT);
-            $mform->addRule('subject', get_string('maximumchars', '', 255),
-                'maxlength', 255, 'client');
-            if ($isroot) {
-                $mform->addRule('subject', get_string('required'),
-                    'required', null, 'client');
-                $mform->addRule('subject', get_string('required'),
-                    'regex', '/\S+/', 'client');
-            }
-            if ($islock) {
-                $mform->setDefault('subject',
-                    get_string('locksubject', 'forumngfeature_lock'));
+            // Subject
+            if (!empty($replyoptions['subject'])) {
+                $mform->addElement('text', 'subject',
+                    $isroot ? get_string('subject', 'forumng')
+                        : get_string('optionalsubject', 'forumng'),
+                    array('id'=>'id_subject'));
+                $mform->setType('subject', PARAM_TEXT);
+                $mform->addRule('subject', get_string('maximumchars', '', 255),
+                    'maxlength', 255, 'client');
+                if ($isroot) {
+                    $mform->addRule('subject', get_string('required'),
+                        'required', null, 'client');
+                    $mform->addRule('subject', get_string('required'),
+                        'regex', '/\S+/', 'client');
+                }
+                if ($islock) {
+                    $mform->setDefault('subject',
+                        get_string('locksubject', 'forumngfeature_lock'));
+                }
+            } else {
+                $mform->addElement('hidden', 'subject', '', array('id'=>'id_subject'));
+                $mform->setType('subject', PARAM_RAW);
             }
 
-            $editorattributes = array('id' => 'id_message',
-                    'cols' => 50, 'rows' => !empty($params['iframe']) ? 15 : 30);
-            $editoroptions = array(
-                'maxfiles' => EDITOR_UNLIMITED_FILES,
-                'context' => $forum->get_context(true),
-                'maxbytes' => $forum->get_max_bytes()
-            );
-            $mform->addElement('editor', 'message', get_string('message', 'forumng'),
+            if (!empty($replyoptions['toolbaroption'])) {
+                require_once("$CFG->dirroot/mod/forumng/simpleeditor.php");
+                \MoodleQuickForm::registerElementType('simpleeditor', "$CFG->libdir/form/editor.php",
+                    'MoodleQuickForm_ipudsimleeditor');
+
+                $editorattributes = array('id' => 'id_message' . (empty($post) ? '' : $post->get_id()),
+                                          'cols' => 60, 'rows' => $attorowheight);
+                $editoroptions = array(
+                    'maxfiles' => EDITOR_UNLIMITED_FILES,
+                    'context' => $forum->get_context(true),
+                    'maxbytes' => $forum->get_max_bytes(),
+                    'noclean' => 0,
+                    'trusttext' => 0,
+                    'enable_filemanagement' => true,
+                    'atto:toolbar' => $replyoptions['toolbaroption']
+                );
+                $mform->addElement('html', html_writer::start_tag('div', array('id' => 'forumg_customeditor')));
+                $mform->addElement('simpleeditor', 'message', get_string('message', 'forumng'),
                     $editorattributes, $editoroptions);
+                $mform->addElement('html', html_writer::end_tag('div'));
+
+            } else {
+                $editorattributes = array('id' => 'id_message' . (empty($post) ? '' : $post->get_id()),
+                                          'cols' => 50, 'rows' => !empty($params['iframe']) ? 15 : 30);
+                $editoroptions = array(
+                    'maxfiles' => EDITOR_UNLIMITED_FILES,
+                    'context' => $forum->get_context(true),
+                    'maxbytes' => $forum->get_max_bytes()
+                );
+                $mform->addElement('editor', 'message', get_string('message', 'forumng'),
+                    $editorattributes, $editoroptions);
+            }
             $mform->setType('message', PARAM_RAW);
             $mform->addRule('message', get_string('required'),
-                    'required', null, 'client');
+                'required', null, 'client');
 
             // If you can create attachments...
-            if ($forum->can_create_attachments()) {
+            if ($forum->can_create_attachments() && !empty($replyoptions['attachments'])) {
                 $mform->addElement('filemanager', 'attachments',
-                        get_string('attachments', 'forumng'), null,
-                        array('subdirs' => false, 'maxbytes' => $forum->get_max_bytes()));
+                    get_string('attachments', 'forumng'), null,
+                    array('subdirs' => false, 'maxbytes' => $forum->get_max_bytes()));
+            } else {
+                $mform->addElement('hidden', 'attachments', 0);
+                $mform->setType('attachments', PARAM_INT);
             }
 
             // If you can mail now, we show this option.
             $attachmentlist = '';
-            if ($forum->can_set_important() && !$isdiscussion && !$isroot && !$islock) {
+            if ($forum->can_set_important() && !$isdiscussion && !$isroot && !$islock && !empty($replyoptions['markposts'])) {
                 $mform->addElement('checkbox', 'setimportant',
                         get_string('setimportant', 'forumng'));
             }
             // Only add moderator element to post edit form if op1 or op2 available.
-            if ($forum->can_post_anonymously() || $forum->can_indicate_moderator()) {
+            if (($forum->can_post_anonymously() || $forum->can_indicate_moderator()) && !empty($replyoptions['postas'])) {
                 $options=array();
                 $options[mod_forumng::ASMODERATOR_NO] = get_string('asmoderator_post', 'forumng');
                 if ($forum->can_indicate_moderator()) {
@@ -139,7 +182,7 @@ class mod_forumng_editpost_form extends moodleform {
                 $mform->setType('asmoderator', PARAM_INT);
             }
 
-            if ($edit && ($post->get_user()->id != $USER->id)) {
+            if ($edit && ($post->get_user()->id != $USER->id) && !empty($replyoptions['emailauthor'])) {
                 // Email author.
                 $mform->addElement('header', 'id_emailauthor', get_string('emailauthor', 'forumng'));
                 $mform->addElement('checkbox', 'emailauthor',
@@ -272,10 +315,15 @@ class mod_forumng_editpost_form extends moodleform {
 
         $buttonarray = array();
         $buttonarray[] = &$mform->createElement('submit', 'submitbutton',
-            $submitlabel, array('id' => 'id_submitbutton'));
-        $buttonarray[] = &$mform->createElement('cancel', '', '',
-            array('id' => 'id_cancel'));
-        if (!$edit && !$islock) {
+        $submitlabel, array('id' => 'id_submitbutton'));
+
+        // If this is normal reply,we should have cancel button.
+        if (!empty($replyoptions['cancelbutton'])) {
+            $buttonarray[] = &$mform->createElement('cancel', '', '',
+                array('id' => 'id_cancel'));
+        }
+
+        if (!$edit && !$islock && !empty($replyoptions['postasdraftbutton'])) {
             // Can't save draft while editing.
             $buttonarray[] = &$mform->createElement('submit', 'savedraft',
                 get_string('savedraft', 'forumng'),
@@ -342,5 +390,14 @@ class mod_forumng_editpost_form extends moodleform {
      */
     public function get_html() {
         return $this->_form->toHtml();
+    }
+
+    /**
+     * Get form's element errors.
+     *
+     * @return array
+     */
+    public function get_form_errors() {
+        return $this->_form->_errors;
     }
 }

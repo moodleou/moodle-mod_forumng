@@ -444,5 +444,42 @@ function xmldb_forumng_upgrade($oldversion=0) {
         upgrade_mod_savepoint(true, 2017101200, 'forumng');
     }
 
+    if ($oldversion < 2017111300) {
+
+        // Add ipudloc field to discussion table.
+        $table = new xmldb_table('forumng_discussions');
+        $ipudlocfield = new xmldb_field('ipudloc', XMLDB_TYPE_TEXT, null, null, false, null, null, 'modified');
+        if (!$dbman->field_exists($table, $ipudlocfield)) {
+            $dbman->add_field($table, $ipudlocfield);
+        }
+        // Forumng savepoint reached.
+        upgrade_mod_savepoint(true, 2017111300, 'forumng');
+    }
+
+    if ($oldversion < 2018011800) {
+
+        // Define field lastemailprocessing to be added to forumng.
+        $table = new xmldb_table('forumng');
+        $field = new xmldb_field('lastemailprocessing', XMLDB_TYPE_INTEGER, '10', null,
+                XMLDB_NOTNULL, null, '0', 'timemodified');
+
+        // Conditionally launch add field lastemailprocessing.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Define index lastemailprocessing (not unique) to be added to forumng.
+        $index = new xmldb_index('lastemailprocessing', XMLDB_INDEX_NOTUNIQUE,
+                array('lastemailprocessing'));
+
+        // Conditionally launch add index lastemailprocessing.
+        if (!$dbman->index_exists($table, $index)) {
+            $dbman->add_index($table, $index);
+        }
+
+        // Forumng savepoint reached.
+        upgrade_mod_savepoint(true, 2018011800, 'forumng');
+    }
+
     return true;
 }

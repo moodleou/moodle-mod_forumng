@@ -18,9 +18,9 @@ defined('MOODLE_INTERNAL') || die();
 
 /**
  * Forum services declarations.
- * 
+ *
  * @package mod_forumng
- * @copyright 2014 The Open University
+ * @copyright 2017 The Open University
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -31,7 +31,21 @@ $services = array(
                 'requiredcapability' => '',
                 'restrictedusers' => 0,
                 'enabled' => 1
-        )
+        ),
+        'ForumNG IPUD' => array(
+                'shortname' => 'ipud',
+                'functions' => array(
+                        'mod_forumng_get_posts',
+                        'mod_forumng_expand_post',
+                        'mod_forumng_create_reply',
+                        'mod_forumng_edit_post',
+                        'mod_forumng_delete_post',
+                        'mod_forumng_undelete_post'
+                ),
+                'requiredcapability' => '',
+                'restrictedusers' => 0,
+                'enabled' => 1
+        ),
 );
 
 $functions = array(
@@ -41,5 +55,47 @@ $functions = array(
                 'classpath'   => 'mod/forumng/externallib.php',
                 'description' => 'Lists forums for user on course',
                 'type'        => 'read'
+        ),
+        'mod_forumng_get_posts' => array(
+                'classname'   => 'mod_forumng\local\external\get_posts',
+                'methodname'  => 'get_posts',
+                'description' => 'Get posts belong to discussion',
+                'type'        => 'read',
+                'ajax'        => true
+        ),
+        'mod_forumng_expand_post' => array(
+                'classname'   => 'mod_forumng\local\external\expand_post',
+                'methodname'  => 'expand_post',
+                'description' => 'Get information if post and its replies',
+                'type'        => 'read',
+                'ajax'        => true
+        ),
+        'mod_forumng_create_reply' => array(
+                'classname'   => 'mod_forumng\local\external\create_reply',
+                'methodname'  => 'create_reply',
+                'description' => 'Create reply for post',
+                'type'        => 'write',
+                'ajax'        => true
+        ),
+        'mod_forumng_edit_post' => array(
+                'classname'   => 'mod_forumng\local\external\edit_post',
+                'methodname'  => 'edit_post',
+                'description' => 'Edit post',
+                'type'        => 'write',
+                'ajax'        => true
+        ),
+        'mod_forumng_delete_post' => array(
+                'classname'   => 'mod_forumng\local\external\delete_post',
+                'methodname'  => 'delete_post',
+                'description' => 'Delete post',
+                'type'        => 'write',
+                'ajax'        => true
+        ),
+        'mod_forumng_undelete_post' => array(
+                'classname'   => 'mod_forumng\local\external\undelete_post',
+                'methodname'  => 'undelete_post',
+                'description' => 'Undelete post',
+                'type'        => 'write',
+                'ajax'        => true
         ),
 );

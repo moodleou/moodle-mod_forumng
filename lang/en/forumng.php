@@ -112,6 +112,8 @@ $string['discussion'] = 'Discussion';
 $string['unread'] = 'Unread';
 $string['lastpost'] = 'Last post';
 $string['group'] = 'Group';
+$string['location'] = 'Forum view';
+$string['linktoforumview'] = 'Link to forum view';
 $string['addanewdiscussion'] = 'Start a new discussion';
 $string['subject'] = 'Subject';
 $string['message'] = 'Message';
@@ -177,6 +179,7 @@ $string['forumng:forwardposts'] = 'Forward posts';
 $string['forumng:postasmoderator'] = 'Indentify self as moderator in post';
 $string['forumng:postanon'] = 'Post as anonymous moderator';
 $string['forumng:addtag'] = 'Allow user to set tags for a discussion';
+$string['forumng:viewrealipud'] = 'View forum discussion column in ipud';
 $string['pluginadministration'] = 'ForumNG administration';
 $string['modulename'] = 'ForumNG';
 $string['pluginname'] = 'ForumNG';
@@ -470,6 +473,8 @@ $string['studyadvice_noyourquestions'] = 'You have not yet started any discussio
 advice forum.';
 $string['studyadvice_noquestions'] = 'Nobody has started any discussions yet in this study advice
 forum.';
+$string['totalreply'] = '{$a} Reply';
+$string['totalreplies'] = '{$a} Replies';
 $string['jumpto'] = 'Jump to:';
 $string['jumpnext'] = 'Next unread';
 $string['jumpprevious'] = 'Previous unread';
@@ -571,6 +576,8 @@ $string['externaldashboardadd'] = 'Add forum to dashboard';
 $string['externaldashboardremove'] = 'Remove forum from dashboard';
 
 // New error strings.
+$string['error_new_discussion_ipud'] = 'You can not start a new discussion in In-page discussion forum';
+$string['error_reply_ipud'] = 'You can not reply to level two post.'.
 $string['error_fileexception'] = 'A file processing error occurred. This is likely to be caused by
 system problems. You may wish to try again later.';
 $string['error_subscribeparams'] = 'Parameters incorrect: requires either id or course or d.';
@@ -944,6 +951,7 @@ $string['forumngcrontaskdigest'] = 'Forumng email digest job';
 
 $string['error_identityinsubject_discussion'] = 'You have set the subject line to your login details. (This may have been done automatically by your browser or password manager.) To continue, change the subject text.';
 $string['error_identityinsubject_reply'] = 'You have set the subject line to your login details. (This may have been done automatically by your browser or password manager.) To continue, delete or change the subject text.';
+$string['error_form_validation'] = '{$a}'; // Form error in json format.
 
 $string['tooltip_show_features'] = 'Show other options';
 
@@ -951,3 +959,10 @@ $string['emailafter'] = 'Email after delay';
 $string['configemailafter'] = 'Email post to subscribed users with a delay after post creation.';
 $string['search:post'] = 'ForumNG - posts';
 $string['search:activity'] = 'ForumNG - activity information';
+$string['customeditortoolbar'] = 'Custom editor toolbar for In page discussion';
+$string['configcustomeditortoolbar'] = 'Custom toolbar option for In page discussion';
+$string['missingparam'] = 'Fragment form require replyto or edit parameter';
+$string['missingparam_formatmessage'] = 'Format message function requires "postid" and "rawmessage" parameter';
+$string['cronlimit'] = 'Time limit for normal email sending';
+$string['cronlimit_desc'] = 'Amount of time spent per scheduled task run for sending out normal emails. After this time limit, sending will resume the next time the task runs.';
+$string['image_placeholder'] = ' [Image] ';

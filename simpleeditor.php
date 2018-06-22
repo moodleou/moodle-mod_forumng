@@ -15,17 +15,17 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version.
- *
+ * Hacky form for a simple editor with custom option.
  * @package mod_forumng
- * @copyright 2014 The Open University
+ * @copyright 2017 The Open University
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+defined('MOODLE_INTERNAL') || die;
+require_once("$CFG->libdir/form/editor.php");
 
-defined('MOODLE_INTERNAL') || die();
-
-$plugin->version = 2018011800;
-$plugin->requires = 2016052300;
-$plugin->component = 'mod_forumng';
-$plugin->maturity = MATURITY_STABLE;
-$plugin->release = '3.1 r1';
+class MoodleQuickForm_ipudsimleeditor extends MoodleQuickForm_editor {
+    public function __construct($elementName = null, $elementLabel = null, $attributes = null, $options = null) {
+        $this->_options['atto:toolbar'] = '';
+        parent::__construct($elementName, $elementLabel, $attributes, $options);
+    }
+}

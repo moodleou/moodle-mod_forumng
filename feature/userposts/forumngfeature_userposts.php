@@ -62,7 +62,7 @@ class forumngfeature_userposts extends forumngfeature_discussion_list {
             $name = get_string('viewownposts', 'forumngfeature_userposts');
             $script = 'feature/userposts/user.php';
             return parent::get_button($forum, $name, $script, false,
-                    array('user' => mod_forumng_utils::get_real_userid(), 'fng-mobile-on'));
+                    array('user' => mod_forumng_utils::get_real_userid()), '','fng-mobile-on');
         }
     }
 }

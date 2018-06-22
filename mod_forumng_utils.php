@@ -129,6 +129,9 @@ class mod_forumng_utils {
             $file = str_replace($CFG->dirroot . '/', '', $line['file']);
             $file = str_replace('mod/forumng/', '', $file);
             $file = str_replace('.php', '', $file);
+            // For developer using window.
+            $file = str_replace($CFG->dirroot . '\\', '', $file);
+            $file = str_replace('mod\forumng\\', '', $file);
             $info .= $file . ':' . $line['line'] . ',';
         }
 
@@ -602,5 +605,156 @@ WHERE
             }
         }
         return $easyread;
+    }
+
+    /**
+     * Convert mod_forumng_post to stdClass.
+     *
+     * @param $post mod_forumng_post ForumnNG's post.
+     * @param $parentpostid integer Parent post id.
+     * @return stdClass
+     */
+    public static function convert_forumng_post_to_object($post, $parentpostid) {
+        global $PAGE, $CFG, $USER;
+        $userpicture = new user_picture($post->get_user());
+        $userpicture->size = 1;
+        $whynot  = '';
+
+        $postobject = new stdClass();
+        $postobject->postid = $post->get_id();
+        $postobject->discussionid = $post->get_discussion()->get_id();
+        $postobject->parentid = $parentpostid;
+
+        $postobject->canedit = $post->can_edit($whynot) ? 1 : $whynot;
+        $postobject->candelete = $post->can_delete($whynot) ? 1 : $whynot;
+        $postobject->canreport = $post->can_alert($whynot) ? 1 : $whynot;
+        $postobject->canundelete = $post->can_undelete($whynot) ? 1 : $whynot;
+        $postobject->canviewdeleted = $post->can_view_deleted($whynot) ? 1 : $whynot;
+        $postobject->canreply = $post->can_reply($whynot) ? 1 : $whynot;
+        $deleteuser = $post->get_delete_user();
+        $postobject->deleteuser = new stdClass();
+        // Check to parse deleted item if only existed.
+        if (empty($post->get_deleted())) {
+            $postobject->deletedtime = 0;
+        } else {
+            $postobject->deletedtime = userdate($post->get_deleted());
+        }
+        // Loop to assign attachment's name and url.
+        $postobject->attachmenturls = array();
+        $postobject->canviewanon = $post->get_forum()->can_post_anonymously();
+        // Check is this post is deleted and user permission to view deleted post.
+        if (!empty($postobject->deletedtime) && $postobject->canviewdeleted != 1) {
+            // If this post is deleted and user don't have permission to view then we hide following information.
+            $postobject->title = '';
+            $postobject->authorname = '';
+            $postobject->authorprofile = '';
+            $postobject->authoravatar = '';
+            $postobject->posttime = '';
+            $postobject->lastedittime = '';
+            $postobject->content = '';
+            $postobject->deleteuser->id = 0;
+            $postobject->deleteuser->firstname = '';
+            $postobject->deleteuser->lastname = '';
+            $postobject->deleteuser->profileurl = '';
+            $postobject->ismoderator = -1;
+        } else {
+            $postobject->title = $post->get_subject();
+            $postobject->authorname = fullname($post->get_user());
+            $postobject->authorprofile = $CFG->wwwroot . '/user/view.php?id=' . $post->get_user()->id
+                . '&course=' . $post->get_forum()->get_course_id();
+            $postobject->authoravatar = $userpicture->get_url($PAGE)->out();
+            $postobject->posttime = userdate($post->get_created());
+            $postobject->lastedittime = userdate($post->get_modified());
+            $postobject->content = $post->get_raw_message();
+            $postobject->deleteuser->id = $deleteuser->id;
+            $postobject->deleteuser->firstname = $deleteuser->firstname;
+            $postobject->deleteuser->lastname = $deleteuser->lastname;
+            $postobject->deleteuser->profileurl = (new moodle_url('/user/view.php', [
+                'id' => $deleteuser->id
+            ]))->out();
+            $postobject->ismoderator = $post->get_asmoderator();
+            foreach ($post->get_attachment_names() as $attachmentname) {
+                $attachment = new stdClass();
+                $attachment->name = $attachmentname;
+                $attachment->url = $post->get_attachment_url($attachmentname)->out();
+                $postobject->attachmenturls[] = $attachment;
+            }
+        }
+
+        // Add report link if report enabled.
+        if ($postobject->canreport == 1) {
+            $forum = $post->get_forum();
+            $discussion = $post->get_discussion();
+            $linkprefix = $CFG->wwwroot . '/mod/forumng/';
+
+            $itemurl = $discussion->get_location();
+            if ($forum->oualerts_enabled()) {
+                $context = $post->get_forum()->get_context(false);
+                $reportabuselink = oualerts_generate_alert_form_url(
+                    'forumng', $context->id,
+                    'post', $post->get_id(), $itemurl, $itemurl,
+                    $USER->id, false, true);
+            } else {
+                $reportabuselink = $linkprefix . 'alert.php?' .
+                    $post->get_link_params(mod_forumng::PARAM_HTML);
+                $reportabuselink = (new moodle_url($reportabuselink, array(
+                    'rurl' => $itemurl
+                )))->out();
+            }
+
+            $postobject->reportlink = $reportabuselink;
+        }
+
+        $postobject->numberofreply = $post->get_total_reply(false);
+        $postobject->isunread = $post->is_unread();
+
+        return $postobject;
+    }
+
+    /**
+     * Get IPUD web service post reply structure.
+     *
+     * @return array
+     */
+    public static function get_ipud_webservice_post_reply_structure() {
+        return array(
+            'postid' => new external_value(PARAM_INT, 'Post ID'),
+            'discussionid' => new external_value(PARAM_INT, 'Discussion ID'),
+            'parentid' => new external_value(PARAM_INT, 'Parent post ID'),
+            'title' => new external_value(PARAM_TEXT, 'Post title'),
+            'numberofreply' => new external_value(PARAM_INT, 'Number of reply for this post'),
+            'authorname' => new external_value(PARAM_TEXT, 'Author of this post'),
+            'ismoderator' => new external_value(PARAM_INT, 'Is moderator'),
+            'authorprofile' => new external_value(PARAM_TEXT, 'Author profile URL'),
+            'authoravatar' => new external_value(PARAM_TEXT, 'Author avatar URL'),
+            'posttime' => new external_value(PARAM_RAW, 'Post create time'),
+            'lastedittime' => new external_value(PARAM_RAW, 'Post last edit time'),
+            'deletedtime' => new external_value(PARAM_RAW, 'Post edited time, if not deleted return 0'),
+            'deleteuser' => new external_single_structure(
+                array(
+                    'id' => new external_value(PARAM_TEXT, 'ID of delete user'),
+                    'firstname' => new external_value(PARAM_TEXT, 'Delete user first name'),
+                    'lastname' => new external_value(PARAM_TEXT, 'Delete user last name'),
+                    'profileurl' => new external_value(PARAM_RAW, 'URL lead to delete user profile page'),
+                )
+            ),
+            'shortcontent' => new external_value(PARAM_RAW, 'Post short content', VALUE_DEFAULT, ''),
+            'content' => new external_value(PARAM_RAW, 'Post content'),
+            'attachmenturls' => new external_multiple_structure(
+                new external_single_structure(array(
+                    'name' => new external_value(PARAM_TEXT, 'Name of attachment'),
+                    'url' => new external_value(PARAM_URL, 'URL of attachment')
+                ), 'Attachment detail'), 'List of attachment'
+            ),
+            'isunread' => new external_value(PARAM_BOOL, 'Is unread post'),
+            'canedit' => new external_value(PARAM_TEXT, 'Can edit this post or not, if not return the reason.'),
+            'candelete' => new external_value(PARAM_TEXT, 'Can delete this post or not, if not return the reason.'),
+            'canreport' => new external_value(PARAM_TEXT, 'Can report this post or not, if not return the reason.'),
+            'canundelete' => new external_value(PARAM_TEXT, 'Can undelete this post or not, if not return the reason.'),
+            'canviewdeleted' => new external_value(PARAM_TEXT, 'Can view deleted post, if not return the reason.'),
+            'canreply' => new external_value(PARAM_TEXT, 'Can reply this post or not, if not return the reason.'),
+            'canviewanon' => new external_value(PARAM_RAW, 'Can view hidden moderator post or not.'),
+            'reportlink' => new external_value(PARAM_RAW, 'Link lead to report page.', VALUE_DEFAULT, ''),
+        );
     }
 }

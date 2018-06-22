@@ -34,6 +34,10 @@ class mod_forumng_alert_form extends moodleform {
         $mform->addElement('static', 'alert_intro', '',
             get_string('alert_info', 'forumng'));
 
+        // Add all the check boxes
+        $mform->addElement('hidden', 'rurl',  $this->_customdata->rurl);
+        $mform->setType('rurl', PARAM_RAW);
+
         $checkboxarray = array();
 
         $checkboxarray[] =& $mform->createElement('checkbox', 'alert_condition1',

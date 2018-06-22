@@ -123,3 +123,22 @@ $settings->add(new admin_setting_configcheckbox('forumng_enableadvanced',
 $settings->add(new admin_setting_configduration('forumng_emailafter',
     get_string('emailafter', 'forumng'),
     get_string('configemailafter', 'forumng'), 120));
+
+$settings->add(new admin_setting_configtextarea('forumng_customeditortoolbar',
+    get_string('customeditortoolbar', 'forumng'),
+    get_string('configcustomeditortoolbar', 'forumng'), 'style1 = bold, italic
+    style3 = link,
+    collapse = collapse,
+    style4 = underline, strike, subscript, superscript
+    list = unorderedlist, orderedlist,emoticon
+    files = image
+    insert = oumaths, chemistry, charmap, table,fontcolor
+    html = clear,html',
+    PARAM_TEXT));
+
+// Maximum time to spend in cron. The default value is set so that it finishes before the 20 minute
+// cron cycle.
+$settings->add(new admin_setting_configduration('mod_forumng/cronlimit',
+        get_string('cronlimit', 'forumng'),
+        get_string('cronlimit_desc', 'forumng'), 18 * 60));
+

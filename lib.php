@@ -801,3 +801,121 @@ function forumng_update_grades($forumng, $userid = 0, $nullifnone = true) {
     $forum = mod_forumng::get_from_id($forumng->id, mod_forumng::CLONE_DIRECT, true, $cm);
     $forum->update_grades($userid, null);
 }
+
+/**
+ * Function to get post form fragment with only message textarea.
+ *
+ * @param $args
+ * @return string
+` * @throws moodle_exception
+ */
+function mod_forumng_output_fragment_postform($args) {
+    global $CFG;
+
+    require_once($CFG->dirroot . '/mod/forumng/editpost_form.php');
+    require_once($CFG->dirroot . '/mod/forumng/mod_forumng.php');
+    require_once($CFG->dirroot . '/mod/forumng/mod_forumng_discussion.php');
+    require_once($CFG->dirroot . '/mod/forumng/mod_forumng_post.php');
+    require_once($CFG->dirroot . '/mod/forumng/mod_forumng_utils.php');
+
+    $editmode = false;
+
+    $params = array();
+
+    if (isset($args['replyto'])) {
+        $postid = $args['replyto'];
+        $params['replyto'] = $postid;
+    } else if (isset($args['edit'])) {
+        $postid = $args['edit'];
+        $params['p'] = $postid;
+        $editmode = true;
+    } else {
+        throw new moodle_exception('missingparam', 'mod_forumng');
+    }
+
+    $post = mod_forumng_post::get_from_id($postid, 0);
+    $forum = $post->get_forum();
+
+    $replyoption = $forum->get_type()->get_reply_options(false, true);
+
+    // Hide "Post as?" on fragment form.
+    $replyoption['postas'] = 0;
+    if (empty($args['cancelbutton'])) {
+        $replyoption['cancelbutton'] = true;
+    }
+
+    $mform = new mod_forumng_editpost_form(null, array(
+            'params' => $params,
+            'forum' => $forum,
+            'isdiscussion' => false,
+            'ispost' => true,
+            'islock' => false,
+            'edit' => $editmode,
+            'post' => $post,
+            'isroot' => false,
+            'replyoption' => $replyoption,
+            'attorowheight' => 7
+        )
+    );
+
+    // If editing a post setup data for form.
+    if ($editmode) {
+        $formvalues = new stdClass;
+        $formvalues->subject = $post->get_subject();
+        $formvalues->message = array('text' => $post->get_raw_message(),
+            'format' => $post->get_format());
+        $formvalues->setimportant = $post->is_important();
+
+        $filecontext = $forum->get_context(true); // All files stored in real forum, if this is clone.
+        $fileoptions = array('subdirs' => false, 'maxbytes' => $forum->get_max_bytes());
+
+        $draftitemid = file_get_submitted_draft_itemid('attachments');
+        file_prepare_draft_area($draftitemid, $filecontext->id, 'mod_forumng',
+            'attachment', $post->get_id(), $fileoptions);
+        $formvalues->attachments = $draftitemid;
+        $formvalues->asmoderator = $post->get_asmoderator();
+
+        $messagedraftitemid = file_get_submitted_draft_itemid('message');
+        $formvalues->message['text'] = file_prepare_draft_area($messagedraftitemid,
+            $filecontext->id, 'mod_forumng', 'message', $post->get_id(), $fileoptions,
+            $formvalues->message['text']);
+        $formvalues->message['itemid'] = $messagedraftitemid;
+        $mform->set_data($formvalues);
+    }
+
+    return $mform->get_html();
+}
+
+/**
+ * This function receives raw message, then return a message which have been added images and formatted.
+ *
+ * @param $args array
+ * @return string
+ * @throws moodle_exception
+ */
+function mod_forumng_output_fragment_formatmessage($args) {
+    global $CFG;
+
+    if (!isset($args['rawmessage']) || !isset($args['postid'])) {
+        throw new moodle_exception('missingparam_formatmessage', 'mod_forumng');
+    }
+    require_once($CFG->dirroot . '/mod/forumng/mod_forumng_post.php');
+
+    $postid = $args['postid'];
+    $rawmessage = $args['rawmessage'];
+
+    $post = mod_forumng_post::get_from_id($postid, 0);
+
+    if (!$post->get_discussion()->can_view()) {
+        throw new moodle_exception('error_cannotviewdiscussion', 'mod_forumng');
+    }
+
+    $forum = $post->get_forum();
+    $filecontext = $forum->get_context(true);
+
+    $formattedmessage = file_rewrite_pluginfile_urls($rawmessage, 'pluginfile.php', $filecontext->id,
+        'mod_forumng', 'message', $postid);
+    $formattedmessage = format_text($formattedmessage, FORMAT_HTML);
+
+    return $formattedmessage;
+}

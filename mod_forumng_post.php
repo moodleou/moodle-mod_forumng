@@ -66,7 +66,8 @@ class mod_forumng_post {
     const OPTION_UNREAD_NOT_HIGHLIGHTED = 'unread_not_highlighted';
     const OPTION_SINGLE_POST = 'single_post';
     const OPTION_PARTICIPATION = 'in_participation_screen';
-
+    const OPTION_DONT_DISPLAY_ROOTPOST = 'dont_display_rootpost';
+    const OPTION_COMMAND_TOTALREPLY = 'command_total_reply';
     /** Constant indicating that post is not rated by user */
     const NO_RATING = 999;
 
@@ -1768,6 +1769,11 @@ WHERE
             return false;
         }
 
+        // Let forum type veto show split if required.
+        if (!$this->get_forum()->get_type()->can_split()) {
+            return false;
+        }
+
         return true;
     }
 
@@ -1799,6 +1805,12 @@ WHERE
         if ($this->get_deleted() || $this->discussion->is_deleted()) {
             return false;
         }
+
+        // Let forum type veto show directlink if required.
+        if (!$this->get_forum()->get_type()->can_showdirectlink()) {
+            return false;
+        }
+
         return true;
     }
 
@@ -2238,7 +2250,7 @@ WHERE
         if (!array_key_exists(self::OPTION_COMMAND_DIRECTLINK, $options)) {
             $options[self::OPTION_COMMAND_DIRECTLINK] =
                 !$options[self::OPTION_NO_COMMANDS] && !$options[self::OPTION_EMAIL] &&
-                        $this->can_showdirectlink();
+                        $this->can_showdirectlink($junk);
         }
         if (!array_key_exists(self::OPTION_COMMAND_UNDELETE, $options)) {
             $options[self::OPTION_COMMAND_UNDELETE] =
@@ -2362,9 +2374,13 @@ WHERE
         if (!array_key_exists(self::OPTION_PARTICIPATION, $options)) {
             $options[self::OPTION_PARTICIPATION] = false;
         }
+        // show total reply base on forum type.
+        if(!array_key_exists(self::OPTION_COMMAND_TOTALREPLY, $options)) {
+            $options[self::OPTION_COMMAND_TOTALREPLY] = $this->get_forum()->get_type()->show_total_reply();
+        }
 
         // Get forum type to do actual display
-        $out = mod_forumng_utils::get_renderer();
+        $out = $this->get_forum()->get_type()->get_renderer();
         return $out->render_post($this, $html, $options);
     }
 
@@ -2411,7 +2427,12 @@ WHERE
                 || $this->has_unread_child() || $this->forceexpand || !$recursing
                 || $options[self::OPTION_CHILDREN_EXPANDED]));
 
-        $output = $this->display(true, $options);
+        if (isset($options[self::OPTION_DONT_DISPLAY_ROOTPOST]) && $options[self::OPTION_DONT_DISPLAY_ROOTPOST]
+            && $this->is_root_post()) {
+            $output = '';
+        } else {
+            $output = $this->display(true, $options);
+        }
 
         // Are there any children?
         if (count($this->children) > 0 && !($lockpostid
@@ -2438,7 +2459,7 @@ WHERE
     public function display_user_picture() {
         $out = mod_forumng_utils::get_renderer();
         return $out->user_picture($this->get_user(),
-                array('courseid'=>$this->get_forum()->get_course_id()));
+                array('courseid'=>$this->get_forum()->get_course_id(), 'size' => 55));
     }
 
     /**
@@ -2658,5 +2679,38 @@ WHERE
         }
         $regex = '/^www.(.*)/';
         return preg_replace($regex, '$1', $host);
+    }
+
+    /**
+     * Count number of replies for current post.
+     *
+     * @param bool $includedeleted true will also count the deleted post, otherwise ignore the deleted post.
+     * @return integer Number of replies belong to this post.
+     */
+    public function get_total_reply($includedeleted = true) {
+        $replies = $this->get_replies();
+        if ($includedeleted) {
+            return count($replies);
+        }
+
+        // Count only un-deleted post.
+        $count = 0;
+        foreach ($replies as $reply) {
+            if ($reply->get_deleted() == 0) {
+                $count++;
+            }
+        }
+
+        return $count;
+    }
+
+    /**
+     * Get replies belong to current post.
+     *
+     * @return array Array of mod_forumng_post.
+     */
+    public function get_replies() {
+        $this->require_children();
+        return $this->children;
     }
 }

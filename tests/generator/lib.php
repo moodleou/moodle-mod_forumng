@@ -99,16 +99,16 @@ class mod_forumng_generator extends testing_module_generator {
 
         $record = (array) $record;
 
-        if (!isset($record['course'])) {
-            throw new coding_exception('course must be present, in mod_forumng_generator::create_discussion() $record');
-        }
-
         if (!isset($record['forum'])) {
             throw new coding_exception('forum must be present, in mod_forumng_generator::create_discussion() $record');
         }
 
         if (!isset($record['userid'])) {
             throw new coding_exception('userid must be present, in mod_forumng_generator::create_discussion() $record');
+        }
+
+        if (!isset($record['ipudloc'])) {
+            $record['ipudloc'] = '';
         }
 
         if (!isset($record['groupid'])) {
@@ -139,11 +139,11 @@ class mod_forumng_generator extends testing_module_generator {
         $forum = mod_forumng::get_from_id($record['forum'], mod_forumng::CLONE_DIRECT);
 
         // Create the discussion.
-        $discussionid = $forum->create_discussion($record['groupid'], $record['subject'],
+        $discussionids = $forum->create_discussion($record['groupid'], $record['subject'],
                 $record['message'], $record['format'], false, false, $record['timestart'], $record['timeend'], false,
-                false, $record['userid']);
+                false, $record['userid'], true, 0, null, $record['ipudloc']);
 
-        return $discussionid;
+        return $discussionids;
     }
 
     /**
