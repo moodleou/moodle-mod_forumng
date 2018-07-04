@@ -40,6 +40,7 @@ class mod_forumng_editpost_form extends moodleform {
             'toolbaroption' => '',
             'emailauthor' => true,
         );
+        $allowemptymsg = is_a($forum->get_type(), 'forumngtype_ipud');
         $attorowheight = (!empty($this->_customdata['attorowheight'])) ? $this->_customdata['attorowheight'] : 10;
         $edit = $this->_customdata['edit'];
         $isdiscussion = $this->_customdata['isdiscussion'];
@@ -144,8 +145,10 @@ class mod_forumng_editpost_form extends moodleform {
                     $editorattributes, $editoroptions);
             }
             $mform->setType('message', PARAM_RAW);
-            $mform->addRule('message', get_string('required'),
-                'required', null, 'client');
+            if (!$allowemptymsg) {
+                $mform->addRule('message', get_string('required'),
+                        'required', null, 'client');
+            }
 
             // If you can create attachments...
             if ($forum->can_create_attachments() && !empty($replyoptions['attachments'])) {
