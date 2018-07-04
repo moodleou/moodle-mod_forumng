@@ -41,6 +41,9 @@ $email = optional_param('email', 0, PARAM_INT);
 $expand = optional_param('expand', 0, PARAM_INT);
 $expandparam = $expand ? '&expand=1' : '';
 
+// Where the delete came from.
+$refer = optional_param('refer', '', PARAM_ALPHA);
+
 $pageparams = array('p'=>$postid);
 if ($cloneid) {
     $pageparams['clone'] = $cloneid;
@@ -107,7 +110,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $email != 1) {
 if ($email) {
     require_once('deletepost_form.php');
 
-    $urlparams = array('p' => $postid, 'delete' => $delete, 'email' => $email);
+    $urlparams = array('p' => $postid, 'delete' => $delete, 'email' => $email, 'refer' => $refer);
     if ($cloneid) {
         $urlparams['clone'] = $cloneid;
     }
@@ -117,7 +120,9 @@ if ($email) {
 
     if ($mform->is_cancelled()) {
         // Form is cancelled, redirect back to the discussion.
-        redirect('discuss.php?' . $discussion->get_link_params(mod_forumng::PARAM_PLAIN) . $expandparam);
+        $backurl = ($refer == 'ipud') ? $discussion->get_location(true) :
+                'discuss.php?' . $discussion->get_link_params(mod_forumng::PARAM_PLAIN) . $expandparam;
+        redirect($backurl);
 
     } else if ($submitted = $mform->get_data()) {
         // Store copy of the post for the author.
@@ -181,7 +186,9 @@ if ($email) {
         }
 
         // redirect back to the discussion.
-        redirect('discuss.php?' . $discussion->get_link_params(mod_forumng::PARAM_PLAIN) . $expandparam);
+        $backurl = ($refer == 'ipud') ? $discussion->get_location(true) :
+                'discuss.php?' . $discussion->get_link_params(mod_forumng::PARAM_PLAIN) . $expandparam;
+        redirect($backurl);
     }
 }
 
@@ -199,8 +206,8 @@ if ($email) {
     $emailmessage->lastname = $USER->lastname;
     $emailmessage->course = $COURSE->fullname;
     $emailmessage->forum = $post->get_forum()->get_name();
-    $emailmessage->deleteurl = $CFG->wwwroot . '/mod/forumng/discuss.php?' .
-            $discussion->get_link_params(mod_forumng::PARAM_PLAIN);
+    $emailmessage->deleteurl = ($refer == 'ipud') ? $discussion->get_location(true) :
+            $CFG->wwwroot . '/mod/forumng/discuss.php?' . $discussion->get_link_params(mod_forumng::PARAM_PLAIN);
     $formdata = new stdClass;
 
     // Use the plain

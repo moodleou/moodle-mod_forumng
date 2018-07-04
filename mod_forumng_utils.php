@@ -647,6 +647,7 @@ WHERE
             // If this post is deleted and user don't have permission to view then we hide following information.
             $postobject->title = '';
             $postobject->authorname = '';
+            $postobject->authorid = -1;
             $postobject->authorprofile = '';
             $postobject->authoravatar = '';
             $postobject->posttime = '';
@@ -660,6 +661,7 @@ WHERE
         } else {
             $postobject->title = $post->get_subject();
             $postobject->authorname = fullname($post->get_user());
+            $postobject->authorid = $post->get_user()->id;
             $postobject->authorprofile = $CFG->wwwroot . '/user/view.php?id=' . $post->get_user()->id
                 . '&course=' . $post->get_forum()->get_course_id();
             $postobject->authoravatar = $userpicture->get_url($PAGE)->out();
@@ -724,6 +726,7 @@ WHERE
             'title' => new external_value(PARAM_TEXT, 'Post title'),
             'numberofreply' => new external_value(PARAM_INT, 'Number of reply for this post'),
             'authorname' => new external_value(PARAM_TEXT, 'Author of this post'),
+            'authorid' => new external_value(PARAM_INT, 'ID of the user who created this post'),
             'ismoderator' => new external_value(PARAM_INT, 'Is moderator'),
             'authorprofile' => new external_value(PARAM_TEXT, 'Author profile URL'),
             'authoravatar' => new external_value(PARAM_TEXT, 'Author avatar URL'),
