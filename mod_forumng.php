@@ -2874,7 +2874,7 @@ WHERE
             // For specific user, add in 'null' item when updating grade - this
             // allows it to 'clear' the grade if you are 'un-rating' a post
             if (count($grades) == 0 && $userid) {
-                $grade = new object();
+                $grade = new stdClass();
                 $grade->userid = $userid;
                 $grade->rawgrade = null;
                 $grades[$userid] = $grade;
