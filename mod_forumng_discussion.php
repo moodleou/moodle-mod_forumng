@@ -2503,7 +2503,7 @@ WHERE
         // Print link back to discussion list
         print '<div id="forumng-arrowback">' .
             link_arrow_left($this->get_forum()->get_name(),
-                'view.php?' . $this->get_forum()->get_link_params(mod_forumng::PARAM_HTML)) .
+                'view.php?' . $this->get_forum()->get_link_params(mod_forumng::PARAM_PLAIN)) .
                  '</div>';
     }
 
