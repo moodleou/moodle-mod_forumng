@@ -48,9 +48,11 @@ class advancedsearch_form extends moodleform {
         $mform->setType('query', PARAM_TEXT);
 
         // Author name or OUCU to be filtered.
-        $mform->addElement('text', 'author', get_string('authorname', 'forumng'), 'size="40"');
-        $mform->setType('author', PARAM_TEXT);
-
+        if (mod_forumng::allow_user_search($this->_customdata['id'])) {
+            $mform->addElement('text', 'author', get_string('authorname', 'forumng'), 'size="40"');
+            $mform->setType('author', PARAM_TEXT);
+            $mform->addHelpButton('author', 'authorname', 'forumng');
+        }
         // Posted as moderator.
         $mform->addElement('checkbox', 'asmoderator', get_string('postedasmoderator', 'forumng'));
 
@@ -68,7 +70,6 @@ class advancedsearch_form extends moodleform {
 
         // Add help buttons
         $mform->addHelpButton('query', 'words', 'forumng');
-        $mform->addHelpButton('author', 'authorname', 'forumng');
         $mform->addHelpButton('asmoderator', 'postedasmoderator', 'forumng');
         $mform->addHelpButton('datefrom', 'daterangefrom', 'forumng');
 
@@ -84,6 +85,7 @@ class advancedsearch_form extends moodleform {
         $errors = parent::validation($data, $files);
         $datefrom = $data['datefrom'];
         $dateto = $data['dateto'];
+        $author = isset($data['author']) ? $data['author'] : '';
         if (isset($data['asmoderator'])) {
             $asmoderator = $data['asmoderator'];
         } else {
@@ -95,7 +97,7 @@ class advancedsearch_form extends moodleform {
         if (($datefrom > $dateto) && $dateto) {
             $errors['dateto'] = get_string('daterangemismatch', 'forumng');
         }
-        if ((($data['query'] == '') && ($data['author'] == '') && !$datefrom && !$dateto) && (!$asmoderator)) {
+        if ((($data['query'] == '') && ($author == '') && !$datefrom && !$dateto) && (!$asmoderator)) {
             $errors['query'] = get_string('nosearchcriteria', 'forumng');
         }
         return $errors;
@@ -219,12 +221,14 @@ if ($editform->is_cancelled()) {
 
 // Process form data.
 $data = $editform->get_data();
+// We get author from $editform to make sure current user allow search by author.
+$author = isset($data->author) ? trim($data->author) : '';
 
 // Display header
 $out = mod_forumng_utils::get_renderer();
 print $out->header();
 
-$searchtitle = forumng_get_search_results_title($query, $data ? $data->author : '',
+$searchtitle = forumng_get_search_results_title($query, $author,
         $data ? $data->datefrom : 0, $data ? $data->dateto : 0);
 
 if (!$allforums) {
@@ -268,7 +272,7 @@ if ($data) {
         }
         // Pass necessary data to filter function using ugly global.
         global $forumngfilteroptions;
-        $forumngfilteroptions = (object)array('author' => trim($data->author),
+        $forumngfilteroptions = (object)array('author' => $author,
                 'datefrom' => $data->datefrom, 'dateto' => $data->dateto,
                 'asmoderator' => !empty($data->asmoderator));
         $result->set_filter('forumng_exclude_words_filter');
@@ -281,10 +285,10 @@ if ($data) {
 
         // Get result from database query.
         if ($allforums) {
-            $results = forumng_get_results_for_all_forums($course, trim($data->author),
+            $results = forumng_get_results_for_all_forums($course, $author,
                     $data->datefrom, $data->dateto, $page, !empty($data->asmoderator));
         } else {
-            $results = forumng_get_results_for_this_forum($forum, $groupid, trim($data->author),
+            $results = forumng_get_results_for_this_forum($forum, $groupid, $author,
                     $data->datefrom, $data->dateto, $page, !empty($data->asmoderator));
         }
         $nextpage = $page + FORUMNG_SEARCH_RESULTSPERPAGE;

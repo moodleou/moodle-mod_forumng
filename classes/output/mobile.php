@@ -186,6 +186,7 @@ class mobile {
      * @throws \coding_exception
      */
     public static function prep_discussions(\mod_forumng $forum, array $discussionlist, array &$discussions) {
+        global $USER;
         // Ref: forumng/renderer.php render_discussion_list_item.
         foreach ($discussionlist as $key => $discussion) {
             // Only add discussions if the forumtype thinks we can see them.
@@ -240,19 +241,23 @@ class mobile {
                 // Last post.
                 $lastposter = $discussion->get_last_post_user();
                 $lastuser = $discussion->get_forum()->display_user_name($lastposter);
-                $timestr = self::date_or_time($discussion->get_time_modified());
+                $lastpostcell = self::date_or_time($discussion->get_time_modified()) . ' ';
                 $moderator = get_string('moderator', 'forumng');
                 $lastposteranon = $discussion->get_last_post_anon();
                 if ($lastposteranon == \mod_forumng::ASMODERATOR_IDENTIFY) {
-                    $lastpostcell = $timestr . ' ' . $lastuser . ' (' . $moderator. ')';
+                    $lastpostcell .= $lastuser . ' (' . $moderator. ')';
                 } else if ($lastposteranon == \mod_forumng::ASMODERATOR_ANON) {
                     if ($discussion->get_forum()->can_post_anonymously()) {
-                        $lastpostcell = $timestr . ' ' . $lastuser . ' (' . $moderator. ')';
+                        $lastpostcell .= $lastuser . ' (' . $moderator. ')';
                     } else {
-                        $lastpostcell = $timestr . ' ' . $moderator;
+                        $lastpostcell .= $moderator;
                     }
                 } else {
-                    $lastpostcell = $timestr . ' ' . $lastuser;
+                    if (\mod_forumng_utils::display_discussion_list_item_author_anonymously($discussion->get_forum(), $USER->id)) {
+                        $lastpostcell .= get_string('identityprotected', 'forumng');
+                    } else {
+                        $lastpostcell .= $lastuser;
+                    }
                 }
                 // Author or started by.
                 $posteranon = $discussion->get_poster_anon();
@@ -268,7 +273,11 @@ class mobile {
                         $startedby = $moderator;
                     }
                 } else {
-                    $startedby = $username;
+                    if (\mod_forumng_utils::display_discussion_list_item_author_anonymously($discussion->get_forum(), $USER->id)) {
+                        $startedby = get_string('identityprotected', 'forumng');
+                    } else {
+                        $startedby = $username;
+                    }
                 }
                 // No of posts.
                 $noofposts = $discussion->get_num_posts() - 1; // Do not count the initial post as a reply.
@@ -316,10 +325,9 @@ class mobile {
 
         // Based on renderer.php render_post, and mod_forumng_post.php display_with_children.
         $root = $discussion->get_root_post();
-        $posteranon = $discussion->get_poster_anon();
         $defaultimage = $OUTPUT->image_url('u/f2');
         $moderator = get_string('moderator', 'forumng');
-        $postdata = self::get_common_post_data($discussion, $root, $defaultimage, $posteranon, $moderator);
+        $postdata = self::get_common_post_data($discussion, $root, $defaultimage, $moderator);
         $postdata['cmid'] = $discussion->get_course_module()->id;
         // No of posts or replies.
         $noofposts = $discussion->get_num_posts() - 1; // Do not count the first message as a reply.
@@ -369,7 +377,6 @@ class mobile {
         $posts = $discussion->get_root_post_replies(0); // 0 means get all.
         $replies = [];
         $count = 0;
-        $posteranon = $discussion->get_poster_anon();
         $defaultimage = $OUTPUT->image_url('u/f2');
         $moderator = get_string('moderator', 'forumng');
         foreach ($posts as $post) {
@@ -380,11 +387,11 @@ class mobile {
                 continue;
             }
             // Get the main post data.
-            $postdata = self::get_common_post_data($discussion, $post, $defaultimage, $posteranon, $moderator);
+            $postdata = self::get_common_post_data($discussion, $post, $defaultimage, $moderator);
             // Add any sub-replies. All sub-replies and any other deeper levels of reply
             // will be displayed at just one level of indent.
             $subreplies = [];
-            self::get_subreplies($discussion, $post, $defaultimage, $posteranon, $moderator, $subreplies);
+            self::get_subreplies($discussion, $post, $defaultimage, $moderator, $subreplies);
             $postdata['hasreplies'] = count($subreplies) > 0;
             $postdata['subreplies'] = $subreplies;
             $reply = (object) $postdata;
@@ -400,20 +407,19 @@ class mobile {
      * @param \mod_forumng_discussion $discussion
      * @param \mod_forumng_post $post
      * @param string $defaultimage Default image url
-     * @param int $posteranon A discussion setting
      * @param string $moderator Language string for Moderator
      * @param array $subreplies Array passed by reference containing result of this method
      * @throws \coding_exception
      */
     private static function get_subreplies(\mod_forumng_discussion $discussion, \mod_forumng_post $post,
-            string $defaultimage, int $posteranon, string $moderator, array &$subreplies) {
+            string $defaultimage, string $moderator, array &$subreplies) {
         $rawsubreplies = $post->get_replies();
         foreach ($rawsubreplies as $sr) {
-            $postdata = self::get_common_post_data($discussion, $sr, $defaultimage, $posteranon, $moderator);
+            $postdata = self::get_common_post_data($discussion, $sr, $defaultimage, $moderator);
             $subreply = (object) $postdata;
             $subreplies[] = $subreply;
             if (count($sr->get_replies())) {
-                self::get_subreplies($discussion, $sr, $defaultimage, $posteranon, $moderator, $subreplies);
+                self::get_subreplies($discussion, $sr, $defaultimage, $moderator, $subreplies);
             }
         }
     }
@@ -424,16 +430,16 @@ class mobile {
      * @param \mod_forumng_discussion $discussion
      * @param \mod_forumng_post $post
      * @param string $defaultimage Default image url
-     * @param int $posteranon A discussion setting
      * @param string $moderator Language string for Moderator
      * @return array
      * @throws \coding_exception
      */
     private static function get_common_post_data(\mod_forumng_discussion $discussion, \mod_forumng_post $post,
-            string $defaultimage, int $posteranon, string $moderator) {
-        global $PAGE;
+            string $defaultimage, string $moderator) {
+        global $PAGE, $USER;
         // Author or started by.
         $poster = $post->get_user();
+        $posteranon = $post->get_asmoderator();
         if ($poster) {
             $userimage = new \user_picture($poster);
             $startedbyurl = $userimage->get_url($PAGE)->out();
@@ -451,7 +457,12 @@ class mobile {
                 $startedbyurl = $defaultimage;
             }
         } else {
-            $startedby = $username;
+            if (\mod_forumng_utils::display_discussion_list_item_author_anonymously($discussion->get_forum(), $USER->id)) {
+                $startedby = get_string('identityprotected', 'forumng');
+                $startedbyurl = $defaultimage;
+            } else {
+                $startedby = $username;
+            }
         }
         // Attachments.
         $attachmentarray = [];

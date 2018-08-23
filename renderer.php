@@ -156,6 +156,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
      * @return string td html tag containing the discussion last post details
      */
     public function render_discussion_list_item_author($discussion, $courseid, $num) {
+        global $USER;
         $posteranon = $discussion->get_poster_anon();
         $poster = $discussion->get_poster();
         $userimage = $this->user_picture($poster, array('courseid' => $courseid));
@@ -180,6 +181,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
         $moderated = html_writer::tag('div', $moderator,
                 array('class' => 'forumng-moderator'));
         $endwrapper = html_writer::end_tag('div');
+        // Post as moderator.
         if ($posteranon == mod_forumng::ASMODERATOR_IDENTIFY) {
             $startedby = $userpicture . $wrapper . $userlink . $moderated . $endwrapper;
         } else if ($posteranon == mod_forumng::ASMODERATOR_ANON) {
@@ -189,7 +191,12 @@ class mod_forumng_renderer extends plugin_renderer_base {
                 $startedby = $defaultimage . $moderator;
             }
         } else {
-            $startedby = $userimage . $user;
+            if (mod_forumng_utils::display_discussion_list_item_author_anonymously($discussion->get_forum(), $USER->id)) {
+                $startedby = $defaultimage . get_string('identityprotected', 'forumng');
+            } else {
+                // Post as normal and Moderator can view the post anonymous.
+                $startedby = $userimage . $user;
+            }
         }
         $result .= $startedby . "</td>";
         return $result;
@@ -203,22 +210,30 @@ class mod_forumng_renderer extends plugin_renderer_base {
      * @returns string the td html tag containing the last post details
      */
     public function render_discussion_list_item_lastpost($discussion, $lastposteranon, $num) {
+        global $USER;
         $br = html_writer::empty_tag('br', array());
         $result = '<td class="cell c' . $num .' forumng-lastpost">';
         $lastposter = $discussion->get_last_post_user();
         $lastuserlink = $discussion->get_forum()->display_user_link($lastposter);
         $timestr = mod_forumng_utils::display_date($discussion->get_time_modified());
         $moderator = get_string('moderator', 'forumng');
+        $lastpostcell = $timestr . $br;
+        // Post as moderator.
         if ($lastposteranon == mod_forumng::ASMODERATOR_IDENTIFY) {
-            $lastpostcell = $timestr . $br . $lastuserlink . $br . $moderator;
+            $lastpostcell .= $lastuserlink . $br . $moderator;
         } else if ($lastposteranon == mod_forumng::ASMODERATOR_ANON) {
             if ($discussion->get_forum()->can_post_anonymously()) {
-                $lastpostcell = $timestr . $br . $lastuserlink .$br . $moderator;
+                $lastpostcell .= $lastuserlink . $br . $moderator;
             } else {
-                $lastpostcell = $timestr .$br . $moderator;
+                $lastpostcell .= $moderator;
             }
         } else {
-            $lastpostcell = $timestr . $br . $lastuserlink;
+            if (mod_forumng_utils::display_discussion_list_item_author_anonymously($discussion->get_forum(), $USER->id)) {
+                $lastpostcell .= get_string('identityprotected', 'forumng');
+            } else {
+                // Post as normal and Moderator can view the post anonymous.
+                $lastpostcell .= $lastuserlink;
+            }
         }
         $result .= $lastpostcell . "</td>";
         return $result;
@@ -573,9 +588,8 @@ class mod_forumng_renderer extends plugin_renderer_base {
         // Get post summary
         $summary = self::get_post_summary($post->get_subject(), $post->get_formatted_message());
         $result .= $link . $summary . '</a>';
-
-        $result .= '<small> ' . get_string('postby', 'forumng',
-            $post->get_forum()->display_user_link($post->get_user())) .
+        $postby = $post->get_forum()->display_author_name($post->get_user(), $post->get_asmoderator(), true);
+        $result .= '<small> ' . get_string('postby', 'forumng', $postby) .
             '</small></td>';
 
         // Discussion cell.
@@ -1027,6 +1041,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
      * OPTION_DISCUSSION_SUBJECT (bool) - If true, and only IF post is a
      *   discussion root, includes subject (HTML, shortened as it would be for
      *   header display) as a hidden field.
+     * OPTION_MAILTO_USERID (int) - User id send mail to.
      *
      * @param mod_forumng_post $post Post object
      * @param bool $html True if using HTML, false to output in plain text
@@ -1040,6 +1055,9 @@ class mod_forumng_renderer extends plugin_renderer_base {
         $expanded = $options[mod_forumng_post::OPTION_EXPANDED];
         $export = $options[mod_forumng_post::OPTION_EXPORT];
         $email = $options[mod_forumng_post::OPTION_EMAIL];
+        $displaytouserid = $options[mod_forumng_post::OPTION_MAILTO_USERID] !== false ?
+                $options[mod_forumng_post::OPTION_MAILTO_USERID] : $USER->id;
+        $displayauthoranon = mod_forumng_utils::display_discussion_author_anonymously($post, $displaytouserid);
 
         // When posts are deleted we hide a lot of info - except when the person
         // viewing it has the ability to view deleted posts.
@@ -1156,7 +1174,12 @@ class mod_forumng_renderer extends plugin_renderer_base {
 
             // User picture.
             if (!$options[mod_forumng_post::OPTION_IS_ANON]) {
+                if ($displayauthoranon) {
+                    $out .= html_writer::empty_tag('img',
+                            array('src' => $this->image_url('u/f2'), 'alt' => ''));
+                } else {
                     $out .= $deletedhide ? '' : $post->display_user_picture();
+                }
             } else {
                 if ($options[mod_forumng_post::OPTION_VIEW_ANON_INFO]) {
                     $out .= $deletedhide ? '' : $post->display_user_picture();
@@ -1200,11 +1223,15 @@ class mod_forumng_renderer extends plugin_renderer_base {
                 }
             } else {
                 if (!$options[mod_forumng_post::OPTION_IS_ANON]) {
-                    $out .= '<a href="' . $CFG->wwwroot . '/user/view.php?id=' .
-                        $post->get_user()->id .
-                        ($post->get_forum()->is_shared() ? '' : '&amp;course=' .
-                        $post->get_forum()->get_course_id()) .
-                        '">' . $by->name . '</a>';
+                    if ($displayauthoranon) {
+                        $out .= get_string('identityprotected', 'mod_forumng');
+                    } else {
+                        $out .= '<a href="' . $CFG->wwwroot . '/user/view.php?id=' .
+                                $post->get_user()->id .
+                                ($post->get_forum()->is_shared() ? '' : '&amp;course=' .
+                                        $post->get_forum()->get_course_id()) .
+                                '">' . $by->name . '</a>';
+                    }
                 }
             }
             if ($options[mod_forumng_post::OPTION_IS_ANON] ||
@@ -1264,7 +1291,15 @@ class mod_forumng_renderer extends plugin_renderer_base {
             $out .=  html_writer::end_tag('div');
         } else {
             require_once(dirname(__FILE__) . '/mod_forumng_cron.php');
-            $out .= $by->name . ' - ' . $by->date . $lf;
+            // Create text mail.
+            if (!$options[mod_forumng_post::OPTION_IS_ANON]) {
+                if ($displayauthoranon) {
+                    $out .= get_string('identityprotected', 'mod_forumng')
+                            . ' - ' . $by->date . $lf;;
+                } else {
+                    $out .= $by->name . ' - ' . $by->date . $lf;
+                }
+            }
 
             $out .= mod_forumng_cron::EMAIL_DIVIDER;
         }

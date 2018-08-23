@@ -252,11 +252,16 @@ class mod_forumng_forumng_testcase extends forumng_test_lib {
 
         // Test can_post_anonymously().
         $this->assertFalse($forum1->can_post_anonymously());
-        $forum6 = $this->get_new_forumng($course->id, array('canpostanon' => 1));
+        $forum6 = $this->get_new_forumng($course->id, array('canpostanon' => mod_forumng::CANPOSTANON_MODERATOR));
         role_change_permission($role->id, $forum6->get_context(), 'mod/forumng:postanon', CAP_PREVENT);
         $this->assertFalse($forum6->can_post_anonymously($user1->id));
         role_change_permission($role->id, $forum6->get_context(), 'mod/forumng:postanon', CAP_ALLOW);
         $this->assertTrue($forum6->can_post_anonymously($user1->id));
+        $forum11 = $this->get_new_forumng($course->id, array('canpostanon' => mod_forumng::CANPOSTATON_NONMODERATOR));
+        role_change_permission($role->id, $forum11->get_context(), 'mod/forumng:postanon', CAP_PREVENT);
+        $this->assertFalse($forum11->can_post_anonymously($user1->id));
+        role_change_permission($role->id, $forum11->get_context(), 'mod/forumng:postanon', CAP_ALLOW);
+        $this->assertTrue($forum11->can_post_anonymously($user1->id));
 
         // Test can_rate().
         $this->assertFalse($forum1->can_rate(0));

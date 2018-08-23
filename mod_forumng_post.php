@@ -74,6 +74,7 @@ class mod_forumng_post {
     const OPTION_INDICATE_MODERATOR = 'indicate_moderator';
     const OPTION_IS_ANON = 'is_anon';
     const OPTION_VIEW_ANON_INFO = 'view_anon';
+    const OPTION_MAILTO_USERID = 'mailto_userid';
 
     // Object variables and accessors
     // Comment.
@@ -2135,7 +2136,8 @@ WHERE
             self::OPTION_VIEW_FULL_NAMES => $viewfullnames ? true : false,
             self::OPTION_TIME_ZONE => $timezone,
             self::OPTION_VISIBLE_POST_NUMBERS => $discussionemail,
-            self::OPTION_USER_IMAGE => true);
+            self::OPTION_USER_IMAGE => true,
+            self::OPTION_MAILTO_USERID => false);
         foreach ($extraoptions as $key => $value) {
             $options[$key] = $value;
         }
@@ -2163,7 +2165,8 @@ WHERE
             $options = array(
                 self::OPTION_EMAIL => true,
                 self::OPTION_NO_COMMANDS => true,
-                self::OPTION_TIME_ZONE => $timezone);
+                self::OPTION_TIME_ZONE => $timezone,
+                self::OPTION_MAILTO_USERID => false);
             foreach ($extraoptions as $key => $value) {
                 $options[$key] = $value;
             }
@@ -2361,10 +2364,16 @@ WHERE
         } else {
             $options[self::OPTION_INDICATE_MODERATOR] = false;
         }
+        // When create email content, we need option mailto_userid.
+        if (!array_key_exists(self::OPTION_MAILTO_USERID, $options)) {
+            $options[self::OPTION_MAILTO_USERID] = false;
+        }
         if ($options[self::OPTION_IS_ANON] == true ||
                 $options[self::OPTION_INDICATE_MODERATOR] == true) {
             if (!array_key_exists(self::OPTION_VIEW_ANON_INFO, $options)) {
-                if ($this->get_forum()->can_post_anonymously()) {
+                $displaytouserid = $options[mod_forumng_post::OPTION_MAILTO_USERID] !== false ?
+                        $options[mod_forumng_post::OPTION_MAILTO_USERID] : $USER->id;
+                if ($this->get_forum()->can_post_anonymously($displaytouserid)) {
                     $options[self::OPTION_VIEW_ANON_INFO] = true;
                 } else {
                     $options[self::OPTION_VIEW_ANON_INFO] = false;

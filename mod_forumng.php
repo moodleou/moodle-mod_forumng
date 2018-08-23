@@ -174,6 +174,13 @@ class mod_forumng {
     // Constants for web services.
     const IPUD_SHORTEN_LENGTH = 160;
 
+    /** Post as normal.*/
+    const CANPOSTAON_NORMAL = 0;
+    /** Allow moderators to post anonymously. */
+    const CANPOSTANON_MODERATOR  = 1;
+    /** Non-moderators always post anonymously */
+    const CANPOSTATON_NONMODERATOR = 2;
+
     // Static methods
     /*///////////////*/
 
@@ -269,6 +276,20 @@ class mod_forumng {
             self::GRADING_MAX => get_string('grading_max', 'forumng'),
             self::GRADING_MIN => get_string('grading_min', 'forumng'),
             self::GRADING_SUM => get_string('grading_sum', 'forumng'));
+    }
+
+    /**
+     * Options for select box canpostanon
+     *
+     * @return array
+     * @throws coding_exception
+     */
+    public static function get_canpostanon_options() {
+        return [
+                self::CANPOSTAON_NORMAL => get_string('canpostanon_normal',  'forumng'),
+                self::CANPOSTANON_MODERATOR => get_string('canpostanon_moderator',  'forumng'),
+                self::CANPOSTATON_NONMODERATOR => get_string('canpostanon_nonmoderator',  'forumng'),
+        ];
     }
 
     /** @return bool True if read-tracking is enabled */
@@ -413,7 +434,12 @@ class mod_forumng {
         echo $altlink;
     }
 
-    /** @return bool True if anonymous moderator posts enabled */
+    /**
+     * Can anonymous posts
+     *
+     * 0: Normal 1: Moderator 2: Non moderator
+     * @return int Anonymous posts
+     */
     public function get_can_post_anon() {
         return $this->forumfields->canpostanon;
     }
@@ -3790,6 +3816,36 @@ WHERE
     }
 
     /**
+     * Display author name in text or html link.
+     *
+     * @param object $user User object
+     * @param int $asmoderator values are ASMODERATOR_IDENTIFY or ASMODERATOR_ANON
+     * @param bool $linkprofile true: with link to user profile
+     * @return string Display author for list flagged post.
+     * @throws coding_exception
+     */
+    public function display_author_name($user, $asmoderator, $linkprofile = true) {
+        global $USER;
+        $authorname = $linkprofile ? $this->display_user_link($user) : $this->display_user_name($user);
+        $moderator = get_string('moderator', 'forumng');
+
+        switch ($asmoderator) {
+            case self::ASMODERATOR_IDENTIFY:
+                $postby = $authorname . ' ' . $moderator;
+                break;
+            case self::ASMODERATOR_ANON:
+                $postby = $this->can_post_anonymously() ? $authorname . ' ' . $moderator : $moderator;
+                break;
+            default:
+                $postby = mod_forumng_utils::display_discussion_list_item_author_anonymously($this, $USER->id) ?
+                        get_string('identityprotected', 'forumng') : $authorname;
+                break;
+        }
+
+        return $postby;
+    }
+
+    /**
      * @param int $groupid Group ID
      * @return string HTML links for RSS/Atom feeds to this discussion (if
      *   enabled etc)
@@ -5101,7 +5157,10 @@ WHERE
 
         $anonparams = array();
         $anonwhere = '';
-        if ($ignoreanon) {
+        if ($ignoreanon && $this->get_can_post_anon() == self::CANPOSTATON_NONMODERATOR) {
+            $anonwhere = 'AND fp.asmoderator = ?';
+            $anonparams[] = self::ASMODERATOR_IDENTIFY;
+        } else if ($ignoreanon) {
             $anonwhere = 'AND fp.asmoderator != ?';
             $anonparams[] = self::ASMODERATOR_ANON;
         }
@@ -5721,6 +5780,31 @@ ORDER BY
         }
         // Try and find another userid.
         return self::get_group_taginstance_userid($groupid, $tagid, $nexttry);
+    }
+
+    /**
+     * Check to allow user search in moodleglobalsearch and mod_forumng/advancedsearch
+     *
+     * @param int $cmid
+     * @return bool true allow
+     * @throws coding_exception
+     */
+    public static function allow_user_search($cmid) {
+        global $USER;
+
+        if (!$cmid) {
+            return true;
+        }
+
+        $context = context_module::instance($cmid);
+        $forumng = self::get_from_cmid($context->instanceid, mod_forumng::CLONE_DIRECT);
+
+        if ($forumng->get_can_post_anon() == self::CANPOSTATON_NONMODERATOR &&
+                !$forumng->can_post_anonymously($USER->id)) {
+            return false;
+        }
+
+        return true;
     }
 
 }

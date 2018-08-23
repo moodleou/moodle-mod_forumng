@@ -22,6 +22,7 @@ Users and groups
 
 U.S1 - student 1. Ensure the user profile 'Email digest type' is set to
 'Complete (daily email with full posts)'.
+U.S2 - student 2.
 U.ET - editing teacher, not in a group.
 Ensure that the email account for each user is accessible during testing.
 
@@ -37,7 +38,10 @@ CRE01 / Admin
    Leave all settings as default except name and introduction,
    as name enter 'F.AMNE', and introduction enter,
    'Anonymous Moderation not enabled. No anonymous moderator posts, but Moderators should be flagged.'.
--  Confirm that the General form contains a check box 'Enable anonymous moderator posts', with help.
+-  Confirm that the General form contains a select box 'Enable anonymous moderator posts', with help. The select box contains 3 options with values:
+   0: Post as normal
+   1: Allow moderators to post anonymously
+   2: Non-moderators always post anonymously
    Click 'Save and display' and return to the new course forum.
 -  Confirm creation of new empty forum with the introduction as entered above.
 
@@ -47,9 +51,12 @@ CRE02 / Admin
    In course week one, from the add activity dropdown, choose 'ForumNG'.
    Leave all settings as default except name and introduction
    as name  enter 'F.AME' and as introduction enter,
-   'Anonymous Moderation is enabled. Moderators may post anonymously, but should be flagged.'.
--  Confirm that the General form contains a check box 'Enable anonymous moderator posts', with help.
-   Click the check box to 'Enable anonymous moderator posts'.
+  'Anonymous Moderation is enabled. Moderators may post anonymously, but should be flagged.'.
+   -  Confirm that the General form contains a select box 'Enable anonymous moderator posts', with help. The select box contains 3 options with values:
+      0: Post as normal
+      1: Allow moderators to post anonymously
+      2: Non-moderators always post anonymously
+      Select option 'Allow moderators to post anonymously'
    Click 'Save and display' and return to the new course forum.
 -  Confirm creation of new empty forum with the introduction as entered above.
 
@@ -364,6 +371,136 @@ BUM19 / US.1
 -  Verify that the 'Last post' entry against 'discussion 2 BUM08' is just 'Moderator'.
 
 Return to course main page.
+
+BUA Basic usage anonymous non-moderated
+===================================
+BUA01 / U.ET [Change]
+   Enter the course and click to enter forum 'F.AMNE'.
+-  Confirm that the General form contains a select box 'Enable anonymous moderator posts', with help. The select box contains 3 options with values:
+      0: Post as normal
+      1: Allow moderators to post anonymously
+      2: Non-moderators always post anonymously
+      Select option 'Non-moderators always post anonymously'
+   Click 'Save and display' and return to the new course forum.
+
+Return to the course main page.
+
+BUA02 / U.ET
+   Go to the course and click into forum 'F.AMNE'.
+   Click the 'Start a new discussion' button.
+-  You should be taken to a new page with a form for starting a discussion.
+-  Confirm that 'Post as', is available as the last option on this page, and that
+   the drop down options are 'Standard Post', 'Identify self as moderator' and 'Post anonymously as moderator'.
+
+Return to forum view page.
+
+BUA03 / U.ET
+   Click the 'Start a new discussion' button.
+   In subject fill as 'F.AMNE Teacher UET normal discussion 1 BUA03'
+   in message fill as 'BUA03 This is the first normal discussion post by Teacher UET.'
+   In the 'Post as' selector choose the second option, 'Standard Post'.
+   Hit the 'Post discussion' button.
+-  Verify that you are taken to the new discussion page and your message is shown.
+-  Verify that the user description block to the left of the post contains the text teacher name.
+
+Return to forum view page.
+
+BUA04 / U.S1
+   Go to the course and click into forum 'F.AMNE'
+-  Confirm that the forum view page discussion list shows that each discussions entry under 'Started by'
+   has an image icon and that the user name is visible and that it is followed by 'Identity protected'.
+-  Confirm that the forum view page discussion list shows that each discussions entry under 'Last post'
+   has an posted date and that the user name is visible and that it is followed by 'Identity protected'.
+
+BUA05 / U.S1
+   Click 'F.AMNE Teacher UET normal discussion 1 BUA03' to enter the discussion.
+-  Verify that the user description block to the left of the post contains the text 'Identity protected'.
+-  Verify that the user description block to the left of the post not contains user link profile.
+
+BUA06 / U.S1
+   Click the 'Reply' link below this message.
+   In subject fill 'Student 1 reply BUA06' as subject and
+   in message fill 'Student 1 message BUA06'.
+   hit the 'Post reply' button.
+-  Verify that you are returned to the discussion page showing your reply.
+   You should have one discussion and your reply appearing.
+-  Verify that the user description block to the left of the post contains the text 'Identity protected'.
+-  Verify that the user description block to the left of the post not contains user link profile and image profile.
+
+Return to the course main page.
+
+BUA07 / U.S2
+   Go to the course and click into forum 'F.AMNE'
+-  Confirm that the forum view page discussion list shows that each discussions entry under 'Started by'
+   has an image icon and that the user name is visible and that it is followed by 'Identity protected'.
+-  Confirm that the forum view page discussion list shows that each discussions entry under 'Last postsorted'
+   has an posted date and that the user name is visible and that it is followed by 'Identity protected'.
+
+BUA08 / U.S2
+   Click 'F.AMNE Teacher UET normal discussion 1 BUA03' to enter the discussion.
+-  Verify that the user description block to the left of the post contains the text 'Identity protected'.
+-  Verify that the user description block to the left of the post not contains user link profile and image profile.
+
+BUA09 / U.S2
+   Click on button 'Flag post' below the post
+   Click on button 'Flag discussion' below the post
+   Return to forum view page.
+   In the 'Flagged discussions'
+-  Confirm that the forum view page discussion list shows that each discussions entry under 'Started by'
+   has an image icon and that the user name is visible and that it is followed by 'Identity protected'.
+-  Confirm that the forum view page discussion list shows that each discussions entry under 'Last post'
+   has an posted date and that the user name is visible and that it is followed by 'Identity protected'.
+   In the 'Flagged posts'
+-  Confirm that the forum view page Post list shows that each post entry under 'Post' is end with '(by Identity protected)'
+
+Return to the course main page.
+
+BUA10 / U.ET
+   Go to the course and click into forum 'F.AMNE'
+-  Confirm that the forum view page discussion list shows that each discussions entry under 'Started by'
+   has an user avata and that the user name is visible and that it is the teacher name.
+-  Confirm that the forum view page discussion list shows that each discussions entry under 'Last postsorted'
+   has an posted date and the username is visible and that it is the student1 user name.
+
+BUA11 / U.ET
+   Click 'F.AMNE Teacher UET normal discussion 1 BUA03' to enter the discussion.
+   Click on button 'Flag post' below the post
+   Click on button 'Flag discussion' below the post
+   Return to forum view page.
+   In the 'Flagged discussions' section
+-  Confirm that the forum view page discussion list shows that each discussions entry under 'Started by'
+   has an image icon and that the user name is visible and that it is followed by student name.
+-  Confirm that the forum view page discussion list shows that each discussions entry under 'Last post'
+   has an posted date and that the user name is visible and that it is followed by student name.
+   In the 'Flagged posts' section
+-  Confirm that the forum view page Post list shows that each post entry under 'Post' is end with '(by student name)'
+
+Return to forum view page.
+
+BUA12 / U.S1
+   Click the 'Subscribe' button to ensure that test student user recieves the
+   Email digest complete with full posts.
+   Verify that the post 'Student 1 reply BUN09' author is 'Identity protected'
+
+Return to forum view page.
+
+BUA13 / U.ET
+   Click the 'Subscribe' button to ensure that test student user recieves the.
+   Email digest complete with full posts.
+   Verify that the post 'Student 1 reply BUN09' author is the user name.
+
+Return to forum view page.
+
+BUA14 / U.ET [Change]
+   Enter the course and click to enter forum 'F.AMNE'.
+-  Confirm that the General form contains a select box 'Enable anonymous moderator posts', with help. The select box contains 3 options with values:
+      0: Post as normal
+      1: Allow moderators to post anonymously
+      2: Non-moderators always post anonymously
+      Select option 'Allow moderators to post anonymously'
+   Click 'Save and display' and return to the new course forum.
+
+Return to the course main page.
 
 BLD Basic lock discussions usage.
 =================================

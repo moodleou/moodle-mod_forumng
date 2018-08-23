@@ -115,7 +115,7 @@ class mod_forumng_mod_form extends moodleform_mod {
         $mform->addRule('reportingemail',
                 get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
         $mform->addHelpButton('reportingemail', 'reportingemail', 'forumng');
-        $mform->addElement('checkbox', 'canpostanon', get_string('canpostanon', 'forumng'));
+        $mform->addElement('select', 'canpostanon', get_string('canpostanon', 'forumng'), mod_forumng::get_canpostanon_options());
         $mform->addHelpButton('canpostanon', 'canpostanon', 'forumng');
         // Atom/RSS feed on/off/discussions-only.
         if ($CFG->enablerssfeeds && !empty($CFG->forumng_enablerssfeeds)) {

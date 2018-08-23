@@ -139,13 +139,17 @@ class mod_forumng_generator extends testing_module_generator {
             $record['modified'] = 0;
         }
 
+        if (!isset($record['asmoderator'])) {
+            $record['asmoderator'] = 0;
+        }
+
         // Get a forum object.
         $forum = mod_forumng::get_from_id($record['forum'], mod_forumng::CLONE_DIRECT);
 
         // Create the discussion.
         $discussionids = $forum->create_discussion($record['groupid'], $record['subject'],
                 $record['message'], $record['format'], false, false, $record['timestart'], $record['timeend'], false,
-                false, $record['userid'], true, 0, null, $record['ipudloc'], $record['modified']);
+                false, $record['userid'], true, $record['asmoderator'], null, $record['ipudloc'], $record['modified']);
 
         return $discussionids;
     }

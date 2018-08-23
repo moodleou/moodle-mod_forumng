@@ -269,27 +269,34 @@ $mainquery", $mainparams);
                             $debugcount = $emailcount;
                         }
                         try {
-                            $from = $post->get_user();
+                            $from = clone $post->get_user();
 
                             // These loops are intended so that we generate identical
                             // emails once only, and can then send them in batches.
                             foreach ($langusers as $lang => $tzusers) {
                                 foreach ($tzusers as $timezone => $typeusers) {
                                     foreach ($typeusers as $emailtype => $users) {
-
                                         // We get both plaintext and html versions.
                                         // The html version will be blank if set to
                                         // plain text mode.
                                         $innerbefore = microtime(true);
-                                        $post->build_email($inreplyto, $subject,
-                                                $plaintext, $html, $emailtype & 1,
-                                                $emailtype & 2, $emailtype & 4, $lang,
-                                                $timezone);
-
+                                        if ($CFG->forumng_usebcc && $post->get_asmoderator() == mod_forumng::ASMODERATOR_NO &&
+                                                $forum->get_can_post_anon() == mod_forumng::CANPOSTATON_NONMODERATOR) {
+                                            $from->maildisplay = false;
+                                            $from->firstname = get_string('identityprotected', 'forumng');
+                                            $from->lastname = '';
+                                        }
                                         if ($post->get_asmoderator() == mod_forumng::ASMODERATOR_ANON) {
                                             $from->maildisplay = false;
                                             $from->firstname = get_string('moderator', 'forumng');
                                             $from->lastname = '';
+                                        }
+                                        if ($forum->get_can_post_anon() != mod_forumng::CANPOSTATON_NONMODERATOR ||
+                                                $CFG->forumng_usebcc) {
+                                            $post->build_email($inreplyto, $subject,
+                                                    $plaintext, $html, $emailtype & 1,
+                                                    $emailtype & 2, $emailtype & 4, $lang,
+                                                    $timezone, false, false, ['mailto_userid' => -1]);
                                         }
                                         $buildemailtime += microtime(true) - $innerbefore;
 
@@ -302,11 +309,24 @@ $mainquery", $mainparams);
                                                     "post " . $post->get_id(),
                                                     $emailtype & 1, $emailtype & 4);
                                         } else {
-                                            // Loop through subscribers, sending mail to
-                                            // each one.
+                                            // Loop through subscribers, sending mail to each one.
                                             foreach ($users as $mailto) {
-                                                self::email_send($mailto, $from, $subject,
-                                                        $plaintext, $html);
+                                                $noreplyaddress = '';
+                                                // We separate in 2 case to impove peformance
+                                                if ($forum->get_can_post_anon() == mod_forumng::CANPOSTATON_NONMODERATOR ||
+                                                        ($forum->get_can_post_anon() == mod_forumng::CANPOSTANON_MODERATOR &&
+                                                                $post->get_asmoderator() == mod_forumng::ASMODERATOR_ANON)) {
+                                                    if (mod_forumng_utils::display_discussion_author_anonymously($post, $mailto->id)) {
+                                                        $noreplyaddress = $CFG->noreplyaddress;
+                                                    }
+                                                    $post->build_email($inreplyto, $subject1,
+                                                            $plaintext1, $html1, $emailtype & 1,
+                                                            $emailtype & 2, $emailtype & 4, $lang,
+                                                            $timezone, false, false, ['mailto_userid' => $mailto->id]);
+                                                    self::email_send($mailto, $noreplyaddress ? $noreplyaddress : $from, $subject1, $plaintext1, $html1);
+                                                } else {
+                                                    self::email_send($mailto, $from, $subject, $plaintext, $html);
+                                                }
                                                 $emailcount++;
                                             }
                                         }

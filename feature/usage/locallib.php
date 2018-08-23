@@ -26,7 +26,7 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->libdir . '/formslib.php');
 
 function forumngfeature_usage_show_mostreaders($params, $forum = null) {
-    global $DB, $PAGE;
+    global $DB, $PAGE, $USER;
     $cloneid = empty($params['clone']) ? 0 : $params['clone'];
     if ($forum == null) {
         if (empty($params['id'])) {
@@ -50,6 +50,15 @@ function forumngfeature_usage_show_mostreaders($params, $forum = null) {
             // Set context when called via ajax.
             $PAGE->set_context($forum->get_context());
         }
+        $displayauthoranonymously = mod_forumng_utils::display_discussion_list_item_author_anonymously($forum, $USER->id);
+        $anonwhere2 = $anonwhere1 = "";
+        $anonparams = [];
+        if ($displayauthoranonymously) {
+            $anonwhere1 = ' AND fp.asmoderator = :asmoderator1 ';
+            $anonwhere2 = ' AND fp.asmoderator = :asmoderator2 ';
+            $anonparams['asmoderator1'] = mod_forumng::ASMODERATOR_IDENTIFY;
+            $anonparams['asmoderator2'] = mod_forumng::ASMODERATOR_IDENTIFY;
+        }
         $renderer = $PAGE->get_renderer('forumngfeature_usage');
         // Only include enrolled users.
         list($sql, $params) = get_enrolled_sql($forum->get_context(), '', $groupid, true);
@@ -60,8 +69,11 @@ function forumngfeature_usage_show_mostreaders($params, $forum = null) {
                        SELECT fd.id AS discussionid, fr.userid
                          FROM {forumng_discussions} fd
                          JOIN {forumng_read} fr ON fr.discussionid = fd.id
+                         JOIN {forumng_posts} fp ON fp.id = fd.postid
                         WHERE fd.forumngid = :forumid1 AND fd.deleted = 0
+                          AND fp.oldversion = 0 AND fd.deleted = 0
                               $groupwhere
+                              $anonwhere1
                     UNION ALL
                        SELECT fd.id AS discussionid, frp.userid
                          FROM {forumng_discussions} fd
@@ -70,12 +82,13 @@ function forumngfeature_usage_show_mostreaders($params, $forum = null) {
                         WHERE fd.forumngid = :forumid2 AND fp.deleted = 0
                               AND fp.oldversion = 0 AND fd.deleted = 0
                               $groupwhere2
+                              $anonwhere2
                        ) fr
                  WHERE fr.userid IN ($sql)
               GROUP BY fr.discussionid
               ORDER BY count desc, fr.discussionid desc", array_merge(
                         array('forumid1' => $forum->get_id(), 'forumid2' => $forum->get_id()),
-                        $groupparams, $params), 0, 5);
+                        $groupparams, $params, $anonparams), 0, 5);
         $readerlist = array();
         foreach ($readers as $discuss) {
             $discussion = mod_forumng_discussion::get_from_id($discuss->discussionid, $cloneid);

@@ -297,6 +297,13 @@ if (has_capability('mod/forumng:viewreadinfo', $forum->get_context())) {
 }
 if (has_capability('forumngfeature/usage:viewflagged', $forum->get_context())) {
     // View posts that have been flagged.
+    $displayauthoranonymously = mod_forumng_utils::display_discussion_list_item_author_anonymously($forum, $USER->id);
+    $anonwhere = "";
+    $anonparams = [];
+    if ($displayauthoranonymously) {
+        $anonwhere = ' AND fp.asmoderator = ? ';
+        $anonparams[] = mod_forumng::ASMODERATOR_IDENTIFY;
+    }
     $flagged = $DB->get_recordset_sql("
             SELECT COUNT(ff.id) AS count, fp.id
               FROM {forumng_flags} ff
@@ -307,8 +314,9 @@ if (has_capability('forumngfeature/usage:viewflagged', $forum->get_context())) {
                AND fp.deleted = 0
                AND fp.oldversion = 0
             $groupwhere
+            $anonwhere
           GROUP BY fp.id
-          ORDER BY count desc, fp.id desc", array_merge(array($forum->get_id()), $groupparams), 0, 5);
+          ORDER BY count desc, fp.id desc", array_merge(array($forum->get_id()), $groupparams, $anonparams), 0, 5);
     $flaggedlist = array();
     foreach ($flagged as $apost) {
         $post = mod_forumng_post::get_from_id($apost->id, $cloneid, true, true);
@@ -320,14 +328,18 @@ if (has_capability('forumngfeature/usage:viewflagged', $forum->get_context())) {
     $usageoutput .= html_writer::end_div();
     // View discussions that have been flagged.
     $flagged = $DB->get_recordset_sql("
-            SELECT COUNT(ff.id) AS count, fd.id
+          SELECT COUNT(ff.id) AS count, fd.id
             FROM {forumng_flags} ff
-            INNER JOIN {forumng_discussions} fd ON fd.id = ff.discussionid
-            WHERE fd.forumngid = ?
-            AND fd.deleted = 0
+      INNER JOIN {forumng_discussions} fd ON fd.id = ff.discussionid
+      INNER JOIN {forumng_posts} fp ON fp.id = fd.postid
+           WHERE fd.forumngid = ?
+             AND fd.deleted = 0
+             AND fp.deleted = 0
+             AND fp.oldversion = 0
             $groupwhere
+            $anonwhere
             GROUP BY fd.id
-            ORDER BY count desc, fd.id desc", array_merge(array($forum->get_id()), $groupparams), 0, 5);
+            ORDER BY count desc, fd.id desc", array_merge(array($forum->get_id()), $groupparams, $anonparams), 0, 5);
     $flaggedlist = array();
     foreach ($flagged as $adiscuss) {
         $discuss = mod_forumng_discussion::get_from_id($adiscuss->id, $cloneid, 0, true);

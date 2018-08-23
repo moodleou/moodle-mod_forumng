@@ -99,10 +99,7 @@ class forumngfeature_usage_renderer extends plugin_renderer_base {
             // Hide user details if anon post and user does not have permission to see.
             $user = null;
         } else {
-            $content .= $forum->display_user_link($user) . ' ';
-        }
-        if ($discussion->get_poster_anon() != mod_forumng::ASMODERATOR_NO) {
-            $content .= get_string('moderator', 'mod_forumng');
+            $content .= $forum->display_author_name($user, $discussion->get_poster_anon(), true);
         }
         $content .= html_writer::end_div();
         return array($content, $user);
@@ -128,10 +125,7 @@ class forumngfeature_usage_renderer extends plugin_renderer_base {
             // Hide user details if anon post and user does not have permission to see.
             $user = null;
         } else {
-            $content .= $forum->display_user_link($user) . ' ';
-        }
-        if ($post->get_asmoderator() != mod_forumng::ASMODERATOR_NO) {
-            $content .= get_string('moderator', 'mod_forumng');
+            $content .= $forum->display_author_name($user, $post->get_asmoderator(), true);
         }
         $content .= html_writer::end_div();
         return array($content, $user);

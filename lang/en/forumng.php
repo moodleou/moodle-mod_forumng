@@ -881,14 +881,20 @@ $string['gradingscale'] = 'Grading scale';
 $string['moderator'] = 'Moderator';
 $string['anonymousmoderator'] = 'Anonymous moderator';
 $string['canpostanon'] = 'Enable anonymous moderator posts';
-$string['canpostanon_help'] = 'Allows users that have postanon capability to make their post anonymous by hiding their name from students.';
+$string['canpostanon_normal'] = 'Post as normal';
+$string['canpostanon_moderator'] = 'Allow moderators to post anonymously';
+$string['canpostanon_nonmoderator'] = 'Non-moderators always post anonymously';
+$string['canpostanon_help'] = 'Allows users that have postanon capability to make their post anonymous by hiding their name from students. <br />
+Note that anonymous post authors will display in site-wide searches (where users have the moodle/search:query capability).';
 $string['asmoderator'] = 'Post as?';
 $string['asmoderator_post'] = 'Standard Post';
-$string['asmoderator_self'] = 'Identify self as moderator';
+$string['asmoderator_post_anon'] = 'Standard Post (name hidden)';
+$string['asmoderator_self'] = 'Identify self as moderator (name displayed)';
 $string['asmoderator_anon'] = 'Identify self as moderator (name hidden from students)';
 $string['asmoderator_help'] = 'This option will enable certain users to be able to identify themselves as a forum
 moderator or post as a moderator with their profile hidden from students.';
 $string['createdbymoderator'] = 'This is a post created by moderator {$a} with their name hidden from students.';
+$string['identityprotected'] = 'Identity protected';
 
 $string['lockedtitle'] = 'This discussion is now closed';
 $string['autolockedmessage'] = 'This discussion has been closed automatically as the maximum time permitted to be open has passed.';

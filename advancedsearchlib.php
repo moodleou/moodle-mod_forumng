@@ -107,7 +107,7 @@ function forumng_get_results_for_this_forum($forum, $groupid, $author=null, $dat
         $params[] = $groupid;
     }
     if (!empty($author)) {
-        if (($forum->get_can_post_anon() == true ) && ($forum->can_post_anonymously() == false)) {
+        if (($forum->get_can_post_anon()) && ($forum->can_post_anonymously() == false)) {
             $where .= " AND p.asmoderator != ? ";
             $params[] = mod_forumng::ASMODERATOR_ANON;
         }

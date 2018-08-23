@@ -170,6 +170,9 @@ class mod_forumng_editpost_form extends moodleform {
             if (($forum->can_post_anonymously() || $forum->can_indicate_moderator()) && !empty($replyoptions['postas'])) {
                 $options=array();
                 $options[mod_forumng::ASMODERATOR_NO] = get_string('asmoderator_post', 'forumng');
+                if ($forum->get_can_post_anon() == mod_forumng::CANPOSTATON_NONMODERATOR) {
+                    $options[mod_forumng::ASMODERATOR_NO] = get_string('asmoderator_post_anon', 'forumng');
+                }
                 if ($forum->can_indicate_moderator()) {
                     $options[mod_forumng::ASMODERATOR_IDENTIFY] = get_string('asmoderator_self', 'forumng');
                 }
