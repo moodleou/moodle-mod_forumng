@@ -1,0 +1,82 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template mod_forumng/mobile_discussions_page
+
+    Mobile view of the forumng discussions page
+
+    Classes required for JS:
+    * none
+
+    Data attributes required for JS:
+    * none
+
+    Context variables required for this template:
+    * forumng object // $forumng containing fully formed html elements like introduction
+    * cmid int // $cm->id
+    * courseid int // $courseid
+
+    Example context (json):
+    {
+        'forumng': {
+            'id': 789,
+            'course': 456,
+            'name': 'My first forum',
+            'introduction': '<p>A first test forum</p>',
+            'introductionformat': 1,
+            'intro': '',
+            'introformat': 1,
+            'type': 'general',
+            'ratingscale': 0,
+            'ratingfrom': 0,
+            'ratinguntil': 0,
+            'ratingthreshold': 1,
+            'grading': 0,
+            'attachmentmaxbytes': 512000,
+            'reportingemail': ,
+            'subscription': 1,
+            'feedtype': 2,
+            'feeditems': 0,
+            'maxpostsperiod': 0,
+            'maxpostsblock': 0,
+            'postingfrom': 0,
+            'postinguntil': 0,
+            'typedata': ,
+            'magicnumber': 4839608920240576,
+            'completiondiscussions': 0,
+            'completionreplies': 0,
+            'completionposts': 0,
+            'removeafter': 0,
+            'removeto': ,
+            'shared': 0,
+            'originalcmid': ,
+            'gradingscale': 0,
+            'canpostanon': 0,
+            'enabletags': 0,
+            'enableratings': 0,
+            'timemodified': 1506695788,
+            'lastemailprocessing': 0
+        },
+        'cmid': 123,
+        'courseid': 456
+    }
+
+}}
+{{=<% %>=}}
+<div>
+    <core-course-module-description description="<% forumng.introduction %>" component="mod_forumng" componentId="<% cmid %>"></core-course-module-description>
+</div>
