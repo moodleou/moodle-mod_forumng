@@ -39,7 +39,7 @@ Feature: Username protection
     When I set the field "Subject" to "Not abc123"
     And I press "Post discussion"
     Then I should not see "You have set the subject line to your login"
-    And I should see "Not abc123" in the ".breadcrumb-nav" "css_element"
+    And I should see "Not abc123" in the ".breadcrumb" "css_element"
 
   @javascript
   Scenario: Post a new reply
