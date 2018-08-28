@@ -417,6 +417,8 @@ M.mod_forumng = {
         }
         this.nowediting = true;
 
+        M.util.js_pending('forumng_iframe');
+
         // Add special style that marks links disabled
         this.links_disable(document.body);
 
@@ -429,6 +431,8 @@ M.mod_forumng = {
         src += '&iframe=1';
         iframe.set('src', src);
         window.iframe_has_loaded = function(innerwin) {
+            M.util.js_complete('forumng_iframe');
+            M.util.js_pending('forumng_iframe_load');
             // Note: I am avoiding using YUI because I think there are
             // probably two YUI instances and I don't want it to get
             // confused.
@@ -443,6 +447,7 @@ M.mod_forumng = {
 
             // Check size and enlarge iframe if required.
             var fix_height = function() {
+                M.util.js_pending('forumng_iframe_resize');
                 if(doc.body.scrollHeight > Number(iframe.get('height'))) {
                     iframe.set('height', (doc.body.scrollHeight + 2));
                     iframecon.set('height', (doc.body.scrollHeight + 2));
@@ -506,6 +511,7 @@ M.mod_forumng = {
                     // Keep resizing iframe as filemanager takes a while to initialise.
                     setTimeout(fix_height, 500);
                 }
+                M.util.js_complete('forumng_iframe_resize');
             };
             fix_height();
 
@@ -560,6 +566,7 @@ M.mod_forumng = {
             if (!M.is_mobile) {
                 setTimeout(try_focus, 250);
             }
+            M.util.js_complete('forumng_iframe_load');
         };
 
         // Put it in as last thing in post (except the 'end post' marker).

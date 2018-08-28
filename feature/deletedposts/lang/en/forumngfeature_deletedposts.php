@@ -35,3 +35,4 @@ $string['anyone'] = 'Anyone';
 $string['all'] = 'All';
 $string['event:vieweddiscuss'] = 'View deleted discussions';
 $string['event:viewed'] = 'View deleted posts';
+$string['privacy:metadata'] = 'The Delete/undelete posts plugin does not store any personal data.';

@@ -30,3 +30,4 @@ $string['confirmunlock'] = 'Are you sure you want to unlock this discussion?';
 $string['pluginname'] = 'Lock/unlock discussion';
 $string['lockdiscussiontitle'] = 'Lock discussion(s)';
 $string['lockdis'] = 'Lock discussions';
+$string['privacy:metadata'] = 'The Lock/unlock discussion plugin does not store any personal data.';

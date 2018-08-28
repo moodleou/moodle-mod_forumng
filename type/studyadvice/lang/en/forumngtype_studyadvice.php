@@ -22,3 +22,4 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 $string['pluginname'] = 'Study advice (only see own discussions)';
+$string['privacy:metadata'] = 'The Study advice (only see own discussions) plugin does not store any personal data.';

@@ -32,3 +32,4 @@ $string['forward_info_all'] = 'This discussion will be emailed to the address or
 $string['forward_email_help'] = 'Enter one or more email address(es) separated by spaces or semicolons.';
 $string['pluginname'] = 'Forward posts by email';
 $string['event:discussionforwarded'] = 'Forward discussion';
+$string['privacy:metadata'] = 'The Forward posts by email plugin does not store any personal data.';

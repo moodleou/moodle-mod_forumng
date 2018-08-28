@@ -155,7 +155,6 @@ Feature: Show usage statistics for ForumNG
 
     And I should see "Post history - 12 posts" in the ".forumng_usage_usagechart" "css_element"
     And "Update post history" "button" should exist
-    And ".forumng_usage_chart" "css_element" should exist
     And ".forumng_usage_subscribers" "css_element" should exist
     And I should see "Subscribers" in the ".forumng_usage_subscribers h4" "css_element"
     And I should see "Subscriber type"

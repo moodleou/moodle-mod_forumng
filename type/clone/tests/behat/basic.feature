@@ -63,4 +63,9 @@ Feature: Clone forum
     When I press "Save and display"
     And I follow "original forum"
     Then I should see "C1"
+    Given I am on "Course 2" course homepage
+    And I follow "Test forum"
+    And I follow "D1"
+    And I click on ".arrow_link" "css_element"
+    Then I should see "This is a shared forum"
     And I log out

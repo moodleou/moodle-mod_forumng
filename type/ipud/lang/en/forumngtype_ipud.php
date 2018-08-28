@@ -23,3 +23,4 @@
 $string['pluginname'] = 'In-page forum';
 $string['linktodiscussion'] = 'Link to discussion';
 $string['nopostsyet'] = 'No posts yet';
+$string['privacy:metadata'] = 'The In-page forum plugin does not store any personal data.';

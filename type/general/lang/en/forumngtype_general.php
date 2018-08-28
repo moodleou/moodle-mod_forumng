@@ -22,3 +22,4 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 $string['pluginname'] = 'Standard forum for general use';
+$string['privacy:metadata'] = 'The Standard forum for general use plugin does not store any personal data.';

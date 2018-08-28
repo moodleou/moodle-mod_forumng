@@ -62,3 +62,4 @@ $string['mypoststitle'] = 'My posts';
 $string['postsiratedtitle'] = 'Posts I rated';
 $string['posttitle'] = 'Post';
 $string['ratingtitle'] = 'Rating';
+$string['privacy:metadata'] = 'The View posts by user plugin does not store any personal data.';
