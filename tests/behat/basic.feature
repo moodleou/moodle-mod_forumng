@@ -408,7 +408,7 @@ Feature: Add forumng activity and test basic functionality
       | Message | abc |
     And I reply to post "1" with the following data:
       | Message | REPLY1 |
-    And I click on "Reply" "link"
+    And I click on "Reply" "link" in the ".forumng-p2" "css_element"
     Then ".forumng-p2 .forumng-delete a.forumng-disabled" "css_element" should exist
     Then ".forumng-p2 .forumng-edit a.forumng-disabled" "css_element" should exist
     Then ".forumng-p2 .forumng-replylink a.forumng-disabled" "css_element" should exist
