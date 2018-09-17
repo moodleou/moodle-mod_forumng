@@ -429,3 +429,20 @@ Feature: Add forumng activity and test basic functionality
     When I edit post "1" with the following data:
       | Subject | Discussion edited |
     And I should see "Discussion edited" in the ".forumng-subject" "css_element"
+
+  @javascript
+  Scenario: Check date validation
+    Given I log in as "admin"
+    And I am on "Course 1" course homepage
+    And I follow "Test forum name"
+    And I navigate to "Edit settings" node in "ForumNG administration"
+    And I click on "#id_postinguntil_enabled" "css_element"
+    And I click on "#id_postingfrom_enabled" "css_element"
+    And I set the field "id_postinguntil_year" to "2011"
+    And I set the field "id_enableratings" to "1"
+    And I set the field "id_ratingthreshold" to "1"
+    And I click on "#id_ratinguntil_enabled" "css_element"
+    And I click on "#id_ratingfrom_enabled" "css_element"
+    And I set the field "id_ratinguntil_year" to "2011"
+    When I press "Save and display"
+    Then I should see "Selection end date cannot be earlier than the start date"

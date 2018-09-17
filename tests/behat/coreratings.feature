@@ -84,7 +84,7 @@ Feature: Add forumng activity and test basic ratings functionality
     And I set the field "id_ratingfrom_enabled" to "1"
     And I set the field "id_ratinguntil_enabled" to "1"
     And I set the field "id_ratingfrom_year" to "2010"
-    And I set the field "id_ratinguntil_year" to "2010"
+    And I set the field "id_ratinguntil_year" to "2011"
     And I press "Save and display"
     When I follow "Admin1"
     And I expand post "0"

@@ -385,6 +385,18 @@ class mod_forumng_mod_form extends moodleform_mod {
             }
         }
 
+        if (!empty($data['postingfrom']) && !empty($data['postinguntil'])) {
+            if ($data['postingfrom'] >= $data['postinguntil']) {
+                $errors['postinguntil'] = get_string('timestartenderror', 'forumng');
+            }
+        }
+
+        if (!empty($data['ratingfrom']) && !empty($data['ratinguntil'])) {
+            if ($data['ratingfrom'] >= $data['ratinguntil']) {
+                $errors['ratinguntil'] = get_string('timestartenderror', 'forumng');
+            }
+        }
+
         return $errors;
     }
 

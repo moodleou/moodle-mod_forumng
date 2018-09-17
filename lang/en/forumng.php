@@ -576,6 +576,7 @@ $string['externaldashboardadd'] = 'Add forum to dashboard';
 $string['externaldashboardremove'] = 'Remove forum from dashboard';
 
 // New error strings.
+$string['timestartenderror'] = 'Selection end date cannot be earlier than the start date';
 $string['error_new_discussion_ipud'] = 'You can not start a new discussion in In-page discussion forum';
 $string['error_reply_ipud'] = 'You can not reply to level two post.'.
 $string['error_fileexception'] = 'A file processing error occurred. This is likely to be caused by
@@ -952,7 +953,6 @@ $string['forumngcrontaskdigest'] = 'Forumng email digest job';
 $string['error_identityinsubject_discussion'] = 'You have set the subject line to your login details. (This may have been done automatically by your browser or password manager.) To continue, change the subject text.';
 $string['error_identityinsubject_reply'] = 'You have set the subject line to your login details. (This may have been done automatically by your browser or password manager.) To continue, delete or change the subject text.';
 $string['error_form_validation'] = '{$a}'; // Form error in json format.
-
 $string['tooltip_show_features'] = 'Show other options';
 
 $string['emailafter'] = 'Email after delay';
