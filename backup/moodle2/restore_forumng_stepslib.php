@@ -152,7 +152,12 @@ class restore_forumng_activity_structure_step extends restore_activity_structure
 
         // If post has parent, map it (it has been already restored).
         if (!empty($data->parentpostid)) {
-            $data->parentpostid = $this->get_mappingid('forumng_post', $data->parentpostid);
+            if ($newparentid = $this->get_mappingid('forumng_post', $data->parentpostid)) {
+                $data->parentpostid = $newparentid;
+            } else {
+                // Due to copy bug, post IDs may not be in order and parent is not restored yet.
+                $data->parentpostid = -$data->parentpostid;
+            }
         }
 
         $newitemid = $DB->insert_record('forumng_posts', $data);
@@ -352,6 +357,23 @@ UPDATE {forumng_discussions} SET lastpostid=(
         AND fp.oldversion=0
         AND fp.deleted=0
 ) WHERE forumngid = ?", array($this->forumngid));
+
+        if ($this->get_setting_value('userinfo')) {
+            // Fix up any bad parentpostid values caused by ordering bug in copy functionality.
+            $parentstofix = $DB->get_recordset_sql("
+                SELECT p.id, p.parentpostid
+                  FROM {forumng_posts} p
+                  JOIN {forumng_discussions} d ON d.id = p.discussionid
+                  JOIN {forumng} f ON f.id = d.forumngid
+                 WHERE p.parentpostid < 0 AND f.id =?
+            ", array($this->forumngid));
+            foreach ($parentstofix as $badparent) {
+                if ($newparentid = $this->get_mappingid('forumng_post', abs($badparent->parentpostid))) {
+                    $DB->set_field('forumng_posts', 'parentpostid', $newparentid, ['id' => $badparent->id]);
+                }
+            }
+            $parentstofix->close();
+        }
 
         require_once($CFG->dirroot . '/mod/forumng/mod_forumng.php');
         // Create search index if user data restored.

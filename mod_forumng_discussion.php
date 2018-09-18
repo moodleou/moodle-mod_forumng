@@ -1305,7 +1305,7 @@ WHERE
         }
         $transaction = $DB->start_delegated_transaction();
         $newdiscussionid =  $DB->insert_record('forumng_discussions', $discussionobj);
-        $rs = $DB->get_recordset('forumng_posts', array('discussionid' => $this->get_id()));
+        $rs = $DB->get_recordset('forumng_posts', array('discussionid' => $this->get_id()), 'id ASC');
         // $newids and $parentused are temp arrays used to
         // $newids is a array of new postids using the indices of its old postids
         // Update the parentid of the post records copied over
