@@ -98,4 +98,12 @@ $functions = array(
                 'type'        => 'write',
                 'ajax'        => true
         ),
+        'mod_forumng_get_more_discussions' => array(
+                'classname' => '\mod_forumng\local\external\more_discussions',
+                'methodname' => 'more_discussions',
+                'description' => 'Get more discussions for a forum user.',
+                'type' => 'read',
+                'capabilities' => 'mod/forumng:viewdiscussion',
+                'services' => array(MOODLE_OFFICIAL_MOBILE_SERVICE, 'local_mobile')
+        )
 );

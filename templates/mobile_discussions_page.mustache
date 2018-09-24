@@ -17,7 +17,7 @@
 {{!
     @template mod_forumng/mobile_discussions_page
 
-    Mobile view of the forumng discussions page
+    Mobile view of the forumng discussions listing page (forumng/view.php).
 
     Classes required for JS:
     * none
@@ -26,51 +26,30 @@
     * none
 
     Context variables required for this template:
-    * forumng object // $forumng containing fully formed html elements like introduction
-    * cmid int // $cm->id
-    * courseid int // $courseid
+    * forum object Containing fully formed html elements like introduction
+    * hasgroups bool If true show groups selector
+    * groups array of options for a group selector
+    * groupsmenu string HTML for display of current group, only displayed if hasgroups is false
+    * hasdiscussions bool Whether there are any discussions yet - note discussions are populated by Angular from otherdata
+    * cmid int $cm->id
+    * courseid int $course->id
 
     Example context (json):
     {
-        'forumng': {
+        'forum': {
             'id': 789,
-            'course': 456,
-            'name': 'My first forum',
             'introduction': '<p>A first test forum</p>',
-            'introductionformat': 1,
-            'intro': '',
-            'introformat': 1,
-            'type': 'general',
-            'ratingscale': 0,
-            'ratingfrom': 0,
-            'ratinguntil': 0,
-            'ratingthreshold': 1,
-            'grading': 0,
-            'attachmentmaxbytes': 512000,
-            'reportingemail': ,
-            'subscription': 1,
-            'feedtype': 2,
-            'feeditems': 0,
-            'maxpostsperiod': 0,
-            'maxpostsblock': 0,
-            'postingfrom': 0,
-            'postinguntil': 0,
-            'typedata': ,
-            'magicnumber': 4839608920240576,
-            'completiondiscussions': 0,
-            'completionreplies': 0,
-            'completionposts': 0,
-            'removeafter': 0,
-            'removeto': ,
-            'shared': 0,
-            'originalcmid': ,
-            'gradingscale': 0,
-            'canpostanon': 0,
-            'enabletags': 0,
-            'enableratings': 0,
-            'timemodified': 1506695788,
-            'lastemailprocessing': 0
+            'intro': 'Other forum description',
         },
+        'hasgroups': true,
+        'groups': [
+            {
+                'groupid': 321,
+                'groupname': 'Group A'
+            }
+        ]
+        'groupsmenu': '<div class="groupselector">Separate groups: Group A</div>',
+        'hasdiscussions': true,
         'cmid': 123,
         'courseid': 456
     }
@@ -78,5 +57,71 @@
 }}
 {{=<% %>=}}
 <div>
-    <core-course-module-description description="<% forumng.introduction %>" component="mod_forumng" componentId="<% cmid %>"></core-course-module-description>
+    <core-course-module-description description="<% forum.introduction %>" component="mod_forumng" componentId="<% cmid %>"></core-course-module-description>
+    <%# hasgroups %>
+    <!-- Group selector -->
+    <ion-list>
+        <ion-item>
+            <ion-label>{{ 'plugin.mod_forumng.group' | translate }}</ion-label>
+            <ion-select [(ngModel)]="CONTENT_OTHERDATA.defaultgroup" interface="popover" (ionChange)="updateContent({cmid: <% cmid %>, courseid: <% courseid %>, group: $event})">
+                <%# groups %>
+                <ion-option value="<% groupid %>"><% groupname %></ion-option>
+                <%/ groups %>
+            </ion-select>
+        </ion-item>
+    </ion-list>
+    <%/ hasgroups %>
+    <%^ hasgroups %>
+        <!-- Fixed group or no groups -->
+        <%# groupsmenu %>
+        <ion-list>
+            <ion-item>
+            <%{ groupsmenu }%>
+            </ion-item>
+        </ion-list>
+        <%/ groupsmenu %>
+    <%/ hasgroups %>
+    <%# hasdiscussions %>
+    <ion-list id="mma-forumng-discussion-list">
+        <ion-list-header>Discussions</ion-list-header>
+        <ion-item *ngFor="let discussion of CONTENT_OTHERDATA.discussions">
+            <ion-card>
+                <ion-card-header>
+                    <div class="mma-forumng-wrap">
+                        <span *ngIf="discussion.classes" class="{{ discussion.classes }}">
+                            <!-- Add icon(s) as needed indicating sticky discussions etc. -->
+                            <span *ngFor="let decorator of discussion.decorators">
+                                <img *ngIf="decorator.src; else elseBlock" src="{{ decorator.src }}" alt="{{ decorator.alt }}" title="{{ decorator.alt }}" class="mma-forumng-image-correction">
+                                <ng-template #elseBlock><span class='accesshide'>{{ decorator.alt }}</span></ng-template>
+                            </span>
+                        </span>
+                        {{ discussion.subject }}
+                    </div>
+                </ion-card-header>
+                <ion-card-content>
+                    {{ discussion.startedby }} <span class="mma-forumng-subtletext">{{ discussion.starteddate }}</span>
+                    <ion-grid>
+                        <ion-row justify-content-between>
+                            <ion-col col-auto>
+                                <div class="mma-forumng-iconsize-correction"><ion-icon name="chatboxes" item-start></ion-icon> {{ discussion.noofposts }}</div>
+                            </ion-col>
+                            <ion-col col-auto>
+                                <div><span class="mma-forumng-subtletext">{{ discussion.lastpost }}</span></div>
+                            </ion-col>
+                            <ion-col col-auto>
+                                <div><ion-badge round>{{ discussion.unread }}<span class='accesshide'>{{ discussion.unreadpostsalt }}</span></ion-badge></div>
+                            </ion-col>
+                        </ion-row>
+                    </ion-grid>
+                </ion-card-content>
+            </ion-card>
+        </ion-item>
+        <ion-infinite-scroll (ionInfinite)="loadMoreDiscussions($event)">
+            <ion-infinite-scroll-content loadingSpinner="bubbles" loadingText="Loading more data..."></ion-infinite-scroll-content>
+        </ion-infinite-scroll>
+    </ion-list>
+    <%/ hasdiscussions %>
+    <%^ hasdiscussions %>
+    <p>{{ 'plugin.mod_forumng.nodiscussions' | translate }}</p>
+    <%/ hasdiscussions %>
 </div>

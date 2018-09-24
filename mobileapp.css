@@ -1,0 +1,14 @@
+.mma-forumng-wrap {
+    white-space: normal;
+}
+.mma-forumng-image-correction {
+    display: inline;
+    width: auto;
+}
+.mma-forumng-subtletext {
+    color: #555;
+}
+[dir="ltr"] .item-md .mma-forumng-iconsize-correction ion-icon[item-start] {
+    font-size: inherit;
+    margin: 0;
+}

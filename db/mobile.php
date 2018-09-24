@@ -32,14 +32,24 @@ $addons = [
                 'method' => 'forumng_view',
                 'displaydata' => [
                     'icon' => $CFG->wwwroot . '/theme/osep/pix_plugins/mod/forumng/icon.svg',
-                    'class' => ''
+                    'class' => 'core-course-module-forumng-handler'
                 ],
                 'offlinefunctions' => [],
-                'downloadbutton' => true
+                'downloadbutton' => false,
+                'styles' => [
+                    'url' => $CFG->wwwroot . '/mod/forumng/mobileapp.css',
+                    'version' => 2018092800
+                ],
+                'init' => 'mobile_forumng_init'
             ]
         ],
         'lang' => [
-            ['pluginname', 'forumng']
+            ['pluginname', 'forumng'],
+            ['discussion', 'forumng'],
+            ['unread', 'forumng'],
+            ['lastpost', 'forumng'],
+            ['group', 'forumng'],
+            ['nodiscussions', 'forumng']
         ]
     ]
 ];
