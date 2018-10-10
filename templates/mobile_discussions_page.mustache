@@ -82,34 +82,32 @@
         <%/ groupsmenu %>
     <%/ hasgroups %>
     <%# hasdiscussions %>
-    <ion-list id="mma-forumng-discussion-list">
-        <ion-list-header>Discussions</ion-list-header>
+    <ion-list class="mma-forumng-discussion-list" no-lines>
+        <ion-list-header class="mma-forumng-header">{{ 'plugin.mod_forumng.discussions' | translate }}</ion-list-header>
         <ion-item *ngFor="let discussion of CONTENT_OTHERDATA.discussions">
-            <ion-card>
+            <ion-card core-site-plugins-new-content component="mod_forumng" method="posts_view" [args]="{cmid: <% cmid %>, discussionid: discussion.id}" title="Discussion" class="mma-forumng-discussion-card">
                 <ion-card-header>
                     <div class="mma-forumng-wrap">
                         <span *ngIf="discussion.classes" class="{{ discussion.classes }}">
                             <!-- Add icon(s) as needed indicating sticky discussions etc. -->
                             <span *ngFor="let decorator of discussion.decorators">
-                                <img *ngIf="decorator.src; else elseBlock" src="{{ decorator.src }}" alt="{{ decorator.alt }}" title="{{ decorator.alt }}" class="mma-forumng-image-correction">
+                                <img *ngIf="decorator.src; else elseBlock" [src]="decorator.src" alt="{{ decorator.alt }}" title="{{ decorator.alt }}" class="mma-forumng-image-correction">
                                 <ng-template #elseBlock><span class='accesshide'>{{ decorator.alt }}</span></ng-template>
                             </span>
                         </span>
                         {{ discussion.subject }}
+                        <span><ion-badge round>{{ discussion.unread }}<span class='accesshide'>{{ discussion.unreadpostsalt }}</span></ion-badge></span>
                     </div>
                 </ion-card-header>
                 <ion-card-content>
-                    {{ discussion.startedby }} <span class="mma-forumng-subtletext">{{ discussion.starteddate }}</span>
+                    {{ discussion.startedby }} <span class="mma-forumng-subtle-text">{{ discussion.starteddate }}</span>
                     <ion-grid>
                         <ion-row justify-content-between>
                             <ion-col col-auto>
                                 <div class="mma-forumng-iconsize-correction"><ion-icon name="chatboxes" item-start></ion-icon> {{ discussion.noofposts }}</div>
                             </ion-col>
                             <ion-col col-auto>
-                                <div><span class="mma-forumng-subtletext">{{ discussion.lastpost }}</span></div>
-                            </ion-col>
-                            <ion-col col-auto>
-                                <div><ion-badge round>{{ discussion.unread }}<span class='accesshide'>{{ discussion.unreadpostsalt }}</span></ion-badge></div>
+                                <div><span class="mma-forumng-subtle-text">{{ discussion.lastpost }}</span></div>
                             </ion-col>
                         </ion-row>
                     </ion-grid>

@@ -26,6 +26,7 @@ namespace tests\mod_forumng;
 
 use \mod_forumng\output\mobile;
 use \mod_forumng\local\external\more_discussions;
+use \mod_forumng\local\external\more_posts;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -116,5 +117,50 @@ class mobile_testcase extends \advanced_testcase {
         // The second page only has one discussion (the oldest) so has subject no of 1.
         $this->assertCount(1, $result);
         $this->assertEquals('Subject for discussion 1', $result[0]->subject);
+    }
+
+    public function test_mobile_forumng_more_posts() {
+        $this->resetAfterTest();
+
+        $generator = $this->getDataGenerator();
+        $course = $generator->create_course();
+        $student = $generator->create_user();
+        $generator->enrol_user($student->id, $course->id, 'student');
+        $this->setUser($student);
+        $forumnggenerator = $generator->get_plugin_generator('mod_forumng');
+        $forum = $forumnggenerator->create_instance(['course' => $course->id]);
+
+        // Add discussion and posts
+        $record = [];
+        $record['course'] = $course->id;
+        $record['forum'] = $forum->id;
+        $record['userid'] = $student->id;
+        list($discussionid, $postid) = $forumnggenerator->create_discussion($record);
+        $record = [];
+        $record['discussionid'] = $discussionid;
+        $record['userid'] = $student->id;
+        $record['parentpostid'] = $postid;
+        $record['subject'] = '';
+        // We need 6 posts as the mobile::NUMBER_POSTS is set to 5.
+        $post1 = $forumnggenerator->create_post($record);
+        $post2 = $forumnggenerator->create_post($record);
+        $post3 = $forumnggenerator->create_post($record);
+        $post4 = $forumnggenerator->create_post($record);
+        $post5 = $forumnggenerator->create_post($record);
+        $post6 = $forumnggenerator->create_post($record);
+
+        // Get the second chunk of posts from the webservice function.
+        // It would be possible to set from to 0 and get mobile::NUMBER_POSTS returned,
+        // but this more accurately reflects what happens as a user scrolls down
+        // the page to get more posts.
+        $from = 5;
+        $result = more_posts::more_posts($discussionid, $from);
+        $this->assertCount(1, $result);
+        $this->assertEquals('Forum message post 6', $result[0]->message);
+
+        // Check the system copes with a from that is incorrect and too large a number.
+        $from = 9;
+        $result = more_posts::more_posts($discussionid, $from);
+        $this->assertCount(0, $result);
     }
 }

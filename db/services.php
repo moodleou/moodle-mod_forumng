@@ -105,5 +105,13 @@ $functions = array(
                 'type' => 'read',
                 'capabilities' => 'mod/forumng:viewdiscussion',
                 'services' => array(MOODLE_OFFICIAL_MOBILE_SERVICE, 'local_mobile')
+        ),
+        'mod_forumng_get_more_posts' => array(
+                'classname' => '\mod_forumng\local\external\more_posts',
+                'methodname' => 'more_posts',
+                'description' => 'Get more posts for a discussion.',
+                'type' => 'read',
+                'capabilities' => 'mod/forumng:viewdiscussion',
+                'services' => array(MOODLE_OFFICIAL_MOBILE_SERVICE, 'local_mobile')
         )
 );

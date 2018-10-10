@@ -38,16 +38,14 @@ $addons = [
                 'downloadbutton' => false,
                 'styles' => [
                     'url' => $CFG->wwwroot . '/mod/forumng/mobileapp.css',
-                    'version' => 2018092800
+                    'version' => 2018100800
                 ],
                 'init' => 'mobile_forumng_init'
             ]
         ],
         'lang' => [
             ['pluginname', 'forumng'],
-            ['discussion', 'forumng'],
-            ['unread', 'forumng'],
-            ['lastpost', 'forumng'],
+            ['discussions', 'forumng'],
             ['group', 'forumng'],
             ['nodiscussions', 'forumng']
         ]

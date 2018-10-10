@@ -42,6 +42,35 @@ require_once($CFG->libdir . '/externallib.php');
 class mobile {
 
     /**
+     * @var int SHORTENED_LENGTH Shortened post message length.
+     */
+    const SHORTENED_LENGTH = 50;
+
+    /**
+     * @var int NUMBER_POSTS Number of posts to display initially.
+     */
+    const NUMBER_POSTS = 5;
+
+    /**
+     * Returns shared (global) templates and information for the mobile app feature.
+     *
+     * @param array $args Arguments (empty)
+     * @return array Array with information required by app
+     */
+    public static function mobile_forumng_init(array $args) : array {
+        global $CFG;
+        return [
+                'templates' => [],
+                'javascript' => file_get_contents($CFG->dirroot . '/mod/forumng/appjs/mobile_init.js'),
+                'otherdata' => '',
+                'files' => []
+        ];
+    }
+
+    /* Forum view (list of discussions in the forum) */
+    /* --------------------------------------------- */
+
+    /**
      * Returns the forumng view for the mobile app.
      *
      * @param array $args Arguments from tool_mobile_get_content WS
@@ -137,7 +166,7 @@ class mobile {
                     'html' => $html,
                 ]
             ],
-            'javascript' => file_get_contents($CFG->dirroot . '/mod/forumng/appjs/mobile_forumng.js'),
+            'javascript' => file_get_contents($CFG->dirroot . '/mod/forumng/appjs/more_discussions.js'),
             'otherdata' => [
                 'defaultgroup' => $groupid,
                 'discussions' => json_encode($discussions), // Cannot put arrays in otherdata.
@@ -199,27 +228,31 @@ class mobile {
                 $subject = format_string($discussion->get_subject(true));
                 // Unread.
                 $canmarkread = $discussion->get_forum()->can_mark_read();
-                $unreadposts = '';
+                $unreadposts = 0;
                 if ($canmarkread) {
                     $unreadposts = $discussion->get_num_unread_posts();
+                    // Because unreadposts can be returned as an empty string, but int required.
+                    if ($unreadposts === '') {
+                        $unreadposts = 0;
+                    }
                 }
                 $unreadpostsalt = get_string('hasunreadposts', 'forumng');
                 // Last post.
                 $lastposter = $discussion->get_last_post_user();
-                $lastuserlink = $discussion->get_forum()->display_user_link($lastposter);
-                $timestr = \mod_forumng_utils::display_date($discussion->get_time_modified());
+                $lastuser = $discussion->get_forum()->display_user_name($lastposter);
+                $timestr = self::date_or_time($discussion->get_time_modified());
                 $moderator = get_string('moderator', 'forumng');
                 $lastposteranon = $discussion->get_last_post_anon();
                 if ($lastposteranon == \mod_forumng::ASMODERATOR_IDENTIFY) {
-                    $lastpostcell = $timestr . ' ' . $lastuserlink . ' ' . $moderator;
+                    $lastpostcell = $timestr . ' ' . $lastuser . ' (' . $moderator. ')';
                 } else if ($lastposteranon == \mod_forumng::ASMODERATOR_ANON) {
                     if ($discussion->get_forum()->can_post_anonymously()) {
-                        $lastpostcell = $timestr . ' ' . $lastuserlink . ' ' . $moderator;
+                        $lastpostcell = $timestr . ' ' . $lastuser . ' (' . $moderator. ')';
                     } else {
                         $lastpostcell = $timestr . ' ' . $moderator;
                     }
                 } else {
-                    $lastpostcell = $timestr . ' ' . $lastposter->firstname . ' ' . $lastposter->lastname;
+                    $lastpostcell = $timestr . ' ' . $lastuser;
                 }
                 // Author or started by.
                 $posteranon = $discussion->get_poster_anon();
@@ -227,10 +260,10 @@ class mobile {
                 $username = $discussion->get_forum()->display_user_name($poster);
                 $moderator = get_string('moderator', 'forumng');
                 if ($posteranon == \mod_forumng::ASMODERATOR_IDENTIFY) {
-                    $startedby = $username . ' ' . $moderator;
+                    $startedby = $username . ' (' . $moderator . ')';
                 } else if ($posteranon == \mod_forumng::ASMODERATOR_ANON) {
                     if ($discussion->get_forum()->can_post_anonymously()) {
-                        $startedby = $username . ' ' . $moderator;
+                        $startedby = $username . ' (' . $moderator . ')';
                     } else {
                         $startedby = $moderator;
                     }
@@ -238,14 +271,14 @@ class mobile {
                     $startedby = $username;
                 }
                 // No of posts.
-                $noofposts = $discussion->get_num_posts();
+                $noofposts = $discussion->get_num_posts() - 1; // Do not count the initial post as a reply.
                 if ($noofposts == 1) {
-                    $noofposts = get_string('totalreply', 'forumng', $noofposts);
+                    $noofposts = strtolower(get_string('totalreply', 'forumng', $noofposts));
                 } else {
-                    $noofposts = get_string('totalreplies', 'forumng', $noofposts);
+                    $noofposts = strtolower(get_string('totalreplies', 'forumng', $noofposts));
                 }
-                // If the date for the root post is required then it means this heavyweight function.
-                $starteddate = userdate($discussion->get_root_post()->get_created(), get_string('strftimedate', 'langconfig'));
+                // Date root post created.
+                $starteddate = self::date_or_time($discussion->get_root_post()->get_created());
 
                 $discussions[] = (object)[
                     'id' => $discussion->get_id(),
@@ -264,19 +297,263 @@ class mobile {
         }
     }
 
+    /* Discussions view (a listing of posts or replies to the discussion) */
+    /* ------------------------------------------------------------------ */
+
     /**
-     * Returns shared (global) templates and information for the mobile app feature.
+     * Returns the posts view for the mobile app.
      *
-     * @param array $args Arguments (empty)
-     * @return array Array with information required by app
+     * @param array $args Arguments from tool_mobile_get_content WS
+     * @return array HTML, javascript and otherdata
+     * @throws \coding_exception
      */
-    public static function mobile_forumng_init(array $args) : array {
-        global $CFG;
+    public static function posts_view(array $args) : array {
+        global $OUTPUT, $CFG;
+
+        $args = (object) $args;
+        $discussion = \mod_forumng_discussion::get_from_id($args->discussionid, \mod_forumng::CLONE_DIRECT);
+        $discussion->require_view();
+
+        // Based on renderer.php render_post, and mod_forumng_post.php display_with_children.
+        $root = $discussion->get_root_post();
+        $posteranon = $discussion->get_poster_anon();
+        $defaultimage = $OUTPUT->image_url('u/f2');
+        $moderator = get_string('moderator', 'forumng');
+        $postdata = self::get_common_post_data($discussion, $root, $defaultimage, $posteranon, $moderator);
+        $postdata['cmid'] = $discussion->get_course_module()->id;
+        // No of posts or replies.
+        $noofposts = $discussion->get_num_posts() - 1; // Do not count the first message as a reply.
+        if ($noofposts == 1) {
+            $noofreplies = strtolower(get_string('totalreply', 'forumng', $noofposts));
+        } else {
+            $noofreplies = strtolower(get_string('totalreplies', 'forumng', $noofposts));
+        }
+        $postdata['noofreplies'] = $noofreplies;
+        $postdata['hasreplies'] = $noofposts > 0;
+
+        // Rootpost (or starter message) is now ready to pass to the template.
+        $rootpost = (object) $postdata;
+
+        // Initial replies to the root message are prepared but sent via otherdata.
+        // Doing it this way allows sending of more chunks of data (via ajax) to be
+        // added to the view when required (user scrolls down for more).
+        $replies = self::get_more_posts($discussion, 0);
+
         return [
-                'templates' => [],
-                'javascript' => file_get_contents($CFG->dirroot . '/mod/forumng/appjs/mobile_init.js'),
-                'otherdata' => '',
-                'files' => []
+            'templates' => [
+                array(
+                    'id' => 'main',
+                    'html' => $OUTPUT->render_from_template('mod_forumng/mobile_posts_page', $rootpost),
+                ),
+            ],
+            'javascript' => file_get_contents($CFG->dirroot . '/mod/forumng/appjs/more_posts.js'),
+            'otherdata' => [
+                'replies' => json_encode($replies),
+                'discussionid' => $discussion->get_id(),
+                'totalposts' => $noofposts
+            ],
+            'files' => []
         ];
+    }
+
+    /**
+     * Returns more posts (replies) for a discussion, starting from a count.
+     *
+     * @param \mod_forumng_discussion $discussion
+     * @param int $from Starting count
+     * @return array $replies
+     * @throws \coding_exception
+     */
+    public static function get_more_posts(\mod_forumng_discussion $discussion, int $from) : array {
+        global $OUTPUT;
+        $posts = $discussion->get_root_post_replies(0); // 0 means get all.
+        $replies = [];
+        $count = 0;
+        $posteranon = $discussion->get_poster_anon();
+        $defaultimage = $OUTPUT->image_url('u/f2');
+        $moderator = get_string('moderator', 'forumng');
+        foreach ($posts as $post) {
+            // Note ipud has a way of returning similar data (see classes/local/external/get_posts.php)
+            // but it does not allow the chunked data that mobile needs.
+            if ($count < $from || $count >= (self::NUMBER_POSTS + $from)) {
+                $count++;
+                continue;
+            }
+            // Get the main post data.
+            $postdata = self::get_common_post_data($discussion, $post, $defaultimage, $posteranon, $moderator);
+            // Add any sub-replies. All sub-replies and any other deeper levels of reply
+            // will be displayed at just one level of indent.
+            $subreplies = [];
+            self::get_subreplies($discussion, $post, $defaultimage, $posteranon, $moderator, $subreplies);
+            $postdata['hasreplies'] = count($subreplies) > 0;
+            $postdata['subreplies'] = $subreplies;
+            $reply = (object) $postdata;
+            $replies[] = $reply;
+            $count++;
+        }
+        return $replies;
+    }
+
+    /**
+     * A recursive function getting subreplies for a post within a discussion.
+     *
+     * @param \mod_forumng_discussion $discussion
+     * @param \mod_forumng_post $post
+     * @param string $defaultimage Default image url
+     * @param int $posteranon A discussion setting
+     * @param string $moderator Language string for Moderator
+     * @param array $subreplies Array passed by reference containing result of this method
+     * @throws \coding_exception
+     */
+    private static function get_subreplies(\mod_forumng_discussion $discussion, \mod_forumng_post $post,
+            string $defaultimage, int $posteranon, string $moderator, array &$subreplies) {
+        $rawsubreplies = $post->get_replies();
+        foreach ($rawsubreplies as $sr) {
+            $postdata = self::get_common_post_data($discussion, $sr, $defaultimage, $posteranon, $moderator);
+            $subreply = (object) $postdata;
+            $subreplies[] = $subreply;
+            if (count($sr->get_replies())) {
+                self::get_subreplies($discussion, $sr, $defaultimage, $posteranon, $moderator, $subreplies);
+            }
+        }
+    }
+
+    /**
+     * Returns common data from a post.
+     *
+     * @param \mod_forumng_discussion $discussion
+     * @param \mod_forumng_post $post
+     * @param string $defaultimage Default image url
+     * @param int $posteranon A discussion setting
+     * @param string $moderator Language string for Moderator
+     * @return array
+     * @throws \coding_exception
+     */
+    private static function get_common_post_data(\mod_forumng_discussion $discussion, \mod_forumng_post $post,
+            string $defaultimage, int $posteranon, string $moderator) {
+        global $PAGE;
+        // Author or started by.
+        $poster = $post->get_user();
+        if ($poster) {
+            $userimage = new \user_picture($poster);
+            $startedbyurl = $userimage->get_url($PAGE)->out();
+        } else {
+            $startedbyurl = $defaultimage;
+        }
+        $username = $discussion->get_forum()->display_user_name($poster);
+        if ($posteranon == \mod_forumng::ASMODERATOR_IDENTIFY) {
+            $startedby = $username . ' ' . $moderator;
+        } else if ($posteranon == \mod_forumng::ASMODERATOR_ANON) {
+            if ($discussion->get_forum()->can_post_anonymously()) {
+                $startedby = $username . ' ' . $moderator;
+            } else {
+                $startedby = $moderator;
+                $startedbyurl = $defaultimage;
+            }
+        } else {
+            $startedby = $username;
+        }
+        // Attachments.
+        $attachmentarray = [];
+        $attachments = $post->get_attachment_names();
+        foreach ($attachments as $key => $attachment) {
+            $attachmentarray[] = (object) [
+                    'name' => $attachment,
+                    'url' => $post->get_attachment_url($attachment)->out()
+            ];
+        }
+        $whynot = ''; // Required by can_reply but not used.
+        return [
+            'postid' => $post->get_id(),
+            'subject' => $post->get_subject(),
+            'startedby' => $startedby,
+            'startedbyurl' => $startedbyurl,
+            'message' => self::message_display($post),
+            'starteddate' => self::date_or_time($post->get_created()),
+            'attachments' => $attachmentarray,
+            'isimportant' => $post->is_important(),
+            'isflagged' => $post->is_flagged(),
+            'isunread' => $post->is_unread(),
+            'isexpanded' => self::show_expanded($post),
+            'canreply' => $post->can_reply($whynot)
+        ];
+    }
+
+    /* Utility functions */
+    /* ----------------- */
+
+    /**
+     * Present a message in one line only, truncating to length.
+     *
+     * @param string $text
+     * @param int $length Optional number of chars to show.
+     * @return string
+     */
+    private static function one_line(string $text, int $length=0) : string {
+        $text = strip_tags($text);
+        if (!$length) {
+            $length = self::SHORTENED_LENGTH;
+        }
+        return shorten_text($text, $length);
+    }
+
+    /**
+     * Mobile date/time presentation.
+     *
+     * If the timestamp is more than a day old then show date,
+     * otherwise show the time.
+     *
+     * @param int $timestamp
+     * @return string
+     * @throws \coding_exception
+     */
+    private static function date_or_time(int $timestamp) : string {
+        $yesterday = (new \DateTime('-1 day', \core_date::get_user_timezone_object()))->getTimestamp();
+        if ($timestamp > $yesterday) {
+            $out = userdate($timestamp, get_string('strftimetime24', 'langconfig'));
+        } else {
+            $out = userdate($timestamp, get_string('strftimedate', 'langconfig'));
+        }
+        return $out;
+    }
+
+    /**
+     * Mobile message display.
+     *
+     * Show the full message if unread, flagged or parent of an unread post, otherwise collapse to one line.
+     * If there is a change of subject show that instead of the message on collapsed posts.
+     * On the Mobile platform collapsed posts cannot be expanded (without a new ajax call). This minimises data sent.
+     *
+     * @param \mod_forumng_post $post
+     * @param int $length Optional number of chars to show.
+     * @return string
+     */
+    private static function message_display(\mod_forumng_post $post, int $length=0) : string {
+        if (self::show_expanded($post)) {
+            return $post->get_formatted_message();
+        } else {
+            if ($post->get_subject()) {
+                $message = $post->get_subject();
+            } else {
+                $message = $post->get_formatted_message();
+            }
+            return self::one_line($message, $length);
+        }
+    }
+
+    /**
+     * Should a post be shown expanded (in full) or in a shorter collaped format?
+     *
+     * @param \mod_forumng_post $post
+     * @return bool
+     * @throws \coding_exception
+     */
+    private static function show_expanded(\mod_forumng_post $post) : bool {
+        // Logic is from mod_forumng_post.php display_with_children.
+        if ($post->is_unread() || $post->has_unread_child() || $post->is_flagged()) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }
