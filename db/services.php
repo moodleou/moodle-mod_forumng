@@ -113,5 +113,13 @@ $functions = array(
                 'type' => 'read',
                 'capabilities' => 'mod/forumng:viewdiscussion',
                 'services' => array(MOODLE_OFFICIAL_MOBILE_SERVICE, 'local_mobile')
+        ),
+        'mod_forumng_add_discussion' => array(
+                'classname' => '\mod_forumng\local\external\add_discussion',
+                'methodname' => 'add_discussion',
+                'description' => 'Create or edit a discussion.',
+                'type' => 'write',
+                'capabilities' => 'mod/forumng:startdiscussion',
+                'services' => array(MOODLE_OFFICIAL_MOBILE_SERVICE, 'local_mobile')
         )
 );

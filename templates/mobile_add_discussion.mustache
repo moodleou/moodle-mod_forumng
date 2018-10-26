@@ -1,0 +1,67 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template mod_forumng/mobile_edit_discussion
+
+    Mobile form that allows a the creation (or editing) of a discussion (with a root post).
+
+    Classes required for JS:
+    * none
+
+    Data attributes required for JS:
+    * files []
+    * forumngid int
+    * discussionid int
+    * groupid int
+
+    Context variables required for this template:
+    * cmid int
+    * submitlabel string Just a label.
+    * subject string
+    * message string
+    * maxSize int Bytes allowed for an uploaded attachment - set in forumng settings.
+
+    Example context (json):
+    {
+        'cmid': 123,
+        'submitlabel': 'Post discussion',
+        'subject': '',
+        'message': '',
+        'maxSize': 1024
+    }
+
+}}
+{{=<% %>=}}
+<ion-content>
+    <ion-list>
+        <ion-item>
+            <ion-label stacked>{{ 'plugin.mod_forumng.subject' | translate }}</ion-label>
+            <ion-input type="text" [placeholder]="'plugin.mod_forumng.subject' | translate" [(ngModel)]="subject"></ion-input>
+        </ion-item>
+        <ion-item>
+            <ion-label stacked>{{ 'plugin.mod_forumng.message' | translate }}</ion-label>
+            <ion-textarea #textarea class="core-textarea" [placeholder]="'plugin.mod_forumng.message' | translate" [name]="msg" [(ngModel)]="message"></ion-textarea>
+        </ion-item>
+        <ion-item>
+            <ion-label class="mma-forumng-smaller-text">{{ 'plugin.mod_forumng.attachments' | translate }}</ion-label>
+        </ion-item>
+        <core-attachments [files]="CONTENT_OTHERDATA.files" [maxSize]="<% maxSize %>" [component]="mod_forumng" [componentId]="<% cmid %>" [acceptedTypes]="application/octet-stream" [allowOffline]="false"></core-attachments>
+        <ion-item>
+            <button id="mma-forumng-add-discussion-button" ion-button block (click)="addDiscussion()" [disabled]="subject == '' || message == null || message == ''"><% submitlabel %></button>
+        </ion-item>
+    </ion-list>
+</ion-content>

@@ -38,7 +38,7 @@ $addons = [
                 'downloadbutton' => false,
                 'styles' => [
                     'url' => $CFG->wwwroot . '/mod/forumng/mobileapp.css',
-                    'version' => 2018100800
+                    'version' => 2018102400
                 ],
                 'init' => 'mobile_forumng_init'
             ]
@@ -47,7 +47,14 @@ $addons = [
             ['pluginname', 'forumng'],
             ['discussions', 'forumng'],
             ['group', 'forumng'],
-            ['nodiscussions', 'forumng']
+            ['nodiscussions', 'forumng'],
+            ['addanewdiscussion', 'forumng'],
+            ['subject', 'forumng'],
+            ['message', 'forumng'],
+            ['attachments', 'forumng'],
+            ['erroremptysubject', 'forumng'],
+            ['erroremptymessage', 'forumng'],
+            ['cannotcreatediscussion', 'forumng']
         ]
     ]
 ];

@@ -27,6 +27,7 @@ namespace tests\mod_forumng;
 use \mod_forumng\output\mobile;
 use \mod_forumng\local\external\more_discussions;
 use \mod_forumng\local\external\more_posts;
+use \mod_forumng\local\external\add_discussion;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -119,6 +120,9 @@ class mobile_testcase extends \advanced_testcase {
         $this->assertEquals('Subject for discussion 1', $result[0]->subject);
     }
 
+    /**
+     * Test the more_posts webservice functionality.
+     */
     public function test_mobile_forumng_more_posts() {
         $this->resetAfterTest();
 
@@ -162,5 +166,76 @@ class mobile_testcase extends \advanced_testcase {
         $from = 9;
         $result = more_posts::more_posts($discussionid, $from);
         $this->assertCount(0, $result);
+    }
+
+    /**
+     * Test the add_discussion webservice functionality.
+     */
+    public function test_mobile_forumng_add_discussion() {
+        global $CFG;
+        require_once($CFG->libdir . '/filelib.php');
+        $this->resetAfterTest();
+
+        $generator = $this->getDataGenerator();
+        $course = $generator->create_course();
+        $student = $generator->create_user();
+        $generator->enrol_user($student->id, $course->id, 'student');
+        $this->setUser($student);
+        $forumnggenerator = $generator->get_plugin_generator('mod_forumng');
+        $forum = $forumnggenerator->create_instance(['course' => $course->id]);
+        $discussion = 0;
+        $group = -1;
+        $subject = 'Test subject';
+        $message = 'Test message';
+        $filerecord = ['filename' => 'basepic.jpg'];
+        $file = self::create_draft_file($filerecord);
+        $draftarea = $file->get_itemid();
+
+        // Add a new discussion via the WS.
+        $result = add_discussion::add_discussion($forum->id, $discussion, $group, $subject, $message, $draftarea);
+        $this->assertTrue($result['success']);
+        $this->assertEmpty($result['errormsg']);
+        $discussionid = $result['discussion'];
+        // Check the new discussion exists.
+        $discussion = \mod_forumng_discussion::get_from_id($discussionid, 0);
+        $this->assertEquals($subject, $discussion->get_subject());
+        // Check the attachment.
+        $attachmentnames = $discussion->get_root_post()->get_attachment_names();
+        $this->assertEquals('basepic.jpg', $attachmentnames[0]);
+    }
+
+    /**
+     * Helpter function to create draft files
+     *
+     * @param  array  $filedata data for the file record (to not use defaults)
+     * @return stored_file the stored file instance
+     */
+    public static function create_draft_file($filedata = array()) {
+        global $USER;
+
+        $fs = get_file_storage();
+
+        $filerecord = array(
+                'component' => 'user',
+                'filearea'  => 'draft',
+                'itemid'    => isset($filedata['itemid']) ? $filedata['itemid'] : file_get_unused_draft_itemid(),
+                'author'    => isset($filedata['author']) ? $filedata['author'] : fullname($USER),
+                'filepath'  => isset($filedata['filepath']) ? $filedata['filepath'] : '/',
+                'filename'  => isset($filedata['filename']) ? $filedata['filename'] : 'file.txt',
+        );
+
+        if (isset($filedata['contextid'])) {
+            $filerecord['contextid'] = $filedata['contextid'];
+        } else {
+            $usercontext = \context_user::instance($USER->id);
+            $filerecord['contextid'] = $usercontext->id;
+        }
+        $source = isset($filedata['source']) ? $filedata['source'] : serialize((object)array('source' => 'From string'));
+        $content = isset($filedata['content']) ? $filedata['content'] : 'some content here';
+
+        $file = $fs->create_file_from_string($filerecord, $content);
+        $file->set_source($source);
+
+        return $file;
     }
 }

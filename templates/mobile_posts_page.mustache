@@ -59,18 +59,18 @@
         <ion-avatar item-start large>
             <img src="<% startedbyurl %>">
         </ion-avatar>
-        <h2><div class="mma-forumng-wrap"><% subject %></div></h2>
+        <h2 text-wrap><% subject %></h2>
         <ion-row justify-content-between class="mma-forumng-row-max">
             <ion-col col-auto class="mma-forumng-col-unpad">
                 <% startedby %>
             </ion-col>
             <ion-col col-auto class="mma-forumng-col-unpad">
-                <span class="mma-forumng-subtle-text mma-forumng-smaller-text"><% starteddate %></span>
+                <span class="mma-forumng-gray-text mma-forumng-smaller-text"><% starteddate %></span>
             </ion-col>
         </ion-row>
     </ion-item>
     <ion-card-content>
-        <core-format-text text="<%{ message }%>" component="mod_forumng" componentId="<% cmid %>" maxHeight="80" class="mma-forumng-wrap"></core-format-text>
+        <core-format-text text="<%{ message }%>" component="mod_forumng" componentId="<% cmid %>" maxHeight="80" text-wrap></core-format-text>
         <ion-list>
             <%# attachments %>
             <%! Note this bit needs to be done with mustache templating. %>
@@ -85,13 +85,13 @@
                 </ion-col>
                 <%/ isflagged %>
                 <ion-col col-auto class="mma-forumng-col-unpad">
-                    <div class="mma-forumng-subtle-text"><ion-icon name="chatboxes" item-start></ion-icon> <% noofreplies %></div>
+                    <div class="mma-forumng-gray-text"><ion-icon name="chatboxes" item-start></ion-icon> <% noofreplies %></div>
                 </ion-col>
                 <ion-col *ngIf="<%{ isunread }%>" col-auto class="mma-forumng-col-unpad">
-                    <div><span class="mma-forumng-subtle-text">[MARK READ]</span></div>
+                    <div><span class="mma-forumng-gray-text">[MARK READ]</span></div>
                 </ion-col>
                 <ion-col *ngIf="<%{ canreply }%>" col-auto class="mma-forumng-col-unpad">
-                    <div><span class="mma-forumng-subtle-text">[REPLY]</span></div>
+                    <div><span class="mma-forumng-gray-text">[REPLY]</span></div>
                 </ion-col>
             </ion-row>
         </ion-grid>
@@ -105,18 +105,18 @@
                 <ion-avatar item-start large>
                     <img [src]="reply.startedbyurl">
                 </ion-avatar>
-                <h2><div class="mma-forumng-wrap">{{ reply.subject }}</div></h2>
+                <h2 text-wrap>{{ reply.subject }}</h2>
                 <ion-row justify-content-between class="mma-forumng-row-max">
                     <ion-col col-auto class="mma-forumng-col-unpad">
                         {{ reply.startedby }}
                     </ion-col>
                     <ion-col col-auto class="mma-forumng-col-unpad">
-                        <span class="mma-forumng-subtle-text mma-forumng-smaller-text">{{ reply.starteddate }}</span>
+                        <span class="mma-forumng-gray-text mma-forumng-smaller-text">{{ reply.starteddate }}</span>
                     </ion-col>
                 </ion-row>
             </ion-item>
             <ion-card-content>
-                <core-format-text [text]="reply.message" component="mod_forumng" componentId="<% cmid %>" maxHeight="60" class="mma-forumng-wrap"></core-format-text>
+                <core-format-text [text]="reply.message" component="mod_forumng" componentId="<% cmid %>" maxHeight="60" text-wrap></core-format-text>
                 <div *ngIf="reply.isexpanded">
                     <ion-list *ngFor="let attachment of reply.attachments">
                         <core-file [file]="{fileurl: attachment.url, filename: attachment.name}" component="mod_forumng" componentId="<% cmid %>"></core-file>
@@ -130,10 +130,10 @@
                                 <div class="mma-forumng-iconsize-correction"><ion-icon name="alert" item-start></ion-icon></div>
                             </ion-col>
                             <ion-col *ngIf="reply.isunread" col-auto class="mma-forumng-col-unpad">
-                                <div><span class="mma-forumng-subtle-text">[MARK READ]</span></div>
+                                <div><span class="mma-forumng-gray-text">[MARK READ]</span></div>
                             </ion-col>
                             <ion-col *ngIf="reply.canreply" col-auto class="mma-forumng-col-unpad">
-                                <div><span class="mma-forumng-subtle-text">[REPLY]</span></div>
+                                <div><span class="mma-forumng-gray-text">[REPLY]</span></div>
                             </ion-col>
                         </ion-row>
                     </ion-grid>
@@ -149,12 +149,12 @@
                                     {{ subreply.startedby }}
                                 </ion-col>
                                 <ion-col col-auto class="mma-forumng-col-unpad">
-                                    <span class="mma-forumng-subtle-text mma-forumng-smaller-text">{{ subreply.starteddate }}</span>
+                                    <span class="mma-forumng-gray-text mma-forumng-smaller-text">{{ subreply.starteddate }}</span>
                                 </ion-col>
                             </ion-row>
                         </ion-item>
                         <div class="mma-forumng-smaller-text mma-forumng-indented">
-                            <core-format-text [text]="subreply.message" component="mod_forumng" componentId="<% cmid %>" maxHeight="60" class="mma-forumng-wrap"></core-format-text>
+                            <core-format-text [text]="subreply.message" component="mod_forumng" componentId="<% cmid %>" maxHeight="60" text-wrap></core-format-text>
                         </div>
                         <div *ngIf="subreply.isexpanded">
                             <ion-list *ngFor="let attach of subreply.attachments" class="mma-forumng-indented">
@@ -169,10 +169,10 @@
                                         <div class="mma-forumng-iconsize-correction"><ion-icon name="alert" item-start></ion-icon></div>
                                     </ion-col>
                                     <ion-col *ngIf="subreply.isunread" col-auto class="mma-forumng-col-unpad">
-                                        <div><span class="mma-forumng-subtle-text">[MARK READ]</span></div>
+                                        <div><span class="mma-forumng-gray-text">[MARK READ]</span></div>
                                     </ion-col>
                                     <ion-col *ngIf="subreply.canreply" col-auto class="mma-forumng-col-unpad">
-                                        <div><span class="mma-forumng-subtle-text">[REPLY]</span></div>
+                                        <div><span class="mma-forumng-gray-text">[REPLY]</span></div>
                                     </ion-col>
                                 </ion-row>
                             </ion-grid>

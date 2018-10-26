@@ -1,13 +1,10 @@
 /* General Mobile forumng style adjustments */
-.mma-forumng-wrap {
-    white-space: normal;
-}
 .mma-forumng-image-correction {
     display: inline;
     width: auto;
 }
-.mma-forumng-subtle-text {
-    color: #a9a9a9;
+.mma-forumng-gray-text {
+    color: #767676;
 }
 .mma-forumng-smaller-text {
     font-size: 1.4rem;

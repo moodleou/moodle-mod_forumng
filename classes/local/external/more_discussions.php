@@ -53,7 +53,7 @@ class more_discussions extends external_api {
     /**
      * Returns description of method result values.
      *
-     * @return external_single_structure
+     * @return external_multiple_structure
      */
     public static function more_discussions_returns() : external_multiple_structure {
         return new external_multiple_structure(

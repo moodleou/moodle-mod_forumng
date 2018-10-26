@@ -1036,3 +1036,7 @@ $string['forumngreadposts'] = 'Read posts';
 $string['forumngflagposts'] = 'Flag posts';
 $string['privacy_you'] = 'You';
 $string['privacy_somebodyelse'] = 'Somebody else';
+
+$string['erroremptymessage'] = 'Message cannot be empty';
+$string['erroremptysubject'] = 'Subject cannot be empty.';
+$string['cannotcreatediscussion'] = 'Could not create discussion.';

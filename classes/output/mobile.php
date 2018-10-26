@@ -77,7 +77,7 @@ class mobile {
      * @return array HTML, javascript and otherdata
      */
     public static function forumng_view(array $args) {
-        global $OUTPUT, $CFG;
+        global $OUTPUT;
 
         $args = (object) $args;
         $selectedgroupid = empty($args->group) ? 0 : $args->group;
@@ -148,6 +148,7 @@ class mobile {
         list($forum->introduction, $unusedintroductionformat) =
                 external_format_text($forumng->get_introduction(), $forumng->get_introduction_format(), $context->id,
                     'mod_forumng', 'introduction');
+        $whynot = '';
         $data = [
             'forum' => $forum,
             'hasgroups' => $hasgroups,
@@ -155,7 +156,8 @@ class mobile {
             'groupsmenu' => $groupsmenu,
             'hasdiscussions' => $hasdiscussions,
             'cmid' => $cm->id,
-            'courseid' => $course->id
+            'courseid' => $course->id,
+            'canstartdiscussion' => $forumng->can_start_discussion($groupid, $whynot)
         ];
         $html = $OUTPUT->render_from_template('mod_forumng/mobile_discussions_page', $data);
 
@@ -166,9 +168,10 @@ class mobile {
                     'html' => $html,
                 ]
             ],
-            'javascript' => file_get_contents($CFG->dirroot . '/mod/forumng/appjs/more_discussions.js'),
+            'javascript' => 'window.forumngDiscussionsPageInit(this);',
             'otherdata' => [
                 'defaultgroup' => $groupid,
+                'hasGroups' => $hasgroups, // Used to hide/show the FAB.
                 'discussions' => json_encode($discussions), // Cannot put arrays in otherdata.
                 'totaldiscussions' => $totaldiscussions,
                 'page' => $page
@@ -306,18 +309,18 @@ class mobile {
         }
     }
 
-    /* Discussions view (a listing of posts or replies to the discussion) */
-    /* ------------------------------------------------------------------ */
+    /* Discussion view (a listing of posts or replies to the discussion) */
+    /* ----------------------------------------------------------------- */
 
     /**
-     * Returns the posts view for the mobile app.
+     * Displays a page in the mobile app showing the posts in a discussion.
      *
      * @param array $args Arguments from tool_mobile_get_content WS
      * @return array HTML, javascript and otherdata
      * @throws \coding_exception
      */
     public static function posts_view(array $args) : array {
-        global $OUTPUT, $CFG;
+        global $OUTPUT;
 
         $args = (object) $args;
         $discussion = \mod_forumng_discussion::get_from_id($args->discussionid, \mod_forumng::CLONE_DIRECT);
@@ -349,12 +352,12 @@ class mobile {
 
         return [
             'templates' => [
-                array(
+                [
                     'id' => 'main',
                     'html' => $OUTPUT->render_from_template('mod_forumng/mobile_posts_page', $rootpost),
-                ),
+                ],
             ],
-            'javascript' => file_get_contents($CFG->dirroot . '/mod/forumng/appjs/more_posts.js'),
+            'javascript' => 'window.forumngPostsPageInit(this);',
             'otherdata' => [
                 'replies' => json_encode($replies),
                 'discussionid' => $discussion->get_id(),
@@ -487,6 +490,56 @@ class mobile {
             'isunread' => $post->is_unread(),
             'isexpanded' => self::show_expanded($post),
             'canreply' => $post->can_reply($whynot)
+        ];
+    }
+
+    /**
+     * Displays a page in the mobile app for adding (or editing) a discussion.
+     *
+     * @param array $args Arguments from tool_mobile_get_content WS
+     * @return array HTML, javascript and otherdata
+     * @throws \coding_exception
+     */
+    public static function add_discussion(array $args) : array {
+        global $OUTPUT;
+
+        $args = (object) $args;
+        $cmid = $args->cmid;
+        $discussionid = $args->discussionid;
+        $selectedgroupid = $args->groupid;
+        $forumng = \mod_forumng::get_from_cmid($cmid, \mod_forumng::CLONE_DIRECT);
+        $cm = $forumng->get_course_module();
+        $groupid = \mod_forumng::get_activity_group($cm, true);
+        // Null if student not in a group, or in two groups, and -1 if no groups allowed.
+        if ($selectedgroupid > 0 && is_null($groupid)) {
+            $groupid = $selectedgroupid;
+        }
+        $forumng->require_start_discussion($groupid);
+
+        $data = [
+            'cmid' => $cmid,
+            'submitlabel' => get_string('postdiscussion', 'mod_forumng'),
+            'subject' => '',
+            'message' => null,
+            'maxSize' => $forumng->get_max_bytes() // There is no limit to 'maxSubmissions' in forumng.
+        ];
+        $html = $OUTPUT->render_from_template('mod_forumng/mobile_add_discussion', $data);
+
+        return [
+            'templates' => [
+                [
+                    'id' => 'main',
+                    'html' => $html
+                ]
+            ],
+            'javascript' => 'window.forumngAddDiscussionInit(this);',
+            'otherdata' => [
+                'files' => json_encode([]),
+                'forumng' => $forumng->get_id(),
+                'discussion' => $discussionid,
+                'group' => $groupid
+            ],
+            'files' => []
         ];
     }
 
