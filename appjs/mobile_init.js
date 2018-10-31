@@ -194,7 +194,6 @@
             t.mod_forumng.viewSubscribe.unsubscribe();
             delete t.mod_forumng.viewSubscribe;
             t.mod_forumng.currentDiscussionsPage.refreshContent();
-            delete t.mod_forumng.currentDiscussionsPage;
         }
     };
 
