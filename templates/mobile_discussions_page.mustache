@@ -58,7 +58,7 @@
 
 }}
 {{=<% %>=}}
-<div>
+<ion-content>
     <core-course-module-description description="<% forum.introduction %>" component="mod_forumng" componentId="<% cmid %>"></core-course-module-description>
     <%# hasgroups %>
     <!-- Group selector -->
@@ -96,8 +96,10 @@
                             <ng-template #elseBlock><span class='accesshide'>{{ decorator.alt }}</span></ng-template>
                         </span>
                     </span>
-                    {{ discussion.subject }}
-                    <span><ion-badge round>{{ discussion.unread }}<span class='accesshide'>{{ discussion.unreadpostsalt }}</span></ion-badge></span>
+                    <span>{{ discussion.subject }}</span>
+                    <span *ngIf="discussion.unread > 0">
+                        <ion-badge round>{{ discussion.unread }}<span class='accesshide'>{{ discussion.unreadpostsalt }}</span></ion-badge>
+                    </span>
                 </ion-card-header>
                 <ion-card-content>
                     {{ discussion.startedby }} <span class="mma-forumng-gray-text">{{ discussion.starteddate }}</span>
@@ -114,19 +116,21 @@
                 </ion-card-content>
             </ion-card>
         </ion-item>
-        <ion-infinite-scroll (ionInfinite)="loadMoreDiscussions($event)">
-            <ion-infinite-scroll-content loadingSpinner="bubbles" loadingText="Loading more data..."></ion-infinite-scroll-content>
-        </ion-infinite-scroll>
     </ion-list>
     <%/ hasdiscussions %>
     <%^ hasdiscussions %>
     <p>{{ 'plugin.mod_forumng.nodiscussions' | translate }}</p>
     <%/ hasdiscussions %>
-    <%# canstartdiscussion %>
+</ion-content>
+<%# canstartdiscussion %>
+<ion-footer>
     <ion-fab right bottom *ngIf="!CONTENT_OTHERDATA.hasGroups || (CONTENT_OTHERDATA.hasGroups && CONTENT_OTHERDATA.defaultgroup)">
         <button ion-fab core-site-plugins-new-content color="primary" title="{{ 'plugin.mod_forumng.addanewdiscussion' | translate }}" component="mod_forumng" method="add_discussion" [args]="{cmid: <% cmid %>, discussionid: 0, groupid: CONTENT_OTHERDATA.defaultgroup}" [disabled]="!isOnline()">
             <ion-icon name="add"></ion-icon>
         </button>
     </ion-fab>
-    <%/ canstartdiscussion %>
-</div>
+</ion-footer>
+<%/ canstartdiscussion %>
+<ion-infinite-scroll (ionInfinite)="loadMoreDiscussions($event)">
+    <ion-infinite-scroll-content loadingSpinner="bubbles" loadingText="Loading more data..."></ion-infinite-scroll-content>
+</ion-infinite-scroll>
