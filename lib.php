@@ -460,7 +460,7 @@ function mod_forumng_pluginfile($course, $cm, $context, $filearea, $args, $force
         send_file_not_found();
     }
     list ($itemid, $filename) = $args;
-    $filename = urldecode($filename);
+    $filename = rawurldecode($filename);
 
     if ($filearea == 'attachment' || $filearea == 'message') {
         // Get post object and check permissions.

@@ -449,7 +449,7 @@ WHERE
             $params['clone'] = $this->get_forum()->get_course_module_id();
         }
         return new moodle_url('/pluginfile.php/' . $filecontext->id . '/mod_forumng/attachment/' .
-                $this->get_id() . '/' . urlencode($attachment), $params);
+                $this->get_id() . '/' . rawurlencode($attachment), $params);
     }
 
     /**
