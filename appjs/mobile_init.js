@@ -121,14 +121,14 @@
         // Upload attachments first if any.
         if (attachments.length) {
             promise = that.CoreFileUploaderProvider.uploadOrReuploadFiles(attachments, 'mod_forumng', forumngId)
-                .catch(function() {
-                    // Cannot upload them in online, save them in offline.
-                    return Promise.reject('Offline not yet enabled');
-                    //TODO switch below to our own offline functionality.
-                    // saveOffline = true;
-                    // return that.AddonModForumHelperProvider.uploadOrStoreNewDiscussionFiles(
-                    //         forumngId, discTimecreated, attachments, saveOffline);
-                });
+                    .catch(function() {
+                // Cannot upload them in online, save them in offline.
+                return Promise.reject('Offline not yet enabled');
+                //TODO switch below to our own offline functionality.
+                // saveOffline = true;
+                // return that.AddonModForumHelperProvider.uploadOrStoreNewDiscussionFiles(
+                //         forumngId, discTimecreated, attachments, saveOffline);
+            });
         } else {
             promise = Promise.resolve(1);
         }
@@ -197,6 +197,110 @@
         }
     };
 
+    /**
+     * Add a reply.
+     *
+     * This will support editing an existing post and offline with a little more development.
+     *
+     * @param {object} that The this object when calling this function.
+     */
+    t.mod_forumng.reply = function(that) {
+        var subject = that.subject; // Can be empty or undefined - probably usually is!
+        var message = that.message;
+        var replyto = that.CONTENT_OTHERDATA.replyto;
+        var forumngId = that.CONTENT_OTHERDATA.forumng;
+        var attachments = that.CONTENT_OTHERDATA.files; // Type [FileEntry].
+        //var discTimecreated = Date.now(); //TODO part of offline - that.timeCreated || Date.now();
+        var saveOffline = false;
+        var modal;
+        var promise;
+
+        if (!message) {
+            that.CoreUtilsProvider.domUtils.showErrorModal('addon.mod_forumng.erroremptymessage', true);
+            return;
+        }
+        message = that.CoreTextUtilsProvider.formatHtmlLines(message);
+
+        modal = that.CoreUtilsProvider.domUtils.showModalLoading('core.sending', true);
+
+        // Upload attachments first if any.
+        if (attachments.length) {
+            promise = that.CoreFileUploaderProvider.uploadOrReuploadFiles(attachments, 'mod_forumng', forumngId)
+                    .catch(function() {
+                // Cannot upload them in online, save them in offline.
+                return Promise.reject('Offline not yet enabled');
+                //TODO switch below to our own offline functionality.
+                // saveOffline = true;
+                // return that.AddonModForumHelperProvider.uploadOrStoreNewDiscussionFiles(
+                //         forumngId, discTimecreated, attachments, saveOffline);
+            });
+        } else {
+            promise = Promise.resolve(1);
+        }
+
+        promise.then(function(draftAreaId) {
+            if (saveOffline) {
+                // Save discussion in offline.
+                //TODO switch below to our own offline functionality.
+                // return that.AddonModForumOfflineProvider.addNewDiscussion(forumngId, forumName, courseId, subject,
+                //     message, options, groupId, discTimecreated).then(function() {
+                //     // Don't return anything.
+                // });
+            } else {
+                // Try to send it to server.
+                var site = that.CoreSitesProvider.getCurrentSite();
+                var params = {
+                    replyto: replyto,
+                    message: message,
+                    draftarea: draftAreaId
+                };
+                if (!(subject === undefined || subject === '')) {
+                    params.subject = subject;
+                }
+                return site.write('mod_forumng_reply', params).then(function(response) {
+                    if (!response || !response.post) {
+                        return Promise.reject(that.CoreWSProvider.createFakeWSError(response.errormsg));
+                    } else {
+                        return response.post;
+                    }
+                });
+                // Don't allow offline if there are attachments since they were uploaded fine.
+                //TODO switch below to use our own offline functionality.
+                // return that.AddonModForumProvider.addNewDiscussion(forumngId, forumName, courseId, subject, message, options,
+                //    groupId, undefined, discTimecreated, !attachments.length);
+            }
+        }).then(function(postId) {
+            if (postId) {
+                // Data sent to server, delete stored files (if any).
+                //TODO switch below to our own offline functionality.
+                //that.AddonModForumHelperProvider.deleteNewDiscussionStoredFiles(this.forumId, discTimecreated);
+                //TODO trigger new discussion event or similar?
+            }
+            //TODO check all functionality in core forum (new-discussion.ts) returnToDiscussions(discussionId) is covered.
+            // Navigate back to the posts page and refresh to show new post.
+            t.mod_forumng.viewPostsSubscribe =
+                    that.CoreAppProvider.appCtrl.viewDidEnter.subscribe(t.mod_forumng.forumngRefreshPostsContent);
+            that.NavController.pop();
+        }).catch(function(msg) {
+            that.CoreUtilsProvider.domUtils.showErrorModalDefault(msg, 'addon.mod_forum.cannotcreatereply', true);
+        }).finally(function() {
+            modal.dismiss();
+        });
+    };
+
+    /**
+     * Allows refreshing content after creating a reply.
+     *
+     * @param {object} view Object returned by subscription to viewDidEnter.
+     */
+    t.mod_forumng.forumngRefreshPostsContent = function(view) {
+        if (view.name === 'CoreSitePluginsPluginPage') {
+            t.mod_forumng.viewPostsSubscribe.unsubscribe();
+            delete t.mod_forumng.viewPostsSubscribe;
+            t.mod_forumng.currentPostsPage.refreshContent();
+        }
+    };
+
     // Following functions are called during page initialisation and allow adding new functionality
     // to the main component (coreCompileHtmlFakeComponent) as outerThis.
 
@@ -227,6 +331,10 @@
         outerThis.loadMorePosts = function(infiniteScrollEvent) {
             t.mod_forumng.loadMorePosts(outerThis, infiniteScrollEvent);
         };
+        outerThis.isOnline = function() {
+            return outerThis.CoreAppProvider.isOnline();
+        };
+        t.mod_forumng.currentPostsPage = outerThis;
     };
 
     /**
@@ -248,6 +356,27 @@
                 }
                 // Disable the add discusion button if the device goes offline.
                 document.getElementById('mma-forumng-add-discussion-button').disabled = !t.CoreAppProvider.isOnline();
+            });
+        }
+    };
+
+    /**
+     * Initialisation for the reply page.
+     *
+     * @param {object} outerThis The main component.
+     */
+    window.forumngReplyInit = function(outerThis) {
+        outerThis.reply = function() {
+            t.mod_forumng.reply(outerThis);
+        };
+        if (!t.mod_forumng.replySubscription) {
+            t.mod_forumng.replySubscription = outerThis.CoreAppProvider.network.onchange().subscribe(function(online) {
+                if (!document.getElementById('mma-forumng-reply-button')) {
+                    t.mod_forumng.replySubscription.unsubscribe();
+                    delete t.mod_forumng.replySubscription;
+                    return;
+                }
+                document.getElementById('mma-forumng-reply-button').disabled = !t.CoreAppProvider.isOnline();
             });
         }
     };

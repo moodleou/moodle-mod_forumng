@@ -54,7 +54,10 @@ $addons = [
             ['attachments', 'forumng'],
             ['erroremptysubject', 'forumng'],
             ['erroremptymessage', 'forumng'],
-            ['cannotcreatediscussion', 'forumng']
+            ['cannotcreatediscussion', 'forumng'],
+            ['cannotcreatereply', 'forumng'],
+            ['postreply', 'forumng'],
+            ['optionalsubject', 'forumng']
         ]
     ]
 ];

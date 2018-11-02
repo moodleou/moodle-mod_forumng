@@ -1040,3 +1040,4 @@ $string['privacy_somebodyelse'] = 'Somebody else';
 $string['erroremptymessage'] = 'Message cannot be empty';
 $string['erroremptysubject'] = 'Subject cannot be empty.';
 $string['cannotcreatediscussion'] = 'Could not create discussion.';
+$string['cannotcreatereply'] = 'Could not create reply.';

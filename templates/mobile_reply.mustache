@@ -15,9 +15,9 @@
     along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 }}
 {{!
-    @template mod_forumng/mobile_edit_discussion
+    @template mod_forumng/mobile_reply
 
-    Mobile form that allows a the creation (or editing) of a discussion (with a root post).
+    Mobile form that allows a the creation (or editing) of a reply.
 
     Classes required for JS:
     * none
@@ -30,12 +30,12 @@
     * submitlabel string Just a label.
     * subject string
     * message string
-    * maxsize int Bytes allowed for an uploaded attachment - set in forumng settings.
+    * maxSize int Bytes allowed for an uploaded attachment - set in forumng settings.
 
     Example context (json):
     {
         'cmid': 123,
-        'submitlabel': 'Post discussion',
+        'submitlabel': 'Reply<span class="accesshide">to post 1</span>',
         'subject': '',
         'message': '',
         'maxsize': 1024
@@ -47,7 +47,7 @@
     <ion-list>
         <ion-item>
             <ion-label stacked>{{ 'plugin.mod_forumng.subject' | translate }}</ion-label>
-            <ion-input type="text" [placeholder]="'plugin.mod_forumng.subject' | translate" [(ngModel)]="subject"></ion-input>
+            <ion-input type="text" [placeholder]="'plugin.mod_forumng.optionalsubject' | translate" [(ngModel)]="subject"></ion-input>
         </ion-item>
         <ion-item>
             <ion-label stacked>{{ 'plugin.mod_forumng.message' | translate }}</ion-label>
@@ -58,7 +58,7 @@
         </ion-item>
         <core-attachments [files]="CONTENT_OTHERDATA.files" [maxSize]="<% maxsize %>" [component]="mod_forumng" [componentId]="<% cmid %>" [acceptedTypes]="application/octet-stream" [allowOffline]="false"></core-attachments>
         <ion-item>
-            <button id="mma-forumng-add-discussion-button" ion-button block (click)="addDiscussion()" [disabled]="subject == '' || message == null || message == ''"><% submitlabel %></button>
+            <button id="mma-forumng-reply-button" ion-button block (click)="reply()" [disabled]="message == null || message == ''"><%{ submitlabel }%></button>
         </ion-item>
     </ion-list>
 </ion-content>
