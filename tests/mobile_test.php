@@ -29,6 +29,7 @@ use \mod_forumng\local\external\more_discussions;
 use \mod_forumng\local\external\more_posts;
 use \mod_forumng\local\external\add_discussion;
 use \mod_forumng\local\external\reply;
+use \mod_forumng\local\external\mark_read;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -135,7 +136,7 @@ class mobile_testcase extends \advanced_testcase {
         $forumnggenerator = $generator->get_plugin_generator('mod_forumng');
         $forum = $forumnggenerator->create_instance(['course' => $course->id]);
 
-        // Add discussion and posts
+        // Add discussion and posts.
         $record = [];
         $record['course'] = $course->id;
         $record['forum'] = $forum->id;
@@ -247,6 +248,41 @@ class mobile_testcase extends \advanced_testcase {
         $result = mobile::reply($args);
         $this->assertEquals($forum->id, $result['otherdata']['forumng']);
         $this->assertEquals($newpostid, $result['otherdata']['replyto']);
+    }
+
+    /**
+     * Test the mark_read web service.
+     */
+    public function test_mobile_forumng_mark_read() {
+        $this->resetAfterTest();
+
+        $generator = $this->getDataGenerator();
+        $course = $generator->create_course();
+        $student1 = $generator->create_user();
+        $student2 = $generator->create_user();
+        $generator->enrol_user($student1->id, $course->id, 'student');
+        $generator->enrol_user($student2->id, $course->id, 'student');
+        $this->setUser($student1);
+        $forumnggenerator = $generator->get_plugin_generator('mod_forumng');
+        $forum = $forumnggenerator->create_instance(['course' => $course->id]);
+        list($discussionid, $postid) = $forumnggenerator->create_discussion(['forum' => $forum->id, 'userid' => $student1->id]);
+        // Note student1 cannot mark own posts as read, so switch to student2 who has not yet seen this forum.
+        $this->setUser($student2);
+        // Make student2 manual mark as read.
+        set_user_preference('forumng_manualmark', 1, $student2->id);
+        // Check there is unread post.
+        $post = \mod_forumng_post::get_from_id($postid, 0);
+        $this->assertTrue($post->is_unread());
+
+        // Check the mark_read WS.
+        $result = mark_read::mark_read($discussionid, $postid);
+        $this->assertTrue($result['success']);
+        $this->assertEmpty($result['errormsg']);
+        // Note cannot just use $post->is_unread() here as it is not updated, even though the database is.
+        // So re-fetch the discussion object to check the WS result.
+        $discussion = \mod_forumng_discussion::get_from_id($discussionid, 0);
+        $this->assertEquals(1, $discussion->get_num_posts());
+        $this->assertEquals(0, $discussion->get_num_unread_posts());
     }
 
     /**

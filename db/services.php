@@ -129,5 +129,13 @@ $functions = array(
                 'type' => 'write',
                 'capabilities' => 'mod/forumng:replypost',
                 'services' => array(MOODLE_OFFICIAL_MOBILE_SERVICE, 'local_mobile')
+        ),
+        'mod_forumng_mark_read' => array(
+                'classname' => '\mod_forumng\local\external\mark_read',
+                'methodname' => 'mark_read',
+                'description' => 'Mark a post or a discussion as read.',
+                'type' => 'write',
+                'capabilities' => 'mod/forumng:viewdiscussion',
+                'services' => array(MOODLE_OFFICIAL_MOBILE_SERVICE, 'local_mobile')
         )
 );

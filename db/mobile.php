@@ -57,7 +57,8 @@ $addons = [
             ['cannotcreatediscussion', 'forumng'],
             ['cannotcreatereply', 'forumng'],
             ['postreply', 'forumng'],
-            ['optionalsubject', 'forumng']
+            ['optionalsubject', 'forumng'],
+            ['markpostread', 'forumng']
         ]
     ]
 ];

@@ -326,6 +326,13 @@ class mobile {
         $discussion = \mod_forumng_discussion::get_from_id($args->discussionid, \mod_forumng::CLONE_DIRECT);
         $discussion->require_view();
 
+        // Auto mark read - it seems that viewing any bit of a discussion counts as viewing all discussion posts.
+        if ($discussion->get_forum()->can_mark_read()) {
+            if (\mod_forumng::mark_read_automatically()) {
+                $discussion->mark_read();
+            }
+        }
+
         // Based on renderer.php render_post, and mod_forumng_post.php display_with_children.
         $root = $discussion->get_root_post();
         $defaultimage = $OUTPUT->image_url('u/f2');
@@ -483,6 +490,11 @@ class mobile {
                     'url' => $post->get_attachment_url($attachment)->out()
             ];
         }
+        // Mark post read.
+        $canmarkread = false; // Don't show 'mark post as read' button.
+        if ($discussion->get_forum()->can_mark_read() && !\mod_forumng::mark_read_automatically() && $post->is_unread()) {
+            $canmarkread = true;
+        }
         $whynot = ''; // Required by can_reply but not used.
         return [
             'postid' => $post->get_id(),
@@ -495,6 +507,7 @@ class mobile {
             'isimportant' => $post->is_important(),
             'isflagged' => $post->is_flagged(),
             'isunread' => $post->is_unread(),
+            'canmarkread' => $canmarkread,
             'isexpanded' => self::show_expanded($post),
             'canreply' => $post->can_reply($whynot),
             'replyto' => get_string('reply', 'mod_forumng', $post->get_id())
