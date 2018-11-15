@@ -275,7 +275,7 @@ class mobile_testcase extends \advanced_testcase {
         $this->assertTrue($post->is_unread());
 
         // Check the mark_read WS.
-        $result = mark_read::mark_read($discussionid, $postid);
+        $result = mark_read::mark_read(0, $postid);
         $this->assertTrue($result['success']);
         $this->assertEmpty($result['errormsg']);
         // Note cannot just use $post->is_unread() here as it is not updated, even though the database is.
