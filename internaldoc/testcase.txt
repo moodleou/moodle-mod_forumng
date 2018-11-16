@@ -1339,6 +1339,14 @@ SAV02 / U.ET
   Select 'Cancel' button.
   - Verify new post is removed, to leave just discussion showing.
 
+SAV03 / U.ET
+  Use any existing forum.
+  Create a new discussion subject: "Discussion 1", message: "Messages 1" with option "Only show from" is enable and fill them by date in the future.
+  In discussion list "Discussion 1",
+   - Verify column Last post is displayed the date in the future.
+  Edit subject "Discussion 1" to "Discussion 1 edited", message "Messages 1 edited" and save.
+  In discussion list
+   - Verify "Discussion 1 edited", column Last post is displayed the date in the future.
 
 AREAS THAT SHOULD BE TESTED BUT HAVE NOT BEEN
 =============================================
