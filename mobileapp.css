@@ -28,6 +28,12 @@
     margin: 2px;
     width: calc(100% - 4px);
 }
+[dir="ltr"] .list-md.mma-forumng-discussion-list {
+    margin-bottom: 0;
+}
+.mma-forumng-infinite-scroll ion-infinite-scroll-content {
+    min-height: 10px;
+}
 
 /* Posts listing page */
 .mma-forumng-posts-list-wrapper .mma-forumng-posts-list .mma-forumng-iconsize-correction ion-icon[item-start] {

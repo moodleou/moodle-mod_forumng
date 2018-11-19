@@ -38,7 +38,7 @@ $addons = [
                 'downloadbutton' => false,
                 'styles' => [
                     'url' => $CFG->wwwroot . '/mod/forumng/mobileapp.css',
-                    'version' => 2018102400
+                    'version' => 2018111600
                 ],
                 'init' => 'mobile_forumng_init'
             ]

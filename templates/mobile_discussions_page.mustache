@@ -58,7 +58,7 @@
 
 }}
 {{=<% %>=}}
-<ion-content>
+<div><!-- Div vs. ion-content - see comments later. -->
     <core-course-module-description description="<% forum.introduction %>" component="mod_forumng" componentId="<% cmid %>"></core-course-module-description>
     <%# hasgroups %>
     <!-- Group selector -->
@@ -117,20 +117,20 @@
             </ion-card>
         </ion-item>
     </ion-list>
+    <ion-infinite-scroll (ionInfinite)="loadMoreDiscussions($event)" class="mma-forumng-infinite-scroll">
+        <ion-infinite-scroll-content loadingSpinner="bubbles" loadingText="Loading more data..."></ion-infinite-scroll-content>
+    </ion-infinite-scroll>
     <%/ hasdiscussions %>
     <%^ hasdiscussions %>
     <p>{{ 'plugin.mod_forumng.nodiscussions' | translate }}</p>
     <%/ hasdiscussions %>
-</ion-content>
-<%# canstartdiscussion %>
-<ion-footer>
+    <%# canstartdiscussion %>
+    <!-- FAB should be placed within an ion-content to make it a really fixed position item, but that affects infinite scroll
+            and PTR and adds a large border at the bottom - very poor in landscape view -->
     <ion-fab right bottom *ngIf="!CONTENT_OTHERDATA.hasGroups || (CONTENT_OTHERDATA.hasGroups && CONTENT_OTHERDATA.defaultgroup)">
         <button ion-fab core-site-plugins-new-content color="primary" title="{{ 'plugin.mod_forumng.addanewdiscussion' | translate }}" component="mod_forumng" method="add_discussion" [args]="{cmid: <% cmid %>, discussionid: 0, groupid: CONTENT_OTHERDATA.defaultgroup}" [disabled]="!isOnline()">
             <ion-icon name="add"></ion-icon>
         </button>
     </ion-fab>
-</ion-footer>
-<%/ canstartdiscussion %>
-<ion-infinite-scroll (ionInfinite)="loadMoreDiscussions($event)">
-    <ion-infinite-scroll-content loadingSpinner="bubbles" loadingText="Loading more data..."></ion-infinite-scroll-content>
-</ion-infinite-scroll>
+    <%/ canstartdiscussion %>
+</div>
