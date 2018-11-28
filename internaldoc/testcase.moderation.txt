@@ -500,6 +500,34 @@ BUA14 / U.ET [Change]
       Select option 'Allow moderators to post anonymously'
    Click 'Save and display' and return to the new course forum.
 
+Return to forum view page.
+
+BUA15 / U.ET [Change]
+   Create role ForumUserParticipation with capability forumngfeature/userposts:view
+   Enrole student2 to course 1 with role ForumUserParticipation
+
+BUA16 / U.S1
+   Enter the course and click to enter forum 'F.AMNE'.
+   Click the 'Start a new discussion' button.
+      In subject fill as 'BUA15 F.AMNE U.S1 discussion 1'
+      in message fill as 'BUA15 This is the normal discussion post by U.S1.'
+    Follow discussion 'BUA15 F.AMNE U.S1 discussion 1'
+    Click reply
+       In 'Change subject (optional)' fill as 'BUA15 reply subject'
+       In 'Message' fill as 'BUA15 reply message'
+    Click save
+
+BUA17 / U.S2
+    Enter the course and click to enter forum 'F.AMNE'.
+    Verify that button 'Participation by user' exits
+    Click on button 'Participation by user'
+    Verify that user name is anonymised by 'Identity protected'
+
+BUA15 / U.ET
+    Enter the course and click to enter forum 'F.AMNE'.
+    Click on button 'Participation by user'
+    Verify that user name is not anonymised by 'Identity protected'
+
 Return to the course main page.
 
 BLD Basic lock discussions usage.

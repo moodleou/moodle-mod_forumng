@@ -67,7 +67,8 @@ echo $OUTPUT->heading(get_string('title', 'forumngfeature_usage'));
 echo html_writer::start_div('forumng_usage_section');
 echo $OUTPUT->heading(get_string('contribution', 'forumngfeature_usage'), 3, 'forumng_usage_sectitle');
 // Get all user posts, discussions count (as used in participation screen).
-$posts = $forum->get_all_user_post_counts($groupid, true);
+$ignoreanon = !has_capability('mod/forumng:postanon', $forum->get_context(), $USER->id);
+$posts = $forum->get_all_user_post_counts($groupid, $ignoreanon);
 $contribcount = 5;
 // Sort by replies/discussions.
 $mostposts = $mostdiscussions = $posts;
