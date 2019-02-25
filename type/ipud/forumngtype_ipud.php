@@ -96,7 +96,7 @@ class forumngtype_ipud extends forumngtype_general {
      * @return array True to allow
      */
     public static function prevent_forumngfeature_discussion() {
-        $removedfeatures = array('move', 'lock', 'merge', 'flagdiscussion', 'export', 'edittags', 'options');
+        $removedfeatures = array('move', 'lock', 'merge', 'flagdiscussion', 'edittags', 'options');
         return $removedfeatures;
     }
 
