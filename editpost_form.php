@@ -387,6 +387,25 @@ class mod_forumng_editpost_form extends moodleform {
                 }
             }
         }
+        if (!empty($data['asmoderator'])) {
+            $forum = $this->_customdata['forum'];
+            $capability = '';
+            $stringidentifier = '';
+            switch ($data['asmoderator']) {
+                case 1:
+                    $capability = 'mod/forumng:postasmoderator';
+                    $stringidentifier = 'error_postasmoderator';
+                    break;
+                case 2:
+                    $capability = 'mod/forumng:postanon';
+                    $stringidentifier = 'error_postanon';
+                    break;
+            }
+
+            if (!has_capability($capability, $forum->get_context(), $USER->id)) {
+                $errors['asmoderator'] = get_string($stringidentifier, 'forumng');
+            }
+        }
         return $errors;
     }
 

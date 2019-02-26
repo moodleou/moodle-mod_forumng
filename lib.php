@@ -839,8 +839,6 @@ function mod_forumng_output_fragment_postform($args) {
 
     $replyoption = $forum->get_type()->get_reply_options(false, true);
 
-    // Hide "Post as?" on fragment form.
-    $replyoption['postas'] = 0;
     if (empty($args['cancelbutton'])) {
         $replyoption['cancelbutton'] = true;
     }

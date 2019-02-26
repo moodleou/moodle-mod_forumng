@@ -53,7 +53,8 @@ class create_reply extends external_api {
                 'text' => new external_value(PARAM_RAW, 'Message of the post'),
                 'format' => new external_value(PARAM_TEXT, 'Format of the message'),
                 'itemid' => new external_value(PARAM_TEXT, 'Item ID', VALUE_DEFAULT),
-            ))
+            )),
+            'asmoderator' => new external_value(PARAM_INT, 'The flag of moderator')
         ));
     }
 
@@ -74,16 +75,18 @@ class create_reply extends external_api {
      * @param $replyto integer Reply post ID.
      * @param $subject string Subject of the post.
      * @param $message string Message of the post.
+     * @param $asmoderator interger Flag of moderator.
      * @return \stdClass
      * @throws \moodle_exception
      */
-    public static function create_reply($replyto, $subject, $message) {
+    public static function create_reply($replyto, $subject, $message, $asmoderator) {
         global $PAGE, $DB, $USER;
 
         $data = array(
             'replyto' => $replyto,
             'subject' => $subject,
-            'message' => $message
+            'message' => $message,
+            'asmoderator' => $asmoderator
         );
 
         // Validate web service's parammeters.
@@ -124,7 +127,7 @@ class create_reply extends external_api {
         if ($validatedata) {
             // Form validation success, create new reply.
             $newpostid = $replypost->reply($validatedata->subject, $validatedata->message['text'],
-                $validatedata->message['format']);
+                $validatedata->message['format'], false, false, false, 0, true, $validatedata->asmoderator);
 
             // The itemid is not present when using text-only editor.
             if (!empty($validatedata->message['itemid'])) {
