@@ -77,7 +77,7 @@ Feature: Add forumng activity and test userposts filtering
     And I log in as "admin"
     And I am on "Course 1" course homepage
     And I follow "Test forum name"
-    And I navigate to "Edit settings" node in "ForumNG administration"
+    And I navigate to "Edit settings" in current page administration
     And I set the field "id_enableratings" to "No ratings"
     And I press "Save and display"
     And I press "Participation by user"
