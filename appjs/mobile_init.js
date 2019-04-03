@@ -310,6 +310,8 @@
      * @param {object} outerThis The main component.
      */
     window.forumngDiscussionsPageInit = function(outerThis) {
+        // Check and handle module completion feature.
+        t.CoreCourseProvider.checkModuleCompletion(outerThis.courseId, outerThis.module.completiondata);
         // Make loadMoreDiscussion available from the template.
         outerThis.loadMoreDiscussions = function(infiniteScrollEvent) {
             t.mod_forumng.loadMoreDiscussions(outerThis, infiniteScrollEvent);
