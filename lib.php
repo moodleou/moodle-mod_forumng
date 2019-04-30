@@ -186,6 +186,10 @@ function forumng_ousearch_get_document($document) {
  * @param int $courseid If specified, restricts to particular courseid
  */
 function forumng_ousearch_update_all($feedback=false, $courseid=0) {
+    if (get_config('local_ousearch', 'ousearchindexingdisabled')) {
+        // Do nothing if the OU Search system is turned off.
+        return;
+    }
     require_once(dirname(__FILE__).'/mod_forumng.php');
     mod_forumng::search_update_all($feedback, $courseid);
 }
