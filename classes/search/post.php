@@ -80,10 +80,11 @@ class post extends \core_search\base_mod {
                        fp.deleteuserid, fp.important, fp.mailstate, fp.oldversion, fp.edituserid, fp.subject, fp.message,
                        fp.messageformat, fp.attachments, fp.asmoderator,
                        fd.modified as discussionmodified, GREATEST(fp.modified, fd.modified) as modifyorder,
-                       fd.groupid as groupid
+                       fd.groupid as groupid, fpd.subject as discussionsubject
                   FROM {forumng_posts} fp
                   JOIN {forumng_discussions} fd ON fp.discussionid = fd.id
                   JOIN {forumng} f ON fd.forumngid = f.id
+                  JOIN {forumng_posts} fpd on fpd.id = fd.postid
           $contextjoin
                  WHERE (fp.modified >= ? OR fd.modified >= ?)
                    AND fp.deleted = 0
@@ -123,8 +124,11 @@ class post extends \core_search\base_mod {
                 $record->forumpostid, $this->componentname, $this->areaname);
 
         // Set document title.
-        // Document title will be post title.
+        // Document title will be post title, if post's title is empty, use the discussion's title instead.
         $title = $record->subject;
+        if (empty($title)) {
+            $title = $record->discussionsubject;
+        }
         $doc->set('title', content_to_text($title, false));
 
         // Set document content.
