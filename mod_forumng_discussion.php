@@ -1202,6 +1202,11 @@ WHERE
             // No change
             return;
         }
+
+        // Update modified time so that Moodle global search knows it needs reindexing with the
+        // new location/group.
+        $update->modified = time();
+
         // Delete search data for this discussion before moving.
         $this->ismakingsearchchange = true;
         $root = $this->get_root_post();
@@ -1428,6 +1433,7 @@ WHERE
         $update = new StdClass;
         $update->id = $this->discussionfields->id;
         $update->deleted = time();
+        $update->modified = time();
         $DB->update_record('forumng_discussions', $update);
         $this->discussionfields->deleted = $update->deleted;
 
@@ -1460,6 +1466,7 @@ WHERE
         $update = new StdClass;
         $update->id = $this->discussionfields->id;
         $update->deleted = 0;
+        $update->modified = time();
         $DB->update_record('forumng_discussions', $update);
         $this->discussionfields->deleted = 0;
 
