@@ -453,6 +453,8 @@ $string['selectdiscintro'] = 'Tick the box beside each discussion you want to in
 scroll to the bottom and click &lsquo;Confirm selection&rsquo;.';
 $string['setimportant'] = 'Mark posts as important';
 $string['important'] = 'Important post';
+$string['setimportant_ipud'] = 'Highlight post';
+$string['important_ipud'] = 'Highlighted post';
 $string['flaggeddiscussions'] = 'Flagged discussions';
 $string['flaggeddiscussionslink'] = '{$a} flagged discussions';
 $string['flaggedposts'] = 'Flagged posts';
@@ -895,7 +897,7 @@ $string['asmoderator_help'] = 'This option will enable certain users to be able 
 moderator or post as a moderator with their profile hidden from students.';
 $string['createdbymoderator'] = 'This is a post created by moderator {$a} with their name hidden from students.';
 $string['identityprotected'] = 'Identity protected';
-$string['identityprotectedmessage'] = 'Posts to this forum will be identify protected - individuals\' names will not be displayed.';
+$string['identityprotectedmessage'] = 'Posts to this forum will be identity protected - individuals\' names will not be displayed.';
 $string['lockedtitle'] = 'This discussion is now closed';
 $string['autolockedmessage'] = 'This discussion has been closed automatically as the maximum time permitted to be open has passed.';
 $string['alert_intro'] = 'You can use the Alert link if you need to bring a post in this forum to the attention of a moderator.';

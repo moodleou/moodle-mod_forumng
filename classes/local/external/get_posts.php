@@ -97,7 +97,7 @@ class get_posts extends external_api {
         // Check that discussion can be viewed [Handles all other permissions].
         $discussion->require_view();
 
-        $posts = $discussion->get_root_post_replies($numbertoshow, true, $numbertoshow == 0 ? true : false);
+        $posts = $discussion->get_root_post_replies($numbertoshow, true);
 
         $returndata = array();
 

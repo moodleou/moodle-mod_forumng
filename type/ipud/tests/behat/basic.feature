@@ -90,3 +90,51 @@ Feature: In-page discussions
     And I should see "2 Replies"
     And I log out
 
+  Scenario: Test ipud forum highlighted posts.
+    # Give user permission to test reply
+    Given I log in as "admin"
+    And I set the following system permissions of "Student" role:
+      | capability               | permission |
+      | mod/forumng:viewrealipud | Allow      |
+    And I log out
+    Given I log in as "student1"
+    And I am on "Course 1" course homepage
+    And I follow "Test forum"
+    When I follow "Link to forum view"
+    Then "Highlight post" "field" should not exist
+    Given I log out
+    And I log in as "admin"
+    And I am on "Course 1" course homepage
+    And I follow "Test forum"
+    When I follow "Link to forum view"
+    Then "Highlight post" "field" should exist
+    Given I set the following fields to these values:
+      | Message | Test not highlighted |
+    And I press "Post reply"
+    Then "Highlight post" "field" should exist
+    # Check edit and reply to reply.
+    Given I expand post "2"
+    And I follow "Edit"
+    Then "Highlight post" "field" should exist
+    Given I press "Cancel"
+    And I expand post "2"
+    And I follow "Reply"
+    Then "Highlight post" "field" should not exist
+    And I press "Cancel"
+    # Check after making a post highlighted.
+    Given I set the following fields to these values:
+      | Message | Test making highlighted |
+      | Highlight post | 1                |
+    And I press "Post reply"
+    Then "Highlight post" "field" should not exist
+    And I should see "Highlighted post"
+    Given I expand post "2"
+    And I follow "Edit"
+    Then "Highlight post" "field" should not exist
+    And I press "Cancel"
+    Given I click on "Edit" "link" in the ".forumng-p3" "css_element"
+    Then "Highlight post" "field" should exist
+    Given I press "Cancel"
+    And I click on "Delete" "link" in the ".forumng-p3" "css_element"
+    And I press "Delete"
+    Then "Highlight post" "field" should exist

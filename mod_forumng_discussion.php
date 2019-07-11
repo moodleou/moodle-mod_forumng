@@ -976,6 +976,14 @@ WHERE
         global $DB;
         $userid = mod_forumng_utils::get_real_userid($userid);
 
+        // Security checks.
+        if ($setimportant && !$this->forum->can_set_important($userid)) {
+            $setimportant = false;
+        }
+        if ($asmoderator && !$this->forum->can_post_anonymously($userid)) {
+            $asmoderator = mod_forumng::ASMODERATOR_NO;
+        }
+
         // Prepare post object
         $postobj = new StdClass;
         $postobj->discussionid = $this->discussionfields->id;
@@ -2731,17 +2739,22 @@ WHERE
      * Get first level posts belong to this discussion.
      *
      * @param $numbertoshow integer Number of first posts to show, "0" to show all posts.
+     * @param $includeimportant bool True to add the important post always (ipud)
      * @return array Array of stdClass contain posts.
      */
-    public function get_root_post_replies($numbertoshow) {
+    public function get_root_post_replies($numbertoshow, $includeimportant = false) {
         // Get Root post.
         $rootpost = $this->get_root_post();
         $rootpostreplies = $rootpost->get_replies();
+        $importantposts = [];
 
         // Filter to excluded deleted post if current user don't have permission.
-        $rootpostreplies = array_filter($rootpostreplies, function ($reply) {
+        $rootpostreplies = array_filter($rootpostreplies, function ($reply) use (&$importantposts) {
             $whynot = null;
 
+            if ($reply->is_important()) {
+                $importantposts[] = $reply;
+            }
             // If this post is not deleted of user can view this delete post then display.
             if ($reply->get_deleted() == 0 || $reply->can_view_deleted($whynot)) {
                 return true;
@@ -2765,13 +2778,45 @@ WHERE
         }
 
         $replies = array();
+        $hasimportant = false;
+        $importantpost = null;
+        if ($includeimportant) {
+            foreach ($importantposts as $post) {
+                // Make sure that only the important post shown to everyone is added.
+                if (!$post->get_deleted()) {
+                    $importantpost = $post;
+                    break;
+                } else {
+                    // This post is still classed as important if a child is shown.
+                    if ($post->has_children()) {
+                        foreach ($post->get_replies() as $subreply) {
+                            if (!$subreply->get_deleted()) {
+                                // The reply will show as it has a non deleted reply.
+                                $importantpost = $post;
+                                break 2;
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
         // Get first latest post.
         $index = count($rootpostreplies) - 1;
         while ($numbertoshow > 0 && $index >= 0) {
+            if ($includeimportant && !$hasimportant &&
+                    $importantpost && $rootpostreplies[$index]->get_id() == $importantpost->get_id()) {
+                // We are returning an important post already.
+                $hasimportant = true;
+            }
             $replies[] = $rootpostreplies[$index];
             $index --;
             $numbertoshow --;
+        }
+
+        if ($includeimportant && !$hasimportant && $importantpost) {
+            // Put the important post at the end as an extra entry.
+            $replies = array_merge($replies, [$importantpost]);
         }
 
         return $replies;

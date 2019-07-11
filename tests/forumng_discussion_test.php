@@ -844,15 +844,32 @@ class mod_forumng_discussion_testcase  extends forumng_test_lib {
                 'discussionid' => $discussion[0],
                 'parentpostid' => $discussion[1],
                 'userid' => $USER->id,
-                'message' => 'Reply 1'
+                'message' => 'Reply 1',
             )
         );
-        $generator->create_post(
+        $reply2 = $generator->create_post(
             array(
                 'discussionid' => $discussion[0],
                 'parentpostid' => $discussion[1],
                 'userid' => $USER->id,
-                'message' => 'Reply 2'
+                'message' => 'Reply 2',
+            )
+        );
+        $reply3 = $generator->create_post(
+            array(
+                'discussionid' => $discussion[0],
+                'parentpostid' => $discussion[1],
+                'userid' => $USER->id,
+                'message' => 'Reply 3',
+                'important' => true,
+            )
+        );
+        $reply4 = $generator->create_post(
+            array(
+                'discussionid' => $discussion[0],
+                'parentpostid' => $discussion[1],
+                'userid' => $USER->id,
+                'message' => 'Reply 4',
             )
         );
         // Create reply for Reply 1.
@@ -864,6 +881,17 @@ class mod_forumng_discussion_testcase  extends forumng_test_lib {
                 'message' => 'Reply 1.1'
             )
         );
+        // Create reply for Reply 3.
+        $reply31 = $generator->create_post(
+            array(
+                'discussionid' => $discussion[0],
+                'parentpostid' => $reply3->id,
+                'userid' => $USER->id,
+                'message' => 'Reply 3.1'
+            )
+        );
+        $reply3 = mod_forumng_post::get_from_id($reply3->id, 0);
+        $reply31 = mod_forumng_post::get_from_id($reply31->id, 0);
 
         $discussion = mod_forumng_discussion::get_from_id($discussion[0], 0);
 
@@ -871,19 +899,20 @@ class mod_forumng_discussion_testcase  extends forumng_test_lib {
         $posts = $discussion->get_root_post_replies(1);
         $this->assertEquals(1, count($posts));
         $this->assertEquals(0, $posts[0]->get_total_reply());
-        $this->assertEquals('Reply 2', $posts[0]->get_raw_message());
+        $this->assertEquals('Reply 4', $posts[0]->get_raw_message());
 
         // Test get all replies.
         $posts = $discussion->get_root_post_replies(0);
-        $this->assertEquals(2, count($posts));
+        $this->assertEquals(4, count($posts));
         $this->assertEquals(1, $posts[0]->get_total_reply());
         $this->assertEquals(0, $posts[1]->get_total_reply());
         $this->assertEquals('Reply 1', $posts[0]->get_raw_message());
         $this->assertEquals('Reply 2', $posts[1]->get_raw_message());
+        $this->assertTrue($posts[2]->is_important());
 
         // Test get all posts with replies.
         $posts = $discussion->get_root_post_replies(0);
-        $this->assertEquals(2, count($posts));
+        $this->assertEquals(4, count($posts));
         $this->assertEquals(1, $posts[0]->get_total_reply());
         $this->assertEquals(0, $posts[1]->get_total_reply());
         $this->assertEquals('Reply 1', $posts[0]->get_raw_message());
@@ -892,6 +921,21 @@ class mod_forumng_discussion_testcase  extends forumng_test_lib {
         $this->assertEquals(0, count($posts[1]->get_replies()));
         $this->assertEquals('Reply 1.1', $posts[0]->get_replies()[0]->get_raw_message());
         $this->assertEmpty($posts[1]->get_replies());
+
+        // Test getting important post.
+        $posts = $discussion->get_root_post_replies(1, true);
+        $this->assertEquals(2, count($posts));
+        $this->assertTrue($posts[1]->is_important());
+        $reply3->delete(); // Important post should still be returned.
+        $discussion = mod_forumng_discussion::get_from_id($discussion->get_id(), 0);
+        $posts = $discussion->get_root_post_replies(1, true);
+        $this->assertEquals(2, count($posts));
+        $this->assertTrue($posts[1]->is_important());
+        $reply31->delete(); // Important post not be returned as itself and all replies deleted.
+        $discussion = mod_forumng_discussion::get_from_id($discussion->get_id(), 0);
+        $posts = $discussion->get_root_post_replies(1, true);
+        $this->assertEquals(1, count($posts));
+        $this->assertFalse($posts[0]->is_important());
     }
 
     /**
