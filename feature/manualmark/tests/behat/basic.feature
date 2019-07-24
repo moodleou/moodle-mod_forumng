@@ -36,8 +36,6 @@ Feature: Manually mark discussions read
     And I follow "Test forum name marking"
     And I log out
 
-  # JS required for 'Discussion 2' links
-  @javascript
   Scenario: Testing the 'Mark as read' options
     Given I log in as "student1"
     And I am on "Course 1" course homepage
@@ -52,10 +50,10 @@ Feature: Manually mark discussions read
 
     # Default state of discussion marking
     And I should see "Automatically mark as read"
-    And "Change" "link" should exist
+    And "Change" "button" should exist
 
     # Change state of discussion marking
-    Given I click on "Change" "link"
+    Given I click on "Change" "button"
     Then I should see "Manually mark as read"
 
     # Change order of discussions

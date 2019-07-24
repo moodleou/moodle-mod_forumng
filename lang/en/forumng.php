@@ -22,17 +22,24 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+$string['event:discussioncopied'] = 'Copy discussion';
 $string['event:discussioncreated'] = 'Add discussion';
 $string['event:discussiondeleted'] = 'Delete discussion';
 $string['event:discussionlocked'] = 'Lock discussion';
 $string['event:discussionmerged'] = 'Merge discussion';
+$string['event:discussionmoved'] = 'Move discussion';
 $string['event:discussionpermdeleted'] = 'Permanently delete discussion';
+$string['event:discussionprint'] = 'Print discussion';
+$string['event:discussionread'] = 'Marked discussion read';
+$string['event:discussionreaders'] = 'Readers viewed';
 $string['event:discussionundeleted'] = 'Undelete discussion';
 $string['event:discussionunlocked'] = 'Unlock discussion';
 $string['event:discussionviewed'] = 'View discussion';
+$string['event:forumread'] = 'Marked forum read';
 $string['event:mailsent'] = 'Mail sent ok';
 $string['event:postcreated'] = 'Add reply';
 $string['event:postdeleted'] = 'Delete post';
+$string['event:postread'] = 'Marked post read';
 $string['event:postundeleted'] = 'Undelete post';
 $string['event:postupdated'] = 'Edit post';
 $string['event:postreported'] = 'Report post';

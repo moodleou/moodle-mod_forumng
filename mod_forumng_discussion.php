@@ -1292,6 +1292,20 @@ WHERE
 
         $this->uncache();
         $transaction->allow_commit();
+
+        // Log the information.
+        $params = array(
+            'context' => $this->get_forum()->get_context(),
+            'objectid' => $this->get_id(),
+            'other' => array(
+                'info' => 'd' . $this->discussionfields->id,
+                'logurl' => $this->get_log_url(),
+                'newforum' => $targetforum->get_id(),
+                'newgroup' => $targetgroupid ? $targetgroupid : 0,
+            )
+        );
+        $event = \mod_forumng\event\discussion_moved::create($params);
+        $event->trigger();
     }
     /**
      * Copy the discussion and its posts to another forum and/or group.
@@ -1409,6 +1423,19 @@ WHERE
             }
             $newdiscussion->edit_settings(self::NOCHANGE, self::NOCHANGE, self::NOCHANGE, self::NOCHANGE, self::NOCHANGE, $tags);
         }
+
+        // Log the information.
+        $params = array(
+            'context' => $this->get_forum()->get_context(),
+            'objectid' => $this->get_id(),
+            'other' => array(
+                'info' => 'd' . $this->discussionfields->id,
+                'logurl' => $this->get_log_url(),
+                'newid' => $newdiscussion->get_id(),
+            )
+        );
+        $event = \mod_forumng\event\discussion_copied::create($params);
+        $event->trigger();
     }
 
     /**
@@ -1831,6 +1858,7 @@ ORDER BY
             $this->discussionfields->timeread = $time;
             $this->cache($this->incache->userid);
         }
+        $this->log('read discussion', $userid);
     }
 
     /**
@@ -1953,8 +1981,18 @@ ORDER BY
                 unset($params['objectid']);// Unset discuss id as event for subscriptions table.
                 break;
             case 'merge discussion':
-                $params['other']['newid'] = substr($info, strpos($info, 'into d') + 6);
                 $classname = 'discussion_merged';
+                break;
+            case 'read discussion':
+                $classname = 'discussion_read';
+                $params['userid'] = $info;
+                $params['other']['info'] = 'd' . $this->discussionfields->id;
+                break;
+            case 'print discussion':
+                $classname = 'discussion_printed';
+                break;
+            case 'view readers':
+                $classname = 'discussion_readers_viewed';
                 break;
             default:
                 $classname = 'discussion_viewed';

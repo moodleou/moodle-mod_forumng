@@ -487,6 +487,8 @@ WHERE
             $DB->insert_record('forumng_read_posts', $readrecord);
         }
         $transaction->allow_commit();
+
+        $this->log('read post');
     }
 
     /**
@@ -1628,6 +1630,8 @@ WHERE
             $classname = 'post_split';
         } else if ($action == 'report post') {
             $classname = 'post_reported';
+        } else if ($action == 'read post') {
+            $classname = 'post_read';
         } else {
             throw new coding_exception('Unknown forumng post log event.');
         }
