@@ -124,7 +124,6 @@ Feature: To Create a ForumNG on Learn2
     #checking if attachment is saved in the discussion
     Then I should see "Attach.txt"
 
-
   Scenario: Verify "Discussion options"
     Given I log in as "admin"
     Given the following "activities" exist:
@@ -172,12 +171,12 @@ Feature: To Create a ForumNG on Learn2
     When I set the following fields to these values:
       | timestart[enabled] | 1                   |
       | timestart[day]     | ## tomorrow ## j ## |
-      | timeend[month]     | ## tomorrow ## n ## |
-      | timeend[year]      | ## tomorrow ## Y ## |
+      | timestart[month]   | ## tomorrow ## n ## |
+      | timestart[year]    | ## tomorrow ## Y ## |
       | timeend[enabled]   | 1                   |
       | timeend[day]       | ## +2 days ## j ##  |
-      | timestart[month]   | ## +2 days ## n ##  |
-      | timestart[year]    | ## +2 days ## Y ##  |
+      | timeend[month]     | ## +2 days ## n ##  |
+      | timeend[year]      | ## +2 days ## Y ##  |
     And I press "Save changes"
     And I log out
     And I log in as "student1"
