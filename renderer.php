@@ -1213,7 +1213,10 @@ class mod_forumng_renderer extends plugin_renderer_base {
 
         if ($html) {
             $out .= $lf . '<div class="forumng-info"><h2 class="forumng-author">';
-            $out .= $this->render_important($post->is_important());
+            $out .= $post->is_important() ? '<img src="' .
+            $this->image_url('exclamation_mark', 'mod_forumng') . '" alt="' .
+            get_string('important', 'forumng') . '" ' .
+            'title = "' . get_string('important', 'forumng') . '"/>' : '';
             if (!$options[mod_forumng_post::OPTION_IS_ANON]) {
                 if ($displayauthoranon) {
                     $out .= get_string('identityprotected', 'mod_forumng');
@@ -1257,12 +1260,8 @@ class mod_forumng_renderer extends plugin_renderer_base {
                     $edit->date = userdate($post->get_modified(),
                             get_string('strftimedatetime', 'langconfig'),
                             $options[mod_forumng_post::OPTION_TIME_ZONE]);
-                    if ($displayauthoranon) {
-                        $edit->name = get_string('identityprotected', 'mod_forumng');
-                    } else {
-                        $edit->name = fullname($edituser,
-                                $options[mod_forumng_post::OPTION_VIEW_FULL_NAMES]);
-                    }
+                    $edit->name = fullname($edituser,
+                            $options[mod_forumng_post::OPTION_VIEW_FULL_NAMES]);
                     if ($edituser->id == $post->get_user()->id) {
                         $out .= get_string('editbyself', 'forumng', $edit->date);
                     } else {
@@ -1798,22 +1797,6 @@ class mod_forumng_renderer extends plugin_renderer_base {
         $summary = preg_replace('~\s*\.\.\.(<[^>]*>)*$~', '$1', $summary);
         $dots = $summary != $text ? '...' : '';
         return $summary . $dots;
-    }
-
-    /**
-     * Render output for post important flag
-     *
-     * @param bool $isimportant
-     * @return string
-     * @throws \moodle_exception
-     */
-    public function render_important(bool $isimportant) {
-        if ($isimportant) {
-            $text = get_string('important', 'forumng');
-            return \html_writer::img($this->image_url('exclamation_mark', 'mod_forumng'), $text);
-        } else {
-            return '';
-        }
     }
 
     /**

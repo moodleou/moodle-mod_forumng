@@ -22,24 +22,17 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$string['event:discussioncopied'] = 'Copy discussion';
 $string['event:discussioncreated'] = 'Add discussion';
 $string['event:discussiondeleted'] = 'Delete discussion';
 $string['event:discussionlocked'] = 'Lock discussion';
 $string['event:discussionmerged'] = 'Merge discussion';
-$string['event:discussionmoved'] = 'Move discussion';
 $string['event:discussionpermdeleted'] = 'Permanently delete discussion';
-$string['event:discussionprint'] = 'Print discussion';
-$string['event:discussionread'] = 'Marked discussion read';
-$string['event:discussionreaders'] = 'Readers viewed';
 $string['event:discussionundeleted'] = 'Undelete discussion';
 $string['event:discussionunlocked'] = 'Unlock discussion';
 $string['event:discussionviewed'] = 'View discussion';
-$string['event:forumread'] = 'Marked forum read';
 $string['event:mailsent'] = 'Mail sent ok';
 $string['event:postcreated'] = 'Add reply';
 $string['event:postdeleted'] = 'Delete post';
-$string['event:postread'] = 'Marked post read';
 $string['event:postundeleted'] = 'Undelete post';
 $string['event:postupdated'] = 'Edit post';
 $string['event:postreported'] = 'Report post';
@@ -460,8 +453,6 @@ $string['selectdiscintro'] = 'Tick the box beside each discussion you want to in
 scroll to the bottom and click &lsquo;Confirm selection&rsquo;.';
 $string['setimportant'] = 'Mark posts as important';
 $string['important'] = 'Important post';
-$string['setimportant_ipud'] = 'Highlight post';
-$string['important_ipud'] = 'Highlighted post';
 $string['flaggeddiscussions'] = 'Flagged discussions';
 $string['flaggeddiscussionslink'] = '{$a} flagged discussions';
 $string['flaggedposts'] = 'Flagged posts';
@@ -904,7 +895,7 @@ $string['asmoderator_help'] = 'This option will enable certain users to be able 
 moderator or post as a moderator with their profile hidden from students.';
 $string['createdbymoderator'] = 'This is a post created by moderator {$a} with their name hidden from students.';
 $string['identityprotected'] = 'Identity protected';
-$string['identityprotectedmessage'] = 'Posts to this forum will be identity protected - individuals\' names will not be displayed.';
+$string['identityprotectedmessage'] = 'Posts to this forum will be identify protected - individuals\' names will not be displayed.';
 $string['lockedtitle'] = 'This discussion is now closed';
 $string['autolockedmessage'] = 'This discussion has been closed automatically as the maximum time permitted to be open has passed.';
 $string['alert_intro'] = 'You can use the Alert link if you need to bring a post in this forum to the attention of a moderator.';
@@ -967,8 +958,6 @@ $string['forumngcrontaskdigest'] = 'Forumng email digest job';
 
 $string['error_identityinsubject_discussion'] = 'You have set the subject line to your login details. (This may have been done automatically by your browser or password manager.) To continue, change the subject text.';
 $string['error_identityinsubject_reply'] = 'You have set the subject line to your login details. (This may have been done automatically by your browser or password manager.) To continue, delete or change the subject text.';
-$string['error_postasmoderator'] = 'You do not have permission to post as moderator.';
-$string['error_postanon'] = 'You do not have permission to post as anonymous moderator.';
 $string['error_form_validation'] = '{$a}'; // Form error in json format.
 $string['tooltip_show_features'] = 'Show other options';
 

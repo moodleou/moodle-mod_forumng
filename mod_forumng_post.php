@@ -487,8 +487,6 @@ WHERE
             $DB->insert_record('forumng_read_posts', $readrecord);
         }
         $transaction->allow_commit();
-
-        $this->log('read post');
     }
 
     /**
@@ -1239,7 +1237,6 @@ ORDER BY
         global $DB;
         $now = time();
         $timestart = $this->get_discussion()->get_time_start();
-        $forum = $this->get_forum();
 
         // Create copy of existing entry ('old version')
         $copy = clone($this->postfields);
@@ -1283,16 +1280,11 @@ ORDER BY
         } else if ($attachments && !$this->postfields->attachments) {
             $update->attachments = 1;
         }
-        if ($forum->can_set_important($userid)) {
-            if ($setimportant) {
-                $update->important = 1;
-            } else {
-                $update->important = 0;
-            }
+        if ($setimportant) {
+            $update->important = 1;
         } else {
-            $update->important = $this->is_important();
+            $update->important = 0;
         }
-
         $update->mailstate = mod_forumng::MAILSTATE_NOT_MAILED;
         if ($timestart && $timestart > $now) {
             $update->modified = $timestart;
@@ -1302,12 +1294,7 @@ ORDER BY
         $update->edituserid = mod_forumng_utils::get_real_userid($userid);
 
         $update->id = $this->postfields->id;
-        if ($forum->can_post_anonymously($userid)) {
-            $update->asmoderator = $asmoderator;
-        } else {
-            $update->asmoderator = $this->get_asmoderator();
-        }
-
+        $update->asmoderator = $asmoderator;
         $DB->update_record('forumng_posts', $update);
 
         if ($log) {
@@ -1630,8 +1617,6 @@ WHERE
             $classname = 'post_split';
         } else if ($action == 'report post') {
             $classname = 'post_reported';
-        } else if ($action == 'read post') {
-            $classname = 'post_read';
         } else {
             throw new coding_exception('Unknown forumng post log event.');
         }

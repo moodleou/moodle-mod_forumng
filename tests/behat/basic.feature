@@ -435,7 +435,7 @@ Feature: Add forumng activity and test basic functionality
     Given I log in as "admin"
     And I am on "Course 1" course homepage
     And I follow "Test forum name"
-    And I navigate to "Edit settings" in current page administration
+    And I navigate to "Edit settings" node in "ForumNG administration"
     And I click on "#id_postinguntil_enabled" "css_element"
     And I click on "#id_postingfrom_enabled" "css_element"
     And I set the field "id_postinguntil_year" to "2011"
@@ -452,36 +452,36 @@ Feature: Add forumng activity and test basic functionality
     Given I log in as "admin"
     And I am on "Course 1" course homepage
     And I follow "Test forum name"
-    And I navigate to "Edit settings" in current page administration
+    And I navigate to "Edit settings" node in "ForumNG administration"
     And I set the field "id_canpostanon" to "2"
     And I set the field "id_enableratings" to "1"
     And I set the field "id_ratingthreshold" to "1"
     When I press "Save and display"
-    Then I should see "Posts to this forum will be identity protected - individuals' names will not be displayed."
+    Then I should see "Posts to this forum will be identify protected - individuals' names will not be displayed."
     And I add a discussion with the following data:
       | Subject | Discussion original |
       | Message | abc                 |
-    Then I should not see "Posts to this forum will be identity protected - individuals' names will not be displayed."
+    Then I should not see "Posts to this forum will be identify protected - individuals' names will not be displayed."
     And I log out
     Given I log in as "student1"
     And I am on "Course 1" course homepage
     And I follow "Test forum name"
-    Then I should see "Posts to this forum will be identity protected - individuals' names will not be displayed."
+    Then I should see "Posts to this forum will be identify protected - individuals' names will not be displayed."
     And I follow "Discussion original"
-    Then I should not see "Posts to this forum will be identity protected - individuals' names will not be displayed."
+    Then I should not see "Posts to this forum will be identify protected - individuals' names will not be displayed."
     And I log out
     Given I log in as "admin"
     And I am on "Course 1" course homepage
     And I follow "Test forum name"
-    And I navigate to "Edit settings" in current page administration
+    And I navigate to "Edit settings" node in "ForumNG administration"
     And I set the field "id_canpostanon" to "1"
     When I press "Save and display"
-    Then I should not see "Posts to this forum will be identity protected - individuals' names will not be displayed."
+    Then I should not see "Posts to this forum will be identify protected - individuals' names will not be displayed."
     And I log out
     Given I log in as "student1"
     And I am on "Course 1" course homepage
     And I follow "Test forum name"
-    Then I should not see "Posts to this forum will be identity protected - individuals' names will not be displayed."
+    Then I should not see "Posts to this forum will be identify protected - individuals' names will not be displayed."
 
   Scenario: Scheduled post should display future date after edited
     Given I log in as "admin"

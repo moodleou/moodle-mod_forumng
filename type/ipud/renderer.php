@@ -145,8 +145,6 @@ class forumngtype_ipud_renderer extends mod_forumng_renderer {
      * Render content below content discussion. For ipud,we render reply form for rootpost.
      *
      * @param mod_forumng_discussion $discussion
-     * @return string
-     * @throws \moodle_exception
      */
     public function render_content_below_content_discussion($discussion) {
         global $CFG, $PAGE;
@@ -156,8 +154,7 @@ class forumngtype_ipud_renderer extends mod_forumng_renderer {
         $params['d'] = $discussion->get_id();
         $params['replyto'] = $rootpost->get_id();
         $url = 'editpost.php?d=' . $discussion->get_id() . '&replyto=' . $rootpost->get_id();
-        $replyoption = $discussion->get_forum()->get_type()->get_reply_options(false, true,
-                $discussion, null, $rootpost);
+        $replyoption = $discussion->get_forum()->get_type()->get_reply_options(false, true);
         $mform = new mod_forumng_editpost_form($url,
             array('params' => $params, 'isdiscussion' => false,
                   'forum' => $discussion->get_forum(), 'edit' => false, 'ispost' => true, 'islock' => false,
@@ -253,21 +250,5 @@ class forumngtype_ipud_renderer extends mod_forumng_renderer {
             $result .= $lastpostcell . html_writer::end_tag('td');
         }
         return $result;
-    }
-
-    /**
-     * Render output for post important flag
-     *
-     * @param bool $isimportant
-     * @return string
-     * @throws \moodle_exception
-     */
-    public function render_important(bool $isimportant) {
-        if ($isimportant) {
-            $text = get_string('important_ipud', 'forumng');
-            return \html_writer::div($text, 'forumng_important');
-        } else {
-            return '';
-        }
     }
 }

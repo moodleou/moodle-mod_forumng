@@ -96,7 +96,7 @@ class forumngtype_ipud extends forumngtype_general {
      * @return array True to allow
      */
     public static function prevent_forumngfeature_discussion() {
-        $removedfeatures = array('move', 'lock', 'merge', 'flagdiscussion', 'edittags', 'options');
+        $removedfeatures = array('move', 'lock', 'merge', 'flagdiscussion', 'export', 'edittags', 'options');
         return $removedfeatures;
     }
 
@@ -166,69 +166,21 @@ class forumngtype_ipud extends forumngtype_general {
      *
      * @param bool $normalreply check if this forum use normal reply for cancel button to display.
      * @param bool $renderpostas check if this forum render post as feature in the form.
-     * @param mod_forumng_discussion Discussion reply will be in
-     * @param mod_forumng_post $editpost If editing existing post
-     * @param mod_forumng_post $replytopost If replying to post
      * @return array which option should allow in reply form. True is allow,false is prevent. (array is for toolbar option).
-     * @throws \moodle_exception
      */
-    public function get_reply_options($normalreply, $renderpostas, mod_forumng_discussion $discussion = null,
-            mod_forumng_post $editpost = null, mod_forumng_post $replytopost = null) {
+    public function get_reply_options($normalreply, $renderpostas) {
         // We don't need option for message and post button here because they are always required.
         $toolbaroption = get_config('', 'forumng_customeditortoolbar');
         $options = array(
             'subject' => false,
             'attachments' => false,
-            'markimportant' => 'setimportant_ipud',
+            'markposts' => false,
             'postas' => ($renderpostas) ? true : false,
             'cancelbutton' => $normalreply ? true : false,
             'postasdraftbutton' => false,
             'toolbaroption' => $toolbaroption,
             'emailauthor' => false
         );
-        // Disable Important (highlight post) when not first level reply or other post is important.
-        if (!empty($discussion) && (empty($editpost) || !$editpost->is_important())) {
-            $existingimportant = false;
-            $isnotinitialreply = false;
-            $isinitialreply = false;
-            $rootpost = $discussion->get_root_post();
-            if ($replytopost && $replytopost->get_id() != $rootpost->get_id()) {
-                // This is not a reply to initial post so disallow important.
-                $isnotinitialreply = true;
-            } else {
-                // Check if important allowed by checking if other posts are important.
-                $rootpostreplies = $rootpost->get_replies();
-                foreach ($rootpostreplies as $reply) {
-                    if ($reply->is_important()) {
-                        if ($reply->get_deleted()) {
-                            // Allow another important post if this reply is not going to show to everyone.
-                            if ($reply->has_children()) {
-                                foreach ($reply->get_replies() as $subreply) {
-                                    if (!$subreply->get_deleted()) {
-                                        // The reply will show as it has a non deleted reply.
-                                        $existingimportant = true;
-                                        break 2;
-                                    }
-                                }
-                            }
-                        } else {
-                            // Existing reply is important - disallow important.
-                            $existingimportant = true;
-                            break;
-                        }
-                    }
-                    if ($editpost && $editpost->get_id() == $reply->get_id()) {
-                        // Editing a first level reply.
-                        $isinitialreply = true;
-                    }
-                }
-            }
-
-            if ($existingimportant || $isnotinitialreply || ($editpost && !$isinitialreply)) {
-                // Existing important post or editing/creating a post that is not initial reply.
-                $options['markimportant'] = false;
-            }
-        }
         return $options;
     }
 

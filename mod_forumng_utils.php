@@ -720,7 +720,6 @@ WHERE
 
         $postobject->numberofreply = $post->get_total_reply(false);
         $postobject->isunread = $post->is_unread();
-        $postobject->important = $post->is_important();
 
         return $postobject;
     }
@@ -771,7 +770,6 @@ WHERE
             'canreply' => new external_value(PARAM_TEXT, 'Can reply this post or not, if not return the reason.'),
             'canviewanon' => new external_value(PARAM_RAW, 'Can view hidden moderator post or not.'),
             'reportlink' => new external_value(PARAM_RAW, 'Link lead to report page.', VALUE_DEFAULT, ''),
-            'important' => new external_value(PARAM_BOOL, 'Is post set as important/highlighted')
         );
     }
 

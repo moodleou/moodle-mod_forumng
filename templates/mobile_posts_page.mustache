@@ -110,12 +110,12 @@
                 <ion-col col-auto class="mma-forumng-col-unpad">
                     <button *ngIf="<%{ canmarkread }%>" core-site-plugins-call-ws name="mod_forumng_mark_read"
                             [params]="{discussion: 0, post: <% postid %>}" successMessage refreshOnSuccess="true"
-                            ion-button>
+                            ion-button color="secondary">
                         {{ 'plugin.mod_forumng.markpostread' | translate }}
                     </button>
                 </ion-col>
                 <ion-col col-auto class="mma-forumng-col-unpad">
-                    <button *ngIf="<%{ canreply }%>" core-site-plugins-new-content ion-button
+                    <button *ngIf="<%{ canreply }%>" core-site-plugins-new-content ion-button color="secondary"
                             title="{{ 'plugin.mod_forumng.postreply' | translate }}" component="mod_forumng" method="reply"
                             [args]="{replyto: <% postid %>}" [disabled]="!isOnline()">
                         <core-format-text text="<%{ replyto }%>"></core-format-text>
@@ -167,12 +167,12 @@
                             <ion-col col-auto class="mma-forumng-col-unpad">
                                 <button *ngIf="reply.canmarkread" core-site-plugins-call-ws name="mod_forumng_mark_read"
                                         [params]="{discussion: 0, post: reply.postid}" successMessage refreshOnSuccess="true"
-                                        ion-button>
+                                        ion-button color="secondary">
                                     {{ 'plugin.mod_forumng.markpostread' | translate }}
                                 </button>
                             </ion-col>
                             <ion-col col-auto class="mma-forumng-col-unpad">
-                                <button *ngIf="reply.canreply" core-site-plugins-new-content ion-button
+                                <button *ngIf="reply.canreply" core-site-plugins-new-content ion-button color="secondary"
                                         title="{{ 'plugin.mod_forumng.postreply' | translate }}" component="mod_forumng"
                                         method="reply" [args]="{replyto: reply.postid}" [disabled]="!isOnline()">
                                     <core-format-text [text]="reply.replyto"></core-format-text>
@@ -216,12 +216,12 @@
                                     <ion-col col-auto class="mma-forumng-col-unpad">
                                         <button *ngIf="subreply.canmarkread" core-site-plugins-call-ws name="mod_forumng_mark_read"
                                                 [params]="{discussion: 0, post: subreply.postid}"
-                                                successMessage refreshOnSuccess="true" ion-button>
+                                                successMessage refreshOnSuccess="true" ion-button color="secondary">
                                             {{ 'plugin.mod_forumng.markpostread' | translate }}
                                         </button>
                                     </ion-col>
                                     <ion-col col-auto class="mma-forumng-col-unpad">
-                                        <button *ngIf="subreply.canreply" core-site-plugins-new-content ion-button
+                                        <button *ngIf="subreply.canreply" core-site-plugins-new-content ion-button color="secondary"
                                                 title="{{ 'plugin.mod_forumng.postreply' | translate }}" component="mod_forumng"
                                                 method="reply" [args]="{replyto: subreply.postid}" [disabled]="!isOnline()">
                                             <core-format-text [text]="subreply.replyto"></core-format-text>

@@ -308,8 +308,7 @@ try {
     if ($iframe) {
         $params['iframe'] = 1;
     }
-    $replyoptions = $forum->get_type()->get_reply_options(true, true,
-            isset($discussion) ? $discussion : null, $post, empty($replyto) ? null : $replyto);
+    $replyoptions = $forum->get_type()->get_reply_options(true, true);
     // Expand parameter always available
     $params['expand'] = $expand;
     $mform = new mod_forumng_editpost_form('editpost.php',

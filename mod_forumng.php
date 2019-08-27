@@ -1269,7 +1269,6 @@ WHERE
      *   is just the forum id again)
      */
     public function log($action, $replaceinfo = '') {
-        global $DB;
         $info = $this->forumfields->id;
         if ($replaceinfo !== '') {
             $info = $replaceinfo;
@@ -1290,9 +1289,6 @@ WHERE
                 $params['relateduserid'] = substr($info, 0, strpos($info, ' '));
                 unset($params['objectid']);// Unset forum id as event for subscriptions table.
                 break;
-            case 'read forum':
-                $classname = 'forum_read';
-                break;
             default:
                 $classname = 'course_module_viewed';
                 break;
@@ -1301,13 +1297,7 @@ WHERE
         $event = $class::create($params);
         $event->add_record_snapshot('course_modules', $this->get_course_module());
         $event->add_record_snapshot('course', $this->get_course());
-        $columns = $DB->get_columns('forumng');
-        $missingfields = array_diff(array_keys($columns), array_keys((array)$this->forumfields));
-        if (empty($missingfields)) {
-            // In some cases we only have some forum fields so only snapshot if all available.
-            $event->add_record_snapshot('forumng', $this->forumfields);
-        }
-
+        $event->add_record_snapshot('forumng', $this->forumfields);
         $event->trigger();
     }
 
@@ -1691,8 +1681,6 @@ WHERE $conditions AND m.name = 'forumng' AND $restrictionsql",
         }
 
         $transaction->allow_commit();
-
-        $this->log('read forum');
     }
 
     // Subscriptions
@@ -3503,10 +3491,6 @@ ORDER BY
     public static function search_update_all($feedback=false, $courseid=0, $cmid=0,
             \core\progress\base $progress = null) {
         global $DB;
-        if (get_config('local_ousearch', 'ousearchindexingdisabled')) {
-            // Do nothing if the OU Search system is turned off.
-            return;
-        }
         raise_memory_limit(MEMORY_EXTRA);
         // If cmid is specified, only retrieve that one
         if ($cmid) {

@@ -71,7 +71,6 @@ class print_post_selector extends forumngfeature_post_selector {
 
         print html_writer::end_tag('div');
         $forum->print_js(0, false);
-        $discussion->log('print discussion');
         print $out->footer();
     }
 }

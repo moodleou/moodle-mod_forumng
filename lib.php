@@ -186,10 +186,6 @@ function forumng_ousearch_get_document($document) {
  * @param int $courseid If specified, restricts to particular courseid
  */
 function forumng_ousearch_update_all($feedback=false, $courseid=0) {
-    if (get_config('local_ousearch', 'ousearchindexingdisabled')) {
-        // Do nothing if the OU Search system is turned off.
-        return;
-    }
     require_once(dirname(__FILE__).'/mod_forumng.php');
     mod_forumng::search_update_all($feedback, $courseid);
 }
@@ -841,9 +837,10 @@ function mod_forumng_output_fragment_postform($args) {
     $post = mod_forumng_post::get_from_id($postid, 0);
     $forum = $post->get_forum();
 
-    $replyoption = $forum->get_type()->get_reply_options(false, true, $post->get_discussion(),
-            $editmode ? $post : null, $editmode ? null : $post);
+    $replyoption = $forum->get_type()->get_reply_options(false, true);
 
+    // Hide "Post as?" on fragment form.
+    $replyoption['postas'] = 0;
     if (empty($args['cancelbutton'])) {
         $replyoption['cancelbutton'] = true;
     }
