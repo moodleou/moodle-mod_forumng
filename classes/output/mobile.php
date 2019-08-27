@@ -326,6 +326,13 @@ class mobile {
         $discussion = \mod_forumng_discussion::get_from_id($args->discussionid, \mod_forumng::CLONE_DIRECT);
         $discussion->require_view();
 
+        // Auto mark read - it seems that viewing any bit of a discussion counts as viewing all discussion posts.
+        if ($discussion->get_forum()->can_mark_read()) {
+            if (\mod_forumng::mark_read_automatically()) {
+                $discussion->mark_read();
+            }
+        }
+
         // Based on renderer.php render_post, and mod_forumng_post.php display_with_children.
         $root = $discussion->get_root_post();
         $defaultimage = $OUTPUT->image_url('u/f2');
@@ -395,7 +402,14 @@ class mobile {
             // will be displayed at just one level of indent.
             $subreplies = [];
             self::get_subreplies($discussion, $post, $defaultimage, $moderator, $subreplies);
-            $postdata['hasreplies'] = count($subreplies) > 0;
+            $noofposts = count($subreplies);
+            if ($noofposts == 1) {
+                $noofreplies = strtolower(get_string('totalreply', 'forumng', $noofposts));
+            } else {
+                $noofreplies = strtolower(get_string('totalreplies', 'forumng', $noofposts));
+            }
+            $postdata['hasreplies'] = $noofposts > 0;
+            $postdata['noofreplies'] = $noofreplies;
             $postdata['subreplies'] = $subreplies;
             $reply = (object) $postdata;
             $replies[] = $reply;
@@ -476,6 +490,11 @@ class mobile {
                     'url' => $post->get_attachment_url($attachment)->out()
             ];
         }
+        // Mark post read.
+        $canmarkread = false; // Don't show 'mark post as read' button.
+        if ($discussion->get_forum()->can_mark_read() && !\mod_forumng::mark_read_automatically() && $post->is_unread()) {
+            $canmarkread = true;
+        }
         $whynot = ''; // Required by can_reply but not used.
         return [
             'postid' => $post->get_id(),
@@ -488,8 +507,10 @@ class mobile {
             'isimportant' => $post->is_important(),
             'isflagged' => $post->is_flagged(),
             'isunread' => $post->is_unread(),
+            'canmarkread' => $canmarkread,
             'isexpanded' => self::show_expanded($post),
-            'canreply' => $post->can_reply($whynot)
+            'canreply' => $post->can_reply($whynot),
+            'replyto' => get_string('reply', 'mod_forumng', $post->get_id())
         ];
     }
 
@@ -521,7 +542,7 @@ class mobile {
             'submitlabel' => get_string('postdiscussion', 'mod_forumng'),
             'subject' => '',
             'message' => null,
-            'maxSize' => $forumng->get_max_bytes() // There is no limit to 'maxSubmissions' in forumng.
+            'maxsize' => $forumng->get_max_bytes() // There is no limit to 'maxSubmissions' in forumng.
         ];
         $html = $OUTPUT->render_from_template('mod_forumng/mobile_add_discussion', $data);
 
@@ -538,6 +559,54 @@ class mobile {
                 'forumng' => $forumng->get_id(),
                 'discussion' => $discussionid,
                 'group' => $groupid
+            ],
+            'files' => []
+        ];
+    }
+
+    /**
+     * Displays a page in the mobile app for adding (or editing) a reply.
+     *
+     * @param array $args Arguments from tool_mobile_get_content WS
+     * @return array HTML, javascript and otherdata
+     * @throws \coding_exception
+     */
+    public static function reply(array $args) : array {
+        global $OUTPUT;
+
+        $args = (object) $args;
+        $replyto = $args->replyto;
+        $replytopost = \mod_forumng_post::get_from_id($replyto, 0);
+        $replytopost->require_view();
+        $forumng = $replytopost->get_forum();
+        $cm = $forumng->get_course_module();
+        $whynot = '';
+        $canreply = $replytopost->can_reply($whynot);
+        if (!$canreply) {
+            throw new \Exception(get_string($whynot, 'mod_forumng'));
+        }
+
+        $data = [
+            'cmid' => $cm->id,
+            'submitlabel' => get_string('reply', 'mod_forumng', $replytopost->get_id()),
+            'subject' => '',
+            'message' => null,
+            'maxsize' => $forumng->get_max_bytes()
+        ];
+        $html = $OUTPUT->render_from_template('mod_forumng/mobile_reply', $data);
+
+        return [
+            'templates' => [
+                [
+                    'id' => 'main',
+                    'html' => $html
+                ]
+            ],
+            'javascript' => 'window.forumngReplyInit(this);',
+            'otherdata' => [
+                'files' => json_encode([]),
+                'forumng' => $forumng->get_id(),
+                'replyto' => $replytopost->get_id()
             ],
             'files' => []
         ];

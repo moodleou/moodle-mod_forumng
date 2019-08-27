@@ -26,6 +26,9 @@ namespace mod_forumng\privacy;
 
 defined('MOODLE_INTERNAL') || die();
 
+/** Subject of discussion and post are limited to 32 characters. */
+const LENGTH_LIMIT = 32;
+
 /**
  * Subcontext subcontext_info trait.
  *
@@ -58,7 +61,7 @@ trait subcontext_info {
 
         $parts = [
             $discussion->id,
-            $name
+            str_replace('/', '_', substr($name, 0, LENGTH_LIMIT))
         ];
 
         $discussionname = implode('-', $parts);
@@ -78,7 +81,7 @@ trait subcontext_info {
     protected static function get_post_area(\stdClass $post) : Array {
         $parts = [
             $post->created,
-            $post->subject,
+            str_replace('/', '_', substr($post->subject, 0, LENGTH_LIMIT)),
             $post->id,
         ];
         $area[] = implode('-', $parts);

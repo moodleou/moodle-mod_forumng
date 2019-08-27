@@ -30,7 +30,7 @@ require_once($CFG->dirroot. '/mod/forumng/feature/userposts/locallib.php');
 require_once($CFG->dirroot . '/lib/gradelib.php');
 require_once($CFG->libdir . '/tablelib.php');
 
-global $OUTPUT;
+global $OUTPUT, $PAGE, $USER;
 
 $cmid = required_param('id', PARAM_INT);
 $cloneid = optional_param('clone', 0, PARAM_INT);
@@ -301,13 +301,19 @@ $data = array();
 foreach ($users as $u) {
     $id = $u->id;
     $row = array();
-    $picture = $OUTPUT->user_picture($u, array('courseid' => $course->id));
-    $username = fullname($u);
-    $userurl = new moodle_url('/user/view.php?',
-            array('id' => $id, 'course' => $course->id));
-    $userdetails = html_writer::link($userurl, $username);
+    if (mod_forumng_utils::display_discussion_list_item_author_anonymously($forum, $USER->id)) {
+        $out = $PAGE->get_renderer('mod_forumng');
+        $picture = html_writer::empty_tag('img', ['src' => $out->image_url('u/f2'), 'alt' => '']);
+        $username = $userdetails = get_string('identityprotected', 'forumng');
 
-    $username .= $CFG->forumng_showusername ? ' (' . $u->username . ')' : '';
+    } else {
+        $picture = $OUTPUT->user_picture($u, ['courseid' => $course->id]);
+        $username = fullname($u);
+        $userurl = new moodle_url('/user/view.php?', ['id' => $id, 'course' => $course->id]);
+        $userdetails = html_writer::link($userurl, $username);
+
+        $username .= $CFG->forumng_showusername ? ' (' . $u->username . ')' : '';
+    }
     $showallpostsby = null;
     // Number of discussions.
     if (!isset($u->numdiscussions)) {

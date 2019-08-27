@@ -1236,6 +1236,7 @@ ORDER BY
             $mailnow=false, $userid=0, $log=true, $asmoderator = mod_forumng::ASMODERATOR_NO) {
         global $DB;
         $now = time();
+        $timestart = $this->get_discussion()->get_time_start();
 
         // Create copy of existing entry ('old version')
         $copy = clone($this->postfields);
@@ -1285,7 +1286,11 @@ ORDER BY
             $update->important = 0;
         }
         $update->mailstate = mod_forumng::MAILSTATE_NOT_MAILED;
-        $update->modified = $now;
+        if ($timestart && $timestart > $now) {
+            $update->modified = $timestart;
+        } else {
+            $update->modified = $now;
+        }
         $update->edituserid = mod_forumng_utils::get_real_userid($userid);
 
         $update->id = $this->postfields->id;

@@ -168,6 +168,14 @@ class forumngtype_general extends forumngtype {
             print "<div class='forumng-show-dates'>$message</div>";
         }
 
+        // Show message when user can post as anon.
+        if ($forum->get_can_post_anon() == \mod_forumng::CANPOSTATON_NONMODERATOR) {
+            $message = get_string('identityprotectedmessage', 'forumng');
+            print html_writer::div($message, 'forumng-show-post-anon');
+        } else {
+            print html_writer::div('', 'forumng-hide-post-anon');
+        }
+
         // Show Alert info.
         if ($forum->has_reporting_email()) {
             print $out->box(get_string('alert_intro', 'forumng'), 'generalbox', 'forumng-reportingon');

@@ -1115,6 +1115,11 @@ padding-top: 1em;
 	font-size: .9em;
 }
 
+.forumng-show-post-anon,
+.forumng-show-post-anon-with-group-select {
+    font-weight: bold;
+}
+
 @media (min-width: 1200px) {
     /* Checkbox align on wide (ForumNG - feature copy multiple discussions) */
     body#page-mod-forumng-feature-copy-copyall .mform:not(.unresponsive) #id_hidelater {

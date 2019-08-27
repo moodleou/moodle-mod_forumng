@@ -84,12 +84,14 @@ class mod_forumng_privacy_provider_testcase extends \core_privacy\tests\provider
             'subscription' => mod_forumng::SUBSCRIPTION_PERMITTED]);
         list($user, $otheruser) = $this->helper_create_users($course, 2);
         $this->setUser($user);
-        $dis1 = $forumnglib->get_new_discussion($forum, array('userid' => $user->id, 'timestart' => 1420070400));
+        $dis1 = $forumnglib->get_new_discussion($forum, array('userid' => $user->id, 'timestart' => 1420070400,
+                'subject' => 'Welcome/to the Developing as a Researcher seminar'));
         $lastpost = mod_forumng_post::get_from_id($dis1->get_last_post_id(), 0);
         $lastpost->set_flagged(true, $user->id);
         $lastpost->mark_read(1420070400, $user->id);
         $lastpost->rate(5, $user->id);
-        $dis1->create_reply($lastpost, 'reply', 'reply', FORMAT_HTML, false, false, false, $user->id);
+        $dis1->create_reply($lastpost, 'Welcome/to the Developing as a Researcher seminar', 'reply',
+                FORMAT_HTML, false, false, false, $user->id);
         // Set flag for discussion.
         $dis1->set_flagged(true. $user->id);
         // Mark read for discussion.
@@ -208,6 +210,10 @@ class mod_forumng_privacy_provider_testcase extends \core_privacy\tests\provider
         $discussion = new stdClass();
         $discussion->id = $dis1->get_id();
         $discussionarea = static::get_discussion_area($discussion);
+
+        // Check subject of discussion has been shortened and character "/" replaced by "_".
+        $this->assertEquals($discussion->id.'-Welcome_to the Developing as a R', $discussionarea[1]);
+
         $fs = get_file_storage();
 
         $this->assertCount(1, $forum->get_subscribers());
@@ -277,6 +283,10 @@ class mod_forumng_privacy_provider_testcase extends \core_privacy\tests\provider
         $post->subject = $rootpost->get_subject();
         $post->id = $rootpost->get_id();
         $rootpostarea = array_merge($postarea, static::get_post_area($post));
+
+        // Check subject of post has been shortened and character "/" replaced by "_".
+        $this->assertEquals($post->created . '-Welcome_to the Developing as a R-' . $post->id, $rootpostarea[3]);
+
         // Check root post.
         // Check post data and files.
         $this->assertNotEmpty($fs->get_area_files($context->id,
@@ -317,6 +327,9 @@ class mod_forumng_privacy_provider_testcase extends \core_privacy\tests\provider
         $post->subject = $lastpost->get_subject();
         $post->id = $lastpost->get_id();
         $replypostarea = array_merge($rootpostarea, static::get_post_area($post));
+        $this->assertEmpty($contextdata->get_data($replypostarea));
+
+        $replypostarea = array_merge($postarea, static::get_post_area($post));
         $this->assertEquals((object)[
             'deleted' => \core_privacy\local\request\transform::yesno(0),
             'deleted_by_you' => \core_privacy\local\request\transform::yesno(0),
@@ -331,7 +344,8 @@ class mod_forumng_privacy_provider_testcase extends \core_privacy\tests\provider
             'asmoderator' => \core_privacy\local\request\transform::yesno(0),
             'created' => \core_privacy\local\request\transform::datetime($lastpost->get_created()),
             'modified' => \core_privacy\local\request\transform::datetime($lastpost->get_modified()),
-            'author_was_you' => \core_privacy\local\request\transform::yesno(1)
+            'author_was_you' => \core_privacy\local\request\transform::yesno(1),
+            'parentpostid' => $rootpost->get_id()
         ], $contextdata->get_data($replypostarea));
     }
 

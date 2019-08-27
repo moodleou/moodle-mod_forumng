@@ -446,3 +446,57 @@ Feature: Add forumng activity and test basic functionality
     And I set the field "id_ratinguntil_year" to "2011"
     When I press "Save and display"
     Then I should see "Selection end date cannot be earlier than the start date"
+
+  @javascript
+  Scenario: Show notice message when user can post as anon.
+    Given I log in as "admin"
+    And I am on "Course 1" course homepage
+    And I follow "Test forum name"
+    And I navigate to "Edit settings" node in "ForumNG administration"
+    And I set the field "id_canpostanon" to "2"
+    And I set the field "id_enableratings" to "1"
+    And I set the field "id_ratingthreshold" to "1"
+    When I press "Save and display"
+    Then I should see "Posts to this forum will be identify protected - individuals' names will not be displayed."
+    And I add a discussion with the following data:
+      | Subject | Discussion original |
+      | Message | abc                 |
+    Then I should not see "Posts to this forum will be identify protected - individuals' names will not be displayed."
+    And I log out
+    Given I log in as "student1"
+    And I am on "Course 1" course homepage
+    And I follow "Test forum name"
+    Then I should see "Posts to this forum will be identify protected - individuals' names will not be displayed."
+    And I follow "Discussion original"
+    Then I should not see "Posts to this forum will be identify protected - individuals' names will not be displayed."
+    And I log out
+    Given I log in as "admin"
+    And I am on "Course 1" course homepage
+    And I follow "Test forum name"
+    And I navigate to "Edit settings" node in "ForumNG administration"
+    And I set the field "id_canpostanon" to "1"
+    When I press "Save and display"
+    Then I should not see "Posts to this forum will be identify protected - individuals' names will not be displayed."
+    And I log out
+    Given I log in as "student1"
+    And I am on "Course 1" course homepage
+    And I follow "Test forum name"
+    Then I should not see "Posts to this forum will be identify protected - individuals' names will not be displayed."
+
+  Scenario: Scheduled post should display future date after edited
+    Given I log in as "admin"
+    And I am on "Course 1" course homepage
+    And I follow "Test forum name"
+    And I add a discussion with the following data:
+      | Subject            | Discussion 1 original |
+      | Message            | abc                   |
+      | timestart[enabled] | 1                     |
+      | timestart[day]     | 13                    |
+      | timestart[month]   | 11                    |
+      | timestart[year]    | 2030                  |
+    And I edit post "1" with the following data:
+      | Subject | Discussion 1 edited |
+    And I should see "Discussion 1 edited" in the ".forumng-subject" "css_element"
+    And I should see "13 November 2030" in the ".forumng-pic-info" "css_element"
+    And I follow "Test forum name"
+    And I should see "13/11/30" in the ".forumng-lastpost" "css_element"

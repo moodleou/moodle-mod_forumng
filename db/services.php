@@ -121,5 +121,21 @@ $functions = array(
                 'type' => 'write',
                 'capabilities' => 'mod/forumng:startdiscussion',
                 'services' => array(MOODLE_OFFICIAL_MOBILE_SERVICE, 'local_mobile')
+        ),
+        'mod_forumng_reply' => array(
+                'classname' => '\mod_forumng\local\external\reply',
+                'methodname' => 'reply',
+                'description' => 'Create or edit a post.',
+                'type' => 'write',
+                'capabilities' => 'mod/forumng:replypost',
+                'services' => array(MOODLE_OFFICIAL_MOBILE_SERVICE, 'local_mobile')
+        ),
+        'mod_forumng_mark_read' => array(
+                'classname' => '\mod_forumng\local\external\mark_read',
+                'methodname' => 'mark_read',
+                'description' => 'Mark a post or a discussion as read.',
+                'type' => 'write',
+                'capabilities' => 'mod/forumng:viewdiscussion',
+                'services' => array(MOODLE_OFFICIAL_MOBILE_SERVICE, 'local_mobile')
         )
 );

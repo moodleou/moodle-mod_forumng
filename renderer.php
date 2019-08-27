@@ -1217,14 +1217,12 @@ class mod_forumng_renderer extends plugin_renderer_base {
             $this->image_url('exclamation_mark', 'mod_forumng') . '" alt="' .
             get_string('important', 'forumng') . '" ' .
             'title = "' . get_string('important', 'forumng') . '"/>' : '';
-            if ($export) {
-                if (!$options[mod_forumng_post::OPTION_IS_ANON]) {
-                    $out .=  $by->name . ' ';
-                }
-            } else {
-                if (!$options[mod_forumng_post::OPTION_IS_ANON]) {
-                    if ($displayauthoranon) {
-                        $out .= get_string('identityprotected', 'mod_forumng');
+            if (!$options[mod_forumng_post::OPTION_IS_ANON]) {
+                if ($displayauthoranon) {
+                    $out .= get_string('identityprotected', 'mod_forumng');
+                } else {
+                    if ($export) {
+                        $out .= $by->name . ' ';
                     } else {
                         $out .= '<a href="' . $CFG->wwwroot . '/user/view.php?id=' .
                                 $post->get_user()->id .

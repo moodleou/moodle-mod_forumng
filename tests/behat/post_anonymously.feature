@@ -21,10 +21,12 @@ Feature: Test post anonymously functionality
       | teacher1 | C1     | teacher |
     And the following "activities" exist:
       | activity | name      | introduction               | course | idnumber | canpostanon |
-      | forumng  | ForumNG 1 | Test ForumNG 1 description | C1     | forumng3 | 0           |
-      | forumng  | ForumNG 2 | Test ForumNG 2 description | C1     | forumng1 | 1           |
-      | forumng  | ForumNG 3 | Test ForumNG 3 description | C1     | forumng2 | 2           |
-      | forumng  | ForumNG 4 | Test ForumNG 4 description | C1     | forumng2 | 2           |
+      | forumng  | ForumNG 1 | Test ForumNG 1 description | C1     | forumng1 | 0           |
+      | forumng  | ForumNG 2 | Test ForumNG 2 description | C1     | forumng2 | 1           |
+      | forumng  | ForumNG 3 | Test ForumNG 3 description | C1     | forumng3 | 2           |
+      | forumng  | ForumNG 4 | Test ForumNG 4 description | C1     | forumng4 | 2           |
+      | forumng  | ForumNG 5 | Test ForumNG 5 description | C1     | forumng5 | 2           |
+      | forumng  | ForumNG 6 | Test ForumNG 6 description | C1     | forumng6 | 2           |
 
   Scenario: Post as normal
     Given I log in as "teacher1"
@@ -140,3 +142,118 @@ Feature: Test post anonymously functionality
     Then I should see "Remove flag" in the ".forumng-post .forumng-commands .forumng-flagpost .flagtext" "css_element"
     When I follow "ForumNG 4"
     Then I should see "(by Identity protected)" in the ".forumng-flagged .cell.c0" "css_element"
+
+  Scenario: Student don't have mod/forumng:postanon capability can not see real name in 'User participation'
+    Given the following "roles" exist:
+      | name              | shortname        | description | archetype |
+      | Forumng Post View | forumngpostsview | updateusers |           |
+    And the following "permission overrides" exist:
+      | capability                    | permission | role             | contextlevel | reference |
+      | forumngfeature/userposts:view | Allow      | forumngpostsview | System       |           |
+    And the following "role assigns" exist:
+      | user     | role             | contextlevel | reference |
+      | student2 | forumngpostsview | System       |           |
+    When I log in as "student1"
+    And I am on "Course 1" course homepage
+    And I follow "ForumNG 5"
+    And I add a discussion with the following data:
+      | Subject | Discussion 1 |
+      | Message | Test 1       |
+    And I reply to post "1" with the following data:
+      | Change subject (optional) | Test 2 |
+      | Message                   | Test 2 |
+    And I log out
+    When I log in as "student2"
+    And I am on "Course 1" course homepage
+    And I follow "ForumNG 5"
+    Then "Participation by user" "button" should exist
+    And I click on "Participation by user" "button"
+    And I should see "Identity protected" in the "table .cell.c0" "css_element"
+    And I should see "Show all posts by Identity protected" in the "table .cell.c3 a" "css_element"
+    And I log out
+    When I log in as "teacher1"
+    And I am on "Course 1" course homepage
+    And I follow "ForumNG 5"
+    And I click on "Participation by user" "button"
+    Then I should see "Student 1" in the "table .cell.c0" "css_element"
+    And I should see "Show all posts by Student 1" in the "table .cell.c3 a" "css_element"
+
+  Scenario: Student don't have mod/forumng:postanon capability can not see real name in 'Usage' page
+    Given the following "roles" exist:
+      | name               | shortname        | description | archetype |
+      | Forumng Usage View | forumngusageview | updateusers |           |
+      | Forumng Post anon  | forumngpostanon  | postanon    |           |
+    And the following "permission overrides" exist:
+      | capability                | permission | role             | contextlevel | reference |
+      | forumngfeature/usage:view | Allow      | forumngusageview | System       |           |
+      | mod/forumng:postanon      | Allow      | forumngpostanon  | System       |           |
+    And the following "role assigns" exist:
+      | user     | role             | contextlevel | reference |
+      | student2 | forumngusageview | System       |           |
+    When I log in as "teacher1"
+    And I am on "Course 1" course homepage
+    And I follow "ForumNG 6"
+    And I add a discussion with the following data:
+      | Subject | Discussion 1 |
+      | Message | Test 1       |
+    And I reply to post "1" with the following data:
+      | Change subject (optional) | Test 2 |
+      | Message                   | Test 2 |
+    And I follow "ForumNG 6"
+    And I add a discussion with the following data:
+      | Subject     | Discussion 2                                |
+      | Message     | Test 2                                      |
+      | asmoderator | Identify self as moderator (name displayed) |
+    And I reply to post "1" with the following data:
+      | Change subject (optional) | Test 2                                      |
+      | Message                   | Test 2                                      |
+      | asmoderator               | Identify self as moderator (name displayed) |
+    And I follow "ForumNG 6"
+    And I add a discussion with the following data:
+      | Subject     | Discussion 3                                           |
+      | Message     | Test 3                                                 |
+      | asmoderator | Identify self as moderator (name hidden from students) |
+    And I reply to post "1" with the following data:
+      | Change subject (optional) | Test 3                                                 |
+      | Message                   | Test 3                                                 |
+      | asmoderator               | Identify self as moderator (name hidden from students) |
+    And I log out
+    When I log in as "student1"
+    And I am on "Course 1" course homepage
+    And I follow "ForumNG 6"
+    And I add a discussion with the following data:
+      | Subject | Discussion 4 |
+      | Message | Test 4       |
+    And I reply to post "1" with the following data:
+      | Change subject (optional) | Test 4 |
+      | Message                   | Test 4 |
+    And I log out
+    When I log in as "student2"
+    And I am on "Course 1" course homepage
+    And I follow "ForumNG 6"
+    Then "Show usage" "button" should exist
+    And I click on "Show usage" "button"
+    And I should not see "Student 1"
+    And I should see "1" in the ".forumng_usage_contrib_cont:nth-child(1) .forumng_usage_list .forumng_usage_list_tot" "css_element"
+    And I should see "Teacher 1" in the ".forumng_usage_contrib_cont:nth-child(1) .forumng_usage_list .forumng_usage_list_info .fng_userlink a" "css_element"
+    And I should see "1" in the ".forumng_usage_contrib_cont:nth-child(2) .forumng_usage_list .forumng_usage_list_tot" "css_element"
+    And I should see "Teacher 1" in the ".forumng_usage_contrib_cont:nth-child(2) .forumng_usage_list .forumng_usage_list_info .fng_userlink a" "css_element"
+    And I log out
+    # Student have mod/forumng:postanon capability can see real name in 'Usage' page.
+    When I log in as "admin"
+    And the following "role assigns" exist:
+      | user     | role            | contextlevel | reference |
+      | student2 | forumngpostanon | System       |           |
+    And I log out
+    When I log in as "student2"
+    And I am on "Course 1" course homepage
+    And I follow "ForumNG 6"
+    And I click on "Show usage" "button"
+    Then I should see "3" in the ".forumng_usage_contrib_cont:nth-of-type(1) .forumng_usage_list li:nth-of-type(1) .forumng_usage_list_tot" "css_element"
+    And I should see "Teacher 1" in the ".forumng_usage_contrib_cont:nth-of-type(1) .forumng_usage_list li:nth-of-type(1) .fng_userlink a" "css_element"
+    And I should see "3" in the ".forumng_usage_contrib_cont:nth-of-type(2) .forumng_usage_list li:nth-of-type(1) .forumng_usage_list_tot" "css_element"
+    And I should see "Teacher 1" in the ".forumng_usage_contrib_cont:nth-of-type(2) .forumng_usage_list li:nth-of-type(1) .fng_userlink a" "css_element"
+    Then I should see "1" in the ".forumng_usage_contrib_cont:nth-of-type(1) .forumng_usage_list li:nth-of-type(2) .forumng_usage_list_tot" "css_element"
+    And I should see "Student 1" in the ".forumng_usage_contrib_cont:nth-of-type(1) .forumng_usage_list li:nth-of-type(2) .fng_userlink a" "css_element"
+    And I should see "1" in the ".forumng_usage_contrib_cont:nth-of-type(2) .forumng_usage_list li:nth-of-type(2) .forumng_usage_list_tot" "css_element"
+    And I should see "Student 1" in the ".forumng_usage_contrib_cont:nth-of-type(2) .forumng_usage_list li:nth-of-type(2) .fng_userlink a" "css_element"

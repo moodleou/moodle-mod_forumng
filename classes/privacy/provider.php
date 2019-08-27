@@ -465,63 +465,12 @@ class provider implements
         ];
 
         $params += $ratingsql->params;
-        // Keep track of the forums which have data.
-        $structure = (object) [
-                'children' => [],
-        ];
         $posts = $DB->get_records_sql($sql, $params);
-        foreach ($posts as $post) {
-            $post->hasdata = (isset($post->hasdata)) ? $post->hasdata : false;
-            $post->hasdata = ($post->hasdata || (!empty($post->hasratings) || !empty($post->hasratings) ||
-                            !empty($post->readflag) || !empty($post->hasflag) || ($post->userid == $user->id)));
-            if (0 == $post->parentpostid) {
-                $structure->children[$post->id] = $post;
-            } else {
-                if (empty($posts[$post->parentpostid]->children)) {
-                    $posts[$post->parentpostid]->children = [];
-                }
-                $posts[$post->parentpostid]->children[$post->id] = $post;
-            }
-
-            // Set all parents.
-            if ($post->hasdata) {
-                $curpost = $post;
-                while ($curpost->parentpostid != 0) {
-                    $curpost = $posts[$curpost->parentpostid];
-                    $curpost->hasdata = true;
-                }
-            }
-        }
 
         $discussionarea = static::get_discussion_area($discussion);
         $discussionarea[] = get_string('posts', 'mod_forumng');
-        static::export_posts_in_structure($user, $context, $discussionarea, $structure);
-    }
-
-    /**
-     * Export all posts in the provided structure.
-     *
-     * @param \stdClass $user Object representing current user being considered
-     * @param \context $context The instance of the forum context.
-     * @param array $parentarea The subcontext of the parent.
-     * @param \stdClass $structure The post structure and all of its children
-     */
-    protected static function export_posts_in_structure($user, \context $context, $parentarea, \stdClass $structure) {
-        foreach ($structure->children as $post) {
-            if (!$post->hasdata) {
-                // This tree has no content belonging to the user. Skip it and all children.
-                continue;
-            }
-
-            $postarea = array_merge($parentarea, static::get_post_area($post));
-
-            // Store the post content.
-            static::export_post_data($user, $context, $postarea, $post);
-
-            if (isset($post->children)) {
-                // Now export children of this post.
-                static::export_posts_in_structure($user, $context, $postarea, $post);
-            }
+        foreach ($posts as $post) {
+            static::export_post_data($user, $context, array_merge($discussionarea, static::get_post_area($post)), $post);
         }
     }
 
@@ -554,6 +503,10 @@ class provider implements
                 'modified' => transform::datetime($post->modified),
                 'author_was_you' => transform::yesno($post->userid == $user->id)
         ];
+
+        if (!empty($post->parentpostid)) {
+            $postdata->parentpostid = $post->parentpostid;
+        }
 
         if ($post->userid == $user->id) {
             $postdata->message = writer::with_context($context)->rewrite_pluginfile_urls(

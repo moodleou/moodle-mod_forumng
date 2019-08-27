@@ -13,8 +13,14 @@ This test case requires:
 Student user (S1)
 Student user (S2) for testing most rated posts
 Student user (S3) for testing most rated posts
+Student user (S4) for testing can not not read post anonymous
+Student user (S5) for testing can read post anonymous
 Editing Teacher (ET1) for testing most rated posts
 Admin/Manager/Teacher user (Admin) - Must be able to create activities, have access all groups, create anonymous posts etc
+Create role ForumUsage with capability forumfeature/usage:view
+Create role ForumPostAnon with capability mod/forumng:postanon
+Enrole S4 to course with role ForumUsage
+Enrole S5 to course with role ForumUsage, ForumPostAnon.
 
 Test course with multiple (2+) groups, user S1 must be a member of at least 1 group.
 If testing with multiple (2+) groups, user S2 must be a member of a different group to user S1
@@ -32,7 +38,7 @@ US01 / Admin
  Turn on course editing and add a new forum[ng] activity into any course section
  Create the activity with the following options changed from default:
  Forum name: US01
- Enable anonymous moderator posts: Checked
+ Enable anonymous moderator posts: Allow moderators to post anonymously
  Group mode: Separate groups
  Select 'Save and display'
 - Verify forum activity is showing with group 'All participants' currently selected.
@@ -83,7 +89,7 @@ PDUS01 / Admin (change)
 - Verify 'Usage' screen shown with selected group shown in group selector
 - Verify 'Contribution' and 'Usage' section headings showing
 - Verify 'Most posts' lists user S1 and user Admin with 1 post each
-- Verify 'Most discussions' lists user Admin with 2 discussions (Anonymous discussions are not counted)
+- Verify 'Most discussions' lists user Admin with 3 discussions (Anonymous discussions are counted)
 - Verify 'Post history - 5 posts' is displayed
 - Verify that a graph/chart is displayed showing post history over time (from course start date to today).
 
@@ -370,3 +376,49 @@ MRP25 / admin
  3 <post name link> <date time> S3 <user link>
  2 <post name link> <date time> S2 <user link>
  2 <post name link> <date time> ET <user link>
+
+ANONPD Usage page: anonymous post show only to user have permision mod/forumng:postanon
+======================
+Create the activity with the following options changed from default:
+ Forum name: US02
+ Enable anonymous moderator posts: Non-moderators always post anonymously
+
+ANONPD02 / ET1
+ Enter forum US02
+ Create a new discussion with title 'Discussion1 - ET1', any content, all other options as default
+ Reply 'Discussion1 - ET1', any content, all other options as default.
+ Create a new discussion with title 'Discussion2 - ET1', any content,
+     Post as: Identify self as moderator (name displayed)
+ Reply 'Discussion2 - ET1', any content, all other options as default.
+     Post as: Identify self as moderator (name displayed)
+ Create a new discussion with title 'Discussion3 - ET1', any content,
+      Post as: Identify self as moderator (name hidden from students)
+ Reply 'Discussion3 - ET1', any content, all other options as default.
+      Post as: Identify self as moderator (name hidden from students)
+
+ANONPD01 / S1
+ Enter forum US02
+ Create a new discussion with title 'Discussion4 - S1', any content, all other options as default
+ Reply 'Discussion4 - S1', any content, all other options as default.
+
+ANONPD03 / S4
+ Enter forum US02
+ - Verify 'Show usage' button available.
+ Click on 'Show usage' button
+ - Verify S1 is not display.
+ - Verify 'Most posts' lists user ET1 counted 1.
+ - Verify 'Most discussions' user ET1 counted 1.
+
+ANONPD04 / S5
+ Enter forum US02
+ - Verify 'Show usage' button available.
+ Click on 'Show usage' button
+ - Verify 'Most posts' lists user S1 count 1, and ET1 counted 3.
+ - Verify 'Most discussions' lists S1 count 1, and ET1 counted 3.
+
+ANONPD06 / ET1
+ Enter forum US02
+ - Verify 'Show usage' button available.
+ Click on 'Show usage' button
+ - Verify 'Most posts' lists user S1 count 1, and ET1 counted 3.
+ - Verify 'Most discussions' lists S1 count 1, and ET1 counted 3.
