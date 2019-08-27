@@ -342,6 +342,6 @@ Feature: Make discussions sticky
     And I follow "Discussion 1"
     # Check Students can not get to 'sticky' option
     Then "Discussion options" "button" should not exist
-    Then "Delete" "button" should not exist
-    Then "Lock" "button" should not exist
+    Then "Delete" "button" should not exist in the "#region-main" "css_element"
+    Then "Lock" "button" should not exist in the "#region-main" "css_element"
     And I log out

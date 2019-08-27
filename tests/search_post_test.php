@@ -89,7 +89,9 @@ class mod_forumng_search_post_testcase extends forumng_test_lib {
         $post2 = $generator->create_post(array(
                 'discussionid' => $did1[0],
                 'parentpostid' => $did1[1],
-                'userid' => $suser2->id));
+                'userid' => $suser2->id,
+                'subject' => '',
+                'message' => 'Message with empty subject'));
 
         $cm = get_coursemodule_from_instance('forumng', $forum1->get_id(), $forum1->get_course_id());
         $context = \context_module::instance($cm->id);
@@ -112,6 +114,12 @@ class mod_forumng_search_post_testcase extends forumng_test_lib {
         $this->assertEquals($post1->id, $out->get('itemid'));
         $this->assertEquals(\core_search\manager::NO_OWNER_ID, $out->get('owneruserid'));
         $this->assertTrue($out->get_is_new());
+
+        // If post subject is empty, discussion subject will be used.
+        $post2out = $page->get_document($results[2]);
+        $this->assertEquals('Discussion 1', $post2out->get('title'));
+        $this->assertEquals('Message with empty subject', $post2out->get('content'));
+        $this->assertEquals('distag1', $post2out->get('description1'));
 
         // Check access.
         $did2 = $generator->create_discussion(array(

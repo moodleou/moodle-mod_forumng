@@ -1260,8 +1260,12 @@ class mod_forumng_renderer extends plugin_renderer_base {
                     $edit->date = userdate($post->get_modified(),
                             get_string('strftimedatetime', 'langconfig'),
                             $options[mod_forumng_post::OPTION_TIME_ZONE]);
-                    $edit->name = fullname($edituser,
-                            $options[mod_forumng_post::OPTION_VIEW_FULL_NAMES]);
+                    if ($displayauthoranon) {
+                        $edit->name = get_string('identityprotected', 'mod_forumng');
+                    } else {
+                        $edit->name = fullname($edituser,
+                                $options[mod_forumng_post::OPTION_VIEW_FULL_NAMES]);
+                    }
                     if ($edituser->id == $post->get_user()->id) {
                         $out .= get_string('editbyself', 'forumng', $edit->date);
                     } else {

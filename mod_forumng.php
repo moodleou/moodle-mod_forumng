@@ -3491,6 +3491,10 @@ ORDER BY
     public static function search_update_all($feedback=false, $courseid=0, $cmid=0,
             \core\progress\base $progress = null) {
         global $DB;
+        if (get_config('local_ousearch', 'ousearchindexingdisabled')) {
+            // Do nothing if the OU Search system is turned off.
+            return;
+        }
         raise_memory_limit(MEMORY_EXTRA);
         // If cmid is specified, only retrieve that one
         if ($cmid) {

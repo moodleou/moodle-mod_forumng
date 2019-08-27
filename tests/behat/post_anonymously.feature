@@ -123,6 +123,16 @@ Feature: Test post anonymously functionality
     And I follow "ForumNG 3"
     Then I should see "Student 1" in the ".forumng-discussionlist tr.r0 td.forumng-startedby" "css_element"
     And I should see "Student 2" in the ".forumng-discussionlist tr.r0 td.forumng-lastpost" "css_element"
+    And I follow "Discussion 1"
+    And I edit post "1" with the following data:
+      | Subject | Discussion 1 edited |
+    Then I should see "Edited by Teacher 1" in the ".forumng-pic-info .forumng-edit" "css_element"
+    And I log out
+    And I log in as "student1"
+    And I am on "Course 1" course homepage
+    And I follow "ForumNG 3"
+    And I follow "Discussion 1 edited"
+    Then I should see "Edited by Identity protected" in the ".forumng-pic-info .forumng-edit" "css_element"
 
   Scenario: Flagged post display author as Identity protected
     Given I log in as "student1"

@@ -73,7 +73,7 @@ Feature: Delete discussions
   @javascript
   Scenario: Javascript tests
     Given I log in as "admin"
-    Given I navigate to "Site security settings" node in "Site administration > Security"
+    Given I navigate to "Security > Site security settings" in site administration
     And I set the field "Maximum time to edit posts" to "1 minutes"
     And I press "Save changes"
     And I am on "Course 1" course homepage
@@ -93,7 +93,7 @@ Feature: Delete discussions
     When I follow "Discussion 1"
     And I reply to post "1" with the following data:
       | Message | reply |
-    Then "Delete" "button" should not exist
+    Then "Delete" "button" should not exist in the "#region-main" "css_element"
     Given I log out
     And I log in as "admin"
     And I am on "Course 1" course homepage
@@ -126,4 +126,4 @@ Feature: Delete discussions
     # Test editing timeout: arbitrary 30 secs as set to 1 min but other steps undertaken take time.
     And I wait "30" seconds
     And I follow "Discussion 2"
-    Then "Delete" "button" should not exist
+    Then "Delete" "button" should not exist in the "#region-main" "css_element"
