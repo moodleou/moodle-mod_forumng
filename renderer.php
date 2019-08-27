@@ -1213,10 +1213,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
 
         if ($html) {
             $out .= $lf . '<div class="forumng-info"><h2 class="forumng-author">';
-            $out .= $post->is_important() ? '<img src="' .
-            $this->image_url('exclamation_mark', 'mod_forumng') . '" alt="' .
-            get_string('important', 'forumng') . '" ' .
-            'title = "' . get_string('important', 'forumng') . '"/>' : '';
+            $out .= $this->render_important($post->is_important());
             if (!$options[mod_forumng_post::OPTION_IS_ANON]) {
                 if ($displayauthoranon) {
                     $out .= get_string('identityprotected', 'mod_forumng');
@@ -1801,6 +1798,22 @@ class mod_forumng_renderer extends plugin_renderer_base {
         $summary = preg_replace('~\s*\.\.\.(<[^>]*>)*$~', '$1', $summary);
         $dots = $summary != $text ? '...' : '';
         return $summary . $dots;
+    }
+
+    /**
+     * Render output for post important flag
+     *
+     * @param bool $isimportant
+     * @return string
+     * @throws \moodle_exception
+     */
+    public function render_important(bool $isimportant) {
+        if ($isimportant) {
+            $text = get_string('important', 'forumng');
+            return \html_writer::img($this->image_url('exclamation_mark', 'mod_forumng'), $text);
+        } else {
+            return '';
+        }
     }
 
     /**

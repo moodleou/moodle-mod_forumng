@@ -841,7 +841,8 @@ function mod_forumng_output_fragment_postform($args) {
     $post = mod_forumng_post::get_from_id($postid, 0);
     $forum = $post->get_forum();
 
-    $replyoption = $forum->get_type()->get_reply_options(false, true);
+    $replyoption = $forum->get_type()->get_reply_options(false, true, $post->get_discussion(),
+            $editmode ? $post : null, $editmode ? null : $post);
 
     if (empty($args['cancelbutton'])) {
         $replyoption['cancelbutton'] = true;

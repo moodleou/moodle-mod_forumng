@@ -61,7 +61,7 @@ class forumng_external_test extends advanced_testcase {
         self::getDataGenerator()->enrol_user($student->id, $course->id, $roleid);
 
         // Create forum.
-        $forum = $generator->create_instance(array('course' => $course->id));
+        $forum = $generator->create_instance(array('course' => $course->id, 'canpostanon' => mod_forumng::CANPOSTANON_MODERATOR));
 
         // Create discussion for current user.
         $record = new stdClass();
@@ -337,21 +337,23 @@ class forumng_external_test extends advanced_testcase {
         $response = \mod_forumng\local\external\create_reply::create_reply($discussion[1], 'Subject 1', array(
             'text' => 'Content 1',
             'format' => 1
-        ), mod_forumng::ASMODERATOR_NO);
+        ), mod_forumng::ASMODERATOR_NO, true);
         $this->assertEquals('Subject 1', $response->title);
         $this->assertEquals('Content 1', $response->content);
         $this->assertEquals(mod_forumng::ASMODERATOR_NO, $response->ismoderator);
+        $this->assertTrue($response->important);
         // Get from database to check if it really created.
         $post = mod_forumng_post::get_from_id($response->postid, 0);
         $this->assertEquals('Subject 1', $post->get_subject());
         $this->assertEquals('Content 1', $post->get_raw_message());
         $this->assertEquals(mod_forumng::ASMODERATOR_NO, $post->get_asmoderator());
+        $this->assertTrue($post->is_important());
 
         // Check reply to reply.
         $response = \mod_forumng\local\external\create_reply::create_reply($post->get_id(), 'Subject 2', array(
             'text' => 'Content 2',
             'format' => 1
-        ), mod_forumng::ASMODERATOR_IDENTIFY);
+        ), mod_forumng::ASMODERATOR_IDENTIFY, false);
         $this->assertEquals('Subject 2', $response->title);
         $this->assertEquals('Content 2', $response->content);
         // Also check post as moderator.
@@ -384,7 +386,7 @@ class forumng_external_test extends advanced_testcase {
         \mod_forumng\local\external\create_reply::create_reply($deletedpost->get_id(), 'Subject', array(
             'text' => 'Content',
             'format' => 1
-        ), mod_forumng::ASMODERATOR_NO);
+        ), mod_forumng::ASMODERATOR_NO, false);
     }
 
     /**
@@ -409,7 +411,7 @@ class forumng_external_test extends advanced_testcase {
         \mod_forumng\local\external\create_reply::create_reply($discussion[1], $USER->username, array(
             'text' => '',
             'format' => 1
-        ), mod_forumng::ASMODERATOR_NO);
+        ), mod_forumng::ASMODERATOR_NO, false);
     }
 
     /**
@@ -432,13 +434,16 @@ class forumng_external_test extends advanced_testcase {
         $response = \mod_forumng\local\external\edit_post::edit_post($newpostid, 'Subject 2', array(
             'text' => 'Content 2',
             'format' => 1
-        ), mod_forumng::ASMODERATOR_NO);
+        ), mod_forumng::ASMODERATOR_NO, true);
         $this->assertEquals('Subject 2', $response->title);
         $this->assertEquals('Content 2', $response->content);
+        // Important should be false as user has no permission.
+        $this->assertFalse($response->important);
         // Get from database to check if it really updated.
         $post = mod_forumng_post::get_from_id($response->postid, 0);
         $this->assertEquals('Subject 2', $post->get_subject());
         $this->assertEquals('Content 2', $post->get_raw_message());
+        $this->assertFalse($post->is_important());
 
     }
 
@@ -463,7 +468,7 @@ class forumng_external_test extends advanced_testcase {
         \mod_forumng\local\external\edit_post::edit_post($deletedpost->get_id(), 'Subject 2', array(
             'text' => 'Content 2',
             'format' => 1
-        ), mod_forumng::ASMODERATOR_NO);
+        ), mod_forumng::ASMODERATOR_NO, false);
     }
 
     /**
@@ -490,7 +495,7 @@ class forumng_external_test extends advanced_testcase {
         \mod_forumng\local\external\edit_post::edit_post($newpostid, $USER->username, array(
             'text' => '',
             'format' => 1
-        ), mod_forumng::ASMODERATOR_NO);
+        ), mod_forumng::ASMODERATOR_NO, false);
     }
 
     /**

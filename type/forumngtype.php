@@ -263,9 +263,13 @@ abstract class forumngtype {
      *
      * @param bool $normalreply check if this forum use normal reply for cancel button to display.
      * @param bool $renderpostas check if this forum render post as feature in the form.
+     * @param mod_forumng_discussion Discussion reply will be in
+     * @param mod_forumng_post $editpost If editing existing post
+     * @param mod_forumng_post $replytopost If replying to post
      * @return array which option should allow in reply form. Return empty array for default forum..
      */
-    public function get_reply_options($normalreply, $renderpostas) {
+    public function get_reply_options($normalreply, $renderpostas, mod_forumng_discussion $discussion = null,
+            mod_forumng_post $editpost = null, mod_forumng_post $replytopost = null) {
         return array();
     }
 

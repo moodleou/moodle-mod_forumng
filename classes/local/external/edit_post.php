@@ -53,7 +53,8 @@ class edit_post extends external_api {
                 'format' => new external_value(PARAM_TEXT, 'Format of the message'),
                 'itemid' => new external_value(PARAM_TEXT, 'Item ID', VALUE_DEFAULT),
             )),
-            'asmoderator' => new external_value(PARAM_INT, 'The flag of moderator')
+            'asmoderator' => new external_value(PARAM_INT, 'The flag of moderator'),
+            'setimportant' => new external_value(PARAM_BOOL, 'The flag for important', VALUE_DEFAULT, false),
         ));
     }
 
@@ -74,18 +75,20 @@ class edit_post extends external_api {
      * @param $postid integer Post ID which will be edited.
      * @param $subject string Subject of the post.
      * @param $message string Message of the post.
-     * @param $asmoderator interger Flag of moderator.
+     * @param $asmoderator integer Flag of moderator.
+     * @param $setimportant bool Is important post.
      * @return \stdClass
      * @throws \moodle_exception
      */
-    public static function edit_post($postid, $subject, $message, $asmoderator) {
+    public static function edit_post($postid, $subject, $message, $asmoderator, $setimportant) {
         global $PAGE, $DB, $USER;
 
         $data = array(
             'postid' => $postid,
             'subject' => $subject,
             'message' => $message,
-            'asmoderator' => $asmoderator
+            'asmoderator' => $asmoderator,
+            'setimportant' => $setimportant,
         );
 
         // Validate web service's parammeters.
@@ -107,6 +110,8 @@ class edit_post extends external_api {
 
         // Insert this field to be able to call "get_data".
         $data['_qf__mod_forumng_editpost_form'] = 1;
+        $replyoption = $forum->get_type()->get_reply_options(true, true,
+                $editpost->get_discussion(), $editpost);
 
         // Assign data to edit post form.
         $mform = new mod_forumng_editpost_form('', array(
@@ -117,16 +122,20 @@ class edit_post extends external_api {
             'edit' => true,
             'post' => $editpost,
             'isroot' => false,
-            'isdiscussion' => false
+            'isdiscussion' => false,
+            'replyoption' => $replyoption,
         ), 'post', '', null, true, $data);
 
         // Validate form data.
         $validatedata = $mform->get_data();
 
         if ($validatedata) {
+            if (!isset($validatedata->setimportant)) {
+                $validatedata->setimportant = false;
+            }
             // Form validation success, update this reply.
             $gotsubject = $editpost->edit_start($validatedata->subject, false,
-                    false, false, 0, true, $validatedata->asmoderator);
+                    $validatedata->setimportant, false, 0, true, $validatedata->asmoderator);
 
             // The itemid is not present when using text-only editor.
             if (!empty($validatedata->message['itemid'])) {

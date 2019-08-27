@@ -457,18 +457,18 @@ Feature: Add forumng activity and test basic functionality
     And I set the field "id_enableratings" to "1"
     And I set the field "id_ratingthreshold" to "1"
     When I press "Save and display"
-    Then I should see "Posts to this forum will be identify protected - individuals' names will not be displayed."
+    Then I should see "Posts to this forum will be identity protected - individuals' names will not be displayed."
     And I add a discussion with the following data:
       | Subject | Discussion original |
       | Message | abc                 |
-    Then I should not see "Posts to this forum will be identify protected - individuals' names will not be displayed."
+    Then I should not see "Posts to this forum will be identity protected - individuals' names will not be displayed."
     And I log out
     Given I log in as "student1"
     And I am on "Course 1" course homepage
     And I follow "Test forum name"
-    Then I should see "Posts to this forum will be identify protected - individuals' names will not be displayed."
+    Then I should see "Posts to this forum will be identity protected - individuals' names will not be displayed."
     And I follow "Discussion original"
-    Then I should not see "Posts to this forum will be identify protected - individuals' names will not be displayed."
+    Then I should not see "Posts to this forum will be identity protected - individuals' names will not be displayed."
     And I log out
     Given I log in as "admin"
     And I am on "Course 1" course homepage
@@ -476,12 +476,12 @@ Feature: Add forumng activity and test basic functionality
     And I navigate to "Edit settings" in current page administration
     And I set the field "id_canpostanon" to "1"
     When I press "Save and display"
-    Then I should not see "Posts to this forum will be identify protected - individuals' names will not be displayed."
+    Then I should not see "Posts to this forum will be identity protected - individuals' names will not be displayed."
     And I log out
     Given I log in as "student1"
     And I am on "Course 1" course homepage
     And I follow "Test forum name"
-    Then I should not see "Posts to this forum will be identify protected - individuals' names will not be displayed."
+    Then I should not see "Posts to this forum will be identity protected - individuals' names will not be displayed."
 
   Scenario: Scheduled post should display future date after edited
     Given I log in as "admin"

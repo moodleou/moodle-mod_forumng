@@ -54,7 +54,8 @@ class create_reply extends external_api {
                 'format' => new external_value(PARAM_TEXT, 'Format of the message'),
                 'itemid' => new external_value(PARAM_TEXT, 'Item ID', VALUE_DEFAULT),
             )),
-            'asmoderator' => new external_value(PARAM_INT, 'The flag of moderator')
+            'asmoderator' => new external_value(PARAM_INT, 'The flag of moderator'),
+            'setimportant' => new external_value(PARAM_BOOL, 'The flag for important', VALUE_DEFAULT, false),
         ));
     }
 
@@ -75,18 +76,20 @@ class create_reply extends external_api {
      * @param $replyto integer Reply post ID.
      * @param $subject string Subject of the post.
      * @param $message string Message of the post.
-     * @param $asmoderator interger Flag of moderator.
+     * @param $asmoderator integer Flag of moderator.
+     * @param $setimportant bool Is important post.
      * @return \stdClass
      * @throws \moodle_exception
      */
-    public static function create_reply($replyto, $subject, $message, $asmoderator) {
+    public static function create_reply($replyto, $subject, $message, $asmoderator, $setimportant) {
         global $PAGE, $DB, $USER;
 
         $data = array(
             'replyto' => $replyto,
             'subject' => $subject,
             'message' => $message,
-            'asmoderator' => $asmoderator
+            'asmoderator' => $asmoderator,
+            'setimportant' => $setimportant,
         );
 
         // Validate web service's parammeters.
@@ -109,6 +112,9 @@ class create_reply extends external_api {
         // Insert this field to be able to call "get_data".
         $data['_qf__mod_forumng_editpost_form'] = 1;
 
+        $replyoption = $forum->get_type()->get_reply_options(true, true,
+                $replypost->get_discussion(),null, $replypost);
+
         // Assign data to edit post form, this will also check for session key.
         $mform = new mod_forumng_editpost_form('', array(
             'params' => array('replyto' => $replyto),
@@ -119,15 +125,19 @@ class create_reply extends external_api {
             'post' => $replypost,
             'isroot' => false,
             'isdiscussion' => false,
+            'replyoption' => $replyoption,
         ), 'post', '', null, true, $data);
 
         // Validate form data.
         $validatedata = $mform->get_data();
 
         if ($validatedata) {
+            if (!isset($validatedata->setimportant)) {
+                $validatedata->setimportant = false;
+            }
             // Form validation success, create new reply.
             $newpostid = $replypost->reply($validatedata->subject, $validatedata->message['text'],
-                $validatedata->message['format'], false, false, false, 0, true, $validatedata->asmoderator);
+                $validatedata->message['format'], false, $validatedata->setimportant, false, 0, true, $validatedata->asmoderator);
 
             // The itemid is not present when using text-only editor.
             if (!empty($validatedata->message['itemid'])) {
