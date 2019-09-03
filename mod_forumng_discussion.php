@@ -980,7 +980,10 @@ WHERE
         if ($setimportant && !$this->forum->can_set_important($userid)) {
             $setimportant = false;
         }
-        if ($asmoderator && !$this->forum->can_post_anonymously($userid)) {
+        if ($asmoderator && !$this->forum->can_indicate_moderator($userid)) {
+            $asmoderator = mod_forumng::ASMODERATOR_NO;
+        }
+        if ($asmoderator == mod_forumng::ASMODERATOR_ANON && !$this->forum->can_post_anonymously($userid)) {
             $asmoderator = mod_forumng::ASMODERATOR_NO;
         }
 
@@ -1982,6 +1985,7 @@ ORDER BY
                 break;
             case 'merge discussion':
                 $classname = 'discussion_merged';
+                $params['other']['newid'] = preg_replace('~^.*into d~', '', $info);
                 break;
             case 'read discussion':
                 $classname = 'discussion_read';
