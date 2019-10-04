@@ -419,22 +419,6 @@ class mod_forumng {
     }
 
     /**
-     * Creates a Search the rest of this website link using resources search.
-     *
-     * @param int $courseid Unique identifier of a course.
-     * @param string $querytext Text to be searched for.
-     */
-    public static function create_resources_search_course_link($courseid, $querytext) {
-        $params = ['course' => $courseid, 'query' => $querytext];
-        $restofwebsiteurl = new moodle_url('/blocks/resources_search/search.php', $params);
-        $strrestofwebsite = get_string('restofwebsite', 'local_ousearch');
-        $altlink = html_writer::start_tag('div');
-        $altlink .= html_writer::link($restofwebsiteurl, $strrestofwebsite);
-        $altlink .= html_writer::end_tag('div');
-        echo $altlink;
-    }
-
-    /**
      * Can anonymous posts
      *
      * 0: Normal 1: Moderator 2: Non moderator

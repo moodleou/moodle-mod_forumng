@@ -94,11 +94,7 @@ if (array_key_exists('moodleglobalsearch', $plugins)) {
         $altlink .= html_writer::link($restofwebsiteurl, $strrestofwebsite);
         $altlink .= html_writer::end_tag('div');
         echo $altlink;
-    } else if (!empty($CFG->block_resources_search_baseurl)) {
-        mod_forumng::create_resources_search_course_link($course->id, $querytext);
     }
-} else if (!empty($CFG->block_resources_search_baseurl)) {
-        mod_forumng::create_resources_search_course_link($course->id, $querytext);
 }
 
 print '</div>';
