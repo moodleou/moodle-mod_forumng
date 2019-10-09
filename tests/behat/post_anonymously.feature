@@ -33,22 +33,41 @@ Feature: Test post anonymously functionality
     And I am on "Course 1" course homepage
     And I follow "ForumNG 1"
     And I add a discussion with the following data:
-      | Subject | Discussion 1 |
-      | Message | abc          |
+      | Subject     | Discussion 1  |
+      | Message     | abc           |
+      | asmoderator | Standard Post |
     And I follow "ForumNG 1"
-    Then I should see "Discussion 1" in the ".forumng-discussionlist tr.r0 td.forumng-subject" "css_element"
+    And I add a discussion with the following data:
+      | Subject     | Discussion 2                                |
+      | Message     | abc                                         |
+      | asmoderator | Identify self as moderator (name displayed) |
+    And I follow "ForumNG 1"
+    Then I should see "Discussion 2" in the ".forumng-discussionlist tr.r0 td.forumng-subject" "css_element"
+    And I should see "Discussion 1" in the ".forumng-discussionlist tr.r1 td.forumng-subject" "css_element"
     And I log out
     When I log in as "student1"
     And I am on "Course 1" course homepage
     And I follow "ForumNG 1"
-    Then I should see "Teacher 1" in the ".forumng-discussionlist tr.r0 td.forumng-lastpost" "css_element"
+    Then I should see "Discussion 1" in the ".forumng-discussionlist tr.r1 td.forumng-subject" "css_element"
+    And I should see "Teacher 1" in the ".forumng-discussionlist tr.r1 td.forumng-lastpost" "css_element"
+    And I should not see "Moderator" in the ".forumng-discussionlist tr.r1 td.forumng-lastpost" "css_element"
+    And I should see "Teacher 1" in the ".forumng-discussionlist tr.r1 td.forumng-startedby" "css_element"
+    And I should not see "Moderator" in the ".forumng-discussionlist tr.r1 td.forumng-startedby" "css_element"
+    And I should see "Discussion 2" in the ".forumng-discussionlist tr.r0 td.forumng-subject" "css_element"
+    And I should see "Teacher 1" in the ".forumng-discussionlist tr.r0 td.forumng-lastpost" "css_element"
+    And I should see "Moderator" in the ".forumng-discussionlist tr.r0 td.forumng-lastpost" "css_element"
     And I should see "Teacher 1" in the ".forumng-discussionlist tr.r0 td.forumng-startedby" "css_element"
-    And I follow "Discussion 1"
+    And I should see "Moderator" in the ".forumng-discussionlist tr.r0 td.forumng-startedby" "css_element"
+    When I follow "Discussion 1"
     Then I should see "Teacher 1" in the ".forumng-post .forumng-info .forumng-author" "css_element"
     When I reply to post "1" with the following data:
       | Change subject (optional) | Test1 |
       | Message                   | Test1 |
     Then I should see "Student 1" in the ".forumng-replies .forumng-post .forumng-info .forumng-author" "css_element"
+    When I follow "ForumNG 1"
+    When I follow "Discussion 2"
+    Then I should see "Teacher 1" in the ".forumng-post .forumng-info .forumng-author" "css_element"
+    And I should see "Moderator" in the ".forumng-post .forumng-info .forumng-author .forumng-moderator-flag" "css_element"
 
   Scenario: Moderators can post anonymously
     Given I log in as "teacher1"
@@ -62,24 +81,39 @@ Feature: Test post anonymously functionality
     And I add a discussion with the following data:
       | Subject     | Discussion 2               |
       | Message     | abc                        |
-      | asmoderator | Identify self as moderator |
+      | asmoderator | Identify self as moderator (name displayed) |
     And I follow "ForumNG 2"
-    Then I should see "Discussion 2" in the ".forumng-discussionlist tr.r0 td.forumng-subject" "css_element"
-    And I should see "Discussion 1" in the ".forumng-discussionlist tr.r1 td.forumng-subject" "css_element"
+    And I add a discussion with the following data:
+      | Subject     | Discussion 3  |
+      | Message     | abc           |
+      | asmoderator | Standard Post |
+    And I follow "ForumNG 2"
+    Then I should see "Discussion 3" in the ".forumng-discussionlist tr.r0 td.forumng-subject" "css_element"
+    And I should see "Discussion 2" in the ".forumng-discussionlist tr.r1 td.forumng-subject" "css_element"
+    And I should see "Discussion 1" in the ".forumng-discussionlist tr.lastrow td.forumng-subject" "css_element"
     And I log out
     When I log in as "student1"
     And I am on "Course 1" course homepage
     And I follow "ForumNG 2"
-    Then I should see "Discussion 1" in the ".forumng-discussionlist tr.r1 td.forumng-subject" "css_element"
+    Then I should see "Discussion 1" in the ".forumng-discussionlist tr.lastrow td.forumng-subject" "css_element"
+    And I should not see "Teacher 1" in the ".forumng-discussionlist tr.lastrow td.forumng-lastpost" "css_element"
+    And I should see "Moderator" in the ".forumng-discussionlist tr.lastrow td.forumng-lastpost" "css_element"
+    And I should not see "Teacher 1" in the ".forumng-discussionlist tr.lastrow td.forumng-startedby" "css_element"
+    And I should see "Moderator" in the ".forumng-discussionlist tr.lastrow td.forumng-startedby" "css_element"
+    And I should see "Discussion 2" in the ".forumng-discussionlist tr.r1 td.forumng-subject" "css_element"
+    And I should see "Teacher 1" in the ".forumng-discussionlist tr.r1 td.forumng-lastpost" "css_element"
     And I should see "Moderator" in the ".forumng-discussionlist tr.r1 td.forumng-lastpost" "css_element"
+    And I should see "Teacher 1" in the ".forumng-discussionlist tr.r1 td.forumng-startedby" "css_element"
     And I should see "Moderator" in the ".forumng-discussionlist tr.r1 td.forumng-startedby" "css_element"
-    And I should see "Discussion 2" in the ".forumng-discussionlist tr.r0 td.forumng-subject" "css_element"
+    And I should see "Discussion 3" in the ".forumng-discussionlist tr.r0 td.forumng-subject" "css_element"
     And I should see "Teacher 1" in the ".forumng-discussionlist tr.r0 td.forumng-lastpost" "css_element"
-    And I should see "Moderator" in the ".forumng-discussionlist tr.r0 td.forumng-lastpost" "css_element"
+    And I should not see "Moderator" in the ".forumng-discussionlist tr.r0 td.forumng-lastpost" "css_element"
     And I should see "Teacher 1" in the ".forumng-discussionlist tr.r0 td.forumng-startedby" "css_element"
-    And I should see "Moderator" in the ".forumng-discussionlist tr.r0 td.forumng-startedby" "css_element"
+    And I should not see "Moderator" in the ".forumng-discussionlist tr.r0 td.forumng-startedby" "css_element"
     When I follow "Discussion 1"
-    And I reply to post "1" with the following data:
+    Then I should not see "Teacher 1" in the ".forumng-post .forumng-info .forumng-author" "css_element"
+    And I should see "Moderator" in the ".forumng-post .forumng-info .forumng-author .forumng-moderator-flag" "css_element"
+    When I reply to post "1" with the following data:
       | Change subject (optional) | Test1 |
       | Message                   | Test1 |
     Then I should see "Student 1" in the ".forumng-replies .forumng-post .forumng-info .forumng-author" "css_element"
@@ -89,6 +123,10 @@ Feature: Test post anonymously functionality
     And I follow "Discussion 2"
     Then I should see "Teacher 1" in the ".forumng-post .forumng-info .forumng-author" "css_element"
     And I should see "Moderator" in the ".forumng-post .forumng-info .forumng-author .forumng-moderator-flag" "css_element"
+    When I follow "ForumNG 2"
+    And I follow "Discussion 3"
+    Then I should see "Teacher 1" in the ".forumng-post .forumng-info .forumng-author" "css_element"
+    And ".forumng-post .forumng-info .forumng-author .forumng-moderator-flag" "css_element" should not exist
 
   Scenario: Non-moderators can post anonymously
     Given I log in as "student1"
