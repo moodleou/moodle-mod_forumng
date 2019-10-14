@@ -65,7 +65,7 @@ class mobile_testcase extends \advanced_testcase {
         $this->assertEquals([], $result['files']);
         $otherdata = $result['otherdata'];
         $this->assertEquals(-1, $otherdata['defaultgroup']);
-        $this->assertEquals(1, count($otherdata['discussions']));
+        $this->assertEquals(0, count(json_decode($otherdata['discussions'])));
         $this->assertEquals(0, $otherdata['totaldiscussions']);
         $this->assertEquals(1, $otherdata['page']);
         $template = $result['templates'][0];
@@ -81,7 +81,7 @@ class mobile_testcase extends \advanced_testcase {
         $result = mobile::forumng_view($args);
         $otherdata = $result['otherdata'];
         $this->assertEquals(-1, $otherdata['defaultgroup']);
-        $this->assertEquals(1, count($otherdata['discussions']));
+        $this->assertEquals(1, count(json_decode($otherdata['discussions'])));
         $this->assertEquals(1, $otherdata['totaldiscussions']);
         $this->assertEquals(1, $otherdata['page']);
     }

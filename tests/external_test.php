@@ -221,7 +221,6 @@ class forumng_external_test extends advanced_testcase {
         // Test that owner can see content of deleted post.
         $response = get_posts::get_posts($discussion[0], 1);
         $this->assertEquals(5, $response['totalpost']);
-        $this->assertEquals(1, count($response['totalpost']));
         $this->assertEquals('Reply 4', $response['data'][0]->content);
         $this->assertEquals(1, $response['data'][0]->canundelete);
         $this->assertEquals(1, $response['data'][0]->canviewdeleted);
