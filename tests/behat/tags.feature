@@ -383,7 +383,7 @@ Feature: Add forumng activity and test basic tagging functionality
     And I should see "f2"
     And I should see "f3"
     Given I click on "f1" "list_item"
-    And I press key "27" in "#mform1 [placeholder=\"Enter tags...\"]" "css_element"
+    And I press key "27" in "input[placeholder=\"Enter tags...\"]" "css_element"
     And I click on "Save changes" "button"
     # Returns to discuss.php page
     Then I should see "Discussion tags: f1"
@@ -399,7 +399,7 @@ Feature: Add forumng activity and test basic tagging functionality
     And I should see "f2"
     And I should see "f3"
     Given I click on "f3" "list_item"
-    And I press key "27" in "#mform1 [placeholder=\"Enter tags...\"]" "css_element"
+    And I press key "27" in "input[placeholder=\"Enter tags...\"]" "css_element"
     And I click on "Save changes" "button"
     # Returns to discuss.php page
     Then I should see "Discussion tags: f3"
