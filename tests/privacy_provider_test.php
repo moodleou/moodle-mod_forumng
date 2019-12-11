@@ -93,7 +93,7 @@ class mod_forumng_privacy_provider_testcase extends \core_privacy\tests\provider
         $dis1->create_reply($lastpost, 'Welcome/to the Developing as a Researcher seminar', 'reply',
                 FORMAT_HTML, false, false, false, $user->id);
         // Set flag for discussion.
-        $dis1->set_flagged(true. $user->id);
+        $dis1->set_flagged(true. $otheruser->id);
         // Mark read for discussion.
         $dis1->mark_read(1420070400, $user->id);
         $cm = get_coursemodule_from_instance('forumng', $forum->get_id());
@@ -119,7 +119,7 @@ class mod_forumng_privacy_provider_testcase extends \core_privacy\tests\provider
         $fs->create_file_from_string([
             'contextid' => $context->id,
             'component' => 'mod_forumng',
-            'filearea'  => 'attachments',
+            'filearea'  => 'attachment',
             'itemid'    => $lastpost->get_id(),
             'filepath'  => '/',
             'filename'  => 'example.jpg',
@@ -155,7 +155,8 @@ class mod_forumng_privacy_provider_testcase extends \core_privacy\tests\provider
         // Test that no contexts were retrieved.
         $contextlist = $this->get_contexts_for_userid($otheruser->id, 'mod_forumng');
         $contexts = $contextlist->get_contextids();
-        $this->assertCount(0, $contexts);
+        // User 2 have flagged the discussion.
+        $this->assertCount(1, $contexts);
 
         // Attempting to export data for this context should return nothing either.
         $this->export_context_data_for_user($otheruser->id, $context, 'mod_forumng');
@@ -290,7 +291,7 @@ class mod_forumng_privacy_provider_testcase extends \core_privacy\tests\provider
         // Check root post.
         // Check post data and files.
         $this->assertNotEmpty($fs->get_area_files($context->id,
-            'mod_forumng', 'attachments', $rootpost->get_id()));
+            'mod_forumng', 'attachment', $rootpost->get_id()));
         $this->assertEquals((object)[
             'deleted' => \core_privacy\local\request\transform::yesno(0),
             'deleted_by_you' => \core_privacy\local\request\transform::yesno(0),
@@ -356,6 +357,7 @@ class mod_forumng_privacy_provider_testcase extends \core_privacy\tests\provider
     public function test_delete_data_for_user() {
         $dis1 = $this->discussion;
         $user = $this->currentuser;
+        $adminid = get_admin()->id;
         $context = $this->context;
         $contextids = provider::get_contexts_for_userid($user->id)->get_contextids();
         $appctx = new approved_contextlist($user, 'mod_forumng', $contextids);
@@ -393,13 +395,15 @@ class mod_forumng_privacy_provider_testcase extends \core_privacy\tests\provider
         $post->subject = $rootpost->get_subject();
         $post->id = $rootpost->get_id();
         $this->assertTrue(empty($fs->get_area_files($context->id,
-            'mod_forumng', 'attachments', $rootpost->get_id())));
+            'mod_forumng', 'attachment', $rootpost->get_id())));
         $this->assertTrue(empty($fs->get_area_files($context->id,
             'mod_forumng', 'post', $rootpost->get_id())));
         $rootpostarea = array_merge($postarea, static::get_post_area($post));
         // We do not delete post in discussion,just change content to empty.
-        $this->assertFalse(empty(writer::with_context($context)->get_data($rootpostarea)));
+        $this->assertTrue(empty(writer::with_context($context)->get_data($rootpostarea)));
         $this->assertEmpty($rootpost->get_formatted_message());
+        $this->assertEquals($adminid, $rootpost->get_user()->id);
+
         // Check reply post.
         $lastpost = mod_forumng_post::get_from_id($dis1->get_last_post_id(), 0);
         $post = new stdClass();
@@ -407,7 +411,7 @@ class mod_forumng_privacy_provider_testcase extends \core_privacy\tests\provider
         $post->subject = $lastpost->get_subject();
         $post->id = $lastpost->get_id();
         $replypostarea = array_merge($rootpostarea, static::get_post_area($post));
-        $this->assertEmpty(writer::with_context($context)->get_data($replypostarea));;
+        $this->assertEmpty(writer::with_context($context)->get_data($replypostarea));
     }
 
     /**
@@ -423,7 +427,9 @@ class mod_forumng_privacy_provider_testcase extends \core_privacy\tests\provider
         $discussion = new stdClass();
         $discussion->id = $dis1->get_id();
         $discussionarea = static::get_discussion_area($discussion);
-
+        $dis1->set_flagged(true. $user->id);
+        $lastposts[1] = mod_forumng_post::get_from_id($dis1->get_last_post_id(), 0);
+        $lastposts[1]->set_flagged(1, $user->id);
         provider::export_user_data($appctx);
         $this->assertTrue(writer::with_context($context)->has_any_data());
         // Delete data belong to first user.
@@ -436,7 +442,7 @@ class mod_forumng_privacy_provider_testcase extends \core_privacy\tests\provider
         $drafts = $DB->get_records('forumng_drafts', ['userid' => $user->id]);
         $rps = $DB->get_records('forumng_read_posts', ['userid' => $user->id]);
         $rds = $DB->get_records('forumng_read', ['userid' => $user->id]);
-        $flags = $DB->get_records('forumng_read', ['userid' => $user->id]);
+        $flags = $DB->get_records('forumng_flags', ['userid' => $user->id]);
         $this->assertEquals(0, count($ratings));
         $this->assertEquals(0, count($drafts));
         $this->assertEquals(0, count($rps));
@@ -478,5 +484,439 @@ class mod_forumng_privacy_provider_testcase extends \core_privacy\tests\provider
                 get_string('privacy:metadata:preference:forumng_simplemode', 'mod_forumng'),
                 $prefs->forumng_simplemode->description
         );
+    }
+
+    /**
+     * Create very basic test data for two privacy functions.
+     * test_get_users_in_context().
+     * test_delete_data_for_users().
+     *
+     * @return array
+     * @throws \coding_exception
+     */
+    private function create_basic_test_data() {
+        $generator = $this->getDataGenerator();
+
+        $course = $generator->create_course();
+
+        $forumnglib = new mod_forumng_privacy_helper();
+        $forums[1] = $forumnglib->get_new_forumng($course->id, ['name' => 'TEST', 'intro' => 'Test forum 1',
+            'enableratings' => mod_forumng::FORUMNG_STANDARD_RATING, 'ratingscale' => 10,
+            'subscription' => mod_forumng::SUBSCRIPTION_PERMITTED ]);
+        $forums[2] = $forumnglib->get_new_forumng($course->id, ['name' => 'TEST', 'intro' => 'Test forum 2',
+            'enableratings' => mod_forumng::FORUMNG_STANDARD_RATING, 'ratingscale' => 10,
+            'subscription' => mod_forumng::SUBSCRIPTION_PERMITTED ]);
+
+        $users[1] = $generator->create_user();
+        $users[2] = $generator->create_user();
+        $users[3] = $generator->create_user();
+
+        $dis[1] = $forumnglib->get_new_discussion($forums[1], array('userid' => $users[1]->id, 'timestart' => 1420070400,
+            'subject' => 'Welcome/to the Developing'));
+        $lastposts[1] = mod_forumng_post::get_from_id($dis[1]->get_last_post_id(), 0);
+        $lastposts[1]->set_flagged(true, $users[1]->id);
+        $lastposts[1]->mark_read(1420070400, $users[1]->id);
+        $lastposts[1]->rate(5, $users[1]->id);
+
+        $dis[2] = $forumnglib->get_new_discussion($forums[2], array('userid' => $users[1]->id, 'timestart' => 1420070400,
+            'subject' => 'Welcome/to the Developing as a Researcher seminar'));
+        $lastposts[2] = mod_forumng_post::get_from_id($dis[2]->get_last_post_id(), 0);
+        $lastposts[2]->set_flagged(true, $users[1]->id);
+        $lastposts[2]->mark_read(1420070400, $users[1]->id);
+        $lastposts[2]->rate(5, $users[1]->id);
+
+        return [$users,$course,$forums,$dis,$lastposts];
+    }
+
+    /**
+     * Test for get_users_in_context(), table "forumng_posts".
+     *
+     * @throws \dml_exception
+     * @throws \coding_exception
+     */
+    public function test_get_users_in_context_forumng_posts() {
+        list($users, ,$forums ,$dis,$lastposts) = $this->create_basic_test_data();
+        $cm = get_coursemodule_from_instance('forumng', $forums[1]->get_id());
+
+        $dis[1]->create_reply($lastposts[1], 'Welcome/to the Developing as a Researcher seminar', 'reply',
+            FORMAT_HTML, false, false, false, $users[1]->id);
+        $dis[1]->create_reply($lastposts[1], 'Welcome/to the Developing as a Researcher seminar', 'reply',
+            FORMAT_HTML, false, false, false, $users[2]->id);
+
+
+        $userlist = new \core_privacy\local\request\userlist(\context_module::instance($cm->id), 'mod_forumng');
+        provider::get_users_in_context($userlist);
+        $userids = $userlist->get_userids();
+
+        $this->assertCount(2, $userids);
+        $this->assertContains($users[1]->id, $userids);
+        $this->assertContains($users[2]->id, $userids);
+
+        $cm2 = get_coursemodule_from_instance('forumng', $forums[2]->get_id());
+        $dis[2]->create_reply($lastposts[2], 'Welcome/to the Developing as a Researcher seminar', 'reply',
+            FORMAT_HTML, false, false, false, $users[1]->id);
+        $userlist2 = new \core_privacy\local\request\userlist(\context_module::instance($cm2->id), 'mod_forumng');
+        provider::get_users_in_context($userlist2);
+        $userids2 = $userlist2->get_userids();
+
+        $this->assertCount(1, $userids2);
+        $this->assertContains($users[1]->id, $userids);
+    }
+
+    /**
+     * Test for get_users_in_context(), table "forumng_ratings".
+     *
+     * @throws \dml_exception
+     * @throws \coding_exception
+     */
+    public function test_get_users_in_context_forumng_ratings() {
+        list($users, ,$forums ,$dis,$lastposts) = $this->create_basic_test_data();
+        $cm = get_coursemodule_from_instance('forumng', $forums[1]->get_id());
+        $context = \context_module::instance($cm->id);
+
+        $lastposts[1]->rate(5, $users[2]->id);
+        $lastposts[1]->rate(5, $users[3]->id);
+        $dis[1]->create_reply($lastposts[1], 'Welcome/to the Developing as a Researcher seminar', 'reply',
+            FORMAT_HTML, false, false, false, $users[1]->id);
+
+        $userlist = new \core_privacy\local\request\userlist($context, 'mod_forumng');
+        provider::get_users_in_context($userlist);
+        $userids = $userlist->get_userids();
+
+        $this->assertCount(3, $userids);
+        $this->assertContains($users[1]->id, $userids);
+        $this->assertContains($users[2]->id, $userids);
+        $this->assertContains($users[3]->id, $userids);
+
+    }
+
+    /**
+     * Test for get_users_in_context(), table "forumng_subscriptions".
+     *
+     * @throws \dml_exception
+     * @throws \coding_exception
+     */
+    public function test_get_users_in_context_forumng_subscriptions() {
+        global $DB;
+
+        list($users, ,$forums) = $this->create_basic_test_data();
+        $cm = get_coursemodule_from_instance('forumng', $forums[2]->get_id());
+        $context = \context_module::instance($cm->id);
+
+
+        $DB->insert_record('forumng_subscriptions', ['forumngid' => $forums[2]->get_id(), 'userid' => $users[1]->id, 'subscribed' => '1']);
+        $DB->insert_record('forumng_subscriptions', ['forumngid' => $forums[2]->get_id(), 'userid' => $users[2]->id, 'subscribed' => '1']);
+        $DB->insert_record('forumng_subscriptions', ['forumngid' => $forums[2]->get_id(), 'userid' => $users[3]->id, 'subscribed' => '1']);
+
+        $userlist = new \core_privacy\local\request\userlist($context, 'mod_forumng');
+        provider::get_users_in_context($userlist);
+        $userids = $userlist->get_userids();
+
+        $this->assertCount(3, $userids);
+        $this->assertContains($users[1]->id, $userids);
+        $this->assertContains($users[2]->id, $userids);
+        $this->assertContains($users[3]->id, $userids);
+    }
+
+    /**
+     * Test for get_users_in_context(), table "forumng_read".
+     *
+     * @throws \dml_exception
+     * @throws \coding_exception
+     */
+    public function test_get_users_in_context_forumng_read() {
+        list($users, ,$forums ,$dis,$lastposts) = $this->create_basic_test_data();
+        $cm = get_coursemodule_from_instance('forumng', $forums[2]->get_id());
+        $context = \context_module::instance($cm->id);
+
+
+        $dis[2]->mark_read(1420070400, $users[2]->id);
+
+        $userlist = new \core_privacy\local\request\userlist($context, 'mod_forumng');
+        provider::get_users_in_context($userlist);
+        $userids = $userlist->get_userids();
+
+        $this->assertCount(2, $userids);
+        $this->assertContains($users[1]->id, $userids);
+        $this->assertContains($users[2]->id, $userids);
+    }
+
+    /**
+     * Test for get_users_in_context(), table "forumng_read_posts".
+     *
+     * @throws \dml_exception
+     * @throws \coding_exception
+     */
+    public function test_get_users_in_context_forumng_read_posts() {
+        list($users, ,$forums ,$dis,$lastposts) = $this->create_basic_test_data();
+        $cm = get_coursemodule_from_instance('forumng', $forums[1]->get_id());
+        $context = \context_module::instance($cm->id);
+
+        $lastposts[1]->mark_read(1420070400, $users[2]->id);
+        $lastposts[1]->mark_read(1420070400, $users[3]->id);
+        $dis[1]->create_reply($lastposts[1], 'Welcome/to the Developing as a Researcher seminar', 'reply',
+            FORMAT_HTML, false, false, false, $users[1]->id);
+
+        $userlist = new \core_privacy\local\request\userlist($context, 'mod_forumng');
+        provider::get_users_in_context($userlist);
+        $userids = $userlist->get_userids();
+
+        $this->assertCount(3, $userids);
+        $this->assertContains($users[1]->id, $userids);
+        $this->assertContains($users[2]->id, $userids);
+        $this->assertContains($users[3]->id, $userids);
+    }
+
+    /**
+     * Test for get_users_in_context(), table "forumng_drafts".
+     *
+     * @throws \dml_exception
+     * @throws \coding_exception
+     */
+    public function test_get_users_in_context_forumng_drafts() {
+        global $DB;
+
+        list($users, ,$forums) = $this->create_basic_test_data();
+        $cm = get_coursemodule_from_instance('forumng', $forums[2]->get_id());
+        $context = \context_module::instance($cm->id);
+
+        $draft = new stdClass();
+        $draft->forumngid = $forums[2]->get_id();
+        $draft->userid = $users[2]->id;
+        $draft->subject = 'Test';
+        $draft->message = 'Test1';
+        $draft->messageformat = '1';
+        $draft->saved = '1420070400';
+        $DB->insert_record('forumng_drafts', $draft);
+
+        $userlist = new \core_privacy\local\request\userlist($context, 'mod_forumng');
+        provider::get_users_in_context($userlist);
+        $userids = $userlist->get_userids();
+
+        $this->assertCount(2, $userids);
+        $this->assertContains($users[1]->id, $userids);
+        $this->assertContains($users[2]->id, $userids);
+    }
+
+    /**
+     * Test for get_users_in_context(), table "forumng_flags".
+     *
+     * @throws \dml_exception
+     * @throws \coding_exception
+     */
+    public function test_get_users_in_context_forumng_flags() {
+        list($users, ,$forums ,$dis,$lastposts) = $this->create_basic_test_data();
+        $cm = get_coursemodule_from_instance('forumng', $forums[1]->get_id());
+        $context = \context_module::instance($cm->id);
+
+        $lastposts[1]->set_flagged(true, $users[3]->id);
+
+        $dis[1]->create_reply($lastposts[1], 'Welcome/to the Developing as a Researcher seminar', 'reply',
+            FORMAT_HTML, false, false, false, $users[1]->id);
+        $dis[1]->set_flagged(true, $users[2]->id);
+
+        $userlist = new \core_privacy\local\request\userlist($context, 'mod_forumng');
+        provider::get_users_in_context($userlist);
+        $userids = $userlist->get_userids();
+
+        $this->assertCount(3, $userids);
+        $this->assertContains($users[1]->id, $userids);
+        $this->assertContains($users[2]->id, $userids);
+        $this->assertContains($users[3]->id, $userids);
+    }
+
+    /**
+     * Test for test_delete_data_for_users(), table "forumng_posts".
+     *
+     * @throws \dml_exception
+     * @throws \coding_exception
+     */
+    public function test_delete_data_for_users_forumng_posts() {
+        global $DB;
+        $adminid = get_admin()->id;
+        list($users, ,$forums ,$dis,$lastposts) = $this->create_basic_test_data();
+        $cm = get_coursemodule_from_instance('forumng', $forums[1]->get_id());
+        $context = \context_module::instance($cm->id);
+
+        $dis[1]->create_reply($lastposts[1], 'Welcome/to the Developing', 'reply',
+            FORMAT_HTML, false, false, false, $users[1]->id);
+
+        $approveduserids = [$users[1]->id];
+        $approvedlist = new \core_privacy\local\request\approved_userlist($context, 'mod_forumng', $approveduserids);
+        provider::delete_data_for_users($approvedlist);
+
+        $sql = "discussionid = ? AND parentpostid IS NOT NULL";
+        $posts = array_values($DB->get_records_select('forumng_posts', $sql, ['discussionid' => $dis[1]->get_id()]));
+        
+        $this->assertCount(1, $posts);
+        $this->assertEquals($posts[0]->subject, '');
+        $this->assertEquals($posts[0]->message, '');
+        $this->assertEquals($posts[0]->messageformat, FORMAT_PLAIN);
+        $this->assertEquals($adminid, $posts[0]->userid);
+    }
+
+    /**
+     * Test for test_delete_data_for_users(), table "forumng_ratings".
+     *
+     * @throws \dml_exception
+     * @throws \coding_exception
+     */
+    public function test_delete_data_for_users_forumng_ratings() {
+        global $DB;
+
+        list($users, ,$forums, ,$lastposts) = $this->create_basic_test_data();
+        $cm = get_coursemodule_from_instance('forumng', $forums[1]->get_id());
+        $context = \context_module::instance($cm->id);
+
+        $lastposts[1]->rate(5, $users[2]->id);
+
+        $approveduserids = [$users[1]->id, $users[2]->id];
+        $approvedlist = new \core_privacy\local\request\approved_userlist($context, 'mod_forumng', $approveduserids);
+        provider::delete_data_for_users($approvedlist);
+
+        $rating = array_values($DB->get_records('forumng_ratings'));
+
+        $this->assertNotEquals($users[1]->id, $rating[0]->userid);
+    }
+
+    /**
+     * Test for test_delete_data_for_users(), table "forumng_subscriptions".
+     *
+     * @throws \dml_exception
+     * @throws \coding_exception
+     */
+    public function test_delete_data_for_users_forumng_subscriptions() {
+        global $DB;
+
+        list($users, ,$forums) = $this->create_basic_test_data();
+        $cm = get_coursemodule_from_instance('forumng', $forums[2]->get_id());
+        $context = \context_module::instance($cm->id);
+
+        $DB->insert_record('forumng_subscriptions', ['forumngid' => $forums[2]->get_id(), 'userid' => $users[1]->id, 'subscribed' => '1']);
+        $DB->insert_record('forumng_subscriptions', ['forumngid' => $forums[2]->get_id(), 'userid' => $users[2]->id, 'subscribed' => '1']);
+        $DB->insert_record('forumng_subscriptions', ['forumngid' => $forums[2]->get_id(), 'userid' => $users[3]->id, 'subscribed' => '1']);
+
+        $approveduserids = [$users[1]->id,$users[2]->id];
+        $approvedlist = new \core_privacy\local\request\approved_userlist($context, 'mod_forumng', $approveduserids);
+        provider::delete_data_for_users($approvedlist);
+
+        $subscriptions = array_values($DB->get_records('forumng_subscriptions'));
+
+        $this->assertNotEquals($users[1]->id, $subscriptions[0]->userid);
+        $this->assertNotEquals($users[2]->id, $subscriptions[0]->userid);
+        $this->assertNotEquals($users[1]->id, $subscriptions[1]->userid);
+        $this->assertNotEquals($users[2]->id, $subscriptions[1]->userid);
+    }
+
+    /**
+     * Test for test_delete_data_for_users(), table "forumng_read".
+     *
+     * @throws \dml_exception
+     * @throws \coding_exception
+     */
+    public function test_delete_data_for_users_forumng_read() {
+        global $DB;
+
+        list($users, , $forums, $dis) = $this->create_basic_test_data();
+        $cm = get_coursemodule_from_instance('forumng', $forums[1]->get_id());
+        $context = \context_module::instance($cm->id);
+
+        $dis[1]->mark_read(1420070400, $users[1]->id);
+
+        $approveduserids = [$users[1]->id];
+        $approvedlist = new \core_privacy\local\request\approved_userlist($context, 'mod_forumng', $approveduserids);
+        provider::delete_data_for_users($approvedlist);
+
+
+        $read = array_values($DB->get_records('forumng_read'));
+        $this->assertNotEquals($users[1]->id, $read[0]->userid);
+    }
+
+    /**
+     * Test for test_delete_data_for_users(), table "forumng_read_posts".
+     *
+     * @throws \dml_exception
+     * @throws \coding_exception
+     */
+    public function test_delete_data_for_users_forumng_read_posts() {
+        global $DB;
+
+        list($users, , $forums, $dis, $lastposts) = $this->create_basic_test_data();
+        $cm = get_coursemodule_from_instance('forumng', $forums[1]->get_id());
+        $context = \context_module::instance($cm->id);
+
+        $lastposts[1]->mark_read(1420070400, $users[2]->id);
+
+        $approveduserids = [$users[2]->id];
+        $approvedlist = new \core_privacy\local\request\approved_userlist($context, 'mod_forumng', $approveduserids);
+        provider::delete_data_for_users($approvedlist);
+
+
+        $readpost = array_values($DB->get_records('forumng_read_posts'));
+
+        $this->assertNotEquals($users[2]->id, $readpost[0]->userid);
+        $this->assertNotEquals($users[2]->id, $readpost[1]->userid);
+    }
+
+    /**
+     * Test for test_delete_data_for_users(), table "forumng_drafts".
+     *
+     * @throws \dml_exception
+     * @throws \coding_exception
+     */
+    public function test_delete_data_for_users_forumng_drafts() {
+        global $DB;
+
+        list($users, , $forums) = $this->create_basic_test_data();
+        $cm = get_coursemodule_from_instance('forumng', $forums[1]->get_id());
+        $context = \context_module::instance($cm->id);
+
+        $draft = new stdClass();
+        $draft->forumngid = $forums[1]->get_id();
+        $draft->userid = $users[2]->id;
+        $draft->subject = 'Test';
+        $draft->message = 'Test1';
+        $draft->messageformat = '1';
+        $draft->saved = '1420070400';
+        $DB->insert_record('forumng_drafts', $draft);
+
+        $approveduserids = [$users[2]->id];
+        $approvedlist = new \core_privacy\local\request\approved_userlist($context, 'mod_forumng', $approveduserids);
+        provider::delete_data_for_users($approvedlist);
+
+
+        $drafts = array_values($DB->get_records('forumng_drafts'));
+
+        $this->assertNotEquals($users[2]->id, $drafts[0]->userid);
+    }
+
+    /**
+     * Test for test_delete_data_for_users(), table "forumng_flags".
+     *
+     * @throws \dml_exception
+     * @throws \coding_exception
+     */
+    public function test_delete_data_for_users_forumng_flags() {
+        global $DB;
+
+        list($users, , $forums, $dis, $lastposts) = $this->create_basic_test_data();
+        $cm = get_coursemodule_from_instance('forumng', $forums[1]->get_id());
+        $context = \context_module::instance($cm->id);
+
+        $lastposts[1]->set_flagged(true, $users[2]->id);
+        $dis[1]->set_flagged(true, $users[2]->id);
+        $dis[1]->set_flagged(true, $users[3]->id);
+
+        $approveduserids = [$users[2]->id, $users[3]->id];
+        $approvedlist = new \core_privacy\local\request\approved_userlist($context, 'mod_forumng', $approveduserids);
+        provider::delete_data_for_users($approvedlist);
+
+
+        $flags = array_values($DB->get_records('forumng_flags'));
+
+        $this->assertNotEquals($users[2]->id, $flags[0]->userid);
+        $this->assertNotEquals($users[3]->id, $flags[0]->userid);
+        $this->assertNotEquals($users[2]->id, $flags[2]->userid);
+        $this->assertNotEquals($users[3]->id, $flags[2]->userid);
     }
 }

@@ -25,7 +25,9 @@
 namespace mod_forumng\privacy;
 
 use \core_privacy\local\request\approved_contextlist;
+use \core_privacy\local\request\approved_userlist;
 use \core_privacy\local\request\writer;
+use \core_privacy\local\request\userlist;
 use \core_privacy\local\request\helper as request_helper;
 use \core_privacy\local\metadata\collection;
 use \core_privacy\local\request\transform;
@@ -47,7 +49,10 @@ class provider implements
         \core_privacy\local\request\plugin\provider,
 
         // This plugin has some sitewide user preferences to export.
-        \core_privacy\local\request\user_preference_provider {
+        \core_privacy\local\request\user_preference_provider,
+
+        // This plugin currently implements the core_userlist_provider interface.
+        \core_privacy\local\request\core_userlist_provider {
 
     use subcontext_info;
 
@@ -157,7 +162,7 @@ class provider implements
              LEFT JOIN {forumng_read} hasreadd ON hasreadd.discussionid = d.id AND hasreadd.userid = :hasreadduserid
              LEFT JOIN {forumng_read_posts} hasreadp ON hasreadp.postid = p.id AND hasreadp.userid = :hasreadpuserid
              LEFT JOIN {forumng_drafts} draft ON draft.forumngid = f.id AND draft.userid = :draftuserid
-             LEFT JOIN {forumng_flags} flag ON flag.postid = p.id AND flag.discussionid = d.id AND flag.userid = :flaguserid
+             LEFT JOIN {forumng_flags} flag ON flag.postid = p.id OR flag.discussionid = d.id AND flag.userid = :flaguserid
                        {$ratingsql->join}
                  WHERE (
                        p.userid = :postuserid OR
@@ -726,6 +731,9 @@ class provider implements
                 'forumng_read_posts', $postquery, $param
         );
         $DB->delete_records_select(
+                'forumng_flags', $postquery, $param
+        );
+        $DB->delete_records_select(
                 'forumng_posts', $query, $param
         );
         // Delete all ratings in the context.
@@ -743,7 +751,7 @@ class provider implements
         $fs = get_file_storage();
         $fs->delete_area_files($context->id, 'mod_forumng', 'post');
         $fs->delete_area_files($context->id, 'mod_forumng', 'draft');
-        $fs->delete_area_files($context->id, 'mod_forumng', 'attachments');
+        $fs->delete_area_files($context->id, 'mod_forumng', 'attachment');
     }
 
     /**
@@ -756,6 +764,7 @@ class provider implements
         $user = $contextlist->get_user();
         $userid = $user->id;
         $fs = get_file_storage();
+        $admin = get_admin();
         foreach ($contextlist as $context) {
             // Get the course module.
             $cm = $DB->get_record('course_modules', ['id' => $context->instanceid]);
@@ -829,21 +838,31 @@ class provider implements
             $DB->set_field_select('forumng_posts', 'message', '', $postsql, $postparams);
             $DB->set_field_select('forumng_posts', 'messageformat', FORMAT_PLAIN, $postsql, $postparams);
 
-            // Mark the post as deleted.
-            $DB->set_field_select('forumng_posts', 'deleted', 1, $postsql, $postparams);
-
             \core_rating\privacy\provider::delete_ratings_select($context, 'mod_forumng', 'post',
                     "IN ($postidsql)", $postparams);
+            // We should delete all rating belong to user.
+            $DB->delete_records_select('rating', "contextid = :contextid
+                                                               AND component = :component 
+                                                               AND ratingarea = :ratingarea
+                                                               AND userid = :userid",
+                    ['contextid' => $context->id, 'component' => 'mod_forumng', 'ratingarea' => 'post', 'userid' => $userid]);
 
             $postquery = 'postid IN (SELECT p.id FROM {forumng_discussions} d
                                JOIN {forumng_posts} p on p.discussionid = d.id and p.userid = :userid
                               WHERE d.forumngid = :forumngid)';
             $DB->delete_records_select('forumng_read_posts', $postquery, ['userid' => $userid, 'forumngid' => $forum->id]);
-
+            $DB->delete_records_select(
+                    'forumng_flags',
+                    "userid = :userid AND postid IN (SELECT p.id FROM {forumng_discussions} d
+                                                             JOIN {forumng_posts} p on p.discussionid = d.id
+                                                            WHERE d.forumngid = :forumngid)", ['userid' => $userid, 'forumngid' => $forum->id]
+            );
             $fs->delete_area_files_select($context->id, 'mod_forumng', 'post',
                     "IN ($postidsql)", $postparams);
-            $fs->delete_area_files_select($context->id, 'mod_forumng', 'attachments',
+            $fs->delete_area_files_select($context->id, 'mod_forumng', 'attachment',
                     "IN ($postidsql)", $postparams);
+            // Set userid to admin.
+            $DB->set_field_select('forumng_posts', 'userid', $admin->id, $postsql, $postparams);
         }
     }
 
@@ -860,5 +879,182 @@ class provider implements
         } else {
             return get_string('privacy_somebodyelse', 'mod_forumng');
         }
+    }
+
+    /**
+     * Get the list of users who have data within a context.
+     *
+     * @param  userlist $userlist The userlist containing the list of users who have data in this context/plugin combination.
+     */
+    public static function get_users_in_context(userlist $userlist){
+        $context = $userlist->get_context();
+
+        if(!is_a($context, \context_module::class)) {
+            return;
+        }
+
+        $params = [
+            'instanceid' => $context->instanceid,
+            'modulename' => 'forumng',
+        ];
+
+        // Get list of users for "forumng_posts" table.
+        $sql = "SELECT p.userid
+                  FROM {course_modules} cm
+                  JOIN {forumng} f ON f.id = cm.instance
+             LEFT JOIN {forumng_discussions} d ON d.forumngid = f.id
+             LEFT JOIN {forumng_posts} p ON p.discussionid = d.id
+                 WHERE cm.id = :instanceid";
+        $userlist->add_from_sql('userid', $sql, $params);
+
+        // Get list of users for "forumng_ratings" table.
+        $sql = "SELECT r.userid
+                  FROM {course_modules} cm
+                  JOIN {forumng} f ON f.id = cm.instance
+             LEFT JOIN {forumng_discussions} d ON d.forumngid = f.id
+             LEFT JOIN {forumng_posts} p ON p.discussionid = d.id
+             LEFT JOIN {forumng_ratings} r ON r.postid = p.id
+                 WHERE cm.id = :instanceid";
+        $userlist->add_from_sql('userid', $sql, $params);
+
+        // Get list of users for "forumng_subscriptions" table.
+        $sql = "SELECT sub.userid
+                  FROM {course_modules} cm
+                  JOIN {forumng} f ON f.id = cm.instance
+             LEFT JOIN {forumng_subscriptions} sub ON sub.forumngid = f.id
+                 WHERE cm.id = :instanceid";
+        $userlist->add_from_sql('userid', $sql, $params);
+
+        // Get list of users for "forumng_read" table.
+        $sql = "SELECT hasreadd.userid
+                  FROM {course_modules} cm
+                  JOIN {forumng} f ON f.id = cm.instance
+             LEFT JOIN {forumng_discussions} d ON d.forumngid = f.id
+             LEFT JOIN {forumng_read} hasreadd ON hasreadd.discussionid = d.id
+                 WHERE cm.id = :instanceid";
+        $userlist->add_from_sql('userid', $sql, $params);
+
+        // Get list of users for "forumng_read_posts" table.
+        $sql = "SELECT hasreadp.userid
+                  FROM {course_modules} cm
+                  JOIN {forumng} f ON f.id = cm.instance
+             LEFT JOIN {forumng_discussions} d ON d.forumngid = f.id
+             LEFT JOIN {forumng_posts} p ON p.discussionid = d.id
+             LEFT JOIN {forumng_read_posts} hasreadp ON hasreadp.postid = p.id
+                 WHERE cm.id = :instanceid";
+        $userlist->add_from_sql('userid', $sql, $params);
+
+        // Get list of users for "forumng_drafts" table.
+        $sql = "SELECT draft.userid
+                  FROM {course_modules} cm
+                  JOIN {forumng} f ON f.id = cm.instance
+             LEFT JOIN {forumng_drafts} draft ON draft.forumngid = f.id
+                 WHERE cm.id = :instanceid";
+        $userlist->add_from_sql('userid', $sql, $params);
+
+        // Get list of users for "forumng_flags" table.
+        $sql = "SELECT flag.userid
+                  FROM {course_modules} cm
+                  JOIN {forumng} f ON f.id = cm.instance
+             LEFT JOIN {forumng_discussions} d ON d.forumngid = f.id
+             LEFT JOIN {forumng_posts} p ON p.discussionid = d.id
+             LEFT JOIN {forumng_flags} flag ON flag.postid = p.id OR flag.discussionid = d.id
+                 WHERE cm.id = :instanceid";
+        $userlist->add_from_sql('userid', $sql, $params);
+    }
+
+    /**
+     * Delete multiple users within a single context.
+     *
+     * @param approved_userlist $userlist The approved context and user information to delete information for.
+     * @throws \coding_exception
+     * @throws \dml_exception
+     */
+    public static function delete_data_for_users(approved_userlist $userlist) {
+        global $DB;
+
+        $context = $userlist->get_context();
+        $fs = get_file_storage();
+        $admin = get_admin();
+        $cm = $DB->get_record('course_modules', ['id' => $context->instanceid]);
+        $forum = $DB->get_record('forumng', ['id' => $cm->instance]);
+
+        if (!is_a($context, \context_module::class)) {
+            return;
+        }
+        list($userinsql, $userinparams) = $DB->get_in_or_equal($userlist->get_userids(), SQL_PARAMS_NAMED);
+
+        $draftsql = "SELECT id FROM {forumng_drafts} WHERE userid {$userinsql}";
+
+
+        $params = array_merge(['forumngid' => $forum->id], $userinparams);
+        $fs->delete_area_files_select($context->id, 'mod_forumng', 'draft',
+            "IN ($draftsql)", $params);
+        $DB->delete_records_select(
+            'forumng_drafts',
+            "userid {$userinsql} AND forumngid = :forumngid",
+            $params);
+
+        // Delete all discussion items.
+        $DB->delete_records_select(
+            'forumng_subscriptions',
+            "userid {$userinsql} AND forumngid = :forumngid",
+            $params
+        );
+
+
+        $DB->delete_records_select(
+            'forumng_read',
+            "userid {$userinsql} AND discussionid IN (SELECT id FROM {forumng_discussions} WHERE forumngid = :forumngid)",
+            $params
+        );
+
+        $DB->delete_records_select(
+            'forumng_flags',
+            "userid {$userinsql} AND discussionid IN (SELECT id FROM {forumng_discussions} WHERE forumngid = :forumngid)",
+            $params
+        );
+
+        $childpostsql = "userid {$userinsql} AND parentpostid IS NOT NULL AND discussionid IN
+                    (SELECT id FROM {forumng_discussions} WHERE forumngid = :forumngid)";
+        $postsql = "userid {$userinsql} AND discussionid IN (SELECT id FROM {forumng_discussions}
+                                                              WHERE forumngid = :forumngid)";
+        $postidsql = "SELECT fp.id FROM {forumng_posts} fp WHERE {$postsql}";
+
+        // Update the subject.
+        $DB->set_field_select('forumng_posts', 'subject', '', $childpostsql, $params);
+
+        // Update the subject and its format.
+        $DB->set_field_select('forumng_posts', 'message', '', $postsql, $params);
+        $DB->set_field_select('forumng_posts', 'messageformat', FORMAT_PLAIN, $postsql, $params);
+
+        \core_rating\privacy\provider::delete_ratings_select($context, 'mod_forumng', 'post',
+            "IN ($postidsql)", $params);
+        // We should delete all rating belong to user.
+        $DB->delete_records_select('rating', "contextid = :contextid
+                                                           AND component = :component 
+                                                           AND ratingarea = :ratingarea
+                                                           AND userid {$userinsql}",
+                array_merge(['contextid' => $context->id, 'component' => 'mod_forumng', 'ratingarea' => 'post'], $userinparams));
+
+        $postquery = "postid IN (SELECT p.id FROM {forumng_discussions} d
+                                   JOIN {forumng_posts} p on p.discussionid = d.id and p.userid {$userinsql}
+                                  WHERE d.forumngid = :forumngid)";
+        $DB->delete_records_select('forumng_read_posts', $postquery, $params);
+        $DB->delete_records_select('forumng_ratings', $postquery, $params);
+
+        $fs->delete_area_files_select($context->id, 'mod_forumng', 'post',
+            "IN ($postidsql)", $params);
+        $fs->delete_area_files_select($context->id, 'mod_forumng', 'attachment',
+            "IN ($postidsql)", $params);
+
+        $DB->delete_records_select(
+            'forumng_flags',
+            "userid {$userinsql} AND postid IN (SELECT p.id FROM {forumng_discussions} d
+                                                        JOIN {forumng_posts} p on p.discussionid = d.id
+                                                       WHERE d.forumngid = :forumngid)", $params
+        );
+        // Set userid to admin.
+        $DB->set_field_select('forumng_posts', 'userid', $admin->id, $postsql, $params);
     }
 }
