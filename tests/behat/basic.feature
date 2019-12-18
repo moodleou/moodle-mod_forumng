@@ -95,6 +95,8 @@ Feature: Add forumng activity and test basic functionality
     And ".forumng-p2 a.forumng-next" "css_element" should exist
     And ".forumng-p2 a.forumng-prev" "css_element" should exist
     And ".forumng-p3 a.forumng-next" "css_element" should not exist
+    And ".forumng-p2 .forumng-jumpto .forumng-parent .accesshide" "css_element" should exist
+    And ".forumng-p3 .forumng-jumpto .forumng-parent .accesshide" "css_element" should exist
     Given I reply to post "3" with the following data:
       | Message | REPLY3 |
     Then I should see "REPLY3"
