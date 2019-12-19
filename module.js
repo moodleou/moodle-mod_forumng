@@ -1008,17 +1008,27 @@ M.mod_forumng = {
         // Pick max indent level
         var region = this.Y.DOM.region(document.getElementById('forumng-main'));
         var width = region.right - region.left;
-        var minwidth = 550; // Min size at which the stupid editor doesn't get cut off
+        var ismobile = window.matchMedia('(max-width: 767px)').matches;
+        // Min size at which the editor still looks ok
+        var minwidth = ismobile ? 256 : 550;
         var maxindentpixels = width - minwidth;
-        var stopIndent;
+        // This can't go lower than 1, otherwise the indentation never stops
+        var stopIndent = 1;
 
-        // There are 5 indents of 40px then 5 of 30px, then all 20px
-        if (maxindentpixels > 350) {
-            stopIndent = 10 + Math.floor((maxindentpixels - 350) / 20);
-        } else if (maxindentpixels > 200) {
-            stopIndent = 5 + Math.floor((maxindentpixels - 200) / 30);
+        if (ismobile) {
+            // All indents are 6px at this width
+            if (maxindentpixels > 6) {
+                stopIndent = Math.floor(maxindentpixels / 6);
+            }
         } else {
-            stopIndent = Math.floor(maxindentpixels / 40);
+            // There are 5 indents of 40px then 5 of 30px, then all 20px
+            if (maxindentpixels > 350) {
+                stopIndent = 10 + Math.floor((maxindentpixels - 350) / 20);
+            } else if (maxindentpixels > 200) {
+                stopIndent = 5 + Math.floor((maxindentpixels - 200) / 30);
+            } else if (maxindentpixels >= 40) {
+                stopIndent = Math.floor(maxindentpixels / 40);
+            }
         }
 
         // Fix indents for all tags
