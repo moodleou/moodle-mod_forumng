@@ -1,5 +1,5 @@
 @ou @ou_vle @mod @mod_forumng
-Feature: Test upload
+Feature: Test upload in ForumNG
   With Plus symbol "+" in file name
   I can download these files in post
 
@@ -11,7 +11,7 @@ Feature: Test upload
       | activity | name            | introduction           | course | idnumber |
       | forumng  | Test forum name | Test forum description | C1     | forumng1 |
 
-  @javascript
+  @javascript @_file_upload
   Scenario: Test upload file with Plus symbol "+" in file name.
     Given I log in as "admin"
     And I am on "Course 1" course homepage
