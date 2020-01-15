@@ -15,7 +15,7 @@ Feature: To Create a ForumNG on Learn2
       | user     | course | role    |
       | student1 | TEST1  | student |
 
-  @javascript
+  @javascript @_file_upload
   Scenario: Verify "Split"
     Given I log in as "admin"
     Given the following "activities" exist:
@@ -89,7 +89,7 @@ Feature: To Create a ForumNG on Learn2
     And I press "Post discussion"
     Then I should see "Save as Draft"
 
-  @javascript
+  @javascript @_file_upload
   Scenario: Verify "Attachment"
     Given I log in as "admin"
     And I am on "Course1" course homepage with editing mode on
@@ -109,7 +109,7 @@ Feature: To Create a ForumNG on Learn2
       | Attachment | mod/forumng/tests/fixtures/Reply.txt |
     And following "Reply.txt" should download between "372" and "375" bytes
 
-  @javascript
+  @javascript @_file_upload
   Scenario: Verify "Save as draft Attachment"
     Given I log in as "admin"
     And I am on "Course1" course homepage with editing mode on
