@@ -115,3 +115,22 @@ Feature: Export discussions using portfolio
     And I set the field "Select post" to "1"
     When I press "Confirm selection"
     Then I should see "Downloading"
+
+  Scenario: Try and get as far as we can exporting a long titled discussion
+    Given the following config values are set as admin:
+      | enableportfolios | 1 |
+    And I log in as "admin"
+    And I am on site homepage
+    And I navigate to "Plugins > Portfolios > Manage portfolios" in site administration
+    And I set the field with xpath "//form[@id='applytodownload']/select" to "Enabled and visible"
+    And I click on "form#applytodownload input[type='submit']" "css_element"
+    And I press "Save"
+    And I am on "Course 1" course homepage
+    And I follow "Test forum"
+    And I add a discussion with the following data:
+      | Subject | Option A - 1. A contribution to the Week 11 activity forum containing completed versions of Table 10.5 and of Table 11.1. The message should contain a request for feedback. Please feedback to another student on his or her recruitment and selection plan. |
+      | Message | abc |
+    When I press "Export"
+    Then I should see "Do you want to include the entire discussion, or only selected posts"
+    Given I press "Discussion"
+    Then I should see "Downloading"

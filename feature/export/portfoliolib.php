@@ -311,9 +311,11 @@ class forumng_all_portfolio_caller extends forumng_portfolio_caller_base {
                 $content = $this->content . $content;
                 $forum = mod_forumng::get_from_cmid($this->cm->id, $this->cloneid);
                 $name = $this->make_filename_safe($forum->get_name()) . '.html';
+                $name = shorten_filename($name, 200);
             }
         } else {
             $name = $this->make_filename_safe($discussion->get_subject(true));
+            $name = shorten_filename($name, 200);
             if (in_array($name, $this->filenames)) {
                 // Make unique filename.
                 for ($a = 1; $a < 100; $a++) {
