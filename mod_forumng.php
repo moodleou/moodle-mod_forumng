@@ -5553,7 +5553,7 @@ ORDER BY
             }
 
             $rs = $DB->get_records_sql("
-                    SELECT t.*, count(t.id) AS count
+                    SELECT t.id, t.name, t.rawname, count(t.id) AS count
                       FROM {tag} t
                 INNER JOIN {tag_instance} ti ON t.id = ti.tagid
                 INNER JOIN {forumng_discussions} fd ON fd.id = ti.itemid

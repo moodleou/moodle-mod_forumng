@@ -28,4 +28,4 @@ $plugin->version = 2019071700;
 $plugin->requires = 2016052300;
 $plugin->component = 'mod_forumng';
 $plugin->maturity = MATURITY_STABLE;
-$plugin->release = '3.6 r2';
+$plugin->release = '3.7 r2';
