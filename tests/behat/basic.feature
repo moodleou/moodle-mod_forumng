@@ -36,7 +36,7 @@ Feature: Add forumng activity and test basic functionality
     And I follow "Test forum name"
     Then I should see "Discussion 1" in the ".forumng-subject" "css_element"
     And "//td[1]//img" "xpath_element" should not exist in the "Discussion 1" "table_row"
-    And I should see "1" in the "//table[contains(@class,'forumng-discussionlist')]/tbody/tr[1]//td[3]" "xpath_element"
+    And I should see "1" in the "//table[contains(@class,'forumng-discussionlist')]/tbody/tr[1]//td[4]" "xpath_element"
     Given I add a discussion with the following data:
       | Subject | Discussion 2 |
       | Message | abcdefg |
