@@ -38,7 +38,7 @@ $addons = [
                 'downloadbutton' => false,
                 'styles' => [
                     'url' => $CFG->wwwroot . '/mod/forumng/mobileapp.css',
-                    'version' => 2018111600
+                    'version' => 2020031400
                 ],
                 'init' => 'mobile_forumng_init'
             ]
@@ -58,7 +58,14 @@ $addons = [
             ['cannotcreatereply', 'forumng'],
             ['postreply', 'forumng'],
             ['optionalsubject', 'forumng'],
-            ['markpostread', 'forumng']
+            ['markpostread', 'forumng'],
+            ['markallread', 'forumng'],
+            ['sortbydateoflastpost', 'forumng'],
+            ['sortbytitle','forumng'],
+            ['sortbymostunreadposts', 'forumng'],
+            ['drafts', 'forumng'],
+            ['draft', 'forumng'],
+            ['date', 'forumng'],
         ]
     ]
 ];

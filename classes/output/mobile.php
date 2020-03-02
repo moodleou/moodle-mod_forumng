@@ -30,6 +30,7 @@ use context_module;
 
 require_once(__DIR__ . '/../../mod_forumng.php');
 require_once(__DIR__ . '/../../mod_forumng_utils.php');
+require_once(__DIR__ . '/../../renderer.php');
 require_once($CFG->libdir . '/externallib.php');
 
 /**
@@ -50,6 +51,14 @@ class mobile {
      * @var int NUMBER_POSTS Number of posts to display initially.
      */
     const NUMBER_POSTS = 5;
+
+    /** Discussion sort: by date. */
+    const SORT_DATE = 0;
+    /** Discussion sort: by subject. */
+    const SORT_SUBJECT = 1;
+    /** Discussion sort: by unread replies. */
+    const SORT_UNREAD = 4;
+
 
     /**
      * Returns shared (global) templates and information for the mobile app feature.
@@ -81,7 +90,9 @@ class mobile {
 
         $args = (object) $args;
         $selectedgroupid = empty($args->group) ? 0 : $args->group;
+        $isupdate = empty($args->isupdate) ? 0 : 1;
         $cmid = $args->cmid;
+        $sortid = empty($args->sortid) ? 0 : $args->sortid;
 
         // This is based on view.php and forumngtype_general.php.
         $forumng = \mod_forumng::get_from_cmid($cmid, \mod_forumng::CLONE_DIRECT);
@@ -96,9 +107,6 @@ class mobile {
         $cm = $forumng->get_course_module();
         $context = $forumng->get_context();
         $groupid = \mod_forumng::get_activity_group($cm, true); // Null if student not in a group, or in two groups.
-        if ($selectedgroupid > 0 && is_null($groupid)) {
-            $groupid = $selectedgroupid;
-        }
         $forumng->require_view($groupid); // This can throw an error about aag capability (in an error dialog).
 
         // Completion and logging.
@@ -114,23 +122,39 @@ class mobile {
         $groupsmenu = ''; // User in one group - display the group name.
         $groups = []; // User in more than one group, or has access to all - display group selector.
         $allowedgroups = groups_get_activity_allowed_groups($cm);
-        if ($allowedgroups) {
-            if (count($allowedgroups) == 1) {
-                // Get the text for the current group.
-                $groupsmenu = groups_print_activity_menu($cm, $forumng->get_url(\mod_forumng::PARAM_HTML), true);
-            } else {
-                $hasgroups = true;
-                $groups[] = (object)['groupid' => 0, 'groupname' => get_string('allparticipants')];
-                foreach ($allowedgroups as $g) {
-                    $groups[] = (object)['groupid' => $g->id, 'groupname' => format_string($g->name)];
+        $activegroup = groups_get_activity_group($cm, true, $allowedgroups);
+        $groupmode = $forumng->get_group_mode();
+        if ($groupmode) {
+            if ($allowedgroups) {
+                if (count($allowedgroups) == 1) {
+                    // Get the text for the current group.
+                    $groupsmenu = groups_print_activity_menu($cm, $forumng->get_url(\mod_forumng::PARAM_HTML), true);
+                } else {
+                    $hasgroups = true;
+                    $aag = has_capability('moodle/site:accessallgroups', $context);
+                    if ($groupmode == VISIBLEGROUPS or $aag) {
+                        $groups[] = (object)['groupid' => 0, 'groupname' => get_string('allparticipants')];
+                        $groupid = $activegroup;
+                    }
+                    foreach ($allowedgroups as $g) {
+                        $groups[] = (object)['groupid' => $g->id, 'groupname' => format_string($g->name)];
+                    }
                 }
+            }
+
+            if (!is_null($selectedgroupid)) {
+                $groupid = $selectedgroupid;
+            }
+
+            if (!$isupdate) {
+                $groupid = $activegroup;
             }
         }
 
         // Discussions.
         $canviewhidden = $forumng->can_view_hidden();
         $page = 1; // Forumng only serves 'pages' of discussions. So start with the first page, infinite scroll provides more.
-        $discussionlist = $forumng->get_discussion_list($groupid, $canviewhidden);
+        $discussionlist = $forumng->get_discussion_list($groupid, $canviewhidden, '', $sortid);
         $totaldiscussions = $discussionlist->get_total_discussions();
         $hasdiscussions = $totaldiscussions > 0;
         $sticky = $discussionlist->get_sticky_discussions();
@@ -140,10 +164,83 @@ class mobile {
         self::prep_discussions($forumng, $sticky, $discussions);
         self::prep_discussions($forumng, $normal, $discussions);
 
+        // Print info about the start and end dates of the forum from the form setting.
+        $message = '';
+        $stringend =
+            has_capability('mod/forumng:ignorepostlimits', $forumng->get_context())
+                ? 'capable' : '';
+        $startdate = $forumng->get_postingfrom();
+        $enddate = $forumng->get_postinguntil();
+
+        if (time() < $startdate) {
+            $message = get_string('beforestartdate' . $stringend,
+                'forumng', \mod_forumng_utils::display_date($startdate));
+        } else if (time() < $enddate) {
+            $message = get_string('beforeenddate' . $stringend,
+                'forumng', \mod_forumng_utils::display_date($enddate));
+        }
+
+        if ($enddate && time() >= $enddate) {
+            $message = get_string('afterenddate' . $stringend,
+                'forumng', \mod_forumng_utils::display_date($enddate));
+
+        }
+
+        // Draft posts.
+        $drafts = $forumng->get_drafts();
+        $hasdrafts = false;
+        $draftposts = [];
+        $decorators = '';
+        $shortenedlenght = 40;
+        if (count($drafts) > 0) {
+            $hasdrafts = true;
+
+            $renderer = $forumng->get_type()->get_renderer();
+            $heading = get_string('drafts', 'forumng');
+            $urlhelp = $renderer->image_url('help')->out();
+            $althelp = get_string('helpprefix3', 'format_oustudyplan', $heading);
+            $decorators = (object)['heading' => $heading, 'url' => $urlhelp, 'alt' => $althelp,
+                'content' => get_string('drafts_help', 'forumng')];
+            foreach ($drafts as $draft) {
+                $subject = format_string($draft->get_subject());
+                $subject = format_text($subject, FORMAT_HTML);
+                $summary = strip_tags($draft->get_formatted_message($forumng));
+                $summary = self::one_line($summary, $shortenedlenght);
+                $summary = format_text($summary, FORMAT_HTML);
+                if (trim($summary) === '') {
+                    $summary = get_string('notext', 'forumng');
+                }
+                if (strlen($subject) >= $shortenedlenght) {
+                    $subject = self::one_line($subject, $shortenedlenght);
+                    $summary = '';
+                }
+                if ($draft->is_reply()) {
+                    $user = fullname($draft->get_reply_to_user(), has_capability('moodle/site:viewfullnames', $context));
+                    $discussionsubject = format_string($draft->get_discussion_subject()) . get_string('draft_inreplyto',
+                            'forumng', $user);
+                } else {
+                    $discussionsubject = get_string('draft_newdiscussion', 'forumng');
+                }
+                $date = \mod_forumng_utils::display_date($draft->get_saved());
+                $draftposts[] = (object)['subject' => $subject, 'message' => $summary,
+                    'discussionsubject' => $discussionsubject, 'date' => $date];
+            }
+        }
+
+        // Sort discussion.
+        $selectedsort = self::SORT_DATE;
+        if ($sortid > 0) {
+            $selectedsort = $sortid;
+        }
+
+        $sortoption[] = (object)['sortid' => self::SORT_SUBJECT, 'title' => get_string('sortbytitle', 'forumng')];
+        $sortoption[] = (object)['sortid' => self::SORT_UNREAD, 'title' => get_string('sortbymostunreadposts', 'forumng')];
+        $sortoption[] = (object)['sortid' => self::SORT_DATE, 'title' => get_string('sortbydateoflastpost', 'forumng')];
+
         // Data prep.
         $forum = new \stdClass();
         $forum->id = $forumng->get_id();
-        // Not used currently $forum->name = format_string($forumng->get_name()).
+        $forum->name = format_string($forumng->get_name());
         // Not used currently $forum->intro = $cm->get_formatted_content().
         list($forum->introduction, $unusedintroductionformat) =
                 external_format_text($forumng->get_introduction(), $forumng->get_introduction_format(), $context->id,
@@ -157,7 +254,10 @@ class mobile {
             'hasdiscussions' => $hasdiscussions,
             'cmid' => $cm->id,
             'courseid' => $course->id,
-            'canstartdiscussion' => $forumng->can_start_discussion($groupid, $whynot)
+            'canstartdiscussion' => $forumng->can_start_discussion($groupid, $whynot),
+            'message' => $message,
+            'decorators' => $decorators,
+            'hasdrafts' => $hasdrafts
         ];
         $html = $OUTPUT->render_from_template('mod_forumng/mobile_discussions_page', $data);
 
@@ -174,7 +274,10 @@ class mobile {
                 'hasGroups' => $hasgroups, // Used to hide/show the FAB.
                 'discussions' => json_encode($discussions), // Cannot put arrays in otherdata.
                 'totaldiscussions' => $totaldiscussions,
-                'page' => $page
+                'page' => $page,
+                'draftposts' => json_encode($draftposts),
+                'selectedsort' => $selectedsort,
+                'sortoption' => json_encode($sortoption)
             ],
             'files' => []
         ];
@@ -204,6 +307,11 @@ class mobile {
                     $alts[] = get_string('alt_discussion_deleted', 'forumng');
                     $icons[] = []; // No icon, text will be output on its own.
                 }
+                if ($discussion->is_locked()) {
+                    $classes .= ' forumng-locked';
+                    $alts[] = get_string('alt_discussion_locked', 'forumng');
+                    $icons[] = ['i/unlock', 'moodle'];
+                }
                 if (!$discussion->is_within_time_period()) {
                     $classes .= ' forumng-timeout';
                     $alts[] = get_string('alt_discussion_timeout', 'forumng');
@@ -213,11 +321,6 @@ class mobile {
                     $classes .= ' forumng-sticky';
                     $alts[] = get_string('alt_discussion_sticky', 'forumng');
                     $icons[] = ['sticky', 'mod_forumng'];
-                }
-                if ($discussion->is_locked()) {
-                    $classes .= ' forumng-locked';
-                    $alts[] = get_string('alt_discussion_locked', 'forumng');
-                    $icons[] = ['i/unlock', 'moodle'];
                 }
                 $renderer = $forum->get_type()->get_renderer();
                 foreach ($icons as $index => $icon) {
@@ -242,66 +345,14 @@ class mobile {
                 }
                 $unreadpostsalt = get_string('hasunreadposts', 'forumng');
                 // Last post.
-                $lastposter = $discussion->get_last_post_user();
-                $lastuser = $discussion->get_forum()->display_user_name($lastposter);
-                $lastpostcell = self::date_or_time($discussion->get_time_modified()) . ' ';
-                $moderator = get_string('moderator', 'forumng');
-                $lastposteranon = $discussion->get_last_post_anon();
-                if ($lastposteranon == \mod_forumng::ASMODERATOR_IDENTIFY) {
-                    $lastpostcell .= $lastuser . ' (' . $moderator. ')';
-                } else if ($lastposteranon == \mod_forumng::ASMODERATOR_ANON) {
-                    if ($discussion->get_forum()->can_post_anonymously()) {
-                        $lastpostcell .= $lastuser . ' (' . $moderator. ')';
-                    } else {
-                        $lastpostcell .= $moderator;
-                    }
-                } else {
-                    if (\mod_forumng_utils::display_discussion_list_item_author_anonymously($discussion->get_forum(), $USER->id)) {
-                        $lastpostcell .= get_string('identityprotected', 'forumng');
-                    } else {
-                        $lastpostcell .= $lastuser;
-                    }
-                }
-                // Author or started by.
-                $posteranon = $discussion->get_poster_anon();
-                $poster = $discussion->get_poster();
-                $username = $discussion->get_forum()->display_user_name($poster);
-                $moderator = get_string('moderator', 'forumng');
-                if ($posteranon == \mod_forumng::ASMODERATOR_IDENTIFY) {
-                    $startedby = $username . ' (' . $moderator . ')';
-                } else if ($posteranon == \mod_forumng::ASMODERATOR_ANON) {
-                    if ($discussion->get_forum()->can_post_anonymously()) {
-                        $startedby = $username . ' (' . $moderator . ')';
-                    } else {
-                        $startedby = $moderator;
-                    }
-                } else {
-                    if (\mod_forumng_utils::display_discussion_list_item_author_anonymously($discussion->get_forum(), $USER->id)) {
-                        $startedby = get_string('identityprotected', 'forumng');
-                    } else {
-                        $startedby = $username;
-                    }
-                }
-                // No of posts.
-                $noofposts = $discussion->get_num_posts() - 1; // Do not count the initial post as a reply.
-                if ($noofposts == 1) {
-                    $noofposts = strtolower(get_string('totalreply', 'forumng', $noofposts));
-                } else {
-                    $noofposts = strtolower(get_string('totalreplies', 'forumng', $noofposts));
-                }
-                // Date root post created.
-                $starteddate = self::date_or_time($discussion->get_root_post()->get_created());
+                $lastpostcell = \mod_forumng_utils::display_date($discussion->get_time_modified());
 
                 $discussions[] = (object)[
                     'id' => $discussion->get_id(),
                     'subject' => $subject,
                     'unread' => '' . $unreadposts,
                     'unreadpostsalt' => $unreadpostsalt,
-                    'startedby' => $startedby,
-                    'starteddate' => $starteddate,
-                    'noofposts' => $noofposts,
                     'lastpost' => $lastpostcell,
-                    'lastpostuserid' => $lastposter->id, // Linking to last user is not completed yet.
                     'classes' => $classes,
                     'decorators' => $decorators
                 ];

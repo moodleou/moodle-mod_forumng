@@ -2,6 +2,8 @@
 .mma-forumng-image-correction {
     display: inline;
     width: auto;
+    min-width: 25px;
+    vertical-align: middle;
 }
 .mma-forumng-gray-text {
     color: #767676;
@@ -35,6 +37,126 @@
     min-height: 10px;
 }
 
+/* Fixed large border at the bottom of FAB*/
+.mma-forumng-discussion-listing .fixed-content,
+.mma-forumng-discussion-listing .scroll-content {
+    margin-bottom: 0px !important;
+}
+
+.mma-forumng-discussion-list .mma-forumng-discussion-title {
+    font-weight: 700;
+    color: #002158;
+    font-size: 2em;
+    margin-bottom: 10px !important;
+}
+
+.mma-forumng-discussion-list .mma-forumng-drafts ion-col strong {
+    display: inline-block;
+}
+
+.mma-forumng-discussion-list core-format-text[maxHeight].core-text-formatted.core-shortened.mma-forumng-discussion-introduction {
+    max-height: 100px !important;
+}
+
+.mma-forumng-discussion-list core-format-text[maxHeight].core-text-formatted.core-shortened.mma-forumng-discussion-introduction:before {
+    background: -webkit-gradient(left top, left bottom, color-stop(calc(100% - 50px), rgba(255, 255, 255, 0)), color-stop(calc(100% - 15px), white));
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0) calc(100% - 50px), white calc(100% - 15px));
+}
+
+.mma-forumng-discussion-list core-format-text[maxHeight].core-text-formatted.core-shortened.mma-forumng-discussion-introduction .core-show-more {
+    display: block;
+}
+
+.mma-forumng-discussion-list .mma-forumng-drafts,
+.mma-forumng-discussion-list .mma-forumng-drafts ion-col {
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.mma-forumng-discussion-list .mma-forumng-drafts ion-col {
+    width: 95%;
+}
+
+.mma-forumng-discussion-list .mma-forumng-drafts .mma-forumng-draft-heading img {
+    vertical-align: text-bottom;
+}
+
+.mma-forumng-discussion-list .mma-forumng-drafts ion-row,
+.mma-forumng-discussion-list ion-item.mma-forumng-discussion-item {
+    border-bottom: 0.55px solid #c8c7cc !important;
+}
+
+.mma-forumng-discussion-list .mma-forumng-discussion-show-dates {
+    margin-bottom: 10px;
+    padding: 5px;
+    border: 1px dotted #555;
+}
+
+.mma-forumng-discussion-list .mma-forumng-read-only {
+    display: inline-block;
+    font-weight: bold;
+    white-space: nowrap;
+    background: #002158;
+    color: #fff;
+    width: auto;
+    min-width: 1.5625em;
+    border-radius: 50%;
+    font-size: initial;
+    vertical-align: middle;
+    height: 1.5625em;
+    text-align: center;
+}
+
+.mma-forumng-discussion-list .mma-forumng-read-only core-format-text {
+    font-size: 0.7em;
+}
+
+.mma-forumng-discussion-list .mma-forumng-discussion {
+    width: 100%;
+}
+
+.mma-forumng-discussion-list .mma-forumng-discussion .mma-forumng-discussion-content {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.mma-forumng-discussion-list .mma-forumng-discussion .mma-forumng-discussion-subject,
+.mma-forumng-discussion-list .mma-forumng-drafts .cell.c0 {
+    font-size: 1.4rem;
+    font-weight: 400;
+    line-height: normal;
+    color: #0b55a8;
+}
+
+.mma-forumng-discussion-list .mma-forumng-drafts .mma-forumng-draft-heading {
+    color: #002158;
+    font-weight: 700;
+}
+
+.mma-forumng-discussion-list .mma-forumng-discussion .mma-forumng-discussion-last-post {
+    font-size: 1.2rem;
+}
+
+.mma-forumng-discussion-list .mma-forumng-discussion.forumng-timeout * {
+    color: #888;
+}
+
+.mma-forumng-discussion-list .mma-forumng-discussion ion-label,
+.mma-forumng-discussion-list .mma-forumng-discussion-sort {
+    margin: 0 !important;
+}
+
+.mma-forumng-infinite-scroll,
+.mma-empty-discussion {
+    height: 50px;
+}
+
+ion-app.md .mma-forumng-infinite-scroll {
+    height: 70px;
+}
+
 /* Posts listing page */
 .mma-forumng-posts-list-wrapper .mma-forumng-posts-list .mma-forumng-iconsize-correction ion-icon[item-start] {
     margin: 0;
@@ -61,4 +183,10 @@
 }
 .mma-forumng-posts-list .mma-forumng-indented {
     padding-left: 16px;
+}
+
+@media (max-width: 360px) {
+    .mma-forumng-discussion-list .mma-forumng-read-only core-format-text {
+        vertical-align: bottom;
+    }
 }

@@ -1052,3 +1052,9 @@ $string['erroremptymessage'] = 'Message cannot be empty';
 $string['erroremptysubject'] = 'Subject cannot be empty.';
 $string['cannotcreatediscussion'] = 'Could not create discussion.';
 $string['cannotcreatereply'] = 'Could not create reply.';
+
+$string['markallread'] = 'Mark all as read';
+$string['sortbydateoflastpost'] = 'Sort by date of last post';
+$string['sortbytitle'] = 'Sort by title (A to Z)';
+$string['sortbymostunreadposts'] = 'Sort by most unread posts';
+$string['date'] = 'Date';

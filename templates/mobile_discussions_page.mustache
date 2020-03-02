@@ -53,19 +53,22 @@
         'hasdiscussions': true,
         'cmid': 123,
         'courseid': 456,
-        'canstartdiscussion': true
+        'canstartdiscussion': true,
+        'message': 'Student can read any post within this forum, but not submit their own posts since the forum closed on 11/03/20, 09:20.
+                    You still have access to submit posts',
+        'hasdrafts': true
     }
 
 }}
 {{=<% %>=}}
-<div><!-- Div vs. ion-content - see comments later. -->
-    <core-course-module-description description="<% forum.introduction %>" component="mod_forumng" componentId="<% cmid %>"></core-course-module-description>
+<div class="mma-forumng-discussion-listing"><!-- Div vs. ion-content - see comments later. -->
     <%# hasgroups %>
     <!-- Group selector -->
     <ion-list>
         <ion-item>
             <ion-label>{{ 'plugin.mod_forumng.group' | translate }}</ion-label>
-            <ion-select [(ngModel)]="CONTENT_OTHERDATA.defaultgroup" interface="popover" (ionChange)="updateContent({cmid: <% cmid %>, courseid: <% courseid %>, group: $event})">
+            <ion-select [(ngModel)]="CONTENT_OTHERDATA.defaultgroup" interface="popover"
+                        (ionChange)="updateGroupContent({cmid: <% cmid %>, courseid: <% courseid %>, group: $event, isupdate: 1})">
                 <%# groups %>
                 <ion-option value="<% groupid %>"><% groupname %></ion-option>
                 <%/ groups %>
@@ -74,63 +77,137 @@
     </ion-list>
     <%/ hasgroups %>
     <%^ hasgroups %>
-        <!-- Fixed group or no groups -->
-        <%# groupsmenu %>
-        <ion-list>
-            <ion-item>
+    <!-- Fixed group or no groups -->
+    <%# groupsmenu %>
+    <ion-list>
+        <ion-item>
             <%{ groupsmenu }%>
-            </ion-item>
-        </ion-list>
-        <%/ groupsmenu %>
-    <%/ hasgroups %>
-    <%# hasdiscussions %>
-    <ion-list class="mma-forumng-discussion-list" no-lines>
-        <ion-list-header class="mma-forumng-header">{{ 'plugin.mod_forumng.discussions' | translate }}</ion-list-header>
-        <ion-item *ngFor="let discussion of CONTENT_OTHERDATA.discussions">
-            <ion-card core-site-plugins-new-content component="mod_forumng" method="posts_view" [args]="{cmid: <% cmid %>, discussionid: discussion.id}" title="Discussion" class="mma-forumng-discussion-card">
-                <ion-card-header text-wrap>
-                    <span *ngIf="discussion.classes" class="{{ discussion.classes }}">
-                        <!-- Add icon(s) as needed indicating sticky discussions etc. -->
-                        <span *ngFor="let decorator of discussion.decorators">
-                            <img *ngIf="decorator.src; else elseBlock" [src]="decorator.src" alt="{{ decorator.alt }}" title="{{ decorator.alt }}" class="mma-forumng-image-correction">
-                            <ng-template #elseBlock><span class='accesshide'>{{ decorator.alt }}</span></ng-template>
-                        </span>
-                    </span>
-                    <span>{{ discussion.subject }}</span>
-                    <span *ngIf="discussion.unread > 0">
-                        <ion-badge round>{{ discussion.unread }}<span class='accesshide'>{{ discussion.unreadpostsalt }}</span></ion-badge>
-                    </span>
-                </ion-card-header>
-                <ion-card-content>
-                    {{ discussion.startedby }} <span class="mma-forumng-gray-text">{{ discussion.starteddate }}</span>
-                    <ion-grid>
-                        <ion-row justify-content-between>
-                            <ion-col col-auto>
-                                <div class="mma-forumng-iconsize-correction"><ion-icon name="chatboxes" item-start></ion-icon> {{ discussion.noofposts }}</div>
-                            </ion-col>
-                            <ion-col col-auto>
-                                <div><span class="mma-forumng-gray-text">{{ discussion.lastpost }}</span></div>
-                            </ion-col>
-                        </ion-row>
-                    </ion-grid>
-                </ion-card-content>
-            </ion-card>
         </ion-item>
     </ion-list>
+    <%/ groupsmenu %>
+    <%/ hasgroups %>
+    <ion-list class="mma-forumng-discussion-list" no-lines>
+        <ion-item>
+            <h2 class="mma-forumng-discussion-title"><% forum.name %></h2>
+            <core-format-text class="mma-forumng-discussion-introduction" text="<% forum.introduction %>"
+                              component="mod_forumng" componentId="<% cmid %>" maxHeight="80"
+                              text-wrap></core-format-text>
+            <%# message %>
+            <div class="mma-forumng-discussion-show-dates" text-wrap><% message %></div>
+            <%/ message %>
+        </ion-item>
+        <%# hasdrafts %>
+        <ion-item>
+            <ion-grid class="mma-forumng-drafts">
+                <ion-row justify-content-start>
+                    <ion-col>
+                        <div class="mma-forumng-draft-heading">
+                            <% decorators.heading %>
+                            <img src="<%decorators.url%>" title="<%decorators.alt%>" alt="<%decorators.alt%>"
+                                 (click)="showMessage('<%decorators.content%>')"/>
+                        </div>
+                    </ion-col>
+                </ion-row>
+                <ion-row>
+                    <ion-col text-wrap>
+                        <div>{{ 'plugin.mod_forumng.draft' | translate }}</div>
+                    </ion-col>
+                    <ion-col text-wrap>
+                        <div>{{ 'plugin.mod_forumng.discussions' | translate }}</div>
+                    </ion-col>
+                    <ion-col text-wrap>
+                        <div>{{ 'plugin.mod_forumng.date' | translate }}</div>
+                    </ion-col>
+                </ion-row>
+                <ion-row *ngFor="let draft of CONTENT_OTHERDATA.draftposts">
+                    <ion-col text-wrap class="cell c0">
+                        <div><strong>{{ draft.subject }}&nbsp;</strong>{{draft.message}}</div>
+                    </ion-col>
+                    <ion-col text-wrap class="cell c1">
+                        <div>{{ draft.discussionsubject }}</div>
+                    </ion-col>
+                    <ion-col text-wrap class="cell c2 lastcol">
+                        <div>{{ draft.date }}</div>
+                    </ion-col>
+                </ion-row>
+            </ion-grid>
+        </ion-item>
+        <%/ hasdrafts %>
+        <%# hasdiscussions %>
+        <ion-item class="mma-forumng-discussion-item">
+            <button ion-button color="primary" class="button-discussion-makeallread">
+                {{ 'plugin.mod_forumng.markallread' | translate }}
+            </button>
+            <core-context-menu class="mma-forumng-discussion-sort" item-end>
+                <core-context-menu-item *ngFor="let option of CONTENT_OTHERDATA.sortoption" [priority]="900"
+                                        [content]="option.title" autoLogin="no"
+                                        (action)="updateSortContent({cmid: <% cmid %>, courseid: <% courseid %>, sortid: option.sortid, group: CONTENT_OTHERDATA.defaultgroup, isupdate: 1})"
+                                        [iconAction]="CONTENT_OTHERDATA.selectedsort == option.sortid ? 'radio-button-on' : 'radio-button-off'">
+                </core-context-menu-item>
+            </core-context-menu>
+        </ion-item>
+        <ion-item *ngFor="let discussion of CONTENT_OTHERDATA.discussions"
+                  class="mma-forumng-discussion-item mma-forumng-discussion-short">
+            <div item-content core-site-plugins-new-content component="mod_forumng" method="posts_view"
+                 [args]="{cmid: <% cmid %>, discussionid: discussion.id}" title="Discussion"
+                 class="mma-forumng-discussion {{discussion.classes }}">
+                <div item-content>
+                    <div class="mma-forumng-discussion-content">
+                        <ion-label text-wrap>
+                            <div class="mma-forumng-discussion-subject">
+                                <core-format-text [text]="discussion.subject"></core-format-text>
+                            </div>
+                            <p class="mma-forumng-discussion-last-post">
+                                <core-format-text [text]="discussion.lastpost"></core-format-text>
+                            </p>
+                        </ion-label>
+                        <div class="mma-forumng-discussion-icons">
+                            <span *ngIf="discussion.classes" class="{{ discussion.classes }}">
+                            <!-- Add icon(s) as needed indicating sticky discussions etc. -->
+                                <span *ngFor="let decorator of discussion.decorators">
+                                    <img *ngIf="decorator.src; else elseBlock" [src]="decorator.src"
+                                         alt="{{ decorator.alt }}"
+                                         title="{{ decorator.alt }}" class="mma-forumng-image-correction">
+                                    <ng-template #elseBlock><span
+                                            class='accesshide'>{{ decorator.alt }}</span></ng-template>
+                                </span>
+                            </span>
+                            <span *ngIf="discussion.unread > 0" class="mma-forumng-read-only">
+                                <core-format-text [text]="discussion.unread"></core-format-text>
+                                <span class='accesshide'>{{ discussion.unreadpostsalt }}</span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </ion-item>
+        <%/ hasdiscussions %>
+        <%^ hasdiscussions %>
+        <p>{{ 'plugin.mod_forumng.nodiscussions' | translate }}</p>
+        <%/ hasdiscussions %>
+    </ion-list>
+    <%# hasdiscussions %>
     <ion-infinite-scroll (ionInfinite)="loadMoreDiscussions($event)" class="mma-forumng-infinite-scroll">
         <ion-infinite-scroll-content loadingSpinner="bubbles" loadingText="Loading more data..."></ion-infinite-scroll-content>
     </ion-infinite-scroll>
     <%/ hasdiscussions %>
     <%^ hasdiscussions %>
-    <p>{{ 'plugin.mod_forumng.nodiscussions' | translate }}</p>
+    <div class="mma-empty-discussion"></div>
     <%/ hasdiscussions %>
     <%# canstartdiscussion %>
     <!-- FAB should be placed within an ion-content to make it a really fixed position item, but that affects infinite scroll
             and PTR and adds a large border at the bottom - very poor in landscape view -->
-    <ion-fab right bottom *ngIf="!CONTENT_OTHERDATA.hasGroups || (CONTENT_OTHERDATA.hasGroups && CONTENT_OTHERDATA.defaultgroup)">
-        <button ion-fab core-site-plugins-new-content color="primary" title="{{ 'plugin.mod_forumng.addanewdiscussion' | translate }}" component="mod_forumng" method="add_discussion" [args]="{cmid: <% cmid %>, discussionid: 0, groupid: CONTENT_OTHERDATA.defaultgroup}" [disabled]="!isOnline()">
-            <ion-icon name="add"></ion-icon>
-        </button>
-    </ion-fab>
+    <ion-content>
+        <ion-fab right bottom
+                 *ngIf="!CONTENT_OTHERDATA.hasGroups || (CONTENT_OTHERDATA.hasGroups && CONTENT_OTHERDATA.defaultgroup)">
+            <button ion-fab core-site-plugins-new-content color="primary"
+                    title="{{ 'plugin.mod_forumng.addanewdiscussion' | translate }}" component="mod_forumng"
+                    method="add_discussion"
+                    [args]="{cmid: <% cmid %>, discussionid: 0, groupid: CONTENT_OTHERDATA.defaultgroup}"
+                    [disabled]="!isOnline()">
+                <ion-icon name="add"></ion-icon>
+            </button>
+        </ion-fab>
+    </ion-content>
     <%/ canstartdiscussion %>
 </div>

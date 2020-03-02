@@ -57,6 +57,8 @@
                 });
                 that.CONTENT_OTHERDATA.page = page;
                 infiniteScrollEvent.complete();
+            }).catch(function() {
+                infiniteScrollEvent.complete();
             });
         } else {
             infiniteScrollEvent.complete();
@@ -310,6 +312,17 @@
      * @param {object} outerThis The main component.
      */
     window.forumngDiscussionsPageInit = function(outerThis) {
+        var site = outerThis.CoreSitesProvider.getCurrentSite();
+        var cmid = outerThis.module.id;
+        var userid = site.getUserId();
+        outerThis.updateSortContent = function(args){
+            t.mod_forumng.setNeedUpdate(cmid, 1, userid);
+            outerThis.updateContent(args, 'mod_forumng', 'forumng_view', true);
+        };
+        outerThis.updateGroupContent = function(args){
+            t.mod_forumng.setNeedUpdate(cmid, 1, userid);
+            outerThis.updateContent(args, 'mod_forumng', 'forumng_view', true);
+        };
         // Check and handle module completion feature.
         t.CoreCourseProvider.checkModuleCompletion(outerThis.courseId, outerThis.module.completiondata);
         // Make loadMoreDiscussion available from the template.
@@ -320,6 +333,25 @@
         outerThis.isOnline = function() {
             return outerThis.CoreAppProvider.isOnline();
         };
+        outerThis.showMessage = function (text) {
+            var successalert = this.AlertController.create({
+                title: '',
+                subTitle: text,
+                buttons: [this.TranslateService.instant('core.ok')]
+            });
+            successalert.present();
+        };
+        if (outerThis.isOnline()) {
+            t.mod_forumng.getNeedUpdate(cmid, userid).then(function(value) {
+                if (typeof(value) != 'undefined' && value != null && value) {
+                    t.mod_forumng.setNeedUpdate(cmid, null, userid);
+                    outerThis.refreshContent();
+                }
+            });
+        } else {
+            //TODO switch below to our own offline functionality.
+            // Will be implemented sync later.
+        }
         // Outerthis has the refreshContent function, so get a link to it here.
         t.mod_forumng.currentDiscussionsPage = outerThis;
     };
@@ -382,4 +414,68 @@
             });
         }
     };
+    t.mod_forumng.needUpdate = 'mod_forumng_needupdate';
+    t.mod_forumng.needUpdateTableSchema = {
+        name: t.mod_forumng.needUpdate,
+        columns: [
+            {
+                name: 'cmid',
+                type: 'TEXT',
+                primaryKey: true
+            },
+            {
+                name: 'userid',
+                type: 'TEXT',
+            },
+            {
+                name: 'needupdate',
+                type: 'TEXT',
+            },
+        ]
+    };
+
+    /**
+     * Set needupdate when we have a new update from the page.
+     *
+     * @param cmid
+     * @param needupdate
+     * @param userid
+     * @returns {Promise} Promise resolved when finished
+     */
+    t.mod_forumng.setNeedUpdate = function(cmid, needupdate, userid) {
+        // Create the table if it doesn't exist already, then set the value.
+        var db = t.CoreSitesProvider.getCurrentSite().getDb();
+        return db.createTableFromSchema(t.mod_forumng.needUpdateTableSchema).then(function() {
+            return db.recordExists(t.mod_forumng.needUpdate, {cmid: cmid, userid: userid}).then(function() {
+                if (needupdate === undefined) {
+                    return db.deleteRecords(t.mod_forumng.needUpdate, {cmid: cmid, userid: userid});
+                } else {
+                    return db.updateRecords(t.mod_forumng.needUpdate, {needupdate: needupdate}, {cmid: cmid, userid: userid});
+                }
+            }, function() {
+                if (needupdate !== undefined) {
+                    return db.insertRecord(t.mod_forumng.needUpdate, {cmid: cmid, userid: userid, needupdate: needupdate});
+                }
+            });
+        });
+    };
+
+    /**
+     * Get needupdate when we have a new update from the page.
+     *
+     * @param cmid
+     * @param userid
+     * @returns {Promise} Promise resolved when finished
+     */
+    t.mod_forumng.getNeedUpdate = function(cmid, userid) {
+        var db = t.CoreSitesProvider.getCurrentSite().getDb();
+        return db.createTableFromSchema(t.mod_forumng.needUpdateTableSchema).then(function() {
+            return db.getRecord(t.mod_forumng.needUpdate, {cmid: cmid, userid: userid}).then(function(record) {
+                return Promise.resolve(record.needupdate);
+            }, function() {
+                return Promise.resolve(null);
+            });
+        });
+    };
+
 })(this);
