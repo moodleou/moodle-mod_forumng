@@ -1,0 +1,6 @@
+{
+    "plugintypes": {
+        "forumngfeature": "mod/forumng/feature",
+        "forumngtype": "mod/forumng/type"
+    }
+}
