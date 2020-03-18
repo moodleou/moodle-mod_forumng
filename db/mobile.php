@@ -59,13 +59,15 @@ $addons = [
             ['postreply', 'forumng'],
             ['optionalsubject', 'forumng'],
             ['markpostread', 'forumng'],
-            ['markallread', 'forumng'],
+            ['markallasread', 'forumng'],
             ['sortbydateoflastpost', 'forumng'],
             ['sortbytitle','forumng'],
             ['sortbymostunreadposts', 'forumng'],
             ['drafts', 'forumng'],
             ['draft', 'forumng'],
             ['date', 'forumng'],
+            ['automarkpostasread', 'forumng'],
+            ['manuallymarkpostasread', 'forumng'],
         ]
     ]
 ];

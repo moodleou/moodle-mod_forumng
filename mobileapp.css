@@ -190,3 +190,6 @@ ion-app.md .mma-forumng-infinite-scroll {
         vertical-align: bottom;
     }
 }
+.mma-empty-discussion-string {
+    padding-left: 16px;
+}

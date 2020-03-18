@@ -27,6 +27,7 @@ namespace mod_forumng\output;
 defined('MOODLE_INTERNAL') || die();
 
 use context_module;
+use mod_forumng;
 
 require_once(__DIR__ . '/../../mod_forumng.php');
 require_once(__DIR__ . '/../../mod_forumng_utils.php');
@@ -160,6 +161,8 @@ class mobile {
         $sticky = $discussionlist->get_sticky_discussions();
         $normal = $discussionlist->get_normal_discussions();
         $discussions = [];
+        $manualmark = !mod_forumng::mark_read_automatically();
+
         // Sticky always first.
         self::prep_discussions($forumng, $sticky, $discussions);
         self::prep_discussions($forumng, $normal, $discussions);
@@ -277,7 +280,8 @@ class mobile {
                 'page' => $page,
                 'draftposts' => json_encode($draftposts),
                 'selectedsort' => $selectedsort,
-                'sortoption' => json_encode($sortoption)
+                'sortoption' => json_encode($sortoption),
+                'manualmark' => $manualmark,
             ],
             'files' => []
         ];
@@ -354,7 +358,8 @@ class mobile {
                     'unreadpostsalt' => $unreadpostsalt,
                     'lastpost' => $lastpostcell,
                     'classes' => $classes,
-                    'decorators' => $decorators
+                    'decorators' => $decorators,
+                    'groupid' => $discussion->get_group_id(),
                 ];
             }
         }

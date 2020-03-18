@@ -22,6 +22,7 @@
  */
 (function (t) {
     t.mod_forumng = {};
+    t.removeEvent = true;
 
     /* Register a link handler to open mod/forumng/view.php links anywhere in the app. */
     function AddonModForumngLinkHandler() {
@@ -312,14 +313,30 @@
      * @param {object} outerThis The main component.
      */
     window.forumngDiscussionsPageInit = function(outerThis) {
+
         var site = outerThis.CoreSitesProvider.getCurrentSite();
         var cmid = outerThis.module.id;
         var userid = site.getUserId();
+        var courseid = outerThis.courseId;
+        var preSets = {updateFrequency: 0, getFromCache: false};
+        var PopoverTransition = function() {
+            var popover = document.querySelector('.popover-content');
+            if (popover) {
+                popover.style.right = 10 + 'px';
+                popover.style.left = null;
+            }
+        };
+        if (t.removeEvent) {
+            window.addEventListener("orientationchange", PopoverTransition);
+            t.removeEvent = false;
+        }
         outerThis.updateSortContent = function(args){
+            outerThis.CoreSitePluginsProvider.getContent('mod_forumng', 'forumng_view', args, preSets);
             t.mod_forumng.setNeedUpdate(cmid, 1, userid);
             outerThis.updateContent(args, 'mod_forumng', 'forumng_view', true);
         };
         outerThis.updateGroupContent = function(args){
+            outerThis.CoreSitePluginsProvider.getContent('mod_forumng', 'forumng_view', args, preSets);
             t.mod_forumng.setNeedUpdate(cmid, 1, userid);
             outerThis.updateContent(args, 'mod_forumng', 'forumng_view', true);
         };
@@ -333,6 +350,19 @@
         outerThis.isOnline = function() {
             return outerThis.CoreAppProvider.isOnline();
         };
+
+        outerThis.ionViewWillLeave = function() {
+            var preSets = {updateFrequency: 0, getFromCache: false};
+            var updatemainpageargs = {'cmid' : cmid, 'courseid': courseid};
+            window.removeEventListener("orientationchange", PopoverTransition);
+            t.mod_forumng.getNeedUpdate(cmid, userid).then(function(result) {
+                // When we go the forum the agrs is only have {cmid, courseid} so we need to update the cache the newest version.
+                if (typeof(result) != 'undefined' && result != null && result) {
+                    t.mod_forumng.setNeedUpdate(cmid, null, userid);
+                    outerThis.CoreSitePluginsProvider.getContent('mod_forumng', 'forumng_view', updatemainpageargs, preSets);
+                }
+            });
+        };
         outerThis.showMessage = function (text) {
             var successalert = this.AlertController.create({
                 title: '',
@@ -341,17 +371,91 @@
             });
             successalert.present();
         };
-        if (outerThis.isOnline()) {
-            t.mod_forumng.getNeedUpdate(cmid, userid).then(function(value) {
-                if (typeof(value) != 'undefined' && value != null && value) {
-                    t.mod_forumng.setNeedUpdate(cmid, null, userid);
-                    outerThis.refreshContent();
-                }
-            });
-        } else {
-            //TODO switch below to our own offline functionality.
-            // Will be implemented sync later.
-        }
+        /**
+         * Called by the menu option that shows/hides auto mark post as read features.
+         *
+         * @param {bool} enable True to show features, false to hide
+         */
+        outerThis.enableAutoMarkPostAsRead = function(enable) {
+            // Make this change after a slight delay so that it only happens after the menu
+            // animation finishes, otherwise the change of button looks bad.
+            if (outerThis.isOnline()) {
+                setTimeout(function() {
+                    site.write('mod_forumng_manual_mark', {'cmid': cmid, 'cloneid' : 0, 'value' : enable}).then(function(result) {
+                        if (!result.errormsg) {
+                            // We need to refresh because the cached page.
+                            outerThis.CONTENT_OTHERDATA.manualmark = enable;
+                            // We need to refresh because the cached page.
+                            t.mod_forumng.setPreference('AutoMarkPostAsRead', enable, userid);
+                            t.mod_forumng.setNeedUpdate(cmid, 1, userid);
+                            var args = {'cmid' : cmid, 'courseid': courseid, group: outerThis.CONTENT_OTHERDATA.defaultgroup,
+                                sortid: outerThis.CONTENT_OTHERDATA.selectedsort, isupdate: 1};
+                            var preSets = {updateFrequency: 0, getFromCache: false};
+                            outerThis.CoreSitePluginsProvider.getContent('mod_forumng', 'forumng_view', args, preSets);
+                            outerThis.updateContent(args, 'mod_forumng', 'forumng_view', true);
+                        } else {
+                            var alert = outerThis.AlertController.create({
+                                title: "Error",
+                                subTitle: result.errormsg,
+                            });
+                            alert.present();
+                        }
+                    }).catch( function(error) {
+                        var alert = outerThis.AlertController.create({
+                            title: "Error",
+                            subTitle: error,
+                        });
+                        alert.present();
+                    });
+                }, 100);
+            } else {
+                //TODO switch below to our own offline functionality.
+                // Will be implemented sync later.
+                t.mod_forumng.setPreference('AutoMarkPostAsRead', enable, userid);
+            }
+
+        };
+
+        /**
+         * Mark all post read.
+         *
+         */
+        outerThis.MarkAllPostsRead = function() {
+            if (outerThis.isOnline()) {
+                site.write('mod_forumng_mark_all_post_read', {'cmid': cmid, 'cloneid' : 0, 'groupid' : outerThis.CONTENT_OTHERDATA.defaultgroup}).then(function(result) {
+                    if (!result.errormsg) {
+                        // We need to update the newest content because the cached page.
+                        var args = {'cmid' : cmid, 'courseid': courseid, group: outerThis.CONTENT_OTHERDATA.defaultgroup,
+                            sortid: outerThis.CONTENT_OTHERDATA.selectedsort, isupdate: 1};
+                        var preSets = {updateFrequency: 0, getFromCache: false};
+                        t.mod_forumng.setNeedUpdate(cmid, 1, userid);
+                        outerThis.CoreSitePluginsProvider.getContent('mod_forumng', 'forumng_view', args, preSets);
+                        window.removeEventListener("orientationchange", PopoverTransition);
+                        outerThis.updateContent(args, 'mod_forumng', 'forumng_view', true);
+                    } else {
+                        var alert = outerThis.AlertController.create({
+                            title: "Error",
+                            subTitle: result.errormsg,
+                        });
+                        alert.present();
+                    }
+                }).catch( function(error) {
+                    var alert = outerThis.AlertController.create({
+                        title: "Error",
+                        subTitle: error,
+                    });
+                    alert.present();
+                });
+            } else {
+                var alert = outerThis.AlertController.create({
+                    title: "Error",
+                    subTitle: "Offline is not supported",
+                });
+                alert.present();
+                //TODO switch below to our own offline functionality.
+                // Will be implemented sync later.
+            }
+        };
         // Outerthis has the refreshContent function, so get a link to it here.
         t.mod_forumng.currentDiscussionsPage = outerThis;
     };
@@ -414,6 +518,68 @@
             });
         }
     };
+
+    t.mod_forumng.settingsTable = 'mod_forumng_settings';
+    t.mod_forumng.settingsTableSchema = {
+        name: t.mod_forumng.settingsTable,
+        columns: [
+            {
+                name: 'key',
+                type: 'TEXT',
+                primaryKey: true
+            },
+            {
+                name: 'value',
+                type: 'TEXT',
+                notNull: true
+            },
+            {
+                name: 'userid',
+                type: 'TEXT',
+            },
+        ]
+    };
+    /**
+     * Sets preference. If you set value to undefined, it is cleared.
+     *
+     * @param {string} key Key to set
+     * @param {string} [value] Value to set - leave undefined to remove it
+     * @return {Promise} Promise resolved when finished
+     */
+    t.mod_forumng.setPreference = function(key, value, userid) {
+        // Create the table if it doesn't exist already, then set the value.
+        var db = t.CoreSitesProvider.getCurrentSite().getDb();
+        return db.createTableFromSchema(t.mod_forumng.settingsTableSchema).then(function() {
+            return db.recordExists(t.mod_forumng.settingsTable, {key: key, userid: userid}).then(function() {
+                if (value === undefined) {
+                    return db.deleteRecords(t.mod_forumng.settingsTable, {key: key, userid: userid});
+                } else {
+                    return db.updateRecords(t.mod_forumng.settingsTable, {value: value}, {key: key, userid: userid});
+                }
+            }, function() {
+                if (value !== undefined) {
+                    return db.insertRecord(t.mod_forumng.settingsTable, {key: key, userid: userid, value: value});
+                }
+            });
+        });
+    };
+    /**
+     * Gets preference (as promise) - resolved to null if not found
+     *
+     * @param {string} key Key to read
+     * @return {Promise} Promise which will be resolved once the preference has been read
+     */
+    t.mod_forumng.getPreference = function(key, userid) {
+        var db = t.CoreSitesProvider.getCurrentSite().getDb();
+        return db.createTableFromSchema(t.mod_forumng.settingsTableSchema).then(function() {
+            return db.getRecord(t.mod_forumng.settingsTable, { key: key, userid: userid}).then(function(record) {
+                return Promise.resolve(record.value);
+            }, function() {
+                return Promise.resolve(null);
+            });
+        });
+    };
+
     t.mod_forumng.needUpdate = 'mod_forumng_needupdate';
     t.mod_forumng.needUpdateTableSchema = {
         name: t.mod_forumng.needUpdate,
@@ -433,7 +599,6 @@
             },
         ]
     };
-
     /**
      * Set needupdate when we have a new update from the page.
      *
@@ -477,5 +642,4 @@
             });
         });
     };
-
 })(this);

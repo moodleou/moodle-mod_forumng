@@ -61,6 +61,12 @@
 
 }}
 {{=<% %>=}}
+<core-navbar-buttons>
+    <core-context-menu>
+            <core-context-menu-item *ngIf="CONTENT_OTHERDATA.manualmark" [priority]="850" [content]="'plugin.mod_forumng.automarkpostasread' | translate" (action)="enableAutoMarkPostAsRead(false)" [iconAction]="'radio-button-off'"></core-context-menu-item>
+            <core-context-menu-item *ngIf="!CONTENT_OTHERDATA.manualmark" [priority]="850" [content]="'plugin.mod_forumng.manuallymarkpostasread' | translate" (action)="enableAutoMarkPostAsRead(true)" [iconAction]="'radio-button-off'"></core-context-menu-item>
+    </core-context-menu>
+</core-navbar-buttons>
 <div class="mma-forumng-discussion-listing"><!-- Div vs. ion-content - see comments later. -->
     <%# hasgroups %>
     <!-- Group selector -->
@@ -135,8 +141,8 @@
         <%/ hasdrafts %>
         <%# hasdiscussions %>
         <ion-item class="mma-forumng-discussion-item">
-            <button ion-button color="primary" class="button-discussion-makeallread">
-                {{ 'plugin.mod_forumng.markallread' | translate }}
+            <button ion-button color="primary" class="button-discussion-makeallread" *ngIf="CONTENT_OTHERDATA.manualmark" (click)="MarkAllPostsRead()">
+                {{ 'plugin.mod_forumng.markallasread' | translate }}
             </button>
             <core-context-menu class="mma-forumng-discussion-sort" item-end>
                 <core-context-menu-item *ngFor="let option of CONTENT_OTHERDATA.sortoption" [priority]="900"
@@ -183,7 +189,7 @@
         </ion-item>
         <%/ hasdiscussions %>
         <%^ hasdiscussions %>
-        <p>{{ 'plugin.mod_forumng.nodiscussions' | translate }}</p>
+        <p class="mma-empty-discussion-string">{{ 'plugin.mod_forumng.nodiscussions' | translate }}</p>
         <%/ hasdiscussions %>
     </ion-list>
     <%# hasdiscussions %>

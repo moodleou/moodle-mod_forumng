@@ -137,5 +137,21 @@ $functions = array(
                 'type' => 'write',
                 'capabilities' => 'mod/forumng:viewdiscussion',
                 'services' => array(MOODLE_OFFICIAL_MOBILE_SERVICE, 'local_mobile')
-        )
+        ),
+        'mod_forumng_manual_mark' => array(
+                'classname' => '\mod_forumng\local\external\manual_mark',
+                'methodname' => 'manual_mark',
+                'description' => 'Auto or manual mark read',
+                'type' => 'write',
+                'capabilities' => 'mod/forumng:view',
+                'services' => array(MOODLE_OFFICIAL_MOBILE_SERVICE, 'local_mobile')
+        ),
+        'mod_forumng_mark_all_post_read' => array(
+                'classname' => '\mod_forumng\local\external\mark_all_post_read',
+                'methodname' => 'mark_all_post_read',
+                'description' => 'Mark all post read',
+                'type' => 'write',
+                'capabilities' => 'mod/forumng:viewdiscussion',
+                'services' => array(MOODLE_OFFICIAL_MOBILE_SERVICE, 'local_mobile')
+        ),
 );

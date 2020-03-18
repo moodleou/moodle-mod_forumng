@@ -30,6 +30,8 @@ use \mod_forumng\local\external\more_posts;
 use \mod_forumng\local\external\add_discussion;
 use \mod_forumng\local\external\reply;
 use \mod_forumng\local\external\mark_read;
+use \mod_forumng\local\external\manual_mark;
+use \mod_forumng\local\external\mark_all_post_read;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -283,6 +285,74 @@ class mobile_testcase extends \advanced_testcase {
         $discussion = \mod_forumng_discussion::get_from_id($discussionid, 0);
         $this->assertEquals(1, $discussion->get_num_posts());
         $this->assertEquals(0, $discussion->get_num_unread_posts());
+    }
+
+    /**
+     * Test the manually_mark_read webservice.
+     */
+    public function test_mobile_forumng_manually_mark_read() {
+        $this->resetAfterTest();
+
+        $generator = $this->getDataGenerator();
+        $course = $generator->create_course();
+        $student1 = $generator->create_user();
+        $student2 = $generator->create_user();
+        $generator->enrol_user($student1->id, $course->id, 'student');
+        $generator->enrol_user($student2->id, $course->id, 'student');
+        $this->setUser($student1);
+        $forumnggenerator = $generator->get_plugin_generator('mod_forumng');
+        $forum = $forumnggenerator->create_instance(['course' => $course->id]);
+        // Unset.
+        $result = manual_mark::manual_mark($forum->cmid, 0, 0);
+        $upresult = get_user_preferences('forumng_manualmark');
+        $this->assertEquals(0, $result['result']);
+        $this->assertEquals(0, $upresult);
+        // Set.
+        $result = manual_mark::manual_mark($forum->cmid, 0, 1);
+        $upresult = get_user_preferences('forumng_manualmark');
+        $this->assertEquals(1, $result['result']);
+        $this->assertEquals(1, $upresult);
+
+        // Should not affect other student preference.
+        $this->setUser($student2);
+        $upresult = get_user_preferences('forumng_manualmark');
+        $this->assertEquals('', $upresult);
+
+    }
+
+    /**
+     * Test mark all posts read webservice.
+     */
+    public function test_mobile_mark_all_posts_read() {
+        $this->resetAfterTest();
+
+        $generator = $this->getDataGenerator();
+        $course = $generator->create_course();
+        $student1 = $generator->create_user();
+        $student2 = $generator->create_user();
+        $generator->enrol_user($student1->id, $course->id, 'student');
+        $generator->enrol_user($student2->id, $course->id, 'student');
+        $forumnggenerator = $generator->get_plugin_generator('mod_forumng');
+        $forum = $forumnggenerator->create_instance(['course' => $course->id]);
+        list($discussion1id, $post1id) = $forumnggenerator->create_discussion(['forum' => $forum->id, 'userid' => $student1->id]);
+        list($discussion3id, $post3id) = $forumnggenerator->create_discussion(['forum' => $forum->id, 'userid' => $student1->id]);
+        list($discussion2id, $post2id) = $forumnggenerator->create_discussion(['forum' => $forum->id, 'userid' => $student2->id]);
+
+        set_user_preference('forumng_manualmark', 1, $student1->id);
+        set_user_preference('forumng_manualmark', 1, $student2->id);
+        $this->setUser($student1);
+        // Check there is unread post.
+        $post2 = \mod_forumng_post::get_from_id($post2id, 0);
+        $this->assertTrue($post2->is_unread());
+
+        $this->setUser($student2);
+        // Check there is unread post.
+        $post1 = \mod_forumng_post::get_from_id($post1id, 0);
+        $this->assertTrue($post1->is_unread());
+        $post3 = \mod_forumng_post::get_from_id($post3id, 0);
+        $this->assertTrue($post1->is_unread());
+        // Mark all post read for User 2.
+        mark_all_post_read::mark_all_post_read($forum->cmid, 0, -1);
     }
 
     /**
