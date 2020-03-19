@@ -56,17 +56,20 @@
         'canstartdiscussion': true,
         'message': 'Student can read any post within this forum, but not submit their own posts since the forum closed on 11/03/20, 09:20.
                     You still have access to submit posts',
-        'hasdrafts': true
+        'hasdrafts': true,
+        'isipud': true / false,
     }
 
 }}
 {{=<% %>=}}
+<%^ isipud %>
 <core-navbar-buttons>
     <core-context-menu>
             <core-context-menu-item *ngIf="CONTENT_OTHERDATA.manualmark" [priority]="850" [content]="'plugin.mod_forumng.automarkpostasread' | translate" (action)="enableAutoMarkPostAsRead(false)" [iconAction]="'radio-button-off'"></core-context-menu-item>
             <core-context-menu-item *ngIf="!CONTENT_OTHERDATA.manualmark" [priority]="850" [content]="'plugin.mod_forumng.manuallymarkpostasread' | translate" (action)="enableAutoMarkPostAsRead(true)" [iconAction]="'radio-button-off'"></core-context-menu-item>
     </core-context-menu>
 </core-navbar-buttons>
+<%/ isipud %>
 <div class="mma-forumng-discussion-listing"><!-- Div vs. ion-content - see comments later. -->
     <%# hasgroups %>
     <!-- Group selector -->
@@ -141,9 +144,11 @@
         <%/ hasdrafts %>
         <%# hasdiscussions %>
         <ion-item class="mma-forumng-discussion-item">
+            <%^ isipud %>
             <button ion-button color="primary" class="button-discussion-makeallread" *ngIf="CONTENT_OTHERDATA.manualmark" (click)="MarkAllPostsRead()">
                 {{ 'plugin.mod_forumng.markallasread' | translate }}
             </button>
+            <%/ isipud %>
             <core-context-menu class="mma-forumng-discussion-sort" item-end>
                 <core-context-menu-item *ngFor="let option of CONTENT_OTHERDATA.sortoption" [priority]="900"
                                         [content]="option.title" autoLogin="no"
@@ -157,34 +162,73 @@
             <div item-content core-site-plugins-new-content component="mod_forumng" method="posts_view"
                  [args]="{cmid: <% cmid %>, discussionid: discussion.id}" title="Discussion"
                  class="mma-forumng-discussion {{discussion.classes }}">
-                <div item-content>
-                    <div class="mma-forumng-discussion-content">
-                        <ion-label text-wrap>
-                            <div class="mma-forumng-discussion-subject">
-                                <core-format-text [text]="discussion.subject"></core-format-text>
+                <%# isipud %>
+                    <a [href]="discussion.url" core-link class="forumng-ipud-discussion-hyperlink">
+                        <div item-content>
+                            <div class="mma-forumng-ipud-discussion-content">
+                                <ion-label>
+                                    <div class="mma-forumng-ipud-discussion-subject">
+                                        <core-format-text [text]="discussion.subject" text-wrap></core-format-text>
+                                    </div>
+                                </ion-label>
+                                <div class="mma-forumng-ipud-discussion-icons">
+                                    <a [href]="discussion.url" core-link
+                                       class="ipud-discussion-open-icon forumng-ipud-discussion-hyperlink"></a>
+                                    <span *ngIf="discussion.unread > 0" class="mma-forumng-ipud-unread">
+                                            <core-format-text [text]="discussion.unread"></core-format-text>
+                                        <span class='accesshide'>{{ discussion.unreadpostsalt }}</span>
+                                    </span>
+                                    <span *ngIf="discussion.classes" class="{{ discussion.classes }}">
+                                    <!-- Add icon(s) as needed indicating sticky discussions etc. -->
+                                        <span *ngFor="let decorator of discussion.decorators">
+                                            <img *ngIf="decorator.src; else elseBlock" [src]="decorator.src"
+                                                 alt="{{ decorator.alt }}"
+                                                 title="{{ decorator.alt }}" class="mma-forumng-image-correction">
+                                            <ng-template #elseBlock><span
+                                                    class='accesshide'>{{ decorator.alt }}</span></ng-template>
+                                        </span>
+                                    </span>
+                                </div>
+                                <p class="mma-forumng-discussion-last-post">
+                                    <core-format-text [text]="discussion.lastpost"></core-format-text>
+                                </p>
+                                <p class="mma-forumng-discussion-rootpost">
+                                    <core-format-text class="mma-forumng-ipud-discussion-rootpost" [text]="discussion.rootpost" component="mod_forumng" componentId="<% cmid %>" maxHeight="50" text-wrap></core-format-text>
+                                </p>
                             </div>
-                            <p class="mma-forumng-discussion-last-post">
-                                <core-format-text [text]="discussion.lastpost"></core-format-text>
-                            </p>
-                        </ion-label>
-                        <div class="mma-forumng-discussion-icons">
-                            <span *ngIf="discussion.classes" class="{{ discussion.classes }}">
-                            <!-- Add icon(s) as needed indicating sticky discussions etc. -->
-                                <span *ngFor="let decorator of discussion.decorators">
-                                    <img *ngIf="decorator.src; else elseBlock" [src]="decorator.src"
-                                         alt="{{ decorator.alt }}"
-                                         title="{{ decorator.alt }}" class="mma-forumng-image-correction">
-                                    <ng-template #elseBlock><span
-                                            class='accesshide'>{{ decorator.alt }}</span></ng-template>
+                        </div>
+                    </a>
+                <%/ isipud %>
+                <%^ isipud %>
+                    <div item-content>
+                        <div class="mma-forumng-discussion-content">
+                            <ion-label text-wrap>
+                                <div class="mma-forumng-discussion-subject">
+                                    <core-format-text [text]="discussion.subject"></core-format-text>
+                                </div>
+                                <p class="mma-forumng-discussion-last-post">
+                                    <core-format-text [text]="discussion.lastpost"></core-format-text>
+                                </p>
+                            </ion-label>
+                            <div class="mma-forumng-discussion-icons">
+                                <span *ngIf="discussion.classes" class="{{ discussion.classes }}">
+                                <!-- Add icon(s) as needed indicating sticky discussions etc. -->
+                                    <span *ngFor="let decorator of discussion.decorators">
+                                        <img *ngIf="decorator.src; else elseBlock" [src]="decorator.src"
+                                             alt="{{ decorator.alt }}"
+                                             title="{{ decorator.alt }}" class="mma-forumng-image-correction">
+                                        <ng-template #elseBlock><span
+                                                class='accesshide'>{{ decorator.alt }}</span></ng-template>
+                                    </span>
                                 </span>
-                            </span>
-                            <span *ngIf="discussion.unread > 0" class="mma-forumng-read-only">
-                                <core-format-text [text]="discussion.unread"></core-format-text>
-                                <span class='accesshide'>{{ discussion.unreadpostsalt }}</span>
-                            </span>
+                                <span *ngIf="discussion.unread > 0" class="mma-forumng-read-only">
+                                    <core-format-text [text]="discussion.unread"></core-format-text>
+                                    <span class='accesshide'>{{ discussion.unreadpostsalt }}</span>
+                                </span>
+                            </div>
                         </div>
                     </div>
-                </div>
+                <%/ isipud %>
             </div>
         </ion-item>
         <%/ hasdiscussions %>

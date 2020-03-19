@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Item id="X" TextType="CompleteItem" SchemaVersion="2.0">
+    <meta name="vle:osep" content="false"/>
+    <CourseCode>NOT-A-REAL-WEBSITE</CourseCode>
+    <CourseTitle/>
+    <ItemID/>
+    <ItemTitle>Minimal sample document</ItemTitle>
+    <Unit>
+        <UnitID/>
+        <UnitTitle/>
+        <ByLine/>
+        <Session>
+            <Title>InPage Structure Unit Test</Title>
+            <InPageActivity id="unit1" type="discussion">
+                <Instructions>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Donec enim diam vulputate ut. Lacus vel facilisis volutpat est. Dignissim sodales ut eu sem integer. Amet cursus sit amet dictum sit amet justo donec enim.</Instructions>
+                <Parameters>
+                    <Parameter name="forum" value="f1"/>
+                    <Parameter name="forumName" value="Forum 1"/>
+                    <Parameter name="heading" value="Discussion number 1"/>
+                </Parameters>
+            </InPageActivity>
+        </Session>
+    </Unit>
+</Item>

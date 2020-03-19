@@ -97,6 +97,7 @@ class mobile {
 
         // This is based on view.php and forumngtype_general.php.
         $forumng = \mod_forumng::get_from_cmid($cmid, \mod_forumng::CLONE_DIRECT);
+        $isipud = $forumng->get_type() instanceof \forumngtype_ipud;
         if ($forumng->is_clone()) {
             $forumng = $forumng->get_real_forum();
             $a = new \stdClass();
@@ -237,8 +238,10 @@ class mobile {
         }
 
         $sortoption[] = (object)['sortid' => self::SORT_SUBJECT, 'title' => get_string('sortbytitle', 'forumng')];
-        $sortoption[] = (object)['sortid' => self::SORT_UNREAD, 'title' => get_string('sortbymostunreadposts', 'forumng')];
         $sortoption[] = (object)['sortid' => self::SORT_DATE, 'title' => get_string('sortbydateoflastpost', 'forumng')];
+        if ($forumng->can_mark_read()) {
+            $sortoption[] = (object)['sortid' => self::SORT_UNREAD, 'title' => get_string('sortbymostunreadposts', 'forumng')];
+        }
 
         // Data prep.
         $forum = new \stdClass();
@@ -260,7 +263,8 @@ class mobile {
             'canstartdiscussion' => $forumng->can_start_discussion($groupid, $whynot),
             'message' => $message,
             'decorators' => $decorators,
-            'hasdrafts' => $hasdrafts
+            'hasdrafts' => $hasdrafts,
+            'isipud' => $isipud,
         ];
         $html = $OUTPUT->render_from_template('mod_forumng/mobile_discussions_page', $data);
 
@@ -337,6 +341,7 @@ class mobile {
                 }
                 // Subject.
                 $subject = format_string($discussion->get_subject(true));
+                $rootpost = $discussion->get_root_post()->get_formatted_message();
                 // Unread.
                 $canmarkread = $discussion->get_forum()->can_mark_read();
                 $unreadposts = 0;
@@ -350,11 +355,25 @@ class mobile {
                 $unreadpostsalt = get_string('hasunreadposts', 'forumng');
                 // Last post.
                 $lastpostcell = \mod_forumng_utils::display_date($discussion->get_time_modified());
+                $discussurl = '';
+                if($forum->get_type() instanceof \forumngtype_ipud) {
+                    $lastpostcell = count($discussion->get_root_post()->get_replies()) > 0  ? $lastpostcell :
+                            get_string('nopostsyet', 'forumngtype_ipud');
+                    if (!is_null($discussion->get_group_id())) {
+                        $discussurl = $discussion->get_location(true) . '&groupid=' . $discussion->get_group_id();
+                    } else {
+                        $discussurl = $discussion->get_location(true);
+                    }
+
+                    $classes .= ' forumng-ipud';
+                }
 
                 $discussions[] = (object)[
                     'id' => $discussion->get_id(),
                     'subject' => $subject,
                     'unread' => '' . $unreadposts,
+                    'rootpost' => $rootpost,
+                    'url' => $discussurl,
                     'unreadpostsalt' => $unreadpostsalt,
                     'lastpost' => $lastpostcell,
                     'classes' => $classes,
