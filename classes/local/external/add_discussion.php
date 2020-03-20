@@ -47,7 +47,10 @@ class add_discussion extends external_api {
             'group' => new external_value(PARAM_INT, 'Group ID', VALUE_DEFAULT, 0),
             'subject' => new external_value(PARAM_TEXT, 'Subject of the post'),
             'message' => new external_value(PARAM_RAW, 'Root message for discussion'),
-            'draftarea' => new external_value(PARAM_INT, 'Draft area ID for uploaded attachments', VALUE_DEFAULT, 1)
+            'draftarea' => new external_value(PARAM_INT, 'Draft area ID for uploaded attachments', VALUE_DEFAULT, 1),
+            'showsticky' => new external_value(PARAM_INT, 'True/False value for sticky discussion', VALUE_DEFAULT, 0),
+            'showfrom' => new external_value(PARAM_INT, 'Show from date', VALUE_DEFAULT, 0),
+            'postas' => new external_value(PARAM_INT, 'Post as', VALUE_DEFAULT, 0),
         ]);
     }
 
@@ -75,10 +78,14 @@ class add_discussion extends external_api {
      * @param $subject string Subject of the post.
      * @param $message string Message of the post (no inline images etc.)
      * @param $draftarea int Draft area id of attached files, 1 indicates no files.
+     * @param $showsticky int Add discussion as sticky.
+     * @param $showfrom int Start date.
+     * @param $postas int Post as.
      * @return array See returns above.
      * @throws \moodle_exception
      */
-    public static function add_discussion($forum, $discussion, $group, $subject, $message, $draftarea) {
+    public static function add_discussion($forum, $discussion, $group, $subject, $message,
+            $draftarea, $showsticky, $showfrom, $postas) {
         global $PAGE, $DB;
 
         // Notes - only creating a new discussion is supported at present
@@ -96,7 +103,10 @@ class add_discussion extends external_api {
             'group' => $group,
             'subject' => $subject,
             'message' => $message,
-            'draftarea' => $draftarea
+            'draftarea' => $draftarea,
+            'showfrom' => $showfrom,
+            'showsticky' => $showsticky,
+            'postas' => $postas,
         ];
 
         try {
@@ -110,7 +120,10 @@ class add_discussion extends external_api {
                 $discussion = \mod_forumng_discussion::get_from_id($data->discussion, 0);
                 $forum = $discussion->get_forum();
             }
-
+            if (strlen($data->subject) > 255) {
+                return ['success' => false, 'discussion' => 0,
+                        'errormsg' => get_string('errormaximumsubjectcharacter', 'mod_forumng')];
+            }
             // Set context to prevent notice message.
             $forumcontext = $forum->get_context(true);
             $PAGE->set_context($forumcontext);
@@ -124,7 +137,8 @@ class add_discussion extends external_api {
                 }
                 $transaction = $DB->start_delegated_transaction();
                 list($newdiscussionid, $newpostid) = $forum->create_discussion($data->group, $data->subject, $data->message,
-                        FORMAT_HTML, $data->draftarea > 1);
+                        FORMAT_HTML, $data->draftarea > 1, false, $data->showfrom, 0, false,
+                        $data->showsticky, 0, true, $data->postas);
                 // Attachments.
                 if ($data->draftarea > 1) {
                     file_save_draft_area_files($data->draftarea, $forumcontext->id, 'mod_forumng',

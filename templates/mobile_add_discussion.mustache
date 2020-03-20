@@ -38,27 +38,60 @@
         'submitlabel': 'Post discussion',
         'subject': '',
         'message': '',
-        'maxsize': 1024
+        'maxsize': 1024,
+        "options": [
+            {
+                "key": "1",
+                "value": "Option 1"
+            }
+        ],
+        'canviewhidden' : true/false,
+        'hasoption' : true/false,
+        'postas' : string,
+        'displayoption' :string,
+        'displayperiod' :string,
     }
 
 }}
 {{=<% %>=}}
-<ion-content>
-    <ion-list>
-        <ion-item>
-            <ion-label stacked>{{ 'plugin.mod_forumng.subject' | translate }}</ion-label>
-            <ion-input type="text" [placeholder]="'plugin.mod_forumng.subject' | translate" [(ngModel)]="subject"></ion-input>
-        </ion-item>
-        <ion-item>
-            <ion-label stacked>{{ 'plugin.mod_forumng.message' | translate }}</ion-label>
-            <ion-textarea #textarea class="core-textarea" [placeholder]="'plugin.mod_forumng.message' | translate" [name]="msg" [(ngModel)]="message"></ion-textarea>
-        </ion-item>
-        <ion-item>
-            <ion-label class="mma-forumng-smaller-text">{{ 'plugin.mod_forumng.attachments' | translate }}</ion-label>
-        </ion-item>
-        <core-attachments [files]="CONTENT_OTHERDATA.files" [maxSize]="<% maxsize %>" [component]="mod_forumng" [componentId]="<% cmid %>" [acceptedTypes]="application/octet-stream" [allowOffline]="false"></core-attachments>
-        <ion-item>
-            <button id="mma-forumng-add-discussion-button" ion-button block (click)="addDiscussion()" [disabled]="subject == '' || message == null || message == ''"><% submitlabel %></button>
-        </ion-item>
-    </ion-list>
-</ion-content>
+<ion-item>
+    <ion-label stacked>{{ 'plugin.mod_forumng.subject' | translate }}</ion-label>
+    <ion-input (ionChange)="onSubjectChange()" type="text" [placeholder]="'plugin.mod_forumng.subject' | translate" [(ngModel)]="subject"></ion-input>
+</ion-item>
+<ion-item>
+    <ion-label stacked>{{ 'plugin.mod_forumng.message' | translate }}</ion-label>
+    <core-rich-text-editor item-content (contentChanged)="onMessageChange($event)" [control]="addDiscussionControl" class="forumng-add-discussion-message"
+                [placeholder]="'plugin.mod_forumng.message' | translate" [name]="msg" [(ngModel)]="message"></core-rich-text-editor>
+</ion-item>
+<ion-item>
+    <ion-label class="mma-forumng-smaller-text">{{ 'plugin.mod_forumng.attachments' | translate }}</ion-label>
+</ion-item>
+<core-attachments (ionChange)="onFileChange()" [files]="CONTENT_OTHERDATA.files" [maxSize]="<% maxsize %>" [component]="mod_forumng" [componentId]="<% cmid %>" [acceptedTypes]="application/octet-stream" [allowOffline]="false"></core-attachments>
+<%# cantag %>
+    <ion-item>
+        <ion-label text-wrap><%{ displayoption }%></ion-label>
+        <ion-toggle (ionChange)="onStickyChange()" id="mma-forumng-show-sticky" [(ngModel)]="CONTENT_OTHERDATA.showsticky"></ion-toggle>
+    </ion-item>
+<%/ cantag %>
+<%# canviewhidden %>
+    <ion-item text-wrap>
+      <ion-label text-wrap><%{ displayperiod }%></ion-label>
+      <ion-datetime [max]="CONTENT_OTHERDATA.maxyear" (ionChange)="onDateChange()" [placeholder]="'core.date' | translate" [displayFormat]="dateFormat" [(ngModel)]="CONTENT_OTHERDATA.showfrom"></ion-datetime>
+    </ion-item>
+<%/ canviewhidden %>
+<%# hasoption %>
+   <ion-item text-wrap>
+       <ion-label text-wrap><%{ postas }%></ion-label>
+       <ion-select (ionChange)="PostAsChange()" [(ngModel)]="CONTENT_OTHERDATA.postas" interface="action-sheet" text-wrap>
+           <%# options %>
+                <ion-option value="<% key %>">
+                   <% value %>
+                </ion-option>
+           <%/ options %>
+       </ion-select>
+   </ion-item>
+<%/ hasoption %>
+<ion-item>
+    <button id="mma-forumng-add-discussion-button" ion-button block (click)="addDiscussion()" [disabled]="subject == '' || message == null || message == ''"><% submitlabel %></button>
+    <button ion-button (click)="NewDiscussionCancel()">{{ 'core.cancel' | translate }}</button>
+</ion-item>

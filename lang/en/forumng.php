@@ -1052,6 +1052,7 @@ $string['erroremptymessage'] = 'Message cannot be empty';
 $string['erroremptysubject'] = 'Subject cannot be empty.';
 $string['cannotcreatediscussion'] = 'Could not create discussion.';
 $string['cannotcreatereply'] = 'Could not create reply.';
+$string['errormaximumsubjectcharacter'] = 'Maximum of 255 characters';
 
 $string['sortbydateoflastpost'] = 'Sort by date of last post';
 $string['sortbytitle'] = 'Sort by title (A to Z)';
@@ -1060,3 +1061,9 @@ $string['date'] = 'Date';
 $string['markallasread'] = 'Mark all as read';
 $string['automarkpostasread'] = 'Automatically mark posts as read';
 $string['manuallymarkpostasread'] = 'Manually mark posts as read';
+$string['displayoption'] = '<span class="mma-forumng-boldtitle">Discussion options</span> (Show as sticky)';
+$string['displayperiodmobile'] = '<span class="mma-forumng-boldtitle">Display period:</span> Only show from';
+$string['postasmobile'] = '<span class="mma-forumng-boldtitle">Post as:</span>';
+$string['dateformat'] = '%d %B %Y';
+$string['noselection'] = 'No selection';
+$string['leavemessage'] = 'Changes you have made have not been saved. Are you sure you want to leave the page?';

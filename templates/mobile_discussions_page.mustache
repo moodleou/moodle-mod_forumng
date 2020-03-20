@@ -136,13 +136,24 @@
             </ion-grid>
         </ion-item>
         <%/ hasdrafts %>
-        <%# hasdiscussions %>
         <ion-item class="mma-forumng-discussion-item">
             <%^ isipud %>
+            <%# canstartdiscussion %>
+            <button ion-button block id="mod_forumg_add_discussion" core-site-plugins-new-content color="primary"
+                    title="{{ 'plugin.mod_forumng.addanewdiscussion' | translate }}" component="mod_forumng"
+                    method="add_discussion"
+                    [args]="{cmid: <% cmid %>, discussionid: 0, groupid: CONTENT_OTHERDATA.defaultgroup}"
+                    [disabled]="!isOnline()">
+                {{ 'plugin.mod_forumng.addanewdiscussion' | translate }}
+            </button>
+            <%/ canstartdiscussion %>
+            <%# hasdiscussions %>
             <button ion-button color="primary" class="button-discussion-makeallread" *ngIf="CONTENT_OTHERDATA.manualmark" (click)="MarkAllPostsRead()">
                 {{ 'plugin.mod_forumng.markallasread' | translate }}
             </button>
+            <%/ hasdiscussions %>
             <%/ isipud %>
+            <%# hasdiscussions %>
             <core-context-menu class="mma-forumng-discussion-sort" item-end>
                 <core-context-menu-item *ngFor="let option of CONTENT_OTHERDATA.sortoption" [priority]="900"
                                         [content]="option.title" autoLogin="no"
@@ -150,7 +161,9 @@
                                         [iconAction]="CONTENT_OTHERDATA.selectedsort == option.sortid ? 'radio-button-on' : 'radio-button-off'">
                 </core-context-menu-item>
             </core-context-menu>
+            <%/ hasdiscussions %>
         </ion-item>
+        <%# hasdiscussions %>
         <ion-item *ngFor="let discussion of CONTENT_OTHERDATA.discussions"
                   class="mma-forumng-discussion-item mma-forumng-discussion-short">
             <div item-content core-site-plugins-new-content component="mod_forumng" method="posts_view"
@@ -238,21 +251,5 @@
     <%^ hasdiscussions %>
     <div class="mma-empty-discussion"></div>
     <%/ hasdiscussions %>
-    <%# canstartdiscussion %>
-    <!-- FAB should be placed within an ion-content to make it a really fixed position item, but that affects infinite scroll
-            and PTR and adds a large border at the bottom - very poor in landscape view -->
-    <ion-content>
-        <ion-fab right bottom
-                 *ngIf="!CONTENT_OTHERDATA.hasGroups || (CONTENT_OTHERDATA.hasGroups && CONTENT_OTHERDATA.defaultgroup)">
-            <button ion-fab core-site-plugins-new-content color="primary"
-                    title="{{ 'plugin.mod_forumng.addanewdiscussion' | translate }}" component="mod_forumng"
-                    method="add_discussion"
-                    [args]="{cmid: <% cmid %>, discussionid: 0, groupid: CONTENT_OTHERDATA.defaultgroup}"
-                    [disabled]="!isOnline()">
-                <ion-icon name="add"></ion-icon>
-            </button>
-        </ion-fab>
-    </ion-content>
-    <%/ canstartdiscussion %>
 </div>
 <%/ error %>

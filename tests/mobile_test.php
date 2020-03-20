@@ -194,7 +194,8 @@ class mobile_testcase extends \advanced_testcase {
         $draftarea = $file->get_itemid();
 
         // Add a new discussion via the WS.
-        $result = add_discussion::add_discussion($forum->id, $discussion, $group, $subject, $message, $draftarea);
+        $result = add_discussion::add_discussion($forum->id, $discussion, $group,
+                $subject, $message, $draftarea, 0, 0, 0);
         $this->assertTrue($result['success']);
         $this->assertEmpty($result['errormsg']);
         $discussionid = $result['discussion'];
@@ -204,6 +205,18 @@ class mobile_testcase extends \advanced_testcase {
         // Check the attachment.
         $attachmentnames = $discussion->get_root_post()->get_attachment_names();
         $this->assertEquals('basepic.jpg', $attachmentnames[0]);
+        $showfrom = time();
+        $result = add_discussion::add_discussion($forum->id, 0, $group,
+                $subject, $message, 0, 1, $showfrom, 1);
+        $this->assertTrue($result['success']);
+        $this->assertEmpty($result['errormsg']);
+        $discussionid = $result['discussion'];
+        $discussion = \mod_forumng_discussion::get_from_id($discussionid, 0);
+        $this->assertEquals($subject, $discussion->get_subject());
+        $this->assertEquals($showfrom, $discussion->get_time_start());
+        $this->assertEquals($showfrom, $discussion->is_sticky());
+        $rootpost = $discussion->get_root_post();
+        $this->assertEquals(0, $rootpost->get_asmoderator());
     }
 
     /**

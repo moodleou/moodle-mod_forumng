@@ -629,22 +629,37 @@ class mobile {
         $args = (object) $args;
         $cmid = $args->cmid;
         $discussionid = $args->discussionid;
-        $selectedgroupid = $args->groupid;
+        $groupid = (int)$args->groupid;
         $forumng = \mod_forumng::get_from_cmid($cmid, \mod_forumng::CLONE_DIRECT);
         $cm = $forumng->get_course_module();
-        $groupid = \mod_forumng::get_activity_group($cm, true);
-        // Null if student not in a group, or in two groups, and -1 if no groups allowed.
-        if ($selectedgroupid > 0 && is_null($groupid)) {
-            $groupid = $selectedgroupid;
+        // Only add moderator element to post edit form if op1 or op2 available.
+        $options = null;
+        $hasoption = false;
+        $canviewhidden = $forumng->can_manage_discussions() && $forumng->can_view_hidden();
+        $cantag = $forumng->can_manage_discussions() || $forumng->can_tag_discussion();
+        $options = self::post_as_option($forumng);
+        if (!empty($options)) {
+            $hasoption = true;
         }
-        $forumng->require_start_discussion($groupid);
 
+        $forumng->require_start_discussion($groupid);
+        $postas = get_string('postasmobile', 'mod_forumng');
+        $displayoption = get_string('displayoption', 'mod_forumng');
+        $displayperiod = get_string('displayperiodmobile', 'mod_forumng');
         $data = [
             'cmid' => $cmid,
             'submitlabel' => get_string('postdiscussion', 'mod_forumng'),
             'subject' => '',
             'message' => null,
-            'maxsize' => $forumng->get_max_bytes() // There is no limit to 'maxSubmissions' in forumng.
+            'maxsize' => $forumng->get_max_bytes(), // There is no limit to 'maxSubmissions' in forumng.
+            'sticky' => 0,
+            'options' => $options,
+            'hasoption' => $hasoption,
+            'canviewhidden' => $canviewhidden,
+            'cantag' => $cantag,
+            'postas' => $postas,
+            'displayoption' => $displayoption,
+            'displayperiod' => $displayperiod,
         ];
         $html = $OUTPUT->render_from_template('mod_forumng/mobile_add_discussion', $data);
 
@@ -660,7 +675,12 @@ class mobile {
                 'files' => json_encode([]),
                 'forumng' => $forumng->get_id(),
                 'discussion' => $discussionid,
-                'group' => $groupid
+                'group' => $groupid,
+                'showsticky' => 0,
+                'showfrom' => 0,
+                'postas' => 0,
+                'cmid' => $forumng->get_course_module_id(),
+                'maxyear' => date('Y', strtotime('+30 years')),
             ],
             'files' => []
         ];
@@ -790,5 +810,27 @@ class mobile {
         } else {
             return false;
         }
+    }
+
+    /**
+     * Show Post as option.
+     *
+     * @param mod_forumng $forumng
+     * @return array
+     * @throws \coding_exception
+     */
+    private static function post_as_option(\mod_forumng $forumng) {
+        $options = [];
+        if ($forumng->can_indicate_moderator()) {
+            $option1 = new \stdClass();
+            $option1->key = \mod_forumng::ASMODERATOR_NO;
+            $option1->value = get_string('asmoderator_post', 'forumng');
+            $options[] = $option1;
+            $option2 = new \stdClass();
+            $option2->key = \mod_forumng::ASMODERATOR_IDENTIFY;
+            $option2->value = get_string('asmoderator_self', 'forumng');
+            $options[] = $option2;
+        }
+        return $options;
     }
 }

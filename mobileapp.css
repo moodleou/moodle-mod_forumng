@@ -197,6 +197,32 @@ html[style="font-size: 93.75%;"] .mma-forumng-discussion-listing .select-icon .s
 .mma-empty-discussion-string {
     padding-left: 16px;
 }
+/* Fixed large border at the bottom of FAB*/
+.mma-forumng-discussion-add .fixed-content,
+.mma-forumng-discussion-add .scroll-content {
+    margin-bottom: 0px !important;
+}
+.forumng-add-discussion-message {
+    max-height: 300px;
+}
+ion-app.app-root #mma-forumng-add-discussion-button {
+    display: inline-block;
+    max-width: 120px;
+}
+html[style="font-size: 75.89%;"] ion-app.app-root #mma-forumng-add-discussion-button {
+    max-width: 130px;
+}
+html[style="font-size: 93.75%;"] ion-app.app-root #mma-forumng-add-discussion-button {
+    max-width: 155px;
+}
+.mma-forumng-boldtitle {
+    font-weight: bold;
+    font-size: 1.4rem;
+}
+ion-app.app-root core-rich-text-editor.forumng-add-discussion-message .core-rte-editor ol,
+ion-app.app-root core-rich-text-editor.forumng-add-discussion-message .core-rte-editor ul {
+    -webkit-padding-start: 20px;
+}
 
 .mma-forumng-discussion-list .mma-forumng-discussion .mma-forumng-ipud-discussion-subject {
     font-size: inherit;
@@ -286,5 +312,31 @@ html[style="font-size: 93.75%;"] .mma-forumng-discussion-list core-format-text[m
     and (orientation: landscape) {
     [dir="ltr"] ion-app.ios .mma-forumng-discussion-item .mma-forumng-ipud-discussion-icons {
         right: calc(env(safe-area-inset-left) + 10px);
+    }
+}
+
+ion-app.app-root.md .button-md#mod_forumg_add_discussion,
+ion-app.app-root.ios .button-ios#mod_forumg_add_discussion {
+    display: inline-block;
+    max-width: 160px;
+}
+
+html[style="font-size: 75.89%;"] ion-app.app-root.md .button-md#mod_forumg_add_discussion,
+html[style="font-size: 75.89%;"] ion-app.app-root.ios .button-ios#mod_forumg_add_discussion {
+    max-width: 220px;
+}
+html[style="font-size: 93.75%;"] ion-app.app-root.md .button-md#mod_forumg_add_discussion,
+html[style="font-size: 93.75%;"] ion-app.app-root.ios .button-ios#mod_forumg_add_discussion {
+    max-width: 250px;
+}
+
+@media (orientation: portrait) and (max-width: 600px) {
+    html[style="font-size: 93.75%;"] ion-app.app-root.md .button-md#mod_forumg_add_discussion,
+    html[style="font-size: 93.75%;"] ion-app.app-root.ios .button-ios#mod_forumg_add_discussion {
+        display: block;
+    }
+    html[style="font-size: 75.89%;"] ion-app.app-root.md .button-md#mod_forumg_add_discussion,
+    html[style="font-size: 75.89%;"] ion-app.app-root.ios .button-ios#mod_forumg_add_discussion {
+        display: block;
     }
 }

@@ -33,6 +33,15 @@
     AddonModForumngLinkHandler.prototype.constructor = AddonModForumngLinkHandler;
     t.CoreContentLinksDelegate.registerHandler(new AddonModForumngLinkHandler());
 
+   t.newDiscussion = {
+       subject: '',
+       message: '',
+       files: [],
+       sticky: 0,
+       date: 0,
+       postas: 0,
+    };
+
     /**
      * Handles a request for more discussions, getting the next chunk and displaying.
      *
@@ -98,23 +107,38 @@
      * @param {object} that The this object when calling this function.
      */
     t.mod_forumng.addDiscussion = function(that) {
+        var site = that.CoreSitesProvider.getCurrentSite();
+        var cmid = that.CONTENT_OTHERDATA.cmid;
+        var userid = site.getUserId();
         var subject = that.subject;
         var message = that.message;
         var groupId = that.CONTENT_OTHERDATA.group; // No group selection in this form; it is done on previous page.
         var discussionId = that.CONTENT_OTHERDATA.discussion; // This is 0 until we add editing.
         var forumngId = that.CONTENT_OTHERDATA.forumng;
         var attachments = that.CONTENT_OTHERDATA.files; // Type [FileEntry].
+        var showsticky = that.CONTENT_OTHERDATA.showsticky;
+        var showfrom = that.CONTENT_OTHERDATA.showfrom;
+        var postas = that.CONTENT_OTHERDATA.postas;
+        showfrom = showfrom !== 0 ? Date.parse(showfrom) / 1000 : 0;
         //var discTimecreated = Date.now(); //TODO part of offline - that.timeCreated || Date.now();
         var saveOffline = false;
         var modal;
         var promise;
-
-        if (!subject) {
-            that.CoreUtilsProvider.domUtils.showErrorModal('addon.mod_forumng.erroremptysubject', true);
+        var regexp = /\S+/;
+        if (!subject || !subject.match(regexp)) {
+            that.CoreUtilsProvider.domUtils.showErrorModal('plugin.mod_forumng.erroremptysubject', true);
             return;
         }
-        if (!message) {
-            that.CoreUtilsProvider.domUtils.showErrorModal('addon.mod_forumng.erroremptymessage', true);
+        if (!subject.length > 255) {
+            that.CoreUtilsProvider.domUtils.showErrorModal('plugin.mod_forumng.errormaximumsubjectcharacter', true);
+            return;
+        }
+        // Check text in the message.
+        var div = document.createElement('div');
+        div.innerHTML = message;
+        var messagetext = div.textContent;
+        if (!message || !messagetext.match(regexp)) {
+            that.CoreUtilsProvider.domUtils.showErrorModal('plugin.mod_forumng.erroremptymessage', true);
             return;
         }
         message = that.CoreTextUtilsProvider.formatHtmlLines(message);
@@ -153,7 +177,10 @@
                     group: groupId,
                     subject: subject,
                     message: message,
-                    draftarea: draftAreaId // Note this will be 1 if there are no files.
+                    draftarea: draftAreaId, // Note this will be 1 if there are no files.
+                    showsticky: showsticky,
+                    showfrom: showfrom,
+                    postas: postas,
                 };
                 return site.write('mod_forumng_add_discussion', params).then(function(response) {
                     // Other errors ocurring.
@@ -175,13 +202,21 @@
                 //that.AddonModForumHelperProvider.deleteNewDiscussionStoredFiles(this.forumId, discTimecreated);
                 //TODO trigger new discussion event or similar?
             }
+            t.mod_forumng.setNeedUpdate(cmid, 1, userid);
             //TODO check all functionality in core forum (new-discussion.ts) returnToDiscussions(discussionId) is covered.
             // Navigate back to the discussions page and refresh to show new discussion.
             t.mod_forumng.viewSubscribe =
                 that.CoreAppProvider.appCtrl.viewDidEnter.subscribe(t.mod_forumng.forumngRefreshContent);
+            that.subject = '';
+            that.message = '';
+            that.CONTENT_OTHERDATA.files = []; // Type [FileEntry].
+            that.CONTENT_OTHERDATA.showsticky = 0;
+            that.CONTENT_OTHERDATA.showfrom = 0;
+            that.CONTENT_OTHERDATA.postas = 0;
+            t.newDiscussion.date = 0;
             that.NavController.pop();
         }).catch(function(msg) {
-            that.CoreUtilsProvider.domUtils.showErrorModalDefault(msg, 'addon.mod_forum.cannotcreatediscussion', true);
+            that.CoreUtilsProvider.domUtils.showErrorModalDefault(msg, 'plugin.mod_forumng.cannotcreatediscussion', true);
         }).finally(function() {
             modal.dismiss();
         });
@@ -197,6 +232,13 @@
             t.mod_forumng.viewSubscribe.unsubscribe();
             delete t.mod_forumng.viewSubscribe;
             t.mod_forumng.currentDiscussionsPage.refreshContent();
+            // Clear forum form content after refresh.
+            t.newDiscussion.postas = 0;
+            t.newDiscussion.message = '';
+            t.newDiscussion.subject = '';
+            t.newDiscussion.files = [];
+            t.newDiscussion.date = 0;
+            t.newDiscussion.showsticky = 0;
         }
     };
 
@@ -219,7 +261,7 @@
         var promise;
 
         if (!message) {
-            that.CoreUtilsProvider.domUtils.showErrorModal('addon.mod_forumng.erroremptymessage', true);
+            that.CoreUtilsProvider.domUtils.showErrorModal('plugin.mod_forumng.erroremptymessage', true);
             return;
         }
         message = that.CoreTextUtilsProvider.formatHtmlLines(message);
@@ -285,7 +327,7 @@
                     that.CoreAppProvider.appCtrl.viewDidEnter.subscribe(t.mod_forumng.forumngRefreshPostsContent);
             that.NavController.pop();
         }).catch(function(msg) {
-            that.CoreUtilsProvider.domUtils.showErrorModalDefault(msg, 'addon.mod_forum.cannotcreatereply', true);
+            that.CoreUtilsProvider.domUtils.showErrorModalDefault(msg, 'plugin.mod_forumng.cannotcreatereply', true);
         }).finally(function() {
             modal.dismiss();
         });
@@ -322,7 +364,7 @@
         var PopoverTransition = function() {
             var popover = document.querySelector('.popover-content');
             if (popover) {
-                popover.style.right = 10 + 'px';
+                popover.style.right = 'calc(env(safe-area-inset-right) + 0px)';
                 popover.style.left = null;
             }
         };
@@ -481,9 +523,89 @@
      * @param {object} outerThis The main component.
      */
     window.forumngAddDiscussionInit = function(outerThis) {
+        outerThis.addDiscussionControl = outerThis.FormBuilder.control();
+        outerThis.subject = t.newDiscussion.subject ? t.newDiscussion.subject : outerThis.subject;
+        outerThis.addDiscussionControl.value = t.newDiscussion.message ? t.newDiscussion.message : outerThis.message;
+        outerThis.CONTENT_OTHERDATA.files = t.newDiscussion.files ? t.newDiscussion.files : outerThis.files;
+        outerThis.CONTENT_OTHERDATA.showsticky = t.newDiscussion.sticky ? t.newDiscussion.sticky : outerThis.CONTENT_OTHERDATA.showsticky;
+        outerThis.CONTENT_OTHERDATA.showfrom = t.newDiscussion.date ? t.newDiscussion.date : outerThis.CONTENT_OTHERDATA.showfrom;
+        outerThis.CONTENT_OTHERDATA.postas = t.newDiscussion.postas ? t.newDiscussion.postas : outerThis.CONTENT_OTHERDATA.postas;
+        var regexp = /\S+/;
         outerThis.addDiscussion = function() {
             t.mod_forumng.addDiscussion(outerThis);
         };
+
+        outerThis.NewDiscussionCancel = function() {
+            outerThis.NavController.pop();
+        };
+
+        outerThis.ionViewCanLeave = function() {
+            var subject = outerThis.subject;
+            var message = outerThis.message;
+            var attachments = outerThis.CONTENT_OTHERDATA.files; // Type [FileEntry].
+            var showsticky = outerThis.CONTENT_OTHERDATA.showsticky;
+            var showfrom = outerThis.CONTENT_OTHERDATA.showfrom;
+            var postas = outerThis.CONTENT_OTHERDATA.postas;
+            if (subject || message || attachments.length > 0 || showsticky != 0 || showfrom != 0 || postas != 0) {
+                t.newDiscussion.postas = 0;
+                t.newDiscussion.message = '';
+                t.newDiscussion.subject = '';
+                t.newDiscussion.files = [];
+                t.newDiscussion.date = 0;
+                t.newDiscussion.sticky = 0;
+                return outerThis.CoreDomUtilsProvider.showConfirm(outerThis.TranslateService.instant('plugin.mod_forumng.leavemessage')).then(function() {
+                    return outerThis.CoreFileUploaderProvider.clearTmpFiles(attachments);
+                });
+            }
+            return;
+        };
+
+        outerThis.onMessageChange = function (text) {
+            // Check text in the message.
+            var div = document.createElement('div');
+            div.innerHTML = text;
+            var messagetext = div.textContent;
+            if (!messagetext.match(regexp)) {
+                text = '';
+            }
+            t.newDiscussion.message = text;
+        };
+        /**
+         * Refresh the data.
+         *
+         * @param {any} refresher Refresher.
+         */
+        outerThis.onSubjectChange = function() {
+            if (!outerThis.subject.match(regexp)) {
+                outerThis.subject = '';
+            }
+            t.newDiscussion.subject = outerThis.subject;
+
+        };
+
+        outerThis.onFileChange = function() {
+            t.newDiscussion.files = outerThis.CONTENT_OTHERDATA.files;
+        };
+
+        outerThis.onStickyChange = function() {
+            t.newDiscussion.sticky = outerThis.CONTENT_OTHERDATA.showsticky;
+        };
+
+        outerThis.onDateChange = function() {
+            t.newDiscussion.date = outerThis.CONTENT_OTHERDATA.showfrom;
+        };
+
+        outerThis.PostAsChange = function() {
+            t.newDiscussion.postas = outerThis.CONTENT_OTHERDATA.postas;
+        };
+
+        // Calculate format to use. ion-datetime doesn't support escaping characters ([]), so we remove them.
+        outerThis.dateFormat = outerThis.CoreTimeUtilsProvider.convertPHPToMoment('%d %B %Y')
+            .replace(/[\[\]]/g, '');
+
+        // Default current date. If we need it.
+        // outerThis.startDate = outerThis.CoreTimeUtilsProvider.toDatetimeFormat();
+
         // Network online check that disables the submission button if the app is offline.
         if (!t.mod_forumng.subscription) {
             t.mod_forumng.subscription = outerThis.CoreAppProvider.network.onchange().subscribe(function(online) {
