@@ -157,6 +157,10 @@ ion-app.md .mma-forumng-infinite-scroll {
     height: 70px;
 }
 
+html[style="font-size: 93.75%;"] .mma-forumng-discussion-listing .select-icon .select-icon-inner {
+    margin-top: 0px;
+}
+
 /* Posts listing page */
 .mma-forumng-posts-list-wrapper .mma-forumng-posts-list .mma-forumng-iconsize-correction ion-icon[item-start] {
     margin: 0;

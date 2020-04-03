@@ -109,7 +109,29 @@ class mobile {
         $cm = $forumng->get_course_module();
         $context = $forumng->get_context();
         $groupid = \mod_forumng::get_activity_group($cm, true); // Null if student not in a group, or in two groups.
-        $forumng->require_view($groupid); // This can throw an error about aag capability (in an error dialog).
+
+        try {
+            $forumng->require_view($groupid);
+        } catch (\moodle_exception $e) {
+            $error = $e->getMessage();
+            $data = [
+                'error' => $error,
+            ];
+
+            $html = $OUTPUT->render_from_template('mod_forumng/mobile_discussions_page', $data);
+            return [
+                'templates' => [
+                    [
+                        'id' => 'main',
+                        'html' => $html,
+                    ]
+                ],
+                'javascript' => '',
+                'otherdata' => [
+                ],
+                'files' => []
+            ];
+        }
 
         // Completion and logging.
         // Do this forum view logging from the server end, as it is surely not possible to view the forum when offline.
@@ -121,25 +143,30 @@ class mobile {
 
         // Groups.
         $hasgroups = false; // No visible groups, or user not in a group - display nothing.
-        $groupsmenu = ''; // User in one group - display the group name.
         $groups = []; // User in more than one group, or has access to all - display group selector.
+        $grouplabel = get_string('group', 'forumng');
         $allowedgroups = groups_get_activity_allowed_groups($cm);
         $activegroup = groups_get_activity_group($cm, true, $allowedgroups);
         $groupmode = $forumng->get_group_mode();
         if ($groupmode) {
             if ($allowedgroups) {
-                if (count($allowedgroups) == 1) {
-                    // Get the text for the current group.
-                    $groupsmenu = groups_print_activity_menu($cm, $forumng->get_url(\mod_forumng::PARAM_HTML), true);
+                $hasgroups = true;
+                $aag = has_capability('moodle/site:accessallgroups', $context);
+                if ($groupmode == VISIBLEGROUPS or $aag) {
+                    $groups[] = (object)['groupid' => 0, 'groupname' => get_string('allparticipants')];
+                    $groupid = $activegroup;
+                }
+                foreach ($allowedgroups as $g) {
+                    $groups[] = (object)['groupid' => $g->id, 'groupname' => format_string($g->name)];
+                }
+                if ($groupmode == VISIBLEGROUPS) {
+                    $grouplabel = get_string('groupsvisible', 'group');
                 } else {
-                    $hasgroups = true;
-                    $aag = has_capability('moodle/site:accessallgroups', $context);
-                    if ($groupmode == VISIBLEGROUPS or $aag) {
-                        $groups[] = (object)['groupid' => 0, 'groupname' => get_string('allparticipants')];
-                        $groupid = $activegroup;
-                    }
-                    foreach ($allowedgroups as $g) {
-                        $groups[] = (object)['groupid' => $g->id, 'groupname' => format_string($g->name)];
+                    $grouplabel = get_string('groupsseparate', 'group');
+                }
+                if ($aag and $cm->groupingid) {
+                    if ($grouping = groups_get_grouping($cm->groupingid)) {
+                        $grouplabel = $grouplabel . ' (' . format_string($grouping->name) . ')';
                     }
                 }
             }
@@ -256,7 +283,7 @@ class mobile {
             'forum' => $forum,
             'hasgroups' => $hasgroups,
             'groups' => $groups,
-            'groupsmenu' => $groupsmenu,
+            'grouplabel' => $grouplabel,
             'hasdiscussions' => $hasdiscussions,
             'cmid' => $cm->id,
             'courseid' => $course->id,

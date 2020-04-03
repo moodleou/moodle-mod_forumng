@@ -62,6 +62,10 @@
 
 }}
 {{=<% %>=}}
+<%# error %>
+<core-format-text text="<% error %>" component="mod_forumng" maxHeight="80" text-wrap></core-format-text>
+<%/ error %>
+<%^ error %>
 <%^ isipud %>
 <core-navbar-buttons>
     <core-context-menu>
@@ -75,7 +79,7 @@
     <!-- Group selector -->
     <ion-list>
         <ion-item>
-            <ion-label>{{ 'plugin.mod_forumng.group' | translate }}</ion-label>
+            <ion-label><% grouplabel %></ion-label>
             <ion-select [(ngModel)]="CONTENT_OTHERDATA.defaultgroup" interface="popover"
                         (ionChange)="updateGroupContent({cmid: <% cmid %>, courseid: <% courseid %>, group: $event, isupdate: 1})">
                 <%# groups %>
@@ -84,16 +88,6 @@
             </ion-select>
         </ion-item>
     </ion-list>
-    <%/ hasgroups %>
-    <%^ hasgroups %>
-    <!-- Fixed group or no groups -->
-    <%# groupsmenu %>
-    <ion-list>
-        <ion-item>
-            <%{ groupsmenu }%>
-        </ion-item>
-    </ion-list>
-    <%/ groupsmenu %>
     <%/ hasgroups %>
     <ion-list class="mma-forumng-discussion-list" no-lines>
         <ion-item>
@@ -261,3 +255,4 @@
     </ion-content>
     <%/ canstartdiscussion %>
 </div>
+<%/ error %>
