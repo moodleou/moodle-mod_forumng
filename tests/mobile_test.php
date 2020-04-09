@@ -26,12 +26,12 @@ namespace tests\mod_forumng;
 
 use \mod_forumng\output\mobile;
 use \mod_forumng\local\external\more_discussions;
-use \mod_forumng\local\external\more_posts;
 use \mod_forumng\local\external\add_discussion;
 use \mod_forumng\local\external\reply;
 use \mod_forumng\local\external\mark_read;
 use \mod_forumng\local\external\manual_mark;
 use \mod_forumng\local\external\mark_all_post_read;
+use \mod_forumng\local\external\lock_discussion;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -125,54 +125,6 @@ class mobile_testcase extends \advanced_testcase {
     }
 
     /**
-     * Test the more_posts webservice functionality.
-     */
-    public function test_mobile_forumng_more_posts() {
-        $this->resetAfterTest();
-
-        $generator = $this->getDataGenerator();
-        $course = $generator->create_course();
-        $student = $generator->create_user();
-        $generator->enrol_user($student->id, $course->id, 'student');
-        $this->setUser($student);
-        $forumnggenerator = $generator->get_plugin_generator('mod_forumng');
-        $forum = $forumnggenerator->create_instance(['course' => $course->id]);
-
-        // Add discussion and posts.
-        $record = [];
-        $record['course'] = $course->id;
-        $record['forum'] = $forum->id;
-        $record['userid'] = $student->id;
-        list($discussionid, $postid) = $forumnggenerator->create_discussion($record);
-        $record = [];
-        $record['discussionid'] = $discussionid;
-        $record['userid'] = $student->id;
-        $record['parentpostid'] = $postid;
-        $record['subject'] = '';
-        // We need 6 posts as the mobile::NUMBER_POSTS is set to 5.
-        $post1 = $forumnggenerator->create_post($record);
-        $post2 = $forumnggenerator->create_post($record);
-        $post3 = $forumnggenerator->create_post($record);
-        $post4 = $forumnggenerator->create_post($record);
-        $post5 = $forumnggenerator->create_post($record);
-        $post6 = $forumnggenerator->create_post($record);
-
-        // Get the second chunk of posts from the webservice function.
-        // It would be possible to set from to 0 and get mobile::NUMBER_POSTS returned,
-        // but this more accurately reflects what happens as a user scrolls down
-        // the page to get more posts.
-        $from = 5;
-        $result = more_posts::more_posts($discussionid, $from);
-        $this->assertCount(1, $result);
-        $this->assertEquals('Forum message post 6', $result[0]->message);
-
-        // Check the system copes with a from that is incorrect and too large a number.
-        $from = 9;
-        $result = more_posts::more_posts($discussionid, $from);
-        $this->assertCount(0, $result);
-    }
-
-    /**
      * Test the add_discussion webservice functionality.
      */
     public function test_mobile_forumng_add_discussion() {
@@ -263,6 +215,60 @@ class mobile_testcase extends \advanced_testcase {
         $result = mobile::reply($args);
         $this->assertEquals($forum->id, $result['otherdata']['forumng']);
         $this->assertEquals($newpostid, $result['otherdata']['replyto']);
+    }
+
+    /**
+     * Test the lock  webservice functionality.
+     */
+    public function test_mobile_forumng_lock_discussion() {
+        $this->resetAfterTest();
+
+        $generator = $this->getDataGenerator();
+        $course = $generator->create_course();
+        $student = $generator->create_user();
+        $teacher = $generator->create_user();
+        $generator->enrol_user($student->id, $course->id, 'student');
+        $generator->enrol_user($teacher->id, $course->id, 'teacher');
+        $this->setUser($teacher);
+        $forumnggenerator = $generator->get_plugin_generator('mod_forumng');
+        $forum = $forumnggenerator->create_instance(['course' => $course->id]);
+        $record = [];
+        $record['course'] = $course->id;
+        $record['forum'] = $forum->id;
+        $record['userid'] = $teacher->id;
+        list($discussionid) = $forumnggenerator->create_discussion($record);
+
+        $cloneid = 0;
+        $subject = 'The discussion is now closed'; // A change of subject is not required for a reply.
+        $message = 'Test lock';
+        $filerecord = ['filename' => 'basepic.jpg'];
+        $file = self::create_draft_file($filerecord);
+        $draftarea = $file->get_itemid();
+        $postas = 0;
+
+        $result = lock_discussion::lock_discussion($discussionid, $cloneid, $subject, $message, $draftarea, $postas);
+        $this->assertTrue($result['success']);
+        $this->assertEmpty($result['errormsg']);
+        //Check discussion is locked.
+        $discussion = \mod_forumng_discussion::get_from_id($discussionid, $cloneid);
+        $bool = $discussion->is_locked();
+        $this->assertEquals(true, $bool);
+        // Check the attachment.
+        $newpostid = $result['post'];
+        $post = \mod_forumng_post::get_from_id($newpostid, 0);
+        $attachmentnames = $post->get_attachment_names();
+        $this->assertEquals('basepic.jpg', $attachmentnames[0]);
+
+        // Check permission
+        $this->setUser($student);
+        $record = [];
+        $record['course'] = $course->id;
+        $record['forum'] = $forum->id;
+        $record['userid'] = $student->id;
+        list($discussionid) = $forumnggenerator->create_discussion($record);
+        $result = lock_discussion::lock_discussion($discussionid, $cloneid, $subject, $message, $draftarea, $postas);
+        $this->assertFalse($result['success']);
+        $this->assertEquals('You do not have permission to manage this discussion.', $result['errormsg']);
     }
 
     /**

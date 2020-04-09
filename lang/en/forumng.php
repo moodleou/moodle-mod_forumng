@@ -1067,3 +1067,8 @@ $string['postasmobile'] = '<span class="mma-forumng-boldtitle">Post as:</span>';
 $string['dateformat'] = '%d %B %Y';
 $string['noselection'] = 'No selection';
 $string['leavemessage'] = 'Changes you have made have not been saved. Are you sure you want to leave the page?';
+$string['lock'] = 'Lock';
+$string['lockdiscussion'] = 'Lock discussion';
+$string['cannotlockdiscussion'] = 'Could not lock discussion.';
+$string['expandallpost'] = 'Expand all';
+$string['collapseallpost'] = 'Collapse all';

@@ -32,6 +32,7 @@ use mod_forumng;
 require_once(__DIR__ . '/../../mod_forumng.php');
 require_once(__DIR__ . '/../../mod_forumng_utils.php');
 require_once(__DIR__ . '/../../renderer.php');
+require_once(__DIR__ . '/../../feature/forumngfeature_discussion.php');
 require_once($CFG->libdir . '/externallib.php');
 
 /**
@@ -47,11 +48,6 @@ class mobile {
      * @var int SHORTENED_LENGTH Shortened post message length.
      */
     const SHORTENED_LENGTH = 50;
-
-    /**
-     * @var int NUMBER_POSTS Number of posts to display initially.
-     */
-    const NUMBER_POSTS = 5;
 
     /** Discussion sort: by date. */
     const SORT_DATE = 0;
@@ -435,6 +431,19 @@ class mobile {
             }
         }
 
+        // Check can lock discussion.
+        $canlock = false;
+        $type = $discussion->get_forum()->get_type();
+        foreach (\forumngfeature_discussion::get_all($type) as $feature) {
+            if (get_class($feature) === 'forumngfeature_lock' && $feature->should_display($discussion) &&
+                $type->allow_forumngfeature_discussion($discussion, $feature)) {
+                $canlock = true;
+            }
+        }
+
+        // Default collaspe all posts.
+        $toggle = get_string('expandallpost', 'forumng');
+
         // Based on renderer.php render_post, and mod_forumng_post.php display_with_children.
         $root = $discussion->get_root_post();
         $defaultimage = $OUTPUT->image_url('u/f2');
@@ -451,13 +460,32 @@ class mobile {
         $postdata['noofreplies'] = $noofreplies;
         $postdata['hasreplies'] = $noofposts > 0;
 
-        // Rootpost (or starter message) is now ready to pass to the template.
-        $rootpost = (object) $postdata;
-
         // Initial replies to the root message are prepared but sent via otherdata.
         // Doing it this way allows sending of more chunks of data (via ajax) to be
         // added to the view when required (user scrolls down for more).
         $replies = self::get_more_posts($discussion, 0);
+
+        $renderer = $discussion->get_forum()->get_type()->get_renderer();
+        $importanticon = (object)[
+            'url' => $renderer->image_url('exclamation_mark', 'mod_forumng')->out(),
+            'alt' => get_string('important', 'forumng'),
+        ];
+
+        $islock = false;
+        $lockpost = '';
+        if ($discussion->is_locked()) {
+            $lockpost = end($replies);
+            $islock = true;
+            $canlock = false;
+            array_pop($replies);
+            if(is_null($lockpost->subject)) {
+                $lockpost->subject = 'Re: ' . $postdata['subject'];
+            }
+        }
+        $postdata['canlock'] = $canlock;
+
+        // Rootpost (or starter message) is now ready to pass to the template.
+        $rootpost = (object)$postdata;
 
         return [
             'templates' => [
@@ -468,9 +496,18 @@ class mobile {
             ],
             'javascript' => 'window.forumngPostsPageInit(this);',
             'otherdata' => [
+                'files' => json_encode([]),
                 'replies' => json_encode($replies),
                 'discussionid' => $discussion->get_id(),
-                'totalposts' => $noofposts
+                'forumngid' => $discussion->get_forum()->get_id(),
+                'importanticon' => json_encode($importanticon),
+                'totalposts' => $noofposts,
+                'toggle' => strtoupper($toggle),
+                'canlock' => $canlock,
+                'islock' => $islock,
+                'lockpost' => json_encode($lockpost),
+                'lock' => 0,
+                'postas' => 0,
             ],
             'files' => []
         ];
@@ -488,16 +525,9 @@ class mobile {
         global $OUTPUT;
         $posts = $discussion->get_root_post_replies(0); // 0 means get all.
         $replies = [];
-        $count = 0;
         $defaultimage = $OUTPUT->image_url('u/f2');
         $moderator = get_string('moderator', 'forumng');
         foreach ($posts as $post) {
-            // Note ipud has a way of returning similar data (see classes/local/external/get_posts.php)
-            // but it does not allow the chunked data that mobile needs.
-            if ($count < $from || $count >= (self::NUMBER_POSTS + $from)) {
-                $count++;
-                continue;
-            }
             // Get the main post data.
             $postdata = self::get_common_post_data($discussion, $post, $defaultimage, $moderator);
             // Add any sub-replies. All sub-replies and any other deeper levels of reply
@@ -515,7 +545,6 @@ class mobile {
             $postdata['subreplies'] = $subreplies;
             $reply = (object) $postdata;
             $replies[] = $reply;
-            $count++;
         }
         return $replies;
     }
@@ -566,14 +595,18 @@ class mobile {
             $startedbyurl = $defaultimage;
         }
         $username = $discussion->get_forum()->display_user_name($poster);
+
+        $hasanon = true;
+        $createdbymoderator = '';
         if ($posteranon == \mod_forumng::ASMODERATOR_IDENTIFY) {
-            $startedby = $username . ' ' . $moderator;
+            $startedby = $username . '<br><strong>' . $moderator . '</strong>';
         } else if ($posteranon == \mod_forumng::ASMODERATOR_ANON) {
-            if ($discussion->get_forum()->can_post_anonymously()) {
-                $startedby = $username . ' ' . $moderator;
-            } else {
-                $startedby = $moderator;
+            $startedby = $post->is_important() ? '<br><strong>' . $moderator . '</strong>' : '<strong>' . $moderator . '</strong>';
+            $createdbymoderator = get_string('createdbymoderator', 'forumng', $username);
+            if (!$discussion->get_forum()->can_post_anonymously()) {
                 $startedbyurl = $defaultimage;
+                $hasanon = false;
+                $createdbymoderator= '';
             }
         } else {
             if (\mod_forumng_utils::display_discussion_list_item_author_anonymously($discussion->get_forum(), $USER->id)) {
@@ -582,6 +615,12 @@ class mobile {
             } else {
                 $startedby = $username;
             }
+        }
+        $suject = $post->get_subject();
+        $message = $post->get_formatted_message();
+        if ($post->is_root_post()) {
+            $suject = str_replace('"', '&quot;', $post->get_subject());
+            $message = str_replace('"', '&quot;', $post->get_formatted_message());
         }
         // Attachments.
         $attachmentarray = [];
@@ -594,25 +633,76 @@ class mobile {
         }
         // Mark post read.
         $canmarkread = false; // Don't show 'mark post as read' button.
-        if ($discussion->get_forum()->can_mark_read() && !\mod_forumng::mark_read_automatically() && $post->is_unread()) {
+        $forumng = $discussion->get_forum();
+        if ($forumng->can_mark_read() && !\mod_forumng::mark_read_automatically() && $post->is_unread()) {
             $canmarkread = true;
         }
+        $hasoption = false;
+        $options = self::post_as_option($forumng);
+        if (!empty($options)) {
+            $hasoption = true;
+        }
         $whynot = ''; // Required by can_reply but not used.
+        $shortentext = self::shorten_text_display($post);
+        $shortendisplay = '<strong>' . $shortentext->shortensubject . '</strong> ' . $shortentext->shortenmessage;
+        if (strlen($suject) >= self::SHORTENED_LENGTH) {
+            $shortendisplay = '<strong>' . $shortentext->shortensubject . '</strong>';
+        }
+
+        $historyedit = '';
+        $isanon = ($posteranon == \mod_forumng::ASMODERATOR_ANON && $forumng->get_can_post_anon());
+        $indicatemoderator = ($posteranon == \mod_forumng::ASMODERATOR_IDENTIFY);
+        if ((($isanon && $discussion->get_forum()->can_post_anonymously()) || $indicatemoderator) || !$isanon) {
+            if ($edituser = $post->get_edit_user()) {
+                $edit = new \stdClass;
+                $edit->date = \mod_forumng_utils::display_date($post->get_modified());
+
+                if (\mod_forumng_utils::display_discussion_author_anonymously($post, $USER->id)) {
+                    $edit->name = get_string('identityprotected', 'mod_forumng');
+                } else {
+                    $edit->name = $discussion->get_forum()->display_user_name($edituser);
+                }
+                if ($edituser->id == $post->get_user()->id) {
+                    $historyedit = get_string('editbyself', 'forumng', $edit->date);
+                } else {
+                    $historyedit = get_string('editbyother', 'forumng', $edit);
+                }
+                $href = new \moodle_url('/mod/forumng/history.php');
+                if ($post->can_view_history($whynot)) {
+                    $url = ' (<a href="' . $href . '?' . $post->get_link_params(mod_forumng::PARAM_HTML) . '">' .
+                        get_string('history', 'forumng') . '</a>)';
+                    $historyedit .= $url;
+                }
+            }
+        }
+
         return [
             'postid' => $post->get_id(),
-            'subject' => $post->get_subject(),
+            'subject' => $suject,
             'startedby' => $startedby,
             'startedbyurl' => $startedbyurl,
-            'message' => self::message_display($post),
-            'starteddate' => self::date_or_time($post->get_created()),
+            'message' => $message,
+            'starteddate' => \mod_forumng_utils::display_date($post->get_created()),
             'attachments' => $attachmentarray,
             'isimportant' => $post->is_important(),
             'isflagged' => $post->is_flagged(),
-            'isunread' => $post->is_unread(),
+            'isunread' => $post->is_unread() ? 'unread-post' : '',
             'canmarkread' => $canmarkread,
             'isexpanded' => self::show_expanded($post),
+            'shortendisplay' => $shortendisplay,
             'canreply' => $post->can_reply($whynot),
-            'replyto' => get_string('reply', 'mod_forumng', $post->get_id())
+            'canedit' => $post->can_edit($whynot),
+            'candelete' => $post->can_delete($whynot),
+            'replyto' => get_string('reply', 'mod_forumng', $post->get_id()),
+            'edit' => get_string('edit', 'mod_forumng', $post->get_id()),
+            'delete' => get_string('delete', 'mod_forumng', $post->get_id()),
+            'postasstring' => get_string('asmoderator', 'mod_forumng'),
+            'hasoption' => $hasoption,
+            'options' => $options,
+            'maxsize' => $forumng->get_max_bytes(),
+            'hasanon' => $hasanon,
+            'createdbymoderator' => $createdbymoderator,
+            'historyedit' => $historyedit
         ];
     }
 
@@ -773,27 +863,29 @@ class mobile {
     }
 
     /**
-     * Mobile message display.
+     * Mobile shorten text display.
      *
-     * Show the full message if unread, flagged or parent of an unread post, otherwise collapse to one line.
-     * If there is a change of subject show that instead of the message on collapsed posts.
-     * On the Mobile platform collapsed posts cannot be expanded (without a new ajax call). This minimises data sent.
-     *
+     * Show shorten text of subject and message in post.
      * @param \mod_forumng_post $post
-     * @param int $length Optional number of chars to show.
      * @return string
      */
-    private static function message_display(\mod_forumng_post $post, int $length=0) : string {
-        if (self::show_expanded($post)) {
-            return $post->get_formatted_message();
-        } else {
-            if ($post->get_subject()) {
-                $message = $post->get_subject();
-            } else {
-                $message = $post->get_formatted_message();
-            }
-            return self::one_line($message, $length);
+    private static function shorten_text_display(\mod_forumng_post $post) : object {
+        $message = strip_tags($post->get_formatted_message(), '<img>');
+        $subject = format_string($post->get_subject());
+        $subject = format_text($subject, FORMAT_HTML);
+
+        $shortensubject = $subject;
+        if (strlen($subject) >= self::SHORTENED_LENGTH) {
+            $shortensubject = \mod_forumng_renderer::nice_shorten_text($shortensubject, self::SHORTENED_LENGTH);
         }
+
+        $shortenmessage = $message;
+        if (strlen($message) >= self::SHORTENED_LENGTH) {
+            $shortenmessage = \mod_forumng_renderer::nice_shorten_text($message, self::SHORTENED_LENGTH);
+            $shortenmessage = format_text($shortenmessage, FORMAT_HTML);
+        }
+
+        return (object)['shortensubject' => $shortensubject, 'shortenmessage' => $shortenmessage];
     }
 
     /**
@@ -824,12 +916,22 @@ class mobile {
         if ($forumng->can_indicate_moderator()) {
             $option1 = new \stdClass();
             $option1->key = \mod_forumng::ASMODERATOR_NO;
-            $option1->value = get_string('asmoderator_post', 'forumng');
+            if ($forumng->get_can_post_anon() == mod_forumng::CANPOSTATON_NONMODERATOR) {
+                $option1->value = get_string('asmoderator_post_anon', 'forumng');
+            } else {
+                $option1->value = get_string('asmoderator_post', 'forumng');
+            }
             $options[] = $option1;
             $option2 = new \stdClass();
             $option2->key = \mod_forumng::ASMODERATOR_IDENTIFY;
             $option2->value = get_string('asmoderator_self', 'forumng');
             $options[] = $option2;
+            if ($forumng->can_post_anonymously()) {
+                $option3 = new \stdClass();
+                $option3->key = \mod_forumng::ASMODERATOR_ANON;
+                $option3->value = get_string('asmoderator_anon', 'forumng');
+                $options[] = $option3;
+            }
         }
         return $options;
     }

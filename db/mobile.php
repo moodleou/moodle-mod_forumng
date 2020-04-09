@@ -38,7 +38,7 @@ $addons = [
                 'downloadbutton' => false,
                 'styles' => [
                     'url' => $CFG->wwwroot . '/mod/forumng/mobileapp.css',
-                    'version' => 2020032619
+                    'version' => 2020040601
                 ],
                 'init' => 'mobile_forumng_init'
             ]
@@ -75,6 +75,9 @@ $addons = [
             ['displayperiodmobile', 'forumng'],
             ['postasmobile', 'forumng'],
             ['errormaximumsubjectcharacter', 'forumng'],
+            ['lock', 'forumng'],
+            ['lockdiscussion', 'forumng'],
+            ['lockedtitle', 'forumng'],
         ]
     ]
 ];

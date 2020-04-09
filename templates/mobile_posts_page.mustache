@@ -41,6 +41,8 @@
         isexpanded bool
         replyto int
         canreply bool
+        canedit bool
+        candelete bool
 
     Example context (json):
     {
@@ -58,8 +60,18 @@
         isunread: false,
         canmarkread: false,
         isexpanded: false,
+        shortendisplay: Shorten text ...,
         replyto: 321,
         canreply: 1,
+        canedit: 1,
+        candelete: 1,
+        postasstring: Post as?,
+        hasoption => 1,
+        options => [
+            {key: 0, value: Standard Post}
+            {key: 1, value: Identify self as moderator (name displayed)}
+        ],
+        maxsize => -1,
         cmid: 123,
         noofreplies: 3,
         hasreplies: true
@@ -67,177 +79,319 @@
 
 }}
 {{=<% %>=}}
-<div class="mma-forumng-posts-list-wrapper">
-<ion-card [id]="<% postid %>">
-    <%! Note no ion-card-header as it adds padding so mis-aligns the user image with the contents below. %>
-    <ion-item>
-        <ion-avatar item-start large>
-            <img src="<% startedbyurl %>">
-        </ion-avatar>
-        <h2 text-wrap><% subject %></h2>
-        <ion-row justify-content-between class="mma-forumng-row-max">
-            <ion-col col-auto class="mma-forumng-col-unpad">
-                <% startedby %>
-            </ion-col>
-            <ion-col col-auto class="mma-forumng-col-unpad">
-                <span class="mma-forumng-gray-text mma-forumng-smaller-text"><% starteddate %></span>
-            </ion-col>
-        </ion-row>
+<core-navbar-buttons>
+    <core-context-menu>
+        <core-context-menu-item *ngIf="CONTENT_OTHERDATA.canlock" [priority]="850" [content]="'plugin.mod_forumng.lock' | translate"
+                                (action)="lock()" [iconAction]="CONTENT_OTHERDATA.lock ? 'radio-button-on' : 'radio-button-off'">
+        </core-context-menu-item>
+    </core-context-menu>
+</core-navbar-buttons>
+<div class="mma-forumng-posts-list-wrapper" no-lines>
+    <ion-item class="mma-forumng-expandall">
+        <h2 class="mma-forumng-discussion-subject"><% subject %></h2>
+        <div ion-button class="mma-forumng-expandall-link">
+            <core-format-text [text]="CONTENT_OTHERDATA.toggle"></core-format-text>
+            <ion-icon name="arrow-down" ios="ios-arrow-down" md="ios-arrow-down"></ion-icon>
+        </div>
     </ion-item>
-    <ion-card-content>
-        <core-format-text text="<%{ message }%>" component="mod_forumng" componentId="<% cmid %>" maxHeight="80" text-wrap>
-                </core-format-text>
-        <ion-list>
-            <%# attachments %>
-            <%! Iterate through attachments using mustache templating here (done by ionic below as data is from otherdata there). %>
-            <core-file [file]="{fileurl: '<% url %>', filename: '<% name %>'}" component="mod_forumng" componentId="<% cmid %>">
-                    </core-file>
-            <%/ attachments %>
-        </ion-list>
-        <ion-grid>
-            <ion-row justify-content-between align-items-center class="mma-forumng-row-max">
-                <ion-col col-auto class="mma-forumng-col-unpad">
-                    <span *ngIf="<%{ isflagged }%>">
-                        <ion-icon name="flag" item-start class="mma-forumng-no-margin"></ion-icon>
-                    </span>
-                    <span *ngIf="<%{ isimportant }%>" class="mma-forumng-iconsize-correction">
-                        <ion-icon name="alert" item-start></ion-icon>
-                    </span>
-                </ion-col>
-                <ion-col col-auto class="mma-forumng-col-unpad">
-                    <div class="mma-forumng-gray-text"><ion-icon name="chatboxes" item-start></ion-icon> <% noofreplies %></div>
-                </ion-col>
-                <ion-col col-auto class="mma-forumng-col-unpad">
-                    <button *ngIf="<%{ canmarkread }%>" core-site-plugins-call-ws name="mod_forumng_mark_read"
-                            [params]="{discussion: 0, post: <% postid %>}" successMessage refreshOnSuccess="true"
-                            ion-button>
-                        {{ 'plugin.mod_forumng.markpostread' | translate }}
-                    </button>
-                </ion-col>
-                <ion-col col-auto class="mma-forumng-col-unpad">
-                    <button *ngIf="<%{ canreply }%>" core-site-plugins-new-content ion-button
-                            title="{{ 'plugin.mod_forumng.postreply' | translate }}" component="mod_forumng" method="reply"
-                            [args]="{replyto: <% postid %>}" [disabled]="!isOnline()">
-                        <core-format-text text="<%{ replyto }%>"></core-format-text>
-                    </button>
-                </ion-col>
-            </ion-row>
-        </ion-grid>
-    </ion-card-content>
-</ion-card>
-<%# hasreplies %>
-<ion-list class="mma-forumng-posts-list" no-lines>
-    <ion-item *ngFor="let reply of CONTENT_OTHERDATA.replies">
-        <ion-card [id]="reply.postid">
-            <ion-item>
-                <ion-avatar item-start large>
-                    <img [src]="reply.startedbyurl">
-                </ion-avatar>
-                <h2 text-wrap>{{ reply.subject }}</h2>
-                <ion-row justify-content-between class="mma-forumng-row-max">
-                    <ion-col col-auto class="mma-forumng-col-unpad">
-                        {{ reply.startedby }}
+    <ion-item *ngIf="CONTENT_OTHERDATA.islock" [id]="CONTENT_OTHERDATA.lockpost.postid" class="mma-forumng-p1 mma-forumng-lockmessage">
+        <%! Note no ion-card-header as it adds padding so mis-aligns the user image with the contents below. %>
+        <ion-item class="mma-forumng-post-info">
+            <ion-avatar item-start large *ngIf="CONTENT_OTHERDATA.lockpost.hasanon">
+                <img [src]="CONTENT_OTHERDATA.lockpost.startedbyurl">
+            </ion-avatar>
+            <core-format-text class="mma-forumng-startedby" [text]="CONTENT_OTHERDATA.lockpost.startedby"></core-format-text>
+            <core-format-text [text]="CONTENT_OTHERDATA.lockpost.starteddate"></core-format-text>
+        </ion-item>
+        <ion-item class="mma-forumng-posts">
+            <core-format-text *ngIf="CONTENT_OTHERDATA.lockpost.createdbymoderator.length != 0"
+                              class="mma-forumng-posts-anon" [text]="CONTENT_OTHERDATA.lockpost.createdbymoderator" component="mod_forumng"
+                              componentId="<% cmid %>" maxHeight="80" text-wrap>
+            </core-format-text>
+            <core-format-text class="mma-forumng-posts-subject" [text]="CONTENT_OTHERDATA.lockpost.subject" component="mod_forumng"
+                              componentId="<% cmid %>" maxHeight="80" text-wrap>
+            </core-format-text>
+            <core-format-text class="mma-forumng-posts-message" [text]="CONTENT_OTHERDATA.lockpost.message" component="mod_forumng"
+                              componentId="<% cmid %>" maxHeight="80" text-wrap>
+            </core-format-text>
+            <ion-list class="mma-forumng-attachments" *ngFor="let attachments of CONTENT_OTHERDATA.lockpost.attachments">
+                <%! Note this bit needs to be done with mustache templating. %>
+                <core-file [file]="{fileurl: attachments.url, filename: attachments.name}" component="mod_forumng"
+                           componentId="<% cmid %>">
+                </core-file>
+            </ion-list>
+        </ion-item>
+    </ion-item>
+    <ion-item [id]="<% postid %>" class="mma-forumng-p1 <%{ isunread }%>">
+        <%! Note no ion-card-header as it adds padding so mis-aligns the user image with the contents below. %>
+        <ion-item class="mma-forumng-post-info">
+            <ion-avatar item-start large *ngIf="<%{ hasanon }%>">
+                <img src="<% startedbyurl %>">
+            </ion-avatar>
+            <core-format-text class="mma-forumng-startedby" text="<% startedby %>"></core-format-text>
+            <core-format-text class="mma-forumng-startedate" text="<% starteddate %>"></core-format-text>
+            <core-format-text class="mma-forumng-edit" text="<% historyedit %>" text-wrap></core-format-text>
+            <%# isflagged %>
+            <div class="mma-forumng-iconsize-correction">
+                <ion-icon name="flag" class="mma-forumng-no-margin"></ion-icon>
+            </div>
+            <%/ isflagged %>
+            <div class="mma-forumng-iconsize-correction">
+                <ion-icon name="chatboxes" item-start></ion-icon>
+                <% noofreplies %>
+            </div>
+        </ion-item>
+        <ion-item class="mma-forumng-posts">
+            <%# createdbymoderator %>
+            <core-format-text class="mma-forumng-posts-anon" text="<%{ createdbymoderator }%>" component="mod_forumng"
+                              componentId="<% cmid %>" maxHeight="80" text-wrap>
+            </core-format-text>
+            <%/ createdbymoderator %>
+            <core-format-text class="mma-forumng-posts-message" text="<%{ message }%>" component="mod_forumng"
+                              componentId="<% cmid %>" maxHeight="80" text-wrap>
+            </core-format-text>
+            <ion-list class="mma-forumng-attachments">
+                <%# attachments %>
+                <%! Note this bit needs to be done with mustache templating. %>
+                <core-file [file]="{fileurl: '<% url %>', filename: '<% name %>'}" component="mod_forumng"
+                           componentId="<% cmid %>"></core-file>
+                <%/ attachments %>
+            </ion-list>
+            <ion-grid class="mma-forumng-commands-buttons">
+                <ion-row justify-content-start align-items-center class="mma-forumng-row-max">
+                    <ion-col col-auto *ngIf="<%{ canreply }%>">
+                        <button core-site-plugins-new-content ion-button
+                                title="{{ 'plugin.mod_forumng.postreply' | translate }}" component="mod_forumng"
+                                method="reply" [args]="{replyto: <% postid %>}" [disabled]="!isOnline()">
+                            <core-format-text text="<%{ replyto }%>"></core-format-text>
+                        </button>
                     </ion-col>
-                    <ion-col col-auto class="mma-forumng-col-unpad">
-                        <span class="mma-forumng-gray-text mma-forumng-smaller-text">{{ reply.starteddate }}</span>
+                    <ion-col col-auto *ngIf="<%{ canedit }%>">
+                        <button core-site-plugins-new-content ion-button
+                                component="mod_forumng" [disabled]="!isOnline()">
+                            <core-format-text text="<%{ edit }%>"></core-format-text>
+                        </button>
+                    </ion-col>
+                    <ion-col col-auto *ngIf="<%{ candelete }%>">
+                        <button core-site-plugins-new-content ion-button
+                                component="mod_forumng" [disabled]="!isOnline()">
+                            <core-format-text text="<%{ delete }%>"></core-format-text>
+                        </button>
+                    </ion-col>
+                    <ion-col col-auto *ngIf="<%{ canmarkread }%>">
+                        <button core-site-plugins-call-ws name="mod_forumng_mark_read"
+                                [params]="{discussion: 0, post: <% postid %>}" successMessage refreshOnSuccess="true"
+                                ion-button>
+                            {{ 'plugin.mod_forumng.markpostread' | translate }}
+                        </button>
                     </ion-col>
                 </ion-row>
-            </ion-item>
-            <ion-card-content>
-                <core-format-text [text]="reply.message" component="mod_forumng" componentId="<% cmid %>" maxHeight="60" text-wrap>
-                        </core-format-text>
-                <div *ngIf="reply.isexpanded">
-                    <ion-list *ngFor="let attachment of reply.attachments">
-                        <core-file [file]="{fileurl: attachment.url, filename: attachment.name}" component="mod_forumng"
-                                componentId="<% cmid %>"></core-file>
-                    </ion-list>
-                    <ion-grid>
-                        <ion-row justify-content-between align-items-center class="mma-forumng-row-max">
-                            <ion-col col-auto class="mma-forumng-col-unpad">
-                                <span *ngIf="reply.isflagged"><ion-icon name="flag" item-start></ion-icon></span>
-                                <span *ngIf="reply.isimportant" class="mma-forumng-iconsize-correction">
-                                    <ion-icon name="alert" item-start></ion-icon>
-                                </span>
-                            </ion-col>
-                            <ion-col col-auto class="mma-forumng-col-unpad">
-                                <div class="mma-forumng-gray-text">
-                                    <ion-icon name="chatboxes" item-start></ion-icon> {{ reply.noofreplies }}
-                                </div>
-                            </ion-col>
-                            <ion-col col-auto class="mma-forumng-col-unpad">
-                                <button *ngIf="reply.canmarkread" core-site-plugins-call-ws name="mod_forumng_mark_read"
-                                        [params]="{discussion: 0, post: reply.postid}" successMessage refreshOnSuccess="true"
-                                        ion-button>
-                                    {{ 'plugin.mod_forumng.markpostread' | translate }}
-                                </button>
-                            </ion-col>
-                            <ion-col col-auto class="mma-forumng-col-unpad">
-                                <button *ngIf="reply.canreply" core-site-plugins-new-content ion-button
-                                        title="{{ 'plugin.mod_forumng.postreply' | translate }}" component="mod_forumng"
-                                        method="reply" [args]="{replyto: reply.postid}" [disabled]="!isOnline()">
-                                    <core-format-text [text]="reply.replyto"></core-format-text>
-                                </button>
-                            </ion-col>
-                        </ion-row>
-                    </ion-grid>
-                </div>
-                <ion-list *ngFor="let subreply of reply.subreplies">
-                    <ion-item [id]="subreply.postid" class="mma-forumng-align-items-normal">
-                        <ion-item>
-                            <ion-avatar item-start>
-                                <img [src]="subreply.startedbyurl" class="mma-forumng-smaller-img">
-                            </ion-avatar>
-                            <ion-row justify-content-between class="mma-forumng-row-max">
-                                <ion-col col-auto class="mma-forumng-col-unpad">
-                                    {{ subreply.startedby }}
+            </ion-grid>
+        </ion-item>
+    </ion-item>
+    <ion-list id="mma-forumng-form" *ngIf="CONTENT_OTHERDATA.lock == 1">
+        <ion-item *ngIf="CONTENT_OTHERDATA.lock == 1">
+            <core-format-text text="Lock discussion: <% subject %>"></core-format-text>
+        </ion-item>
+        <ion-item>
+            <ion-label stacked>{{ 'plugin.mod_forumng.subject' | translate }}</ion-label>
+            <ion-input type="text" [placeholder]="'plugin.mod_forumng.optionalsubject' | translate" [(ngModel)]="subject"></ion-input>
+        </ion-item>
+        <ion-item>
+            <ion-label stacked>{{ 'plugin.mod_forumng.message' | translate }}</ion-label>
+            <core-rich-text-editor item-content [control]="PostControl" class="forumng-reply-message"
+                                   [placeholder]="'plugin.mod_forumng.message' | translate" [name]="msg" [(ngModel)]="message">
+            </core-rich-text-editor>
+        </ion-item>
+        <ion-item>
+            <ion-label class="mma-forumng-smaller-text">{{ 'plugin.mod_forumng.attachments' | translate }}</ion-label>
+        </ion-item>
+        <core-attachments [files]="CONTENT_OTHERDATA.files" [maxSize]="<% maxsize %>"
+                          [component]="mod_forumng" [componentId]="<% cmid %>" [acceptedTypes]="application/octet-stream" [allowOffline]="false">
+        </core-attachments>
+        <%# hasoption %>
+        <ion-item text-wrap>
+            <ion-label text-wrap><%{ postasstring }%></ion-label>
+            <ion-select [(ngModel)]="CONTENT_OTHERDATA.postas" interface="action-sheet" text-wrap>
+                <%# options %>
+                <ion-option value="<% key %>">
+                    <% value %>
+                </ion-option>
+                <%/ options %>
+            </ion-select>
+        </ion-item>
+        <%/ hasoption %>
+        <ion-item>
+            <button *ngIf="!CONTENT_OTHERDATA.lock" class="mma-forumng-reply-button" ion-button (click)="reply()"
+                    [disabled]="message == null || message == '' || !isOnline()">
+                {{ 'plugin.mod_forumng.postreply' | translate }}
+            </button>
+            <button *ngIf="CONTENT_OTHERDATA.lock == 1" class="mma-forumng-lock-button" ion-button (click)="lock_discussion()"
+                    [disabled]="message == null || message == '' || !isOnline()">
+                {{ 'plugin.mod_forumng.lockdiscussion' | translate }}
+            </button>
+            <button ion-button (click)="cancel()">{{ 'core.cancel' | translate }}</button>
+        </ion-item>
+    </ion-list>
+    <%# hasreplies %>
+    <ion-list class="mma-forumng-posts-list" no-lines>
+        <ion-item *ngFor="let reply of CONTENT_OTHERDATA.replies" [id]="reply.postid"
+                  class="mma-forumng-post-reply" color="light">
+            <div class="{{reply.isunread}}">
+                <ion-item class="mma-forumng-post-info">
+                    <ion-avatar item-start large *ngIf="reply.hasanon">
+                        <img [src]="reply.startedbyurl">
+                    </ion-avatar>
+                    <div *ngIf="reply.isimportant" class="mma-forumng-important">
+                        <img [src]="CONTENT_OTHERDATA.importanticon.url" [alt]="CONTENT_OTHERDATA.importanticon.alt">
+                    </div>
+                    <core-format-text class="mma-forumng-startedby" text="{{ reply.startedby }}"></core-format-text>
+                    <core-format-text class="mma-forumng-startedate" text="{{ reply.starteddate }}"></core-format-text>
+                    <core-format-text class="mma-forumng-edit" text="{{ reply.historyedit }}" text-wrap></core-format-text>
+                    <div *ngIf="reply.isflagged" class="mma-forumng-iconsize-correction">
+                        <ion-icon name="flag"></ion-icon>
+                    </div>
+                    <div *ngIf="!reply.isexpanded" item-end class="mma-forumng-post-reply-expandall">
+                        <ion-icon name="arrow-down" ios="ios-arrow-down" md="ios-arrow-down"></ion-icon>
+                    </div>
+                </ion-item>
+                <ion-item>
+                    <core-format-text *ngIf="reply.createdbymoderator.length != 0" class="mma-forumng-posts-anon" [text]="reply.createdbymoderator"
+                                      component="mod_forumng" componentId="<% cmid %>" maxHeight="80" text-wrap>
+                    </core-format-text>
+                    <core-format-text *ngIf="!reply.isexpanded" [text]="reply.shortendisplay" component="mod_forumng"
+                                      componentId="<% cmid %>" class="mma-forumng-posts-message" maxHeight="80" text-wrap>
+                    </core-format-text>
+                    <core-format-text *ngIf="reply.isexpanded" class="mma-forumng-posts-subject" [text]="reply.subject"
+                                      component="mod_forumng" componentId="<% cmid %>" maxHeight="80" text-wrap>
+                    </core-format-text>
+                    <core-format-text *ngIf="reply.isexpanded" [text]="reply.message" component="mod_forumng"
+                                      componentId="<% cmid %>" class="mma-forumng-posts-message" maxHeight="80" text-wrap>
+                    </core-format-text>
+                    <div>
+                        <ion-list class="mma-forumng-attachments" *ngFor="let attachment of reply.attachments">
+                            <core-file [file]="{fileurl: attachment.url, filename: attachment.name}"
+                                       component="mod_forumng"
+                                       componentId="<% cmid %>">
+                            </core-file>
+                        </ion-list>
+                        <ion-grid *ngIf="reply.isexpanded" class="mma-forumng-commands-buttons">
+                            <ion-row justify-content-start align-items-center class="mma-forumng-row-max">
+                                <ion-col col-auto *ngIf="reply.canreply">
+                                    <button core-site-plugins-new-content ion-button
+                                            title="{{ 'plugin.mod_forumng.postreply' | translate }}"
+                                            component="mod_forumng"
+                                            method="reply" [args]="{replyto: reply.postid}" [disabled]="!isOnline()">
+                                        <core-format-text [text]="reply.replyto"></core-format-text>
+                                    </button>
                                 </ion-col>
-                                <ion-col col-auto class="mma-forumng-col-unpad">
-                                    <span class="mma-forumng-gray-text mma-forumng-smaller-text">{{ subreply.starteddate }}</span>
+                                <ion-col col-auto *ngIf="reply.canedit">
+                                    <button core-site-plugins-new-content ion-button
+                                            component="mod_forumng" [disabled]="!isOnline()">
+                                        <core-format-text [text]="reply.edit"></core-format-text>
+                                    </button>
+                                </ion-col>
+                                <ion-col col-auto *ngIf="reply.candelete">
+                                    <button core-site-plugins-new-content ion-button
+                                            component="mod_forumng" [disabled]="!isOnline()">
+                                        <core-format-text [text]="reply.delete"></core-format-text>
+                                    </button>
+                                </ion-col>
+                                <ion-col col-auto *ngIf="reply.canmarkread">
+                                    <button core-site-plugins-call-ws
+                                            name="mod_forumng_mark_read"
+                                            [params]="{discussion: 0, post: reply.postid}" successMessage
+                                            refreshOnSuccess="true" ion-button>
+                                        {{ 'plugin.mod_forumng.markpostread' | translate }}
+                                    </button>
                                 </ion-col>
                             </ion-row>
-                        </ion-item>
-                        <div class="mma-forumng-smaller-text mma-forumng-indented">
-                            <core-format-text [text]="subreply.message" component="mod_forumng" componentId="<% cmid %>"
-                                    maxHeight="60" text-wrap></core-format-text>
-                        </div>
-                        <div *ngIf="subreply.isexpanded">
-                            <ion-list *ngFor="let attach of subreply.attachments" class="mma-forumng-indented">
-                                <core-file [file]="{fileurl: attach.url, filename: attach.name}" component="mod_forumng"
-                                        componentId="<% cmid %>"></core-file>
-                            </ion-list>
-                            <ion-grid class="mma-forumng-indented">
-                                <ion-row justify-content-between align-items-center class="mma-forumng-row-max">
-                                    <ion-col col-auto class="mma-forumng-col-unpad">
-                                        <span *ngIf="subreply.isflagged"><ion-icon name="flag" item-start></ion-icon></span>
-                                        <span *ngIf="subreply.isimportant" class="mma-forumng-iconsize-correction">
-                                            <ion-icon name="alert" item-start></ion-icon>
-                                        </span>
-                                    </ion-col>
-                                    <ion-col col-auto class="mma-forumng-col-unpad">
-                                        <button *ngIf="subreply.canmarkread" core-site-plugins-call-ws name="mod_forumng_mark_read"
-                                                [params]="{discussion: 0, post: subreply.postid}"
-                                                successMessage refreshOnSuccess="true" ion-button>
-                                            {{ 'plugin.mod_forumng.markpostread' | translate }}
-                                        </button>
-                                    </ion-col>
-                                    <ion-col col-auto class="mma-forumng-col-unpad">
-                                        <button *ngIf="subreply.canreply" core-site-plugins-new-content ion-button
-                                                title="{{ 'plugin.mod_forumng.postreply' | translate }}" component="mod_forumng"
-                                                method="reply" [args]="{replyto: subreply.postid}" [disabled]="!isOnline()">
-                                            <core-format-text [text]="subreply.replyto"></core-format-text>
-                                        </button>
-                                    </ion-col>
-                                </ion-row>
-                            </ion-grid>
+                        </ion-grid>
+                    </div>
+                </ion-item>
+            </div>
+            <ion-item *ngIf="reply.subreplies.length > 0" class="sub-reply">
+                <ion-list *ngFor="let subreply of reply.subreplies">
+                    <ion-item [id]="subreply.postid" class="mma-forumng-align-items-normal">
+                        <div class="{{subreply.isunread}}">
+                            <ion-item class="mma-forumng-post-info">
+                                <ion-avatar item-start large *ngIf="subreply.hasanon">
+                                    <img [src]="subreply.startedbyurl">
+                                </ion-avatar>
+                                <div *ngIf="subreply.isimportant" class="mma-forumng-important">
+                                    <img [src]="CONTENT_OTHERDATA.importanticon.url" [alt]="CONTENT_OTHERDATA.importanticon.alt">
+                                </div>
+                                <core-format-text class="mma-forumng-startedby" text="{{ subreply.startedby }}"></core-format-text>
+                                <core-format-text class="mma-forumng-startedate" text="{{ subreply.starteddate }}"></core-format-text>
+                                <core-format-text class="mma-forumng-edit" text="{{ subreply.historyedit }}" text-wrap></core-format-text>
+                                <div *ngIf="subreply.isflagged" class="mma-forumng-iconsize-correction">
+                                    <ion-icon name="flag"></ion-icon>
+                                </div>
+                                <div *ngIf="!subreply.isexpanded" item-end class="mma-forumng-post-subreply-expandall">
+                                    <ion-icon name="arrow-down" ios="ios-arrow-down" md="ios-arrow-down"></ion-icon>
+                                </div>
+                            </ion-item>
+                            <ion-item class="mma-forumng-indented">
+                                <core-format-text *ngIf="subreply.createdbymoderator.length != 0" class="mma-forumng-posts-anon" [text]="subreply.createdbymoderator"
+                                                  component="mod_forumng" componentId="<% cmid %>" maxHeight="80" text-wrap>
+                                </core-format-text>
+                                <core-format-text *ngIf="!subreply.isexpanded" [text]="subreply.shortendisplay" component="mod_forumng"
+                                                  componentId="<% cmid %>" class="mma-forumng-posts-message" maxHeight="80" text-wrap>
+                                </core-format-text>
+                                <core-format-text *ngIf="subreply.isexpanded" class="mma-forumng-posts-subject" [text]="subreply.subject"
+                                                  component="mod_forumng" componentId="<% cmid %>" maxHeight="80" text-wrap>
+                                </core-format-text>
+                                <core-format-text *ngIf="subreply.isexpanded" [text]="subreply.message" component="mod_forumng"
+                                                  componentId="<% cmid %>" class="mma-forumng-posts-message" maxHeight="80" text-wrap>
+                                </core-format-text>
+                                <ion-list *ngFor="let attach of subreply.attachments"
+                                          class="mma-forumng-attachments">
+                                    <core-file [file]="{fileurl: attach.url, filename: attach.name}"
+                                               component="mod_forumng"
+                                               componentId="<% cmid %>"></core-file>
+                                </ion-list>
+                                <ion-grid *ngIf="subreply.isexpanded" class="mma-forumng-commands-buttons">
+                                    <ion-row justify-content-start align-items-center class="mma-forumng-row-max">
+                                        <ion-col col-auto *ngIf="subreply.canreply">
+                                            <button core-site-plugins-new-content
+                                                    ion-button
+                                                    title="{{ 'plugin.mod_forumng.postreply' | translate }}"
+                                                    component="mod_forumng"
+                                                    method="reply" [args]="{replyto: subreply.postid}"
+                                                    [disabled]="!isOnline()">
+                                                <core-format-text [text]="subreply.replyto"></core-format-text>
+                                            </button>
+                                        </ion-col>
+                                        <ion-col col-auto *ngIf="subreply.canedit">
+                                            <button core-site-plugins-new-content
+                                                    ion-button
+                                                    component="mod_forumng" [disabled]="!isOnline()">
+                                                <core-format-text [text]="subreply.edit"></core-format-text>
+                                            </button>
+                                        </ion-col>
+                                        <ion-col col-auto *ngIf="subreply.candelete">
+                                            <button core-site-plugins-new-content
+                                                    ion-button
+                                                    component="mod_forumng" [disabled]="!isOnline()">
+                                                <core-format-text [text]="subreply.delete"></core-format-text>
+                                            </button>
+                                        </ion-col>
+                                        <ion-col col-auto *ngIf="subreply.canmarkread">
+                                            <button core-site-plugins-call-ws
+                                                    name="mod_forumng_mark_read"
+                                                    [params]="{discussion: 0, post: subreply.postid}"
+                                                    successMessage refreshOnSuccess="true" ion-button>
+                                                {{ 'plugin.mod_forumng.markpostread' | translate }}
+                                            </button>
+                                        </ion-col>
+                                    </ion-row>
+                                </ion-grid>
+                            </ion-item>
                         </div>
                     </ion-item>
                 </ion-list>
-            </ion-card-content>
-        </ion-card>
-    </ion-item>
-    <ion-infinite-scroll (ionInfinite)="loadMorePosts($event)">
-        <ion-infinite-scroll-content loadingSpinner="bubbles" loadingText="Loading more data..."></ion-infinite-scroll-content>
-    </ion-infinite-scroll>
-</ion-list>
-<%/ hasreplies %>
+            </ion-item>
+        </ion-item>
+    </ion-list>
+    <%/ hasreplies %>
 </div>

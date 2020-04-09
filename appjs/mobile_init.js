@@ -76,30 +76,6 @@
     };
 
     /**
-     * Handles a request for more posts, getting the next chunk and displaying.
-     *
-     * @param {object} that The this object when calling this function.
-     * @param {object} infiniteScrollEvent
-     */
-    t.mod_forumng.loadMorePosts = function(that, infiniteScrollEvent) {
-        var total = that.CONTENT_OTHERDATA.totalposts;
-        var current = that.CONTENT_OTHERDATA.replies.length;
-        var discussionid = that.CONTENT_OTHERDATA.discussionid;
-        if (current < total) {
-            that.CoreSitesProvider.getCurrentSite().read(
-                'mod_forumng_get_more_posts', {discussionid: discussionid, from: current}
-            ).then(function (response) {
-                response.forEach(function (reply) {
-                    that.CONTENT_OTHERDATA.replies.push(reply);
-                });
-                infiniteScrollEvent.complete();
-            });
-        } else {
-            infiniteScrollEvent.complete();
-        }
-    };
-
-    /**
      * Add a new discussion.
      *
      * This will support editing an existing discussion and offline with a little more development.
@@ -334,6 +310,102 @@
     };
 
     /**
+     * Lock discussion.
+     *
+     * This will support editing an existing post and offline with a little more development.
+     *
+     * @param {object} that The this object when calling this function.
+     */
+    t.mod_forumng.lock_discussion = function(that) {
+        var subject = that.subject;
+        var message = that.message;
+        var attachments = that.CONTENT_OTHERDATA.files;
+        var postas = that.CONTENT_OTHERDATA.postas;
+        var discussionid = that.CONTENT_OTHERDATA.discussionid;
+        var forumngId = that.CONTENT_OTHERDATA.forumngid;
+        var saveOffline = false;
+        var modal;
+        var promise;
+
+        if (!subject.length > 255) {
+            that.CoreUtilsProvider.domUtils.showErrorModal('plugin.mod_forumng.errormaximumsubjectcharacter', true);
+            return;
+        }
+        if (!message) {
+            that.CoreUtilsProvider.domUtils.showErrorModal('plugin.mod_forumng.erroremptymessage', true);
+            return;
+        }
+        message = that.CoreTextUtilsProvider.formatHtmlLines(message);
+
+        modal = that.CoreUtilsProvider.domUtils.showModalLoading('core.sending', true);
+
+        // Upload attachments first if any.
+        if (attachments.length) {
+            promise = that.CoreFileUploaderProvider.uploadOrReuploadFiles(attachments, 'mod_forumng', forumngId)
+                .catch(function() {
+                    // Cannot upload them in online, save them in offline.
+                    return Promise.reject('Offline not yet enabled');
+                    //TODO switch below to our own offline functionality.
+                    // saveOffline = true;
+                    // return that.AddonModForumHelperProvider.uploadOrStoreNewDiscussionFiles(
+                    //         forumngId, discTimecreated, attachments, saveOffline);
+                });
+        } else {
+            promise = Promise.resolve(1);
+        }
+
+        promise.then(function(draftAreaId) {
+            if (saveOffline) {
+                // Save discussion in offline.
+                //TODO switch below to our own offline functionality.
+                // return that.AddonModForumOfflineProvider.addNewDiscussion(forumngId, forumName, courseId, subject,
+                //     message, options, groupId, discTimecreated).then(function() {
+                //     // Don't return anything.
+                // });
+            } else {
+                // Try to send it to server.
+                var site = that.CoreSitesProvider.getCurrentSite();
+                var params = {
+                    discussionid: discussionid,
+                    cloneid: 0,
+                    subject: subject,
+                    message: message,
+                    draftarea: draftAreaId,
+                    postas: postas,
+                };
+                if (!(subject === undefined || subject === '')) {
+                    params.subject = subject;
+                }
+
+                return site.write('mod_forumng_lock_discussion', params).then(function(response) {
+                    if (!response || !response.post) {
+                        return Promise.reject(that.CoreWSProvider.createFakeWSError(response.errormsg));
+                    } else {
+                        return response.post;
+                    }
+                });
+                // Don't allow offline if there are attachments since they were uploaded fine.
+                //TODO switch below to use our own offline functionality.
+                // return that.AddonModForumProvider.addNewDiscussion(forumngId, forumName, courseId, subject, message, options,
+                //    groupId, undefined, discTimecreated, !attachments.length);
+            }
+        }).then(function(postId) {
+            if (postId) {
+                // Data sent to server, delete stored files (if any).
+                //TODO switch below to our own offline functionality.
+                //that.AddonModForumHelperProvider.deleteNewDiscussionStoredFiles(this.forumId, discTimecreated);
+                //TODO trigger new discussion event or similar?
+            }
+            //TODO check all functionality in core forum (new-discussion.ts) returnToDiscussions(discussionId) is covered.
+            that.refreshContent();
+        }).catch(function(msg) {
+            that.CoreUtilsProvider.domUtils.showErrorModalDefault(msg, 'plugin.mod_forumng.cannotlockdiscussion', true);
+        }).finally(function() {
+            modal.dismiss();
+        });
+    };
+
+    /**
      * Allows refreshing content after creating a reply.
      *
      * @param {object} view Object returned by subscription to viewDidEnter.
@@ -508,12 +580,74 @@
      * @param {object} outerThis The main component.
      */
     window.forumngPostsPageInit = function(outerThis) {
-        outerThis.loadMorePosts = function(infiniteScrollEvent) {
-            t.mod_forumng.loadMorePosts(outerThis, infiniteScrollEvent);
-        };
+        outerThis.PostControl = outerThis.FormBuilder.control();
+        t.removeEvent = true;
+
         outerThis.isOnline = function() {
             return outerThis.CoreAppProvider.isOnline();
         };
+
+        var PopoverTransition = function() {
+            var popover = document.querySelector('.popover-content');
+            if (popover) {
+                popover.style.right = 'calc(env(safe-area-inset-right) + 10px)';
+                popover.style.left = null;
+            }
+        };
+        if (t.removeEvent) {
+            window.addEventListener("orientationchange", PopoverTransition);
+            t.removeEvent = false;
+        }
+
+        outerThis.lock = function() {
+            if (!outerThis.CONTENT_OTHERDATA.lock) {
+                outerThis.CONTENT_OTHERDATA.lock = 1;
+                outerThis.subject = outerThis.TranslateService.instant('plugin.mod_forumng.lockedtitle');
+                setTimeout(function() {
+                    document.getElementById('mma-forumng-form').scrollIntoViewIfNeeded();
+                }, 100);
+            }
+        };
+
+        outerThis.ionViewCanLeave = function() {
+            var message = outerThis.message;
+            var attachments = outerThis.CONTENT_OTHERDATA.files; // Type [FileEntry].
+            var postas = outerThis.CONTENT_OTHERDATA.postas;
+            if (outerThis.CONTENT_OTHERDATA.lock && (message || attachments.length > 0 || postas != 0)) {
+                return outerThis.CoreDomUtilsProvider.showConfirm(outerThis.TranslateService.instant('plugin.mod_forumng.leavemessage')).then(function() {
+                    if (attachments.length > 0) {
+                        return outerThis.CoreFileUploaderProvider.clearTmpFiles(attachments);
+                    }
+                });
+            }
+            t.mod_forumng.currentDiscussionsPage.refreshContent();
+            window.removeEventListener("orientationchange", PopoverTransition);
+            return;
+        };
+
+        outerThis.cancel = function() {
+            var message = outerThis.message;
+            var attachments = outerThis.CONTENT_OTHERDATA.files; // Type [FileEntry].
+            var postas = outerThis.CONTENT_OTHERDATA.postas;
+            if (outerThis.CONTENT_OTHERDATA.lock && (message || attachments.length > 0 || postas != 0)) {
+                return outerThis.CoreDomUtilsProvider.showConfirm(outerThis.TranslateService.instant('plugin.mod_forumng.leavemessage')).then(function() {
+                    outerThis.CONTENT_OTHERDATA.lock = 0;
+                    outerThis.CONTENT_OTHERDATA.files = [];
+                    outerThis.PostControl.setValue('');
+                    outerThis.message = '';
+                    if (attachments.length > 0) {
+                        return outerThis.CoreFileUploaderProvider.clearTmpFiles(attachments);
+                    }
+                });
+            } else {
+                outerThis.CONTENT_OTHERDATA.lock = 0;
+            }
+        };
+
+        outerThis.lock_discussion = function() {
+            t.mod_forumng.lock_discussion(outerThis);
+        };
+
         t.mod_forumng.currentPostsPage = outerThis;
     };
 

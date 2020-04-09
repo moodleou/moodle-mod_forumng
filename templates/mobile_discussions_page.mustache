@@ -167,7 +167,8 @@
         <ion-item *ngFor="let discussion of CONTENT_OTHERDATA.discussions"
                   class="mma-forumng-discussion-item mma-forumng-discussion-short">
             <div item-content core-site-plugins-new-content component="mod_forumng" method="posts_view"
-                 [args]="{cmid: <% cmid %>, discussionid: discussion.id}" title="Discussion"
+                 [args]="{cmid: <% cmid %>, discussionid: discussion.id, unread: discussion.unread}" title="Discussion"
+                 [preSets]="{getFromCache: 0}"
                  class="mma-forumng-discussion {{discussion.classes }}">
                 <%# isipud %>
                     <a [href]="discussion.url" core-link class="forumng-ipud-discussion-hyperlink">

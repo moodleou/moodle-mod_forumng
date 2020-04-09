@@ -18,9 +18,10 @@ Feature:  Add discussion in forumng and test app can view discussion listing pag
       | student1 | C1     | student |
       | teacher1 | C1     | teacher |
     And the following "activities" exist:
-      | activity | name                  | introduction           | course | idnumber |
-      | forumng  | Test forum name       | Test forum description | C1     | forumng1 |
-      | forumng  | Test forum discussion | Test forum description | C1     | forumng2 |
+      | activity | name                  | introduction               | course | idnumber | canpostanon |
+      | forumng  | Test forum name       | Test forum description     | C1     | forumng1 | 0           |
+      | forumng  | Test forum discussion | Test forum description     | C1     | forumng2 | 0           |
+      | forumng  | Test forum anon       | Test ForumNG 3 description | C1     | forumng3 | 1           |
 
   Scenario: Add discussions and check sticky and block and time limit
     Given I log in as "teacher1"
@@ -114,3 +115,62 @@ Feature:  Add discussion in forumng and test app can view discussion listing pag
     And I should see "b discussion" in the "//ion-list[contains(@class,'mma-forumng-discussion-list')]/ion-item[contains(@class, 'mma-forumng-discussion-short')][1]" "xpath_element"
     And I should see "c discussion" in the "//ion-list[contains(@class,'mma-forumng-discussion-list')]/ion-item[contains(@class, 'mma-forumng-discussion-short')][2]" "xpath_element"
     And I should see "a discussion" in the "//ion-list[contains(@class,'mma-forumng-discussion-list')]/ion-item[contains(@class, 'mma-forumng-discussion-short')][3]" "xpath_element"
+
+  Scenario: Display post basic and lock discussion
+    Given I log in as "teacher1"
+    And I am on "Course 1" course homepage
+    And I follow "Test forum name"
+    And I add a discussion with the following data:
+      | Subject | Discussion 1 |
+      | Message | abc |
+    And I reply to post "1" with the following data:
+      | Message | REPLY1 |
+    And I reply to post "1" with the following data:
+      | Message | REPLY2 |
+    And I reply to post "1" with the following data:
+      | Message | REPLY3 |
+    And I follow "Test forum name"
+    And I enter the app
+    And I log in as "teacher1"
+    And I press "Course 1" near "Recently accessed courses" in the app
+    And I press "Test forum name" in the app
+    And I click on "//ion-list[contains(@class,'mma-forumng-discussion-list')]/ion-item[contains(@class, 'mma-forumng-discussion-short')][1]" "xpath_element"
+    Then I should see "Discussion 1"
+    And I should see "abc"
+    And I should see "EXPAND ALL"
+    Then I click on "page-core-site-plugins-plugin core-context-menu button" "css_element"
+    When I press "Lock" in the app
+    And I set the field "Message" to "Test lock message" in the app
+    When I click on ".mma-forumng-lock-button" "css_element"
+    Then I should see "This discussion is now closed"
+
+  Scenario: Display post when moderators post anonymously
+    Given I log in as "teacher1"
+    And I am on "Course 1" course homepage
+    And I follow "Test forum anon"
+    And I add a discussion with the following data:
+      | Subject | Discussion 1 |
+      | Message | abc          |
+    And I reply to post "1" with the following data:
+      | Change subject (optional) | Reply 1       |
+      | Message                   | Message       |
+      | asmoderator               | Standard Post |
+    And I reply to post "1" with the following data:
+      | Change subject (optional) | Reply 2                                     |
+      | Message                   | Message                                     |
+      | asmoderator               | Identify self as moderator (name displayed) |
+    And I reply to post "1" with the following data:
+      | Change subject (optional) | Reply 2                                                |
+      | Message                   | Message                                                |
+      | asmoderator               | Identify self as moderator (name hidden from students) |
+    And I follow "Test forum anon"
+    And I enter the app
+    And I log in as "student1"
+    And I press "Course 1" near "Recently accessed courses" in the app
+    And I press "Test forum anon" in the app
+    And I click on "//ion-list[contains(@class,'mma-forumng-discussion-list')]/ion-item[contains(@class, 'mma-forumng-discussion-short')][1]" "xpath_element"
+    And I should see "Discussion 1"
+    And I should see "Teacher 1" in the "//ion-list[contains(@class,'mma-forumng-posts-list')]/ion-item[contains(@class, 'mma-forumng-post-reply')][1]" "xpath_element"
+    And I should see "Teacher 1" in the "//ion-list[contains(@class,'mma-forumng-posts-list')]/ion-item[contains(@class, 'mma-forumng-post-reply')][2]" "xpath_element"
+    And I should see "Moderator" in the "//ion-list[contains(@class,'mma-forumng-posts-list')]/ion-item[contains(@class, 'mma-forumng-post-reply')][2]" "xpath_element"
+    Then I should see "Moderator" in the "//ion-list[contains(@class,'mma-forumng-posts-list')]/ion-item[contains(@class, 'mma-forumng-post-reply')][3]" "xpath_element"

@@ -252,7 +252,7 @@ class forumng_display_anon_test extends forumng_test_lib {
         $discussion3 = mod_forumng_discussion::get_from_id($tmp[0], 0);
         $post3 = mod_forumng_post::get_from_id($tmp[1], 0, true);
         $postdata = $method->invoke(new \mod_forumng\output\mobile, $discussion3, $post3, 'defaultimage', $moderator);
-        $this->assertEquals($moderator, $postdata['startedby']);
+        $this->assertEquals('<strong>'.$moderator.'</strong>', $postdata['startedby']);
         $this->assertContains('defaultimage', $postdata['startedbyurl']);
 
         // Login as Moderator.
@@ -267,7 +267,7 @@ class forumng_display_anon_test extends forumng_test_lib {
 
         $postdata = $method->invoke(new \mod_forumng\output\mobile, $discussion3, $post3, 'defaultimage', $moderator);
         $this->assertContains($moderator, $postdata['startedby']);
-        $this->assertContains($fullname, $postdata['startedby']);
+        $this->assertNotContains($fullname, $postdata['startedby']);
         $this->assertNotContains('defaultimage', $postdata['startedbyurl']);
     }
 }
