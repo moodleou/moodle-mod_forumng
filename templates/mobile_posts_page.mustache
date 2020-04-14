@@ -89,10 +89,16 @@
 <div class="mma-forumng-posts-list-wrapper" no-lines>
     <ion-item class="mma-forumng-expandall">
         <h2 class="mma-forumng-discussion-subject"><% subject %></h2>
-        <div ion-button class="mma-forumng-expandall-link">
-            <core-format-text [text]="CONTENT_OTHERDATA.toggle"></core-format-text>
+        <%# hasreplies %>
+        <div *ngIf="(!CONTENT_OTHERDATA.iscollapseall && !CONTENT_OTHERDATA.isexpandall) || CONTENT_OTHERDATA.iscollapseall" ion-button class="mma-forumng-expandall-link" (click)="expand_all_posts()">
+            <core-format-text [text]="CONTENT_OTHERDATA.expandall"></core-format-text>
             <ion-icon name="arrow-down" ios="ios-arrow-down" md="ios-arrow-down"></ion-icon>
         </div>
+        <div *ngIf="(!CONTENT_OTHERDATA.iscollapseall && !CONTENT_OTHERDATA.isexpandall) || CONTENT_OTHERDATA.isexpandall" ion-button class="mma-forumng-expandall-link" (click)="collapse_all_posts()">
+            <core-format-text [text]="CONTENT_OTHERDATA.collapseallpost"></core-format-text>
+            <ion-icon name="arrow-up" ios="ios-arrow-up" md="ios-arrow-up"></ion-icon>
+        </div>
+        <%/ hasreplies %>
     </ion-item>
     <ion-item *ngIf="CONTENT_OTHERDATA.islock" [id]="CONTENT_OTHERDATA.lockpost.postid" class="mma-forumng-p1 mma-forumng-lockmessage">
         <%! Note no ion-card-header as it adds padding so mis-aligns the user image with the contents below. %>
@@ -237,7 +243,7 @@
     <ion-list class="mma-forumng-posts-list" no-lines>
         <ion-item *ngFor="let reply of CONTENT_OTHERDATA.replies" [id]="reply.postid"
                   class="mma-forumng-post-reply" color="light">
-            <div class="{{reply.isunread}}">
+            <div class="{{reply.isunread}}{{ reply.isdeleted ? ' deleted-post':'' }}">
                 <ion-item class="mma-forumng-post-info">
                     <ion-avatar item-start large *ngIf="reply.hasanon">
                         <img [src]="reply.startedbyurl">
@@ -252,7 +258,10 @@
                         <ion-icon name="flag"></ion-icon>
                     </div>
                     <div *ngIf="!reply.isexpanded" item-end class="mma-forumng-post-reply-expandall">
-                        <ion-icon name="arrow-down" ios="ios-arrow-down" md="ios-arrow-down"></ion-icon>
+                        <ion-icon name="arrow-down" ios="ios-arrow-down" md="ios-arrow-down" (click)="reply.isexpanded = !reply.isexpanded"></ion-icon>
+                    </div>
+                    <div *ngIf="reply.isexpanded" item-end class="mma-forumng-post-reply-expandall">
+                        <ion-icon name="arrow-up" ios="ios-arrow-up" md="ios-arrow-up" (click)="reply.isexpanded = !reply.isexpanded"></ion-icon>
                     </div>
                 </ion-item>
                 <ion-item>
@@ -313,7 +322,7 @@
             <ion-item *ngIf="reply.subreplies.length > 0" class="sub-reply">
                 <ion-list *ngFor="let subreply of reply.subreplies">
                     <ion-item [id]="subreply.postid" class="mma-forumng-align-items-normal">
-                        <div class="{{subreply.isunread}}">
+                        <div class="{{subreply.isunread}}{{ subreply.isdeleted ? ' deleted-post':'' }}">
                             <ion-item class="mma-forumng-post-info">
                                 <ion-avatar item-start large *ngIf="subreply.hasanon">
                                     <img [src]="subreply.startedbyurl">
@@ -328,7 +337,10 @@
                                     <ion-icon name="flag"></ion-icon>
                                 </div>
                                 <div *ngIf="!subreply.isexpanded" item-end class="mma-forumng-post-subreply-expandall">
-                                    <ion-icon name="arrow-down" ios="ios-arrow-down" md="ios-arrow-down"></ion-icon>
+                                    <ion-icon name="arrow-down" ios="ios-arrow-down" md="ios-arrow-down" (click)="subreply.isexpanded = !subreply.isexpanded"></ion-icon>
+                                </div>
+                                <div *ngIf="subreply.isexpanded" item-end class="mma-forumng-post-reply-expandall">
+                                    <ion-icon name="arrow-up" ios="ios-arrow-up" md="ios-arrow-up" (click)="subreply.isexpanded = !subreply.isexpanded"></ion-icon>
                                 </div>
                             </ion-item>
                             <ion-item class="mma-forumng-indented">

@@ -168,6 +168,13 @@ html[style="font-size: 93.75%;"] .mma-forumng-discussion-listing .select-icon .s
 .mma-forumng-posts-list-wrapper .mma-forumng-post-reply .unread-post ion-item {
     background-color: #ddf0f8;
 }
+.mma-forumng-posts-list-wrapper .mma-forumng-post-reply .deleted-post .mma-forumng-posts-subject {
+    text-decoration: line-through;
+}
+.mma-forumng-posts-list-wrapper .mma-forumng-post-reply .deleted-post .mma-forumng-posts-subject,
+.mma-forumng-posts-list-wrapper .mma-forumng-post-reply .deleted-post .mma-forumng-posts-message p {
+    color: #a5a5a5;
+}
 
 .mma-forumng-posts-list-wrapper .mma-forumng-p1.unread-post > .item-inner,
 .mma-forumng-posts-list-wrapper .mma-forumng-p1.unread-post ion-item,
@@ -231,7 +238,9 @@ html[style="font-size: 93.75%;"] .mma-forumng-discussion-listing .select-icon .s
     padding-left: 16px;
 }
 
-.mma-forumng-posts-list-wrapper ion-icon[name="arrow-down"] {
+.mma-forumng-posts-list-wrapper ion-icon[name="arrow-down"],
+.mma-forumng-posts-list-wrapper ion-icon[name="arrow-up"],
+.mma-forumng-post-reply-expandall ion-icon[name="arrow-up"] {
     font-size: 1.8em;
 }
 

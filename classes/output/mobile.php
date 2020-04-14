@@ -459,7 +459,8 @@ class mobile {
 
         // Default collaspe all posts.
         $toggle = get_string('expandallpost', 'forumng');
-
+        $expandall = get_string('expandallpost', 'forumng');
+        $collapseallpost = get_string('collapseallpost', 'forumng');
         // Based on renderer.php render_post, and mod_forumng_post.php display_with_children.
         $root = $discussion->get_root_post();
         $defaultimage = $OUTPUT->image_url('u/f2');
@@ -480,6 +481,8 @@ class mobile {
         // Doing it this way allows sending of more chunks of data (via ajax) to be
         // added to the view when required (user scrolls down for more).
         $replies = self::get_more_posts($discussion, 0);
+        $isexpandall = self::check_expand_all($replies);
+        $iscollapseall = self::check_collapse_all($replies);
 
         $renderer = $discussion->get_forum()->get_type()->get_renderer();
         $importanticon = (object)[
@@ -499,7 +502,6 @@ class mobile {
             }
         }
         $postdata['canlock'] = $canlock;
-
         // Rootpost (or starter message) is now ready to pass to the template.
         $rootpost = (object)$postdata;
 
@@ -519,11 +521,15 @@ class mobile {
                 'importanticon' => json_encode($importanticon),
                 'totalposts' => $noofposts,
                 'toggle' => strtoupper($toggle),
+                'expandall' => strtoupper($expandall),
+                'collapseallpost' => strtoupper($collapseallpost),
                 'canlock' => $canlock,
                 'islock' => $islock,
                 'lockpost' => json_encode($lockpost),
                 'lock' => 0,
                 'postas' => 0,
+                'isexpandall' => $isexpandall,
+                'iscollapseall' => $iscollapseall,
             ],
             'files' => []
         ];
@@ -718,6 +724,7 @@ class mobile {
             'maxsize' => $forumng->get_max_bytes(),
             'hasanon' => $hasanon,
             'createdbymoderator' => $createdbymoderator,
+            'isdeleted' => (bool)$post->get_deleted(),
             'historyedit' => $historyedit
         ];
     }
@@ -950,5 +957,45 @@ class mobile {
             }
         }
         return $options;
+    }
+
+    /**
+     * Check expand all.
+     *
+     * @param $replies
+     * @return bool
+     */
+    private static function check_expand_all($replies) {
+        $isexpandall = true;
+        foreach ($replies as $r) {
+            if (!$r->isexpanded) {
+                $isexpandall = false;
+                break;
+            }
+            if (count($r->subreplies) > 0) {
+                $isexpandall = self::check_expand_all($r->subreplies);
+            }
+        }
+        return $isexpandall;
+    }
+
+    /**
+     * Check collapse all.
+     *
+     * @param $replies
+     * @return bool
+     */
+    private static function check_collapse_all($replies) {
+        $iscollapseall = true;
+        foreach ($replies as $r) {
+            if ($r->isexpanded) {
+                $iscollapseall = false;
+                break;
+            }
+            if (count($r->subreplies) > 0) {
+                $iscollapseall = self::check_collapse_all($r->subreplies);
+            }
+        }
+        return $iscollapseall;
     }
 }

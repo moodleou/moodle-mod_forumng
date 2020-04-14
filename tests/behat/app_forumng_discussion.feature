@@ -206,3 +206,39 @@ Feature:  Add discussion in forumng and test app can view discussion listing pag
     And I should see "Discussion 1"
     And I should see "Moderator" in the "//ion-list[contains(@class,'mma-forumng-posts-list')]/ion-item[contains(@class, 'mma-forumng-post-reply')][2]" "xpath_element"
     Then I should see "Moderator" in the "//ion-list[contains(@class,'mma-forumng-posts-list')]/ion-item[contains(@class, 'mma-forumng-post-reply')][3]" "xpath_element"
+
+  @javascript
+  Scenario: Expand collapse post and unread post
+    Given I log in as "teacher1"
+    And I am on "Course 1" course homepage
+    And I follow "Test forum discussion"
+    And I add a discussion with the following data:
+      | Subject | a discussion |
+      | Message | test message |
+    And I log out
+    Then I log in as "student1"
+    And I am on "Course 1" course homepage
+    And I follow "Test forum discussion"
+    And I follow "a discussion"
+    And I reply to post "1" with the following data:
+      | Message | Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. |
+    And I log out
+    Then I log in as "teacher1"
+    And I am on "Course 1" course homepage
+    And I follow "Test forum discussion"
+    And I follow "a discussion"
+    And I reply to post "1" with the following data:
+      | Message | Teacher Lorem ipsum dolor sit amet |
+    And I reply to post "1" with the following data:
+      | Message | Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. |
+    And I enter the app
+    And I log in as "student1"
+    And I press "Course 1" near "Recently accessed courses" in the app
+    And I press "Test forum discussion" in the app
+    And I click on "//ion-list[contains(@class,'mma-forumng-discussion-list')]/ion-item[contains(@class, 'mma-forumng-discussion-short')][1]" "xpath_element"
+    # Before click Expand all, I should see short message with (...) .
+    And I should see "..."
+    And I should see "EXPAND ALL"
+    And I click on ".mma-forumng-expandall-link" "css_element"
+    And I should not see "..."
+    And I should see "COLLAPSE ALL"

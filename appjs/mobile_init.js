@@ -647,8 +647,46 @@
         outerThis.lock_discussion = function() {
             t.mod_forumng.lock_discussion(outerThis);
         };
+        outerThis.expand_all_posts = function() {
+            (function expandPosts(postArr) {
+                for(var ind in postArr) {
+                    var reply = postArr[ind];
+                    if (!reply.isexpanded) {
+                        reply.isexpanded = true;
+                    }
+                    if (reply.subreplies) {
+                        expandPosts(reply.subreplies);
+                    }
+                }
+            })(outerThis.CONTENT_OTHERDATA.replies);
+            outerThis.CONTENT_OTHERDATA.isexpandall = true;
+            outerThis.CONTENT_OTHERDATA.iscollapseall = false;
+        };
+
+        outerThis.collapse_all_posts = function() {
+            (function expandPosts(postArr) {
+                for(var ind in postArr) {
+                    var reply = postArr[ind];
+                    if (reply.isexpanded) {
+                        reply.isexpanded = false;
+                    }
+                    if (reply.subreplies) {
+                        expandPosts(reply.subreplies);
+                    }
+                }
+            })(outerThis.CONTENT_OTHERDATA.replies);
+            outerThis.CONTENT_OTHERDATA.isexpandall = false;
+            outerThis.CONTENT_OTHERDATA.iscollapseall = true;
+        };
 
         t.mod_forumng.currentPostsPage = outerThis;
+
+        setTimeout(function(){
+            var el = document.querySelectorAll('div[class="unread-post"]');
+            if (el && el.length) {
+                el[0].scrollIntoView();
+            }
+        }, 500);
     };
 
     /**
