@@ -79,6 +79,10 @@
     <!-- Group selector -->
     <ion-list>
         <ion-item>
+            <%# displaytext %>
+            <ion-label><% grouplabel %>: <% displaytext %></ion-label>
+            <%/ displaytext %>
+            <%^ displaytext %>
             <ion-label><% grouplabel %></ion-label>
             <ion-select [(ngModel)]="CONTENT_OTHERDATA.defaultgroup" interface="popover"
                         (ionChange)="updateGroupContent({cmid: <% cmid %>, courseid: <% courseid %>, group: $event, isupdate: 1})">
@@ -86,6 +90,7 @@
                 <ion-option value="<% groupid %>"><% groupname %></ion-option>
                 <%/ groups %>
             </ion-select>
+            <%/ displaytext %>
         </ion-item>
     </ion-list>
     <%/ hasgroups %>
@@ -98,6 +103,11 @@
             <%# message %>
             <div class="mma-forumng-discussion-show-dates" text-wrap><% message %></div>
             <%/ message %>
+            <%# postanonmessage %>
+            <div class="mma-forumng-discussion-postanon" text-wrap>
+                <% postanonmessage %>
+            </div>
+            <%/ postanonmessage %>
         </ion-item>
         <%# hasdrafts %>
         <ion-item>

@@ -145,20 +145,20 @@ class mobile {
         $activegroup = groups_get_activity_group($cm, true, $allowedgroups);
         $groupmode = $forumng->get_group_mode();
         if ($groupmode) {
+            if ($groupmode == VISIBLEGROUPS) {
+                $grouplabel = get_string('groupsvisible', 'group');
+            } else {
+                $grouplabel = get_string('groupsseparate', 'group');
+            }
+            $aag = has_capability('moodle/site:accessallgroups', $context);
+            if ($groupmode == VISIBLEGROUPS or $aag) {
+                $groups[] = (object)['groupid' => 0, 'groupname' => get_string('allparticipants')];
+                $groupid = $activegroup;
+            }
             if ($allowedgroups) {
                 $hasgroups = true;
-                $aag = has_capability('moodle/site:accessallgroups', $context);
-                if ($groupmode == VISIBLEGROUPS or $aag) {
-                    $groups[] = (object)['groupid' => 0, 'groupname' => get_string('allparticipants')];
-                    $groupid = $activegroup;
-                }
                 foreach ($allowedgroups as $g) {
                     $groups[] = (object)['groupid' => $g->id, 'groupname' => format_string($g->name)];
-                }
-                if ($groupmode == VISIBLEGROUPS) {
-                    $grouplabel = get_string('groupsvisible', 'group');
-                } else {
-                    $grouplabel = get_string('groupsseparate', 'group');
                 }
                 if ($aag and $cm->groupingid) {
                     if ($grouping = groups_get_grouping($cm->groupingid)) {
@@ -265,7 +265,13 @@ class mobile {
         if ($forumng->can_mark_read()) {
             $sortoption[] = (object)['sortid' => self::SORT_UNREAD, 'title' => get_string('sortbymostunreadposts', 'forumng')];
         }
-
+        $displaytext = false;
+        if (count($groups) == 1) {
+            $displaytext = $groups[0]->groupname;
+        }
+        if (count($groups) > 0) {
+            $hasgroups = true;
+        }
         // Data prep.
         $forum = new \stdClass();
         $forum->id = $forumng->get_id();
@@ -275,6 +281,14 @@ class mobile {
                 external_format_text($forumng->get_introduction(), $forumng->get_introduction_format(), $context->id,
                     'mod_forumng', 'introduction');
         $whynot = '';
+        // O or NULL we can't start discussion.
+        // -1 should be fine.
+        $canstartdiscussion =  $groupid ? $forumng->can_start_discussion($groupid, $whynot) : false;
+        // Show message when user can post as anon.
+        $postanonmessage = '';
+        if ($forumng->get_can_post_anon() == \mod_forumng::CANPOSTATON_NONMODERATOR) {
+            $postanonmessage = get_string('identityprotectedmessage', 'forumng');
+        }
         $data = [
             'forum' => $forum,
             'hasgroups' => $hasgroups,
@@ -283,11 +297,13 @@ class mobile {
             'hasdiscussions' => $hasdiscussions,
             'cmid' => $cm->id,
             'courseid' => $course->id,
-            'canstartdiscussion' => $forumng->can_start_discussion($groupid, $whynot),
+            'canstartdiscussion' => $canstartdiscussion,
             'message' => $message,
             'decorators' => $decorators,
             'hasdrafts' => $hasdrafts,
             'isipud' => $isipud,
+            'displaytext' => $displaytext,
+            'postanonmessage' => $postanonmessage,
         ];
         $html = $OUTPUT->render_from_template('mod_forumng/mobile_discussions_page', $data);
 

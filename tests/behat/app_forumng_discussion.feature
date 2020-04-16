@@ -12,7 +12,7 @@ Feature:  Add discussion in forumng and test app can view discussion listing pag
       | teacher1 | Teacher   | 1        | teacher1@asd.com |
     And the following "courses" exist:
       | fullname | shortname | category |
-      | Course 1 | C1 | 0 |
+      | Course 1 | C1        | 0        |
     And the following "course enrolments" exist:
       | user     | course | role    |
       | student1 | C1     | student |
@@ -22,6 +22,8 @@ Feature:  Add discussion in forumng and test app can view discussion listing pag
       | forumng  | Test forum name       | Test forum description     | C1     | forumng1 | 0           |
       | forumng  | Test forum discussion | Test forum description     | C1     | forumng2 | 0           |
       | forumng  | Test forum anon       | Test ForumNG 3 description | C1     | forumng3 | 1           |
+      | forumng  | Test forum anon 2     | Test ForumNG 4 description | C1     | forumng4 | 2           |
+
 
   Scenario: Add discussions and check sticky and block and time limit
     Given I log in as "teacher1"
@@ -29,12 +31,12 @@ Feature:  Add discussion in forumng and test app can view discussion listing pag
     And I follow "Test forum name"
     And I add a discussion with the following data:
       | Subject | Discussion 1 |
-      | Message | abc |
+      | Message | abc          |
     And I follow "Test forum name"
     And I add a discussion with the following data:
       | Subject | Discussion 2 |
-      | Message | abcdefg |
-      | sticky | 1 |
+      | Message | abcdefg      |
+      | sticky  | 1            |
     Then I press "Lock"
     And I set the following fields to these values:
       | Message | A lock post |
@@ -42,11 +44,11 @@ Feature:  Add discussion in forumng and test app can view discussion listing pag
     And I press "Discussion options"
     #changing the display options to the following
     When I set the following fields to these values:
-      | timestart[enabled] | 1                   |
+      | timestart[enabled] | 1                    |
       | timestart[day]     | ## yesterday ## j ## |
       | timestart[month]   | ## yesterday ## n ## |
       | timestart[year]    | ## yesterday ## Y ## |
-      | timeend[enabled]   | 1                   |
+      | timeend[enabled]   | 1                    |
       | timeend[day]       | ## yesterday ## j ## |
       | timeend[month]     | ## yesterday ## n ## |
       | timeend[year]      | ## yesterday ## Y ## |
@@ -54,7 +56,7 @@ Feature:  Add discussion in forumng and test app can view discussion listing pag
     And I follow "Test forum name"
     And I add a discussion with the following data:
       | Subject | Discussion 3 |
-      | Message | abcdefghijk |
+      | Message | abcdefghijk  |
     And I am on "Course 1" course homepage
     And I follow "Test forum discussion"
     And I add a discussion with the following data:
@@ -70,7 +72,7 @@ Feature:  Add discussion in forumng and test app can view discussion listing pag
     And I add a discussion with the following data:
       | Subject | b discussion |
       | Message | test message |
-      | sticky | 1 |
+      | sticky  | 1            |
     And I reply to post "1" with the following data:
       | Message | REPLY1 |
     And I reply to post "1" with the following data:
@@ -122,7 +124,7 @@ Feature:  Add discussion in forumng and test app can view discussion listing pag
     And I follow "Test forum name"
     And I add a discussion with the following data:
       | Subject | Discussion 1 |
-      | Message | abc |
+      | Message | abc          |
     And I reply to post "1" with the following data:
       | Message | REPLY1 |
     And I reply to post "1" with the following data:
@@ -172,5 +174,35 @@ Feature:  Add discussion in forumng and test app can view discussion listing pag
     And I should see "Discussion 1"
     And I should see "Teacher 1" in the "//ion-list[contains(@class,'mma-forumng-posts-list')]/ion-item[contains(@class, 'mma-forumng-post-reply')][1]" "xpath_element"
     And I should see "Teacher 1" in the "//ion-list[contains(@class,'mma-forumng-posts-list')]/ion-item[contains(@class, 'mma-forumng-post-reply')][2]" "xpath_element"
+    And I should see "Moderator" in the "//ion-list[contains(@class,'mma-forumng-posts-list')]/ion-item[contains(@class, 'mma-forumng-post-reply')][2]" "xpath_element"
+    Then I should see "Moderator" in the "//ion-list[contains(@class,'mma-forumng-posts-list')]/ion-item[contains(@class, 'mma-forumng-post-reply')][3]" "xpath_element"
+
+  Scenario: Display post when non-moderators post anonymously
+    Given I log in as "teacher1"
+    And I am on "Course 1" course homepage
+    And I follow "Test forum anon 2"
+    And I add a discussion with the following data:
+      | Subject | Discussion 1 |
+      | Message | abc          |
+    And I reply to post "1" with the following data:
+      | Change subject (optional) | Reply 1       |
+      | Message                   | Message       |
+      | asmoderator               | Standard Post |
+    And I reply to post "1" with the following data:
+      | Change subject (optional) | Reply 2                                     |
+      | Message                   | Message                                     |
+      | asmoderator               | Identify self as moderator (name displayed) |
+    And I reply to post "1" with the following data:
+      | Change subject (optional) | Reply 2                                                |
+      | Message                   | Message                                                |
+      | asmoderator               | Identify self as moderator (name hidden from students) |
+    And I follow "Test forum anon 2"
+    And I enter the app
+    And I log in as "student1"
+    And I press "Course 1" near "Recently accessed courses" in the app
+    And I press "Test forum anon 2" in the app
+    And I should see "Posts to this forum will be identity protected - individuals' names will not be displayed."
+    And I click on "//ion-list[contains(@class,'mma-forumng-discussion-list')]/ion-item[contains(@class, 'mma-forumng-discussion-short')][1]" "xpath_element"
+    And I should see "Discussion 1"
     And I should see "Moderator" in the "//ion-list[contains(@class,'mma-forumng-posts-list')]/ion-item[contains(@class, 'mma-forumng-post-reply')][2]" "xpath_element"
     Then I should see "Moderator" in the "//ion-list[contains(@class,'mma-forumng-posts-list')]/ion-item[contains(@class, 'mma-forumng-post-reply')][3]" "xpath_element"

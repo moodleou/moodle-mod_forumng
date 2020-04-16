@@ -471,3 +471,6 @@ html[style="font-size: 93.75%;"] ion-app.app-root.ios .button-ios#mod_forumg_add
 .popover-ios .popover-arrow {
     display: none;
 }
+.mma-forumng-discussion-postanon {
+    font-weight: 700;
+}
