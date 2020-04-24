@@ -154,4 +154,20 @@ $functions = array(
                 'capabilities' => 'mod/forumng:viewdiscussion',
                 'services' => array(MOODLE_OFFICIAL_MOBILE_SERVICE, 'local_mobile')
         ),
+        'mod_forumng_delete_post_mobile' => array(
+                'classname'   => 'mod_forumng\local\external\delete_post',
+                'methodname'  => 'delete_post',
+                'description' => 'Delete post',
+                'type'        => 'write',
+                'capabilities' => 'mod/forumng:replypost',
+                'services' => array(MOODLE_OFFICIAL_MOBILE_SERVICE, 'local_mobile')
+        ),
+        'mod_forumng_undelete_post_mobile' => array(
+                'classname'   => 'mod_forumng\local\external\undelete_post',
+                'methodname'  => 'undelete_post',
+                'description' => 'Undelete post',
+                'type'        => 'write',
+                'capabilities' => 'mod/forumng:replypost',
+                'services' => array(MOODLE_OFFICIAL_MOBILE_SERVICE, 'local_mobile')
+        ),
 );

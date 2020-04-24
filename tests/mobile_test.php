@@ -32,6 +32,8 @@ use \mod_forumng\local\external\mark_read;
 use \mod_forumng\local\external\manual_mark;
 use \mod_forumng\local\external\mark_all_post_read;
 use \mod_forumng\local\external\lock_discussion;
+use \mod_forumng\local\external\delete_post;
+use \mod_forumng\local\external\undelete_post;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -180,7 +182,10 @@ class mobile_testcase extends \advanced_testcase {
         $generator = $this->getDataGenerator();
         $course = $generator->create_course();
         $student = $generator->create_user();
+        $teacher = $generator->create_user();
         $generator->enrol_user($student->id, $course->id, 'student');
+        $generator->enrol_user($teacher->id, $course->id, 'teacher');
+
         $this->setUser($student);
         $forumnggenerator = $generator->get_plugin_generator('mod_forumng');
         $forum = $forumnggenerator->create_instance(['course' => $course->id]);
@@ -198,7 +203,7 @@ class mobile_testcase extends \advanced_testcase {
         $editing = false;
 
         // Add a reply via the WS.
-        $result = reply::reply($replyto, $subject, $message, $draftarea, $editing);
+        $result = reply::reply($replyto, $subject, $message, $draftarea, $editing, 0, 0, 0, 0, 0);
         $this->assertTrue($result['success']);
         $this->assertEmpty($result['errormsg']);
         $newpostid = $result['post'];
@@ -206,15 +211,73 @@ class mobile_testcase extends \advanced_testcase {
         $post = \mod_forumng_post::get_from_id($newpostid, 0);
         $this->assertEquals($subject, $post->get_subject());
         $this->assertEquals($message, $post->get_formatted_message());
+        $this->assertEquals(0, $post->is_important());
+        $this->assertEquals(0, $post->get_asmoderator());
         // Check the attachment.
         $attachmentnames = $post->get_attachment_names();
         $this->assertEquals('basepic.jpg', $attachmentnames[0]);
 
-        // Add a reply via the api.
-        $args = ['replyto' => $newpostid];
-        $result = mobile::reply($args);
-        $this->assertEquals($forum->id, $result['otherdata']['forumng']);
-        $this->assertEquals($newpostid, $result['otherdata']['replyto']);
+        // Add a reply via the WS.
+        $subject = 'Test subject 2'; // A change of subject is not required for a reply.
+        $message = 'Test reply message 2';
+        $filerecord = ['filename' => 'basepic2.jpg'];
+        $file = self::create_draft_file($filerecord);
+        $draftarea = $file->get_itemid();
+        $editing = false;
+        $result = reply::reply($replyto, $subject, $message, $draftarea, $editing, 1, 1, 0, 0, 0);
+        $this->assertTrue($result['success']);
+        $this->assertEmpty($result['errormsg']);
+        $newpostid = $result['post'];
+        // Check the new post exists.
+        $post = \mod_forumng_post::get_from_id($newpostid, 0);
+        $this->assertEquals($subject, $post->get_subject());
+        $this->assertEquals($message, $post->get_formatted_message());
+        $this->assertEquals(0, $post->is_important());
+        $this->assertEquals(0, $post->get_asmoderator());
+        $attachmentnames = $post->get_attachment_names();
+        $this->assertEquals('basepic2.jpg', $attachmentnames[0]);
+
+        // Teacher
+        $this->setUser($teacher);
+        $filerecord = ['filename' => 'basepic2.jpg'];
+        $file = self::create_draft_file($filerecord);
+        $draftarea = $file->get_itemid();
+        $result = reply::reply($replyto, $subject, $message, $draftarea, $editing, 1,
+                1, 0, 0, 0);
+        $this->assertTrue($result['success']);
+        $this->assertEmpty($result['errormsg']);
+        $newpostid = $result['post'];
+        // Check the new post exists.
+        $post = \mod_forumng_post::get_from_id($newpostid, 0);
+        $this->assertEquals($subject, $post->get_subject());
+        $this->assertEquals($message, $post->get_formatted_message());
+        $this->assertEquals(1, $post->is_important());
+        $this->assertEquals(1, $post->get_asmoderator());
+        $attachmentnames = $post->get_attachment_names();
+        $this->assertEquals('basepic2.jpg', $attachmentnames[0]);
+        $editedsubject = 'Edited subject';
+        $editedmsg = 'Edited message';
+        $result = reply::reply($newpostid, $editedsubject, $editedmsg, $draftarea, 1, 1,
+                0, 0, 0, 0);
+        $post = \mod_forumng_post::get_from_id($newpostid, 0);
+        $this->assertEquals($editedsubject, $post->get_subject());
+        $this->assertEquals($editedmsg, $post->get_formatted_message());
+        $this->assertEquals(false, $post->is_important());
+        $this->assertEquals(1, $post->get_asmoderator());
+
+        $discussion = $post->get_discussion();
+        $rootpost = $discussion->get_root_post();
+        $time = time();
+        $result = reply::reply($rootpost->get_id(), 'Rootpost subject',
+                'Rootpost message', 0, 1, 0, 0, 1, 1, $time);
+        $post = \mod_forumng_post::get_from_id($rootpost->get_id(), 0);
+        $this->assertEquals('Rootpost subject', $post->get_effective_subject());
+        $this->assertEquals('Rootpost message', $post->get_formatted_message());
+        $this->assertEquals(false, $post->is_important());
+        $this->assertEquals(0, $post->get_asmoderator());
+        $this->assertEquals($time, $post->get_discussion()->get_time_start());
+        $this->assertEquals(1, $post->get_discussion()->is_sticky());
+
     }
 
     /**
@@ -269,6 +332,59 @@ class mobile_testcase extends \advanced_testcase {
         $result = lock_discussion::lock_discussion($discussionid, $cloneid, $subject, $message, $draftarea, $postas);
         $this->assertFalse($result['success']);
         $this->assertEquals('You do not have permission to manage this discussion.', $result['errormsg']);
+    }
+
+    /**
+     * Test delete and undelete ws.
+     */
+    public function test_mobile_forumng_delete_undelete() {
+        $this->resetAfterTest();
+
+        $generator = $this->getDataGenerator();
+        $course = $generator->create_course();
+        $student = $generator->create_user();
+        $teacher = $generator->create_user();
+        $generator->enrol_user($student->id, $course->id, 'student');
+        $generator->enrol_user($teacher->id, $course->id, 'teacher');
+
+        $this->setUser($student);
+        $forumnggenerator = $generator->get_plugin_generator('mod_forumng');
+        $forum = $forumnggenerator->create_instance(['course' => $course->id]);
+        $record = [];
+        $record['course'] = $course->id;
+        $record['forum'] = $forum->id;
+        $record['userid'] = $student->id;
+        list($discussionid, $replyto) = $forumnggenerator->create_discussion($record);
+
+        $subject = ''; // A change of subject is not required for a reply.
+        $message = 'Test reply message';
+        $filerecord = ['filename' => 'basepic.jpg'];
+        $file = self::create_draft_file($filerecord);
+        $draftarea = $file->get_itemid();
+        $editing = false;
+
+        // Add a reply via the WS.
+        $result = reply::reply($replyto, $subject, $message, $draftarea, $editing, 0,
+                0, 0, 0, 0);
+        $this->assertTrue($result['success']);
+        $this->assertEmpty($result['errormsg']);
+        $newpostid = $result['post'];
+        // Check the new post exists.
+        $result = delete_post::delete_post($newpostid);
+        $post = \mod_forumng_post::get_from_id($newpostid, 0);
+        $this->assertTrue($result->success);
+        $this->assertEmpty($result->message);
+        $this->assertNotEmpty($result->postinfo->deletedtime);
+        $this->assertEquals($result->postinfo->deletedtime, userdate($post->get_deleted()));
+
+        $result = undelete_post::undelete_post($newpostid);
+        $this->assertFalse($result->success);
+        $this->assertEquals("You don't have permission to edit this kind of post.", $result->message);
+        $this->setUser($teacher);
+        $result = undelete_post::undelete_post($newpostid);
+        $this->assertTrue($result->success);
+        $this->assertEmpty($result->message);
+        $this->assertEquals(0, $result->postinfo->deletedtime);
     }
 
     /**

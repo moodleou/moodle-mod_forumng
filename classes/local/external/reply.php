@@ -46,7 +46,12 @@ class reply extends external_api {
             'subject' => new external_value(PARAM_TEXT, 'Subject of the post', VALUE_DEFAULT, ''),
             'message' => new external_value(PARAM_RAW, 'Message for the post'),
             'draftarea' => new external_value(PARAM_INT, 'Draft area ID for uploaded attachments', VALUE_DEFAULT, 1),
-            'editing' => new external_value(PARAM_BOOL, 'Is editing', VALUE_DEFAULT, false)
+            'editing' => new external_value(PARAM_BOOL, 'Is editing', VALUE_DEFAULT, false),
+            'postas' => new external_value(PARAM_INT, 'Post as', VALUE_DEFAULT, 0),
+            'important' => new external_value(PARAM_INT, 'Important', VALUE_DEFAULT, 0),
+            'isrootpost' => new external_value(PARAM_INT, 'Is rootpost', VALUE_DEFAULT, 0),
+            'sticky' => new external_value(PARAM_INT, 'Discussion sticky value', VALUE_DEFAULT, 0),
+            'showfrom' => new external_value(PARAM_INT, 'Discussion showfrom value', VALUE_DEFAULT, 0),
         ]);
     }
 
@@ -73,10 +78,16 @@ class reply extends external_api {
      * @param string $message Message of the post (no inline images etc.)
      * @param int $draftarea Draft area id of attached files, 1 indicates no files attached.
      * @param bool $editing Is editing?
+     * @param int $postas
+     * @param int $important
+     * @param int $isrootpost
+     * @param int $sticky
+     * @param int $showfrom
      * @return array See returns above.
      * @throws \moodle_exception
      */
-    public static function reply($replyto, $subject, $message, $draftarea, $editing) {
+    public static function reply($replyto, $subject, $message, $draftarea, $editing, $postas, $important,
+            $isrootpost, $sticky, $showfrom) {
         global $PAGE, $DB;
 
         // Notes - only creating a new reply is supported at present
@@ -90,7 +101,12 @@ class reply extends external_api {
             'subject' => $subject,
             'message' => $message,
             'draftarea' => $draftarea,
-            'editing' => $editing
+            'editing' => $editing,
+            'postas' => $postas,
+            'important' => $important,
+            'isrootpost' => $isrootpost,
+            'sticky' => $sticky,
+            'showfrom' => $showfrom,
         ];
 
         try {
@@ -105,14 +121,15 @@ class reply extends external_api {
             $PAGE->set_context($forumcontext);
 
             $fileoptions = array('subdirs' => false, 'maxbytes' => $forum->get_max_bytes(), 'maxfiles' => -1);
+            $whynot = '';
             if (!$data->editing) {
                 // Sanity check.
-                $whynot = '';
                 if (!$replypost->can_reply($whynot)) {
                     return ['success' => false, 'post' => 0, 'errormsg' => get_string($whynot, 'mod_forumng')];
                 }
                 $transaction = $DB->start_delegated_transaction();
-                $newpostid = $replypost->reply($data->subject, $data->message, FORMAT_HTML, $data->draftarea > 1);
+                $newpostid = $replypost->reply($data->subject, $data->message, FORMAT_HTML,
+                        $data->draftarea > 1, $data->important, false, 0, true, $data->postas);
                 // Attachments - note draftarea=1 is used to indicate no attachments.
                 if ($data->draftarea > 1) {
                     file_save_draft_area_files($data->draftarea, $forumcontext->id, 'mod_forumng',
@@ -121,9 +138,27 @@ class reply extends external_api {
                 $transaction->allow_commit();
                 return ['success' => true, 'post' => $newpostid, 'errormsg' => ''];
             } else {
-                // Editing a post (reply).
-                // TODO this section is not complete.
-                return ['success' => false, 'post' => $data->replyto, 'errormsg' => 'Edit posts not working yet'];
+                if (!$replypost->can_edit($whynot)) {
+                    return ['success' => false, 'post' => 0, 'errormsg' => get_string($whynot, 'mod_forumng')];
+                }
+                $transaction = $DB->start_delegated_transaction();
+                $discussion = $replypost->get_discussion();
+                if ($data->isrootpost && $replyto == $discussion->get_root_post()->get_id()) {
+                    $discussion->edit_settings(\mod_forumng_discussion::NOCHANGE, $data->showfrom,
+                            \mod_forumng_discussion::NOCHANGE, \mod_forumng_discussion::NOCHANGE,
+                            $data->sticky);
+                }
+                $hasattachment = $data->draftarea > 1;
+                $gotsubject = $replypost->edit_start($data->subject, $hasattachment, $data->important,
+                        false, 0, true, $data->postas);
+                if ($hasattachment) {
+                    file_save_draft_area_files($data->draftarea, $forumcontext->id, 'mod_forumng',
+                            'attachment', $replypost->get_id(), $fileoptions);
+                }
+                $replypost->edit_finish($data->message, FORMAT_HTML,
+                        $gotsubject);
+                $transaction->allow_commit();
+                return ['success' => true, 'post' => $data->replyto, 'errormsg' => ''];
             }
         } catch (\Exception $e) {
             return ['success' => false, 'post' => 0, 'errormsg' => $e->getMessage()];

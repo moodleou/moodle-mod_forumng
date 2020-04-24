@@ -128,7 +128,7 @@
             </ion-list>
         </ion-item>
     </ion-item>
-    <ion-item [id]="<% postid %>" class="mma-forumng-p1 <%{ isunread }%>">
+    <ion-item [id]="<% postid %>" class="mma-forumng-p1 <%{ isunread }%> <%{ importantclass }%>">
         <%! Note no ion-card-header as it adds padding so mis-aligns the user image with the contents below. %>
         <ion-item class="mma-forumng-post-info">
             <ion-avatar item-start large *ngIf="<%{ hasanon }%>">
@@ -147,7 +147,7 @@
                 <% noofreplies %>
             </div>
         </ion-item>
-        <ion-item class="mma-forumng-posts">
+        <ion-item class="mma-forumng-posts <%{ createdbymoderatorclass }%>">
             <%# createdbymoderator %>
             <core-format-text class="mma-forumng-posts-anon" text="<%{ createdbymoderator }%>" component="mod_forumng"
                               componentId="<% cmid %>" maxHeight="80" text-wrap>
@@ -166,22 +166,28 @@
             <ion-grid class="mma-forumng-commands-buttons">
                 <ion-row justify-content-start align-items-center class="mma-forumng-row-max">
                     <ion-col col-auto *ngIf="<%{ canreply }%>">
-                        <button core-site-plugins-new-content ion-button
-                                title="{{ 'plugin.mod_forumng.postreply' | translate }}" component="mod_forumng"
-                                method="reply" [args]="{replyto: <% postid %>}" [disabled]="!isOnline()">
+                        <button  ion-button (click)="showReply(<% postid %>)" [disabled]="!isOnline() || CONTENT_OTHERDATA.currentEditedPostId || CONTENT_OTHERDATA.currentReplyToId"
+                                 title="{{ 'plugin.mod_forumng.postreply' | translate }}" >
                             <core-format-text text="<%{ replyto }%>"></core-format-text>
                         </button>
                     </ion-col>
                     <ion-col col-auto *ngIf="<%{ canedit }%>">
-                        <button core-site-plugins-new-content ion-button
-                                component="mod_forumng" [disabled]="!isOnline()">
+                        <button ion-button (click)="showEdit({ postid: <% postid %>, subject: '<% subject %>', isimportant: <% isimportant %>, postas: <% postas %>,
+                         attachmentsforform: <% attachmentsforform %>, timelimit: <% limittime %>, showfrom: '<% showfrom %>', sticky: <% sticky %>})"
+                                title="<%{ editpoststring }%>" [disabled]="!isOnline() || CONTENT_OTHERDATA.currentEditedPostId || CONTENT_OTHERDATA.currentReplyToId">
                             <core-format-text text="<%{ edit }%>"></core-format-text>
                         </button>
                     </ion-col>
                     <ion-col col-auto *ngIf="<%{ candelete }%>">
-                        <button core-site-plugins-new-content ion-button
-                                component="mod_forumng" [disabled]="!isOnline()">
+                        <button ion-button (click)="showDelete(<% postid %>)"
+                                title="<%{ deletepoststring }%>" [disabled]="!isOnline() || CONTENT_OTHERDATA.currentEditedPostId || CONTENT_OTHERDATA.currentReplyToId">
                             <core-format-text text="<%{ delete }%>"></core-format-text>
+                        </button>
+                    </ion-col>
+                    <ion-col col-auto *ngIf="<%{ canundelete }%>">
+                        <button ion-button (click)="showUnDelete(<% postid %>)"
+                                title="<%{ undeletepoststring }%>" [disabled]="!isOnline() || CONTENT_OTHERDATA.currentEditedPostId || CONTENT_OTHERDATA.currentReplyToId">
+                            <core-format-text text="<%{ undelete }%>"></core-format-text>
                         </button>
                     </ion-col>
                     <ion-col col-auto *ngIf="<%{ canmarkread }%>">
@@ -195,30 +201,51 @@
             </ion-grid>
         </ion-item>
     </ion-item>
-    <ion-list id="mma-forumng-form" *ngIf="CONTENT_OTHERDATA.lock == 1">
+    <ion-list id="mma-forumng-form" *ngIf="CONTENT_OTHERDATA.lock == 1  ||  ((CONTENT_OTHERDATA.isReply == 1 || CONTENT_OTHERDATA.isEdit == 1) && (CONTENT_OTHERDATA.currentReplyToId == <% postid %> || CONTENT_OTHERDATA.currentEditedPostId == <% postid %>))">
+        <%# limittime %>
+        <ion-item class="time-limit" *ngIf="CONTENT_OTHERDATA.edittimeout && CONTENT_OTHERDATA.isEdit" text-wrap>
+            <% editlimitmsg %>
+        </ion-item>
+        <%/ limittime %>
+        <ion-item class="bold-text red-text" text-wrap *ngIf="!CONTENT_OTHERDATA.edittimeout && CONTENT_OTHERDATA.isEdit">
+            <% edittimeoutmsg %>
+        </ion-item>
         <ion-item *ngIf="CONTENT_OTHERDATA.lock == 1">
             <core-format-text text="Lock discussion: <% subject %>"></core-format-text>
         </ion-item>
         <ion-item>
             <ion-label stacked>{{ 'plugin.mod_forumng.subject' | translate }}</ion-label>
-            <ion-input type="text" [placeholder]="'plugin.mod_forumng.optionalsubject' | translate" [(ngModel)]="subject"></ion-input>
+            <ion-input type="text" (ionChange)="onSubjectChange()" [placeholder]="'plugin.mod_forumng.optionalsubject' | translate" [(ngModel)]="subject"></ion-input>
         </ion-item>
         <ion-item>
             <ion-label stacked>{{ 'plugin.mod_forumng.message' | translate }}</ion-label>
-            <core-rich-text-editor item-content [control]="PostControl" class="forumng-reply-message"
-                                   [placeholder]="'plugin.mod_forumng.message' | translate" [name]="msg" [(ngModel)]="message">
-            </core-rich-text-editor>
+            <core-rich-text-editor item-content (contentChanged)="onMessageChange($event)" [control]="PostControl" class="forumng-reply-message"
+                                   [placeholder]="'plugin.mod_forumng.message' | translate" [name]="msg" [(ngModel)]="message"></core-rich-text-editor>
         </ion-item>
         <ion-item>
             <ion-label class="mma-forumng-smaller-text">{{ 'plugin.mod_forumng.attachments' | translate }}</ion-label>
         </ion-item>
-        <core-attachments [files]="CONTENT_OTHERDATA.files" [maxSize]="<% maxsize %>"
-                          [component]="mod_forumng" [componentId]="<% cmid %>" [acceptedTypes]="application/octet-stream" [allowOffline]="false">
-        </core-attachments>
+        <core-attachments [files]="CONTENT_OTHERDATA.files" [maxSize]="<% maxsize %>" [component]="mod_forumng" [componentId]="<% cmid %>" [acceptedTypes]="application/octet-stream" [allowOffline]="false"></core-attachments>
+        <%# canmanage %>
+        <ion-item *ngIf="CONTENT_OTHERDATA.isEdit">
+            <ion-label text-wrap><%{ displaysticky }%></ion-label>
+            <ion-toggle (ionChange)="onStickyChange()" id="mma-forumng-show-sticky" [(ngModel)]="CONTENT_OTHERDATA.showsticky"></ion-toggle>
+        </ion-item>
+        <ion-item *ngIf="CONTENT_OTHERDATA.isEdit" text-wrap>
+            <ion-label text-wrap><%{ displayperiod }%></ion-label>
+            <ion-datetime [max]="CONTENT_OTHERDATA.maxyear" (ionChange)="onDateChange()" [placeholder]="'core.date' | translate" [displayFormat]="dateFormat" [(ngModel)]="CONTENT_OTHERDATA.showfrom"></ion-datetime>
+        </ion-item>
+        <%/ canmanage %>
+        <%# cansetimportant %>
+        <ion-item *ngIf="CONTENT_OTHERDATA.isReply">
+            <ion-label text-wrap><%{ displayoption }%></ion-label>
+            <ion-toggle (ionChange)="onImportantChange()" id="mma-forumng-show-important" [(ngModel)]="CONTENT_OTHERDATA.important"></ion-toggle>
+        </ion-item>
+        <%/ cansetimportant %>
         <%# hasoption %>
         <ion-item text-wrap>
             <ion-label text-wrap><%{ postasstring }%></ion-label>
-            <ion-select [(ngModel)]="CONTENT_OTHERDATA.postas" interface="action-sheet" text-wrap>
+            <ion-select (ionChange)="PostAsChange()" [(ngModel)]="CONTENT_OTHERDATA.postas" interface="action-sheet" text-wrap>
                 <%# options %>
                 <ion-option value="<% key %>">
                     <% value %>
@@ -228,12 +255,16 @@
         </ion-item>
         <%/ hasoption %>
         <ion-item>
-            <button *ngIf="!CONTENT_OTHERDATA.lock" class="mma-forumng-reply-button" ion-button (click)="reply()"
-                    [disabled]="message == null || message == '' || !isOnline()">
+            <button *ngIf="!CONTENT_OTHERDATA.lock && !CONTENT_OTHERDATA.isEdit" class="mma-forumng-reply-button" ion-button (click)="edit()"
+                    [disabled]="message == null || message == '' || !isOnline() || CONTENT_OTHERDATA.disable">
                 {{ 'plugin.mod_forumng.postreply' | translate }}
             </button>
+            <button *ngIf="!CONTENT_OTHERDATA.lock && CONTENT_OTHERDATA.isEdit" class="mma-forumng-reply-button" ion-button (click)="edit()"
+                    [disabled]="message == null || message == '' || !isOnline() || CONTENT_OTHERDATA.disable">
+                {{ 'plugin.mod_forumng.editpostmobile' | translate }}
+            </button>
             <button *ngIf="CONTENT_OTHERDATA.lock == 1" class="mma-forumng-lock-button" ion-button (click)="lock_discussion()"
-                    [disabled]="message == null || message == '' || !isOnline()">
+                    [disabled]="message == null || message == '' || !isOnline() || CONTENT_OTHERDATA.disable">
                 {{ 'plugin.mod_forumng.lockdiscussion' | translate }}
             </button>
             <button ion-button (click)="cancel()">{{ 'core.cancel' | translate }}</button>
@@ -243,33 +274,36 @@
     <ion-list class="mma-forumng-posts-list" no-lines>
         <ion-item *ngFor="let reply of CONTENT_OTHERDATA.replies" [id]="reply.postid"
                   class="mma-forumng-post-reply" color="light">
-            <div class="{{reply.isunread}}{{ reply.isdeleted ? ' deleted-post':'' }}">
-                <ion-item class="mma-forumng-post-info">
-                    <ion-avatar item-start large *ngIf="reply.hasanon">
+            <div class="{{reply.isunread}} {{reply.importantclass}} {{reply.createdbymoderatorclass}} {{ reply.isdeleted ? ' deleted-post':'' }}">
+                <ion-item class="mma-forumng-post-info" *ngIf="!reply.isdeleted || (reply.showdeletemessage && reply.isdeleted) || (!reply.hidedeleteionformation && reply.isdeleted)">
+                    <ion-avatar item-start large *ngIf="!reply.hidedeleteionformation || reply.postanon">
                         <img [src]="reply.startedbyurl">
                     </ion-avatar>
                     <div *ngIf="reply.isimportant" class="mma-forumng-important">
                         <img [src]="CONTENT_OTHERDATA.importanticon.url" [alt]="CONTENT_OTHERDATA.importanticon.alt">
                     </div>
-                    <core-format-text class="mma-forumng-startedby" text="{{ reply.startedby }}"></core-format-text>
-                    <core-format-text class="mma-forumng-startedate" text="{{ reply.starteddate }}"></core-format-text>
-                    <core-format-text class="mma-forumng-edit" text="{{ reply.historyedit }}" text-wrap></core-format-text>
+                    <core-format-text *ngIf="!reply.hidedeleteionformation || reply.postanon" class="mma-forumng-startedby" text="{{ reply.startedby }}"></core-format-text>
+                    <core-format-text *ngIf="!reply.hidedeleteionformation" class="mma-forumng-startedate" text="{{ reply.starteddate }}"></core-format-text>
+                    <core-format-text *ngIf="!reply.hidedeleteionformation" class="mma-forumng-edit" text="{{ reply.historyedit }}" text-wrap></core-format-text>
                     <div *ngIf="reply.isflagged" class="mma-forumng-iconsize-correction">
                         <ion-icon name="flag"></ion-icon>
                     </div>
                     <div *ngIf="!reply.isexpanded" item-end class="mma-forumng-post-reply-expandall">
-                        <ion-icon name="arrow-down" ios="ios-arrow-down" md="ios-arrow-down" (click)="reply.isexpanded = !reply.isexpanded"></ion-icon>
+                        <ion-icon *ngIf="!(reply.hidedeleteionformation && reply.showdeletemessage)" name="arrow-down" ios="ios-arrow-down" md="ios-arrow-down" (click)="reply.isexpanded = !reply.isexpanded"></ion-icon>
                     </div>
                     <div *ngIf="reply.isexpanded" item-end class="mma-forumng-post-reply-expandall">
-                        <ion-icon name="arrow-up" ios="ios-arrow-up" md="ios-arrow-up" (click)="reply.isexpanded = !reply.isexpanded"></ion-icon>
+                        <ion-icon *ngIf="!(reply.hidedeleteionformation && reply.showdeletemessage)" name="arrow-up" ios="ios-arrow-up" md="ios-arrow-up" (click)="reply.isexpanded = !reply.isexpanded"></ion-icon>
                     </div>
                 </ion-item>
-                <ion-item>
+                <ion-item *ngIf="!reply.hidedeleteionformation">
                     <core-format-text *ngIf="reply.createdbymoderator.length != 0" class="mma-forumng-posts-anon" [text]="reply.createdbymoderator"
                                       component="mod_forumng" componentId="<% cmid %>" maxHeight="80" text-wrap>
                     </core-format-text>
                     <core-format-text *ngIf="!reply.isexpanded" [text]="reply.shortendisplay" component="mod_forumng"
-                                      componentId="<% cmid %>" class="mma-forumng-posts-message" maxHeight="80" text-wrap>
+                                      componentId="<% cmid %>" class="mma-forumng-posts-message {{ reply.isdeleted ? ' deleted-post':'' }}" maxHeight="80" text-wrap>
+                    </core-format-text>
+                    <core-format-text *ngIf="reply.isexpanded && reply.deletemessage" [text]="reply.deletemessage" component="mod_forumng"
+                                      componentId="<% cmid %>" class="mma-forumng-posts-message mma-forumng-posts-delete-info" maxHeight="80" text-wrap>
                     </core-format-text>
                     <core-format-text *ngIf="reply.isexpanded" class="mma-forumng-posts-subject" [text]="reply.subject"
                                       component="mod_forumng" componentId="<% cmid %>" maxHeight="80" text-wrap>
@@ -287,23 +321,27 @@
                         <ion-grid *ngIf="reply.isexpanded" class="mma-forumng-commands-buttons">
                             <ion-row justify-content-start align-items-center class="mma-forumng-row-max">
                                 <ion-col col-auto *ngIf="reply.canreply">
-                                    <button core-site-plugins-new-content ion-button
-                                            title="{{ 'plugin.mod_forumng.postreply' | translate }}"
-                                            component="mod_forumng"
-                                            method="reply" [args]="{replyto: reply.postid}" [disabled]="!isOnline()">
+                                    <button ion-button (click)="showReply(reply.postid)" [disabled]="!isOnline() || CONTENT_OTHERDATA.currentEditedPostId || CONTENT_OTHERDATA.currentReplyToId"
+                                            title="{{ 'plugin.mod_forumng.postreply' | translate }}" >
                                         <core-format-text [text]="reply.replyto"></core-format-text>
                                     </button>
                                 </ion-col>
                                 <ion-col col-auto *ngIf="reply.canedit">
-                                    <button core-site-plugins-new-content ion-button
-                                            component="mod_forumng" [disabled]="!isOnline()">
+                                    <button ion-button (click)="showEdit({ postid: reply.postid, subject: reply.subject, isimportant: reply.isimportant, postas: reply.postas, attachmentsforform: reply.attachmentsforform, timelimit: reply.limittime })"
+                                            title="{{ reply.editpoststring }}" [disabled]="!isOnline() || CONTENT_OTHERDATA.currentEditedPostId || CONTENT_OTHERDATA.currentReplyToId">
                                         <core-format-text [text]="reply.edit"></core-format-text>
                                     </button>
                                 </ion-col>
                                 <ion-col col-auto *ngIf="reply.candelete">
-                                    <button core-site-plugins-new-content ion-button
-                                            component="mod_forumng" [disabled]="!isOnline()">
+                                    <button ion-button (click)="showDelete(reply.postid)"
+                                            title="{{ reply.deletepoststring }}" [disabled]="!isOnline() || CONTENT_OTHERDATA.currentEditedPostId || CONTENT_OTHERDATA.currentReplyToId">
                                         <core-format-text [text]="reply.delete"></core-format-text>
+                                    </button>
+                                </ion-col>
+                                <ion-col col-auto *ngIf="reply.canundelete">
+                                    <button ion-button (click)="showUnDelete(reply.postid)"
+                                            title="{{reply.undeletepoststring }}" [disabled]="!isOnline() || CONTENT_OTHERDATA.currentEditedPostId || CONTENT_OTHERDATA.currentReplyToId">
+                                        <core-format-text [text]="reply.undelete"></core-format-text>
                                     </button>
                                 </ion-col>
                                 <ion-col col-auto *ngIf="reply.canmarkread">
@@ -318,37 +356,88 @@
                         </ion-grid>
                     </div>
                 </ion-item>
+                <ion-item *ngIf="reply.hidedeleteionformation && reply.showdeletemessage">
+                    <core-format-text [text]="reply.shortendisplay" component="mod_forumng"
+                                      componentId="<% cmid %>" class="mma-forumng-posts-message {{ reply.isdeleted ? ' deleted-post':'' }}" maxHeight="80" text-wrap>
+                    </core-format-text>
+                </ion-item>
             </div>
+            <ion-list class="mma-subreply-form" *ngIf="(CONTENT_OTHERDATA.isReply == 1 || CONTENT_OTHERDATA.isEdit == 1) && (CONTENT_OTHERDATA.currentReplyToId == reply.postid || CONTENT_OTHERDATA.currentEditedPostId == reply.postid)">
+                <ion-item [id]="reply.postid" class="time-limit" *ngIf="reply.limittime && CONTENT_OTHERDATA.edittimeout && CONTENT_OTHERDATA.isEdit" text-wrap>
+                    {{ reply.editlimitmsg }}
+                </ion-item>
+                <ion-item class="bold-text red-text" text-wrap *ngIf="!CONTENT_OTHERDATA.edittimeout && CONTENT_OTHERDATA.isEdit">
+                    <% edittimeoutmsg %>
+                </ion-item>
+                <ion-item>
+                    <ion-label stacked>{{ 'plugin.mod_forumng.subject' | translate }}</ion-label>
+                    <ion-input type="text" (ionChange)="onSubjectChange()" [placeholder]="'plugin.mod_forumng.optionalsubject' | translate" [(ngModel)]="subject"></ion-input>
+                </ion-item>
+                <ion-item>
+                    <ion-label stacked>{{ 'plugin.mod_forumng.message' | translate }}</ion-label>
+                    <core-rich-text-editor item-content (contentChanged)="onMessageChange($event)" [control]="PostControl" class="forumng-reply-message"
+                                           [placeholder]="'plugin.mod_forumng.message' | translate" [name]="msg" [(ngModel)]="message"></core-rich-text-editor>        </ion-item>
+                <ion-item>
+                    <ion-label class="mma-forumng-smaller-text">{{ 'plugin.mod_forumng.attachments' | translate }}</ion-label>
+                </ion-item>
+                <core-attachments [files]="CONTENT_OTHERDATA.files" [maxSize]="<% maxsize %>" [component]="mod_forumng" [componentId]="<% cmid %>" [acceptedTypes]="application/octet-stream" [allowOffline]="false"></core-attachments>
+                <ion-item *ngIf="reply.cansetimportant">
+                    <ion-label text-wrap>{{ reply.displayoption }}</ion-label>
+                    <ion-toggle (ionChange)="onImportantChange()" id="mma-forumng-show-important" [(ngModel)]="CONTENT_OTHERDATA.important"></ion-toggle>
+                </ion-item>
+                <ion-item  class="mod-forumng-subreply-option" text-wrap *ngIf="reply.hasoption">
+                    <ion-label text-wrap>{{ reply.postasstring }}</ion-label>
+                    <ion-select (ionChange)="PostAsChange()" [(ngModel)]="CONTENT_OTHERDATA.postas" interface="action-sheet" text-wrap>
+                        <ion-option *ngFor="let option of reply.options" [value]="option.key">
+                            {{option.value}}
+                        </ion-option>
+                    </ion-select>
+                </ion-item>
+                <ion-item>
+                    <button *ngIf="!CONTENT_OTHERDATA.isEdit" class="mma-forumng-reply-button" ion-button (click)="edit()"
+                            [disabled]="message == null || message == '' || !isOnline() || CONTENT_OTHERDATA.disable">
+                        {{ 'plugin.mod_forumng.postreply' | translate }}
+                    </button>
+                    <button *ngIf="CONTENT_OTHERDATA.isEdit" class="mma-forumng-reply-button" ion-button (click)="edit()"
+                            [disabled]="message == null || message == '' || !isOnline() || CONTENT_OTHERDATA.disable">
+                        {{ 'plugin.mod_forumng.editpostmobile' | translate }}
+                    </button>
+                    <button ion-button (click)="cancel()">{{ 'core.cancel' | translate }}</button>
+                </ion-item>
+            </ion-list>
             <ion-item *ngIf="reply.subreplies.length > 0" class="sub-reply">
                 <ion-list *ngFor="let subreply of reply.subreplies">
                     <ion-item [id]="subreply.postid" class="mma-forumng-align-items-normal">
-                        <div class="{{subreply.isunread}}{{ subreply.isdeleted ? ' deleted-post':'' }}">
-                            <ion-item class="mma-forumng-post-info">
-                                <ion-avatar item-start large *ngIf="subreply.hasanon">
+                        <div class="{{subreply.isunread}} {{subreply.createdbymoderatorclass}} {{subreply.importantclass}} {{ subreply.isdeleted ? ' deleted-post':'' }}">
+                            <ion-item class="mma-forumng-post-info" *ngIf="!subreply.isdeleted || (subreply.showdeletemessage && subreply.isdeleted) || (!subreply.hidedeleteionformation && subreply.isdeleted)">
+                                <ion-avatar item-start large *ngIf="!subreply.hidedeleteionformation || subreply.postanon">
                                     <img [src]="subreply.startedbyurl">
                                 </ion-avatar>
                                 <div *ngIf="subreply.isimportant" class="mma-forumng-important">
                                     <img [src]="CONTENT_OTHERDATA.importanticon.url" [alt]="CONTENT_OTHERDATA.importanticon.alt">
                                 </div>
-                                <core-format-text class="mma-forumng-startedby" text="{{ subreply.startedby }}"></core-format-text>
-                                <core-format-text class="mma-forumng-startedate" text="{{ subreply.starteddate }}"></core-format-text>
-                                <core-format-text class="mma-forumng-edit" text="{{ subreply.historyedit }}" text-wrap></core-format-text>
+                                <core-format-text *ngIf="!subreply.hidedeleteionformation || subreply.postanon" class="mma-forumng-startedby" text="{{ subreply.startedby }}"></core-format-text>
+                                <core-format-text *ngIf="!subreply.hidedeleteionformation" class="mma-forumng-startedate" text="{{ subreply.starteddate }}"></core-format-text>
+                                <core-format-text *ngIf="!subreply.hidedeleteionformation" class="mma-forumng-edit" text="{{ subreply.historyedit }}" text-wrap></core-format-text>
                                 <div *ngIf="subreply.isflagged" class="mma-forumng-iconsize-correction">
                                     <ion-icon name="flag"></ion-icon>
                                 </div>
                                 <div *ngIf="!subreply.isexpanded" item-end class="mma-forumng-post-subreply-expandall">
-                                    <ion-icon name="arrow-down" ios="ios-arrow-down" md="ios-arrow-down" (click)="subreply.isexpanded = !subreply.isexpanded"></ion-icon>
+                                    <ion-icon *ngIf="!(subreply.hidedeleteionformation && subreply.showdeletemessage)" name="arrow-down" ios="ios-arrow-down" md="ios-arrow-down" (click)="subreply.isexpanded = !subreply.isexpanded"></ion-icon>
                                 </div>
                                 <div *ngIf="subreply.isexpanded" item-end class="mma-forumng-post-reply-expandall">
-                                    <ion-icon name="arrow-up" ios="ios-arrow-up" md="ios-arrow-up" (click)="subreply.isexpanded = !subreply.isexpanded"></ion-icon>
+                                    <ion-icon *ngIf="!(subreply.hidedeleteionformation && subreply.showdeletemessage)" name="arrow-up" ios="ios-arrow-up" md="ios-arrow-up" (click)="subreply.isexpanded = !subreply.isexpanded"></ion-icon>
                                 </div>
                             </ion-item>
-                            <ion-item class="mma-forumng-indented">
+                            <ion-item class="mma-forumng-indented" *ngIf="!subreply.hidedeleteionformation">
                                 <core-format-text *ngIf="subreply.createdbymoderator.length != 0" class="mma-forumng-posts-anon" [text]="subreply.createdbymoderator"
                                                   component="mod_forumng" componentId="<% cmid %>" maxHeight="80" text-wrap>
                                 </core-format-text>
                                 <core-format-text *ngIf="!subreply.isexpanded" [text]="subreply.shortendisplay" component="mod_forumng"
-                                                  componentId="<% cmid %>" class="mma-forumng-posts-message" maxHeight="80" text-wrap>
+                                                  componentId="<% cmid %>" class="mma-forumng-posts-message {{ subreply.isdeleted ? ' deleted-post':'' }}" maxHeight="80" text-wrap>
+                                </core-format-text>
+                                <core-format-text *ngIf="subreply.isexpanded && subreply.deletemessage" [text]="subreply.deletemessage" component="mod_forumng"
+                                                  componentId="<% cmid %>" class="mma-forumng-posts-message mma-forumng-posts-delete-info" maxHeight="80" text-wrap>
                                 </core-format-text>
                                 <core-format-text *ngIf="subreply.isexpanded" class="mma-forumng-posts-subject" [text]="subreply.subject"
                                                   component="mod_forumng" componentId="<% cmid %>" maxHeight="80" text-wrap>
@@ -365,27 +454,27 @@
                                 <ion-grid *ngIf="subreply.isexpanded" class="mma-forumng-commands-buttons">
                                     <ion-row justify-content-start align-items-center class="mma-forumng-row-max">
                                         <ion-col col-auto *ngIf="subreply.canreply">
-                                            <button core-site-plugins-new-content
-                                                    ion-button
-                                                    title="{{ 'plugin.mod_forumng.postreply' | translate }}"
-                                                    component="mod_forumng"
-                                                    method="reply" [args]="{replyto: subreply.postid}"
-                                                    [disabled]="!isOnline()">
+                                            <button ion-button (click)="showReply(subreply.postid)" [disabled]="!isOnline() || CONTENT_OTHERDATA.currentEditedPostId || CONTENT_OTHERDATA.currentReplyToId"
+                                                    title="{{ 'plugin.mod_forumng.postreply' | translate }}" >
                                                 <core-format-text [text]="subreply.replyto"></core-format-text>
                                             </button>
                                         </ion-col>
                                         <ion-col col-auto *ngIf="subreply.canedit">
-                                            <button core-site-plugins-new-content
-                                                    ion-button
-                                                    component="mod_forumng" [disabled]="!isOnline()">
+                                            <button ion-button (click)="showEdit({ postid: subreply.postid, subject: subreply.subject, isimportant: subreply.isimportant, postas: subreply.postas, attachmentsforform: subreply.attachmentsforform,timelimit: subreply.limittime })"
+                                                    title="{{ subreply.editpoststring }}" [disabled]="!isOnline() || CONTENT_OTHERDATA.currentEditedPostId || CONTENT_OTHERDATA.currentReplyToId">
                                                 <core-format-text [text]="subreply.edit"></core-format-text>
                                             </button>
                                         </ion-col>
                                         <ion-col col-auto *ngIf="subreply.candelete">
-                                            <button core-site-plugins-new-content
-                                                    ion-button
-                                                    component="mod_forumng" [disabled]="!isOnline()">
+                                            <button ion-button (click)="showDelete(subreply.postid)"
+                                                    title="{{ subreply.deletepoststring }}" [disabled]="!isOnline() || CONTENT_OTHERDATA.currentEditedPostId || CONTENT_OTHERDATA.currentReplyToId">
                                                 <core-format-text [text]="subreply.delete"></core-format-text>
+                                            </button>
+                                        </ion-col>
+                                        <ion-col col-auto *ngIf="subreply.canundelete">
+                                            <button ion-button (click)="showUnDelete(subreply.postid)"
+                                                    title="{{subreply.undeletepoststring }}" [disabled]="!isOnline() || CONTENT_OTHERDATA.currentEditedPostId || CONTENT_OTHERDATA.currentReplyToId">
+                                                <core-format-text [text]="subreply.undelete"></core-format-text>
                                             </button>
                                         </ion-col>
                                         <ion-col col-auto *ngIf="subreply.canmarkread">
@@ -399,8 +488,56 @@
                                     </ion-row>
                                 </ion-grid>
                             </ion-item>
+                            <ion-item *ngIf="subreply.hidedeleteionformation && subreply.showdeletemessage">
+                                <core-format-text [text]="subreply.shortendisplay" component="mod_forumng"
+                                                  componentId="<% cmid %>" class="mma-forumng-posts-message {{ subreply.isdeleted ? ' deleted-post':'' }}" maxHeight="80" text-wrap>
+                                </core-format-text>
+                            </ion-item>
                         </div>
                     </ion-item>
+                    <ion-list class="mma-subreply-form" *ngIf="(CONTENT_OTHERDATA.isReply == 1 || CONTENT_OTHERDATA.isEdit == 1) && (CONTENT_OTHERDATA.currentReplyToId == subreply.postid || CONTENT_OTHERDATA.currentEditedPostId == subreply.postid)">
+                        <ion-item [id]="subreply.postid" class="time-limit" *ngIf="subreply.limittime && CONTENT_OTHERDATA.edittimeout && CONTENT_OTHERDATA.isEdit" text-wrap>
+                            {{ subreply.editlimitmsg }}
+                        </ion-item>
+                        <ion-item class="bold-text red-text" text-wrap *ngIf="!CONTENT_OTHERDATA.edittimeout && CONTENT_OTHERDATA.isEdit">
+                            <% edittimeoutmsg %>
+                        </ion-item>
+                        <ion-item>
+                            <ion-label stacked>{{ 'plugin.mod_forumng.subject' | translate }}</ion-label>
+                            <ion-input type="text" (ionChange)="onSubjectChange()" [placeholder]="'plugin.mod_forumng.optionalsubject' | translate" [(ngModel)]="subject"></ion-input>
+                        </ion-item>
+                        <ion-item>
+                            <ion-label stacked>{{ 'plugin.mod_forumng.message' | translate }}</ion-label>
+                            <core-rich-text-editor item-content (contentChanged)="onMessageChange($event)" [control]="PostControl" class="forumng-reply-message"
+                                                   [placeholder]="'plugin.mod_forumng.message' | translate" [name]="msg" [(ngModel)]="message"></core-rich-text-editor>        </ion-item>
+                        <ion-item>
+                            <ion-label class="mma-forumng-smaller-text">{{ 'plugin.mod_forumng.attachments' | translate }}</ion-label>
+                        </ion-item>
+                        <core-attachments [files]="CONTENT_OTHERDATA.files" [maxSize]="<% maxsize %>" [component]="mod_forumng" [componentId]="<% cmid %>" [acceptedTypes]="application/octet-stream" [allowOffline]="false"></core-attachments>
+                        <ion-item *ngIf="subreply.cansetimportant">
+                            <ion-label text-wrap>{{ subreply.displayoption }}</ion-label>
+                            <ion-toggle (ionChange)="onImportantChange()" id="mma-forumng-show-important" [(ngModel)]="CONTENT_OTHERDATA.important"></ion-toggle>
+                        </ion-item>
+                        <ion-item class="mod-forumng-subreply-option" text-wrap *ngIf="subreply.hasoption">
+                            <ion-label text-wrap>{{ subreply.postasstring }}</ion-label>
+                            <ion-select (ionChange)="PostAsChange()" [(ngModel)]="CONTENT_OTHERDATA.postas" interface="action-sheet" text-wrap>
+                                <ion-option *ngFor="let option of subreply.options" [value]="option.key">
+                                    {{ option.value }}
+                                </ion-option>
+                            </ion-select>
+                        </ion-item>
+                        <ion-item>
+                            <button *ngIf="!CONTENT_OTHERDATA.isEdit" class="mma-forumng-reply-button" ion-button (click)="edit()"
+                                    [disabled]="message == null || message == '' || !isOnline() || CONTENT_OTHERDATA.disable">
+                                {{ 'plugin.mod_forumng.postreply' | translate }}
+                            </button>
+                            <button *ngIf="CONTENT_OTHERDATA.isEdit" class="mma-forumng-reply-button" ion-button (click)="edit()"
+                                    [disabled]="message == null || message == '' || !isOnline() || CONTENT_OTHERDATA.disable">
+                                {{ 'plugin.mod_forumng.editpostmobile' | translate }}
+                            </button>
+                            <button ion-button (click)="cancel()">{{ 'core.cancel' | translate }}</button>
+                        </ion-item>
+                    </ion-list>
                 </ion-list>
             </ion-item>
         </ion-item>

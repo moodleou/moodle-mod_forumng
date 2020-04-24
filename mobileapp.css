@@ -165,7 +165,10 @@ html[style="font-size: 93.75%;"] .mma-forumng-discussion-listing .select-icon .s
 }
 
 .mma-forumng-posts-list-wrapper .mma-forumng-p1.unread-post .item-inner ion-item,
-.mma-forumng-posts-list-wrapper .mma-forumng-post-reply .unread-post ion-item {
+.mma-forumng-posts-list-wrapper .mma-forumng-post-reply .unread-post ion-item,
+.mma-forumng-posts-list-wrapper .mma-forumng-post-reply .forumng-important ion-item,
+.mma-forumng-posts-list-wrapper .mma-forumng-p1.forumng-important > .item-inner,
+.mma-forumng-posts-list-wrapper .mma-forumng-p1.forumng-important .item-inner ion-item {
     background-color: #ddf0f8;
 }
 .mma-forumng-posts-list-wrapper .mma-forumng-post-reply .deleted-post .mma-forumng-posts-subject {
@@ -179,11 +182,12 @@ html[style="font-size: 93.75%;"] .mma-forumng-discussion-listing .select-icon .s
 .mma-forumng-posts-list-wrapper .mma-forumng-p1.unread-post > .item-inner,
 .mma-forumng-posts-list-wrapper .mma-forumng-p1.unread-post ion-item,
 .mma-forumng-posts-list-wrapper .mma-forumng-post-reply > .item-inner > .input-wrapper > .label > .unread-post,
-.mma-forumng-posts-list-wrapper .mma-forumng-post-reply ion-item:not(.sub-reply) {
+.mma-forumng-posts-list-wrapper .mma-forumng-post-reply ion-item:not(.sub-reply),
+.mma-forumng-posts-list-wrapper .mma-forumng-post-reply > .item-inner > .input-wrapper > .label > .forumng-important {
     padding-left: 8px;
 }
 
-.mma-forumng-posts-list-wrapper .mma-forumng-posts-list .mma-forumng-post-reply > .item-inner {
+.mma-forumng-posts-list-wrapper .mma-forumng-posts-list .mma-forumng-post-reply {
     background-color: #ffffff;
 }
 
@@ -329,6 +333,10 @@ html[style="font-size: 93.75%;"] .mma-forumng-discussion-listing .select-icon .s
     .mma-forumng-discussion-list .mma-forumng-read-only core-format-text {
         vertical-align: bottom;
     }
+    html[style="font-size: 93.75%;"] ion-app.app-root .mma-forumng-expandall-link.button-md {
+        display: block;
+        margin-bottom: 5px;
+    }
 }
 .mma-empty-discussion-string {
     padding-left: 16px;
@@ -449,6 +457,20 @@ html[style="font-size: 93.75%;"] .mma-forumng-discussion-list core-format-text[m
     [dir="ltr"] ion-app.ios .mma-forumng-discussion-item .mma-forumng-ipud-discussion-icons {
         right: calc(env(safe-area-inset-left) + 10px);
     }
+
+    [dir=ltr] .mma-forumng-posts-list-wrapper .item-ios {
+        padding-left: calc(env(safe-area-inset-left) + 8px);
+    }
+
+    .mma-forumng-posts-list-wrapper .mma-forumng-post-reply > .item-inner > .input-wrapper > .label > .unread-post,
+    .mma-forumng-posts-list-wrapper .mma-forumng-p1.unread-post > .item-inner {
+        padding-left: 0;
+    }
+    .mma-forumng-post-reply > .item-inner > .input-wrapper > ion-label > div:not(.unread-post) > ion-item,
+    .mma-forumng-posts-list-wrapper .mma-forumng-p1:not(.unread-post) ion-item,
+    .mma-forumng-posts-list-wrapper .mma-forumng-expandall {
+        padding-left: 8px;
+    }
 }
 
 ion-app.app-root.md .button-md#mod_forumg_add_discussion,
@@ -480,6 +502,78 @@ html[style="font-size: 93.75%;"] ion-app.app-root.ios .button-ios#mod_forumg_add
 .popover-ios .popover-arrow {
     display: none;
 }
+ion-app.app-root .mod-forumng-subreply-option .item-inner {
+    display: inline-block;
+}
+ion-app.app-root .mod-forumng-subreply-option .item-inner .input-wrapper {
+    display: inline-block;
+}
+ion-app.app-root .mod-forumng-subreply-option .item-inner .input-wrapper ion-label {
+    display: inline-block;
+}
+ion-app.app-root .mod-forumng-subreply-option .item-inner .input-wrapper ion-select {
+    display: inline-block;
+    position: absolute;
+    right: calc(env(safe-area-inset-right) + 0px);
+    padding-top: 12px;
+    padding-bottom: 12px;
+}
+@media (orientation: portrait) and (max-width: 600px) {
+    html[style="font-size: 93.75%;"] ion-app.app-root .mod-forumng-subreply-option .item-inner .input-wrapper ion-select,
+    html[style="font-size: 75.89%;"] ion-app.app-root .mod-forumng-subreply-option .item-inner .input-wrapper ion-select,
+    ion-app.app-root .mod-forumng-subreply-option .item-inner .input-wrapper ion-select {
+        max-width: 200px;
+        display:inline-flex;
+    }
+}
+
+ion-app.app-root .mod-forumng-subreply-option .item-inner .input-wrapper ion-select div {
+    display: inline-block;
+}
+ion-app.app-root core-rich-text-editor.forumng-reply-message .core-rte-editor ol,
+ion-app.app-root core-rich-text-editor.forumng-reply-message .core-rte-editor ul {
+    -webkit-padding-start: 20px;
+}
+html[style="font-size: 93.75%;"] ion-app.app-root core-rich-text-editor.forumng-reply-message .core-rte-editor ol,
+html[style="font-size: 75.89%;"] ion-app.app-root core-rich-text-editor.forumng-reply-message .core-rte-editor ol,
+html[style="font-size: 93.75%;"] ion-app.app-root core-rich-text-editor.forumng-reply-message .core-rte-editor ul,
+html[style="font-size: 75.89%;"] ion-app.app-root core-rich-text-editor.forumng-reply-message .core-rte-editor ul,
+html[style="font-size: 93.75%;"] ion-app.app-root core-format-text ul,
+html[style="font-size: 75.89%;"] ion-app.app-root core-format-text ul,
+html[style="font-size: 93.75%;"] ion-app.app-root .item core-format-text ol,
+html[style="font-size: 75.89%;"] ion-app.app-root .item core-format-text ol {
+    -webkit-padding-start: 35px;
+}
+
+.red-text {
+    color: red;
+}
+.bold-text {
+    font-weight: 700;
+}
 .mma-forumng-discussion-postanon {
     font-weight: 700;
+}
+.mma-forumng-posts-list-wrapper .mma-forumng-posts-message.mma-forumng-posts-delete-info,
+.mma-forumng-posts-list-wrapper .mma-forumng-posts-message.deleted-post {
+    background: none;
+}
+.mma-forumng-post-reply > .item-inner > .input-wrapper > ion-label > div:not(.unread-post) > ion-item {
+    padding-left: 16px;
+}
+.mma-forumng-post-reply .mma-subreply-form ion-label {
+    margin: 11px 8px 11px 0;
+}
+ion-app.app-root core-format-text[maxHeight].mma-forumng-posts-message {
+    display: inline-block;
+}
+ion-app.app-root .mma-forumng-posts-list-wrapper core-format-text[maxHeight] {
+    max-height: unset !important;
+}
+
+.mma-forumng-posts-list-wrapper .unread-post ion-list.mma-forumng-attachments:last-child {
+    margin-bottom: 5px;
+}
+.mma-forumng-posts-list-wrapper .mma-forumng-post-reply .sub-reply .unread-post ion-list.mma-forumng-attachments:last-child {
+    margin-bottom: 5px;
 }

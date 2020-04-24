@@ -392,6 +392,7 @@ class mobile {
                     }
                 }
                 $unreadpostsalt = get_string('hasunreadposts', 'forumng');
+                $lastposter = $discussion->get_last_post_user();
                 // Last post.
                 $lastpostcell = \mod_forumng_utils::display_date($discussion->get_time_modified());
                 $discussurl = '';
@@ -418,6 +419,7 @@ class mobile {
                     'classes' => $classes,
                     'decorators' => $decorators,
                     'groupid' => $discussion->get_group_id(),
+                    'lastpostuserid' => $lastposter->id, // Linking to last user is not completed yet.
                 ];
             }
         }
@@ -475,8 +477,6 @@ class mobile {
             $noofreplies = strtolower(get_string('totalreplies', 'forumng', $noofposts));
         }
         $postdata['noofreplies'] = $noofreplies;
-        $postdata['hasreplies'] = $noofposts > 0;
-
         // Initial replies to the root message are prepared but sent via otherdata.
         // Doing it this way allows sending of more chunks of data (via ajax) to be
         // added to the view when required (user scrolls down for more).
@@ -490,6 +490,10 @@ class mobile {
             'alt' => get_string('important', 'forumng'),
         ];
 
+        $canmanage = $discussion->get_forum()->can_manage_discussions();
+        $displaysticky = get_string('displayoption', 'mod_forumng');
+        $displayperiod = get_string('displayperiodmobile', 'mod_forumng');
+        $postdata['hasreplies'] = count($replies);
         $islock = false;
         $lockpost = '';
         if ($discussion->is_locked()) {
@@ -504,6 +508,10 @@ class mobile {
         $postdata['canlock'] = $canlock;
         // Rootpost (or starter message) is now ready to pass to the template.
         $rootpost = (object)$postdata;
+        $rootpost->edittimeoutmsg = get_string('edit_timeout', 'forumng');
+        $rootpost->displayperiod = $displayperiod;
+        $rootpost->displaysticky = $displaysticky;
+        $rootpost->canmanage = $canmanage;
 
         return [
             'templates' => [
@@ -517,7 +525,6 @@ class mobile {
                 'files' => json_encode([]),
                 'replies' => json_encode($replies),
                 'discussionid' => $discussion->get_id(),
-                'forumngid' => $discussion->get_forum()->get_id(),
                 'importanticon' => json_encode($importanticon),
                 'totalposts' => $noofposts,
                 'toggle' => strtoupper($toggle),
@@ -530,6 +537,18 @@ class mobile {
                 'postas' => 0,
                 'isexpandall' => $isexpandall,
                 'iscollapseall' => $iscollapseall,
+                'isReply' => 0,
+                'isEdit' => 0,
+                'currentReplyToId' => 0,
+                'currentEditedPostId' => 0,
+                'forumngid' => $discussion->get_forum()->get_id(),
+                'rootpostmessage' =>  $rootpost->message,
+                'rootpostid' =>  $rootpost->postid,
+                'originalrootpostmessage' => $root->get_formatted_message(),
+                'edittimeout' => 0,
+                'limittime' => 0,
+                'disable' => 0,
+                'maxyear' => date('Y', strtotime('+30 years')),
             ],
             'files' => []
         ];
@@ -606,7 +625,7 @@ class mobile {
      */
     private static function get_common_post_data(\mod_forumng_discussion $discussion, \mod_forumng_post $post,
             string $defaultimage, string $moderator) {
-        global $PAGE, $USER;
+        global $PAGE, $USER, $CFG;
         // Author or started by.
         $poster = $post->get_user();
         $posteranon = $post->get_asmoderator();
@@ -619,6 +638,7 @@ class mobile {
         $username = $discussion->get_forum()->display_user_name($poster);
 
         $hasanon = true;
+        $postanon = false;
         $createdbymoderator = '';
         if ($posteranon == \mod_forumng::ASMODERATOR_IDENTIFY) {
             $startedby = $username . '<br><strong>' . $moderator . '</strong>';
@@ -634,6 +654,7 @@ class mobile {
             if (\mod_forumng_utils::display_discussion_list_item_author_anonymously($discussion->get_forum(), $USER->id)) {
                 $startedby = get_string('identityprotected', 'forumng');
                 $startedbyurl = $defaultimage;
+                $postanon = true;
             } else {
                 $startedby = $username;
             }
@@ -647,10 +668,16 @@ class mobile {
         // Attachments.
         $attachmentarray = [];
         $attachments = $post->get_attachment_names();
+        $attachmentforform = [];
         foreach ($attachments as $key => $attachment) {
             $attachmentarray[] = (object) [
                     'name' => $attachment,
-                    'url' => $post->get_attachment_url($attachment)->out()
+                    'url' => $post->get_attachment_url($attachment)->out(),
+            ];
+            // When using for form,we need the filename,not the name.
+            $attachmentforform[] = (object) [
+                    'filename' => $attachment,
+                    'url' => $post->get_attachment_url($attachment)->out(),
             ];
         }
         // Mark post read.
@@ -660,7 +687,9 @@ class mobile {
             $canmarkread = true;
         }
         $hasoption = false;
+        $cansetimportant = $forumng->can_set_important();
         $options = self::post_as_option($forumng);
+        $displayoption = get_string('forumng:setimportant', 'mod_forumng');
         if (!empty($options)) {
             $hasoption = true;
         }
@@ -670,6 +699,7 @@ class mobile {
         if (strlen($suject) >= self::SHORTENED_LENGTH) {
             $shortendisplay = '<strong>' . $shortentext->shortensubject . '</strong>';
         }
+        $postas = $post->get_asmoderator();
 
         $historyedit = '';
         $isanon = ($posteranon == \mod_forumng::ASMODERATOR_ANON && $forumng->get_can_post_anon());
@@ -698,6 +728,60 @@ class mobile {
             }
         }
 
+        $editpoststring = get_string('editpost', 'forumng',
+                $post->get_effective_subject(true));
+        $deletepoststring = get_string('deletepost', 'forumng',
+                $post->get_effective_subject(true));
+        $undeletepoststring = get_string('undeletepost', 'forumng',
+                $post->get_effective_subject(true));
+        $whynot = '';
+        $deletedhide = $post->get_deleted() && !$post->can_view_deleted($whynot);
+        $hidedeleteionformation = false;
+        $showdeletemessage = false;
+        if ($deletedhide) {
+            $hidedeleteionformation = true;
+        }
+        $deletemessage = '';
+        if ($post->get_deleted()) {
+            $deletemessage = '<strong>' . get_string('deletedpost', 'forumng') . '</strong> ';
+            if ($deletedhide && $post->has_children()) {
+                $deletemessage .= get_string($post->get_delete_user()->id == $post->get_user()->id
+                        ? 'deletedbyauthor' : 'deletedbymoderator', 'forumng',
+                        userdate($post->get_deleted()));
+                $showdeletemessage = true;
+            } else {
+                $a = new \stdClass;
+                $a->date = userdate($post->get_deleted());
+                $a->user = '<a href="' . $CFG->wwwroot . '/user/view.php?id=' .
+                        $post->get_delete_user()->id . '&amp;course=' .
+                        $post->get_forum()->get_course_id() . '">'  .
+                        fullname($post->get_delete_user(),
+                                true) . '</a>';
+                $deletemessage .= get_string('deletedbyuser', 'forumng', $a);
+            }
+            $shortendisplay = $deletemessage . '<p>' . $shortendisplay . '</p>';
+            if ($hidedeleteionformation) {
+                $shortendisplay = $deletemessage;
+            }
+        }
+        // Add time limit info
+        $timelimit = $post->can_ignore_edit_time_limit()
+                ? 0 : $post->get_edit_time_limit();
+        if ($timelimit) {
+            $limittime = $timelimit;
+            $editlimitmsg = get_string('editlimited', 'forumng',
+                    userdate($timelimit-30, get_string('strftimetime', 'langconfig')));
+        } else {
+            $limittime = 0;
+            $editlimitmsg = '';
+        }
+        $showfrom = 0;
+        if ($post->is_root_post() && $post->get_discussion()->get_time_start()) {
+            $timestart = $post->get_discussion()->get_time_start();
+            $date = new \DateTime();
+            $date->setTimestamp($timestart);
+            $showfrom = $date->format('Y-m-d');
+        }
         return [
             'postid' => $post->get_id(),
             'subject' => $suject,
@@ -715,17 +799,36 @@ class mobile {
             'canreply' => $post->can_reply($whynot),
             'canedit' => $post->can_edit($whynot),
             'candelete' => $post->can_delete($whynot),
+            'canundelete' => $post->can_undelete($whynot),
             'replyto' => get_string('reply', 'mod_forumng', $post->get_id()),
             'edit' => get_string('edit', 'mod_forumng', $post->get_id()),
             'delete' => get_string('delete', 'mod_forumng', $post->get_id()),
-            'postasstring' => get_string('asmoderator', 'mod_forumng'),
+            'undelete' => get_string('undelete', 'mod_forumng', $post->get_id()),
+            'cansetimportant' => $cansetimportant,
             'hasoption' => $hasoption,
             'options' => $options,
             'maxsize' => $forumng->get_max_bytes(),
             'hasanon' => $hasanon,
             'createdbymoderator' => $createdbymoderator,
             'isdeleted' => (bool)$post->get_deleted(),
-            'historyedit' => $historyedit
+            'displayoption' => $displayoption,
+            'editpoststring' => $editpoststring,
+            'deletepoststring' => $deletepoststring,
+            'undeletepoststring' => $undeletepoststring,
+            'postasstring' => get_string('asmoderator', 'mod_forumng'),
+            'postas' => $postas,
+            'attachmentsforform' => json_encode($attachmentforform),
+            'deletemessage' => $deletemessage,
+            'limittime' => $limittime,
+            'editlimitmsg' => $editlimitmsg,
+            'showfrom' => $showfrom,
+            'sticky' => $post->get_discussion()->is_sticky(),
+            'importantclass' => $post->is_important() ? 'forumng-important' : '',
+            'createdbymoderatorclass' => $createdbymoderator ? 'forumng-anon' : '',
+            'historyedit' => $historyedit,
+            'hidedeleteionformation' => $hidedeleteionformation,
+            'showdeletemessage' => $showdeletemessage,
+            'postanon' => $postanon,
         ];
     }
 
@@ -794,54 +897,6 @@ class mobile {
                 'postas' => 0,
                 'cmid' => $forumng->get_course_module_id(),
                 'maxyear' => date('Y', strtotime('+30 years')),
-            ],
-            'files' => []
-        ];
-    }
-
-    /**
-     * Displays a page in the mobile app for adding (or editing) a reply.
-     *
-     * @param array $args Arguments from tool_mobile_get_content WS
-     * @return array HTML, javascript and otherdata
-     * @throws \coding_exception
-     */
-    public static function reply(array $args) : array {
-        global $OUTPUT;
-
-        $args = (object) $args;
-        $replyto = $args->replyto;
-        $replytopost = \mod_forumng_post::get_from_id($replyto, 0);
-        $replytopost->require_view();
-        $forumng = $replytopost->get_forum();
-        $cm = $forumng->get_course_module();
-        $whynot = '';
-        $canreply = $replytopost->can_reply($whynot);
-        if (!$canreply) {
-            throw new \Exception(get_string($whynot, 'mod_forumng'));
-        }
-
-        $data = [
-            'cmid' => $cm->id,
-            'submitlabel' => get_string('reply', 'mod_forumng', $replytopost->get_id()),
-            'subject' => '',
-            'message' => null,
-            'maxsize' => $forumng->get_max_bytes()
-        ];
-        $html = $OUTPUT->render_from_template('mod_forumng/mobile_reply', $data);
-
-        return [
-            'templates' => [
-                [
-                    'id' => 'main',
-                    'html' => $html
-                ]
-            ],
-            'javascript' => 'window.forumngReplyInit(this);',
-            'otherdata' => [
-                'files' => json_encode([]),
-                'forumng' => $forumng->get_id(),
-                'replyto' => $replytopost->get_id()
             ],
             'files' => []
         ];
