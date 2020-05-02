@@ -170,4 +170,20 @@ $functions = array(
                 'capabilities' => 'mod/forumng:replypost',
                 'services' => array(MOODLE_OFFICIAL_MOBILE_SERVICE, 'local_mobile')
         ),
+        'mod_forumng_add_draft' => array(
+                'classname' => '\mod_forumng\local\external\add_draft',
+                'methodname' => 'add_draft',
+                'description' => 'Create or edit a draft.',
+                'type' => 'write',
+                'capabilities' => 'mod/forumng:startdiscussion',
+                'services' => array(MOODLE_OFFICIAL_MOBILE_SERVICE, 'local_mobile')
+        ),
+        'mod_forumng_delete_draft' => array(
+                'classname' => '\mod_forumng\local\external\delete_draft',
+                'methodname' => 'delete_draft',
+                'description' => 'Delete draft.',
+                'type' => 'write',
+                'capabilities' => 'mod/forumng:startdiscussion',
+                'services' => array(MOODLE_OFFICIAL_MOBILE_SERVICE, 'local_mobile')
+        ),
 );

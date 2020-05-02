@@ -64,6 +64,20 @@
     t.showfrom = 0;
     t.showsticky = 0;
 
+   t.editDraft = {
+       subject: '',
+       message: '',
+       files: [],
+       sticky: 0,
+       date: 0,
+       postas: 0,
+       important: 0,
+       draftexists: '',
+   };
+   t.isAddDraft = 0;
+   t.isEditDraft = 0;
+   t.isAddDiscussion = 0;
+
     /**
      * Handles a request for more discussions, getting the next chunk and displaying.
      *
@@ -108,6 +122,7 @@
         var site = that.CoreSitesProvider.getCurrentSite();
         var cmid = that.CONTENT_OTHERDATA.cmid;
         var userid = site.getUserId();
+        var draftid = that.CONTENT_OTHERDATA.draftid ? that.CONTENT_OTHERDATA.draftid : 0;
         var subject = that.subject;
         var message = that.message;
         var groupId = that.CONTENT_OTHERDATA.group; // No group selection in this form; it is done on previous page.
@@ -127,7 +142,7 @@
             that.CoreUtilsProvider.domUtils.showErrorModal('plugin.mod_forumng.erroremptysubject', true);
             return;
         }
-        if (!subject.length > 255) {
+        if (subject && subject.length > 255) {
             that.CoreUtilsProvider.domUtils.showErrorModal('plugin.mod_forumng.errormaximumsubjectcharacter', true);
             return;
         }
@@ -200,6 +215,11 @@
                 //that.AddonModForumHelperProvider.deleteNewDiscussionStoredFiles(this.forumId, discTimecreated);
                 //TODO trigger new discussion event or similar?
             }
+            // If there's a draft, delete it
+            if (draftid) {
+                t.mod_forumng.deleteDraft(that, draftid);
+            }
+
             t.mod_forumng.setNeedUpdate(cmid, 1, userid);
             //TODO check all functionality in core forum (new-discussion.ts) returnToDiscussions(discussionId) is covered.
             // Navigate back to the discussions page and refresh to show new discussion.
@@ -212,11 +232,180 @@
             that.CONTENT_OTHERDATA.showfrom = 0;
             that.CONTENT_OTHERDATA.postas = 0;
             t.newDiscussion.date = 0;
+            t.isAddDiscussion = 1;
             that.NavController.pop();
         }).catch(function(msg) {
             that.CoreUtilsProvider.domUtils.showErrorModalDefault(msg, 'plugin.mod_forumng.cannotcreatediscussion', true);
         }).finally(function() {
             modal.dismiss();
+        });
+    };
+
+    /**
+     * Add a new draft.
+     *
+     * This will support editing an existing draft and offline with a little more development.
+     *
+     * @param {object} that The this object when calling this function.
+     */
+    t.mod_forumng.addDraft = function(that) {
+        var subject = that.subject;
+        var message = that.message;
+        var draftid = that.CONTENT_OTHERDATA.draftid ? that.CONTENT_OTHERDATA.draftid : 0;
+        var groupId = that.CONTENT_OTHERDATA.group; // No group selection in this form; it is done on previous page.
+        var replytoId = that.CONTENT_OTHERDATA.currentReplyToId;
+        var isreply = that.CONTENT_OTHERDATA.isReply;
+        var forumngId = isreply ? that.CONTENT_OTHERDATA.forumngid : that.CONTENT_OTHERDATA.forumng;
+        var attachments = that.CONTENT_OTHERDATA.files; // Type [FileEntry].
+        var showsticky = that.CONTENT_OTHERDATA.showsticky;
+        var showfrom = that.CONTENT_OTHERDATA.showfrom ? that.CONTENT_OTHERDATA.showfrom : 0;
+        var postas = that.CONTENT_OTHERDATA.postas;
+        var important = that.CONTENT_OTHERDATA.important;
+        showfrom = showfrom !== 0 ? Date.parse(showfrom) / 1000 : 0;
+        //var discTimecreated = Date.now(); //TODO part of offline - that.timeCreated || Date.now();
+        var saveOffline = false;
+        var modal;
+        var promise;
+        var regexp = /\S+/;
+        if (!isreply && (!subject || !subject.match(regexp))) {
+            that.CoreUtilsProvider.domUtils.showErrorModal('plugin.mod_forumng.erroremptysubject', true);
+            return;
+        }
+        if (subject && subject.length > 255) {
+            that.CoreUtilsProvider.domUtils.showErrorModal('plugin.mod_forumng.errormaximumsubjectcharacter', true);
+            return;
+        }
+        // Check text in the message.
+        var div = document.createElement('div');
+        div.innerHTML = message;
+        var messagetext = div.textContent;
+        if (!message || !messagetext.match(regexp)) {
+            that.CoreUtilsProvider.domUtils.showErrorModal('plugin.mod_forumng.erroremptymessage', true);
+            return;
+        }
+        message = that.CoreTextUtilsProvider.formatHtmlLines(message);
+
+        modal = that.CoreUtilsProvider.domUtils.showModalLoading('core.sending', true);
+
+        // Upload attachments first if any.
+        if (attachments.length) {
+            promise = that.CoreFileUploaderProvider.uploadOrReuploadFiles(attachments, 'mod_forumng', forumngId)
+                .catch(function() {
+                    // Cannot upload them in online, save them in offline.
+                    return Promise.reject('Offline not yet enabled');
+                    //TODO switch below to our own offline functionality.
+                    // saveOffline = true;
+                    // return that.AddonModForumHelperProvider.uploadOrStoreNewDiscussionFiles(
+                    //         forumngId, discTimecreated, attachments, saveOffline);
+                });
+        } else {
+            promise = Promise.resolve(1);
+        }
+
+        promise.then(function(draftAreaId) {
+            if (saveOffline) {
+                // Save discussion in offline.
+                //TODO switch below to our own offline functionality.
+                // return that.AddonModForumOfflineProvider.addNewDiscussion(forumngId, forumName, courseId, subject,
+                //     message, options, groupId, discTimecreated).then(function() {
+                //     // Don't return anything.
+                // });
+            } else {
+                // Try to send it to server.
+                var site = that.CoreSitesProvider.getCurrentSite();
+                var params = {
+                    forum: forumngId,
+                    draft: draftid,
+                    group: groupId,
+                    replyto: replytoId,
+                    subject: subject,
+                    message: message,
+                    draftarea: draftAreaId, // Note this will be 1 if there are no files.
+                    showsticky: showsticky,
+                    showfrom: showfrom,
+                    postas: postas,
+                    mailnow: false,
+                    setimportant: important,
+                };
+                return site.write('mod_forumng_add_draft', params).then(function(response) {
+                    // Other errors ocurring.
+                    if (!response || !response.draft) {
+                        return Promise.reject(that.CoreWSProvider.createFakeWSError(response.errormsg));
+                    } else {
+                        return {draftid: response.draft, successmsg: response.successmsg};
+                    }
+                });
+                // Don't allow offline if there are attachments since they were uploaded fine.
+                //TODO switch below to use our own offline functionality.
+                // return that.AddonModForumProvider.addNewDiscussion(forumngId, forumName, courseId, subject, message, options,
+                //    groupId, undefined, discTimecreated, !attachments.length);
+            }
+        }).then(function(pageParams) {
+            if (pageParams.draftid) {
+                // Data sent to server, delete stored files (if any).
+                //TODO switch below to our own offline functionality.
+                //that.AddonModForumHelperProvider.deleteNewDiscussionStoredFiles(this.forumId, discTimecreated);
+                //TODO trigger new discussion event or similar?
+                that.CONTENT_OTHERDATA.draftid = pageParams.draftid;
+                that.CONTENT_OTHERDATA.draftexists = pageParams.successmsg;
+                t.editDraft.subject = that.subject;
+                t.editDraft.files = that.CONTENT_OTHERDATA.files;
+                t.editDraft.postas = that.CONTENT_OTHERDATA.postas;
+                t.editDraft.draftexists = pageParams.successmsg;
+                if (isreply) {
+                    t.editDraft.important = that.CONTENT_OTHERDATA.important;
+                    t.editDraft.message = that.PostControl.value;
+                } else {
+                    t.editDraft.sticky = that.CONTENT_OTHERDATA.showsticky;
+                    t.editDraft.date = that.CONTENT_OTHERDATA.showfrom;
+                    t.editDraft.message = that.addDiscussionControl.value;
+                }
+                setTimeout(function() {
+                    if (isreply) {
+                        document.getElementById('mma-forumng-draftexists-' + replytoId).scrollIntoView({
+                            behavior: 'smooth'
+                        });
+                    } else {
+                        document.getElementById('mma-forumng-draftexists').scrollIntoView({
+                            behavior: 'smooth'
+                        });
+                    }
+                }, 100);
+                t.isAddDraft = 1;
+            }
+        }).catch(function(msg) {
+            that.CoreUtilsProvider.domUtils.showErrorModalDefault(msg, 'plugin.mod_forumng.cannotcreatedraft', true);
+        }).finally(function() {
+            modal.dismiss();
+        });
+    };
+
+    /**
+     * Delete draft
+     *
+     * This will delete a draft
+     *
+     * @param {object} that The this object when calling this function.
+     * @param {int} draftid Draft ID.
+     */
+    t.mod_forumng.deleteDraft = function(that, draftid) {
+        var site = that.CoreSitesProvider.getCurrentSite();
+        site.write('mod_forumng_delete_draft', {'draftid': draftid}).then(function(result) {
+            if (!result.errormsg) {
+                // Don't show anything.
+            } else {
+                var alert = outerThis.AlertController.create({
+                    title: "Error",
+                    subTitle: result.errormsg,
+                });
+                alert.present();
+            }
+        }).catch( function(error) {
+            var alert = outerThis.AlertController.create({
+                title: "Error",
+                subTitle: error,
+            });
+            alert.present();
         });
     };
 
@@ -258,7 +447,7 @@
         var modal;
         var promise;
 
-        if (!subject.length > 255) {
+        if (subject && subject.length > 255) {
             that.CoreUtilsProvider.domUtils.showErrorModal('plugin.mod_forumng.errormaximumsubjectcharacter', true);
             return;
         }
@@ -334,6 +523,29 @@
         }).finally(function() {
             modal.dismiss();
         });
+    };
+
+    /**
+     * Check the attachment changes.
+     *
+     * @param {array} attachments The new attachments.
+     * @param {array} fileexists  File exists.
+     */
+    t.mod_forumng.checkAttachments = function(attachments, fileexists) {
+        var haveDifferentFiles = false;
+        if (attachments && fileexists && attachments.length == fileexists) {
+            if (attachments.length > 0) {
+                for (var index in attachments) {
+                    if (attachments[index].fullPath &&
+                        attachments[index].fullPath != fileexists[index].fullPath) {
+                        haveDifferentFiles = true;
+                    } else if (attachments[index].url != fileexists[index].url) {
+                        haveDifferentFiles = true;
+                    }
+                }
+            }
+        }
+        return haveDifferentFiles;
     };
 
     // Following functions are called during page initialisation and allow adding new functionality
@@ -541,6 +753,13 @@
                 outerThis.CONTENT_OTHERDATA.showfrom = t.showfrom ? t.showfrom : 0;
                 outerThis.CONTENT_OTHERDATA.showsticky = t.showsticky ? t.showsticky : 0;
                 outerThis.PostControl.setValue(t.originalEdit.message);
+            } else if (t.isEditDraft) {
+                outerThis.subject = t.editDraft.subject;
+                outerThis.PostControl.setValue(t.editDraft.message);
+                outerThis.CONTENT_OTHERDATA.files = t.editDraft.files;
+                outerThis.CONTENT_OTHERDATA.important = t.editDraft.important;
+                outerThis.CONTENT_OTHERDATA.postas = t.editDraft.postas;
+                autoScrollToDraft(outerThis.CONTENT_OTHERDATA.replytoid);
             }
         }, 100);
 
@@ -558,6 +777,62 @@
         if (t.removeEvent) {
             window.addEventListener("orientationchange", PopoverTransition);
             t.removeEvent = false;
+        }
+
+        var autoScrollToDraft = function(replytoid) {
+            (function expandPosts(postArr) {
+                for(var ind in postArr) {
+                    var reply = postArr[ind];
+                    if(reply.postid === replytoid) {
+                        reply.isexpanded = true;
+                    } else {
+                        if (reply.subreplies) {
+                            expandPosts(reply.subreplies);
+                        }
+                    }
+                }
+            })(outerThis.CONTENT_OTHERDATA.replies);
+            setTimeout(function() {
+                outerThis.CONTENT_OTHERDATA.isReply = 1;
+                outerThis.CONTENT_OTHERDATA.isEdit = 0;
+                outerThis.CONTENT_OTHERDATA.currentReplyToId = replytoid;
+                outerThis.CONTENT_OTHERDATA.currentEditedPostId = 0;
+                setTimeout(function() {
+                    document.getElementById('mma-forumng-draftexists-' + replytoid).scrollIntoView({
+                        behavior: 'smooth',
+                        block: "center"
+                    });
+                }, 100)
+            }, 100);
+        };
+
+        // Set data when editing draft.
+        if(outerThis.CONTENT_OTHERDATA.draftid && !t.isEditDraft) {
+            var replytoid = outerThis.CONTENT_OTHERDATA.replytoid;
+            t.isEditDraft = 1;
+            autoScrollToDraft(replytoid);
+            outerThis.subject = outerThis.CONTENT_OTHERDATA.draftsubject;
+            outerThis.PostControl.value = outerThis.CONTENT_OTHERDATA.draftmessage;
+            var $draftattachments = outerThis.CONTENT_OTHERDATA.attachmentsforform;
+            if (typeof $draftattachments !== 'object') {
+                $draftattachments = JSON.parse($draftattachments);
+            }
+            if ($draftattachments.length > 0) {
+                for (var index in $draftattachments) {
+                    $draftattachments[index].toURL = function() {
+                        return '';
+                    }
+                }
+            }
+            outerThis.CONTENT_OTHERDATA.files = $draftattachments;
+            t.editDraft.subject = outerThis.subject;
+            t.editDraft.message = outerThis.PostControl.value;
+            t.editDraft.files = outerThis.CONTENT_OTHERDATA.files;
+            t.editDraft.important = outerThis.CONTENT_OTHERDATA.important;
+            t.editDraft.postas = outerThis.CONTENT_OTHERDATA.postas;
+        }
+        if (t.isAddDraft && (t.editDraft.draftexists !== '')) {
+            outerThis.CONTENT_OTHERDATA.draftexists = t.editDraft.draftexists;
         }
 
         outerThis.lock = function() {
@@ -578,20 +853,21 @@
             var important = outerThis.CONTENT_OTHERDATA.important;
             var showfrom = outerThis.CONTENT_OTHERDATA.showfrom;
             var showsticky = outerThis.CONTENT_OTHERDATA.showsticky;
+            var draft = outerThis.CONTENT_OTHERDATA.draftid;
             var haveDifferentFiles = false;
-            if(attachments && t.originalEdit.files && attachments.length == t.originalEdit.files.length && outerThis.CONTENT_OTHERDATA.currentEditedPostId) {
-                if (attachments.length > 0) {
-                    for (var index in attachments) {
-                        if (attachments[index].fullPath &&
-                            attachments[index].fullPath != t.originalEdit.files[index].fullPath) {
-                            haveDifferentFiles = true;
-                        } else if (attachments[index].url != t.originalEdit.files[index].url) {
-                            haveDifferentFiles = true;
-                        }
-                    }
-                }
+            if (draft) {
+                haveDifferentFiles = t.mod_forumng.checkAttachments(attachments, t.editDraft.files);
+            } else {
+                haveDifferentFiles = t.mod_forumng.checkAttachments(attachments, t.originalEdit.files);
             }
-            if (outerThis.CONTENT_OTHERDATA.currentReplyToId && (subject || message || (attachments && attachments.length > 0) || postas != 0 || important != 0)) {
+
+            var formChange = subject || message || (attachments && attachments.length > 0) || postas != 0 || important != 0;
+            var formLockChange = message || attachments.length > 0 || postas != 0;
+            var formDraftChange = t.editDraft.message != message ||  t.editDraft.subject != subject || t.editDraft.postas != postas ||
+                t.editDraft.important != important || haveDifferentFiles;
+            var formEditReplyChange = t.originalEdit.message != message ||  t.originalEdit.subject != subject || t.originalEdit.postas != postas ||
+                t.originalEdit.important != important || haveDifferentFiles || showfrom != t.showfrom || showsticky != t.showsticky;
+            if (!draft && !t.isAddDraft && outerThis.CONTENT_OTHERDATA.currentReplyToId && formChange) {
                 return outerThis.CoreDomUtilsProvider.showConfirm(outerThis.TranslateService.instant('plugin.mod_forumng.leavemessage')).then(function() {
                     window.removeEventListener("orientationchange", PopoverTransition);
                     t.currentReply = outerThis.resetData(t.currentReply);
@@ -602,9 +878,7 @@
                     }
                     t.mod_forumng.currentDiscussionsPage.refreshContent();
                 });
-            } else if (outerThis.CONTENT_OTHERDATA.currentEditedPostId &&
-                (t.originalEdit.message != message ||  t.originalEdit.subject != subject || t.originalEdit.postas != postas ||
-                    t.originalEdit.important != important || haveDifferentFiles || showfrom != t.showfrom || showsticky != t.showsticky)) {
+            } else if (outerThis.CONTENT_OTHERDATA.currentEditedPostId && formEditReplyChange) {
                 return outerThis.CoreDomUtilsProvider.showConfirm(outerThis.TranslateService.instant('plugin.mod_forumng.leavemessage')).then(function() {
                     window.removeEventListener("orientationchange", PopoverTransition);
                     t.originalEdit = outerThis.resetData(t.originalEdit);
@@ -621,9 +895,23 @@
                     }
                     t.mod_forumng.currentDiscussionsPage.refreshContent();
                 });
-            } else if (outerThis.CONTENT_OTHERDATA.lock && (message || attachments.length > 0 || postas != 0)) {
+            } else if (outerThis.CONTENT_OTHERDATA.lock && formLockChange) {
                 return outerThis.CoreDomUtilsProvider.showConfirm(outerThis.TranslateService.instant('plugin.mod_forumng.leavemessage')).then(function() {
                     window.removeEventListener("orientationchange", PopoverTransition);
+                    if (attachments.length > 0) {
+                        return outerThis.CoreFileUploaderProvider.clearTmpFiles(attachments);
+                    }
+                    t.mod_forumng.currentDiscussionsPage.refreshContent();
+                });
+            } else if ((draft || t.isAddDraft) && formDraftChange) {
+                return outerThis.CoreDomUtilsProvider.showConfirm(outerThis.TranslateService.instant('plugin.mod_forumng.leavemessage')).then(function() {
+                    window.removeEventListener("orientationchange", PopoverTransition);
+                    t.editDraft = outerThis.resetData(t.editDraft);
+                    t.editDraft.draftexists = '';
+                    t.isAddDraft = 0;
+                    t.isEditDraft = 0;
+                    t.isReply = 0;
+                    outerThis.CONTENT_OTHERDATA.currentReplyToId = 0;
                     if (attachments.length > 0) {
                         return outerThis.CoreFileUploaderProvider.clearTmpFiles(attachments);
                     }
@@ -634,8 +922,12 @@
                 t.mod_forumng.currentDiscussionsPage.refreshContent();
                 t.originalEdit = outerThis.resetData(t.originalEdit);
                 t.currentReply = outerThis.resetData(t.currentReply);
+                t.editDraft = outerThis.resetData(t.editDraft);
                 t.isEdit = 0;
                 t.isReply = 0;
+                t.isAddDraft = 0;
+                t.isEditDraft = 0;
+                t.editDraft.draftexists = '';
                 outerThis.CONTENT_OTHERDATA.currentEditedPostId = 0;
                 outerThis.CONTENT_OTHERDATA.currentReplyToId = 0;
             }
@@ -863,6 +1155,7 @@
                 var sticky = outerThis.CONTENT_OTHERDATA.showsticky ? outerThis.CONTENT_OTHERDATA.showsticky : 0;
                 var showfrom =  parseInt(outerThis.CONTENT_OTHERDATA.showfrom) > 0 ? Date.parse(outerThis.CONTENT_OTHERDATA.showfrom) / 1000 : 0;
                 var isrootpost = parseInt(replyto) === parseInt(outerThis.CONTENT_OTHERDATA.rootpostid) ? true : false;
+                var draftid = outerThis.CONTENT_OTHERDATA.draftid ? outerThis.CONTENT_OTHERDATA.draftid : 0;
                 //var discTimecreated = Date.now(); //TODO part of offline - that.timeCreated || Date.now();
                 var saveOffline = false;
                 var modal;
@@ -937,8 +1230,15 @@
                     //TODO check all functionality in core forum (new-discussion.ts) returnToDiscussions(discussionId) is covered.
                     // Navigate back to the post.mod_forumng.replyts page and refresh to show new post.
                     // Clear all the form data.
+
+                    // If there's a draft, delete it
+                    if (draftid) {
+                        t.mod_forumng.deleteDraft(outerThis, draftid);
+                        outerThis.updateContent({'cmid': outerThis.CONTENT_OTHERDATA.cmid, 'discussionid' : outerThis.CONTENT_OTHERDATA.discussionid}, 'mod_forumng', 'posts_view', true);
+                    }
                     t.originalEdit = outerThis.resetData(t.originalEdit);
                     t.currentReply = outerThis.resetData(t.currentReply);
+                    t.editDraft = outerThis.resetData(t.editDraft);
                     t.isEdit = 0;
                     t.isReply = 0;
                     outerThis.refreshContent();
@@ -958,6 +1258,7 @@
             var attachments = outerThis.CONTENT_OTHERDATA.files; // Type [FileEntry].
             var postas = outerThis.CONTENT_OTHERDATA.postas;
             var important = outerThis.CONTENT_OTHERDATA.important;
+            var draft = outerThis.CONTENT_OTHERDATA.draftid;
             var haveDifferentFiles = false;
             var showfrom = outerThis.CONTENT_OTHERDATA.showfrom;
             var showsticky = outerThis.CONTENT_OTHERDATA.showsticky;
@@ -971,19 +1272,20 @@
                 outerThis.refreshContent();
                 return;
             }
-            if(attachments && t.originalEdit.files && attachments.length == t.originalEdit.files.length && outerThis.CONTENT_OTHERDATA.currentEditedPostId) {
-                if (attachments.length > 0) {
-                    for (var index in attachments) {
-                        if (attachments[index].fullPath &&
-                            attachments[index].fullPath != t.originalEdit.files[index].fullPath) {
-                            haveDifferentFiles = true;
-                        } else if (attachments[index].url != t.originalEdit.files[index].url) {
-                            haveDifferentFiles = true;
-                        }
-                    }
-                }
+
+            if (draft) {
+                haveDifferentFiles = t.mod_forumng.checkAttachments(attachments, t.editDraft.files);
+            } else {
+                haveDifferentFiles = t.mod_forumng.checkAttachments(attachments, t.originalEdit.files);
             }
-            if (outerThis.CONTENT_OTHERDATA.currentReplyToId && (subject || message || (attachments && attachments.length > 0) || postas != 0 || important != 0)) {
+
+            var formChange = subject || message || (attachments && attachments.length > 0) || postas != 0 || important != 0;
+            var formLockChange = message || attachments.length > 0 || postas != 0;
+            var formDraftChange = t.editDraft.message != message ||  t.editDraft.subject != subject || t.editDraft.postas != postas ||
+                t.editDraft.important != important || haveDifferentFiles;
+            var formEditReplyChange = t.originalEdit.message != message ||  t.originalEdit.subject != subject || t.originalEdit.postas != postas ||
+                t.originalEdit.important != important || haveDifferentFiles || showsticky != t.showsticky || showfrom != t.showfrom;
+            if (!draft && !t.isAddDraft && outerThis.CONTENT_OTHERDATA.currentReplyToId && formChange) {
                 return outerThis.CoreDomUtilsProvider.showConfirm(outerThis.TranslateService.instant('plugin.mod_forumng.leavemessage')).then(function() {
                     t.currentReply = outerThis.resetData(t.currentReply);
                     outerThis.PostControl.setValue('');
@@ -995,9 +1297,7 @@
                         return outerThis.CoreFileUploaderProvider.clearTmpFiles(attachments);
                     }
                 });
-            } else if (outerThis.CONTENT_OTHERDATA.currentEditedPostId &&
-                (t.originalEdit.message != message ||  t.originalEdit.subject != subject || t.originalEdit.postas != postas ||
-                    t.originalEdit.important != important || haveDifferentFiles || showsticky != t.showsticky || showfrom != t.showfrom)) {
+            } else if (outerThis.CONTENT_OTHERDATA.currentEditedPostId && formEditReplyChange) {
                 return outerThis.CoreDomUtilsProvider.showConfirm(outerThis.TranslateService.instant('plugin.mod_forumng.leavemessage')).then(function() {
                     t.originalEdit = outerThis.resetData(t.originalEdit);
                     outerThis.PostControl.setValue('');
@@ -1015,7 +1315,7 @@
                         return outerThis.CoreFileUploaderProvider.clearTmpFiles(attachments);
                     }
                 });
-            } else if(outerThis.CONTENT_OTHERDATA.lock && (message || attachments.length > 0 || postas != 0)) {
+            } else if(outerThis.CONTENT_OTHERDATA.lock && formLockChange) {
                 return outerThis.CoreDomUtilsProvider.showConfirm(outerThis.TranslateService.instant('plugin.mod_forumng.leavemessage')).then(function() {
                     outerThis.subject = '';
                     outerThis.message = '';
@@ -1027,6 +1327,24 @@
                         return outerThis.CoreFileUploaderProvider.clearTmpFiles(attachments);
                     }
                 });
+            } else if ((draft || t.isAddDraft) && formDraftChange) {
+                return outerThis.CoreDomUtilsProvider.showConfirm(outerThis.TranslateService.instant('plugin.mod_forumng.leavemessage')).then(function() {
+                    t.editDraft = outerThis.resetData(t.editDraft);
+                    t.editDraft.draftexists = '';
+                    t.isReply = 0;
+                    t.isAddDraft = 0;
+                    t.isEditDraft = 0;
+                    outerThis.CONTENT_OTHERDATA.currentReplyToId = 0;
+                    outerThis.CONTENT_OTHERDATA.currentEditedPostId = 0;
+                    outerThis.CONTENT_OTHERDATA.draftid = 0;
+                    outerThis.updateContent({
+                        'cmid': outerThis.CONTENT_OTHERDATA.cmid,
+                        'discussionid': outerThis.CONTENT_OTHERDATA.discussionid
+                    }, 'mod_forumng', 'posts_view', true);
+                    if (attachments.length > 0) {
+                        return outerThis.CoreFileUploaderProvider.clearTmpFiles(attachments);
+                    }
+                });
             } else {
                 outerThis.CONTENT_OTHERDATA.files = [];
                 outerThis.CONTENT_OTHERDATA.lock = 0;
@@ -1034,9 +1352,20 @@
                 outerThis.CONTENT_OTHERDATA.currentEditedPostId = 0;
                 t.originalEdit = outerThis.resetData(t.originalEdit);
                 t.currentReply = outerThis.resetData(t.currentReply);
+                t.editDraft = outerThis.resetData(t.editDraft);
                 outerThis.PostControl.setValue('');
                 t.isEdit = 0;
                 t.isReply = 0;
+                t.isAddDraft = 0;
+                t.isEditDraft = 0;
+                if (draft || (t.editDraft.draftexists !== '')) {
+                    t.editDraft.draftexists = '';
+                    outerThis.CONTENT_OTHERDATA.draftid = 0;
+                    outerThis.updateContent({
+                        'cmid': outerThis.CONTENT_OTHERDATA.cmid,
+                        'discussionid': outerThis.CONTENT_OTHERDATA.discussionid
+                    }, 'mod_forumng', 'posts_view', true);
+                }
             }
         };
 
@@ -1075,6 +1404,10 @@
             outerThis.CONTENT_OTHERDATA.iscollapseall = true;
         };
 
+        outerThis.addDraft = function() {
+            t.mod_forumng.addDraft(outerThis);
+        };
+
         t.mod_forumng.currentPostsPage = outerThis;
 
         setTimeout(function(){
@@ -1103,6 +1436,60 @@
             t.mod_forumng.addDiscussion(outerThis);
         };
 
+        outerThis.resetData = function(t) {
+            t.postas = 0;
+            t.sticky = 0;
+            t.date = 0;
+            t.files = [];
+            t.message = '';
+            t.subject = '';
+            t.draftexists = '';
+            return t;
+        };
+
+        setTimeout(function() {
+            if(t.isEditDraft) {
+                outerThis.subject = t.editDraft.subject;
+                outerThis.addDiscussionControl.setValue(t.editDraft.message);
+                outerThis.CONTENT_OTHERDATA.files = t.editDraft.files;
+                outerThis.CONTENT_OTHERDATA.showsticky = t.editDraft.sticky;
+                outerThis.CONTENT_OTHERDATA.showfrom = t.editDraft.date;
+                outerThis.CONTENT_OTHERDATA.postas = t.editDraft.postas;
+            }
+        }, 100);
+
+        // Set data when editing draft.
+        if(outerThis.CONTENT_OTHERDATA.draftid && !t.isEditDraft) {
+            t.isEditDraft = 1;
+            outerThis.subject = outerThis.CONTENT_OTHERDATA.draftsubject;
+            outerThis.addDiscussionControl.value = outerThis.CONTENT_OTHERDATA.draftmessage;
+            var $draftattachments = outerThis.CONTENT_OTHERDATA.attachmentsforform;
+            if (typeof $draftattachments !== 'object') {
+                $draftattachments = JSON.parse($draftattachments);
+            }
+            if ($draftattachments.length > 0) {
+                for (var index in $draftattachments) {
+                    $draftattachments[index].toURL = function() {
+                        return '';
+                    }
+                }
+            }
+            outerThis.CONTENT_OTHERDATA.files = $draftattachments;
+            t.editDraft.subject = outerThis.subject;
+            t.editDraft.message = outerThis.addDiscussionControl.value;
+            t.editDraft.files = outerThis.CONTENT_OTHERDATA.files;
+            t.editDraft.sticky = outerThis.CONTENT_OTHERDATA.showsticky;
+            t.editDraft.date = outerThis.CONTENT_OTHERDATA.showfrom;
+            t.editDraft.postas = outerThis.CONTENT_OTHERDATA.postas;
+        }
+        if (t.isAddDraft && (t.editDraft.draftexists !== '')) {
+            outerThis.CONTENT_OTHERDATA.draftexists = t.editDraft.draftexists;
+        }
+
+        outerThis.addDraft = function() {
+            t.mod_forumng.addDraft(outerThis);
+        };
+
         outerThis.NewDiscussionCancel = function() {
             outerThis.NavController.pop();
         };
@@ -1114,17 +1501,47 @@
             var showsticky = outerThis.CONTENT_OTHERDATA.showsticky;
             var showfrom = outerThis.CONTENT_OTHERDATA.showfrom;
             var postas = outerThis.CONTENT_OTHERDATA.postas;
-            if (subject || message || attachments.length > 0 || showsticky != 0 || showfrom != 0 || postas != 0) {
+            var draft = outerThis.CONTENT_OTHERDATA.draftid;
+            var haveDifferentFiles = false;
+            if (draft) {
+                haveDifferentFiles = t.mod_forumng.checkAttachments(attachments, t.editDraft.files);
+            }
 
-                return outerThis.CoreDomUtilsProvider.showConfirm(outerThis.TranslateService.instant('plugin.mod_forumng.leavemessage')).then(function(result) {
-                    t.newDiscussion.postas = 0;
-                    t.newDiscussion.message = '';
-                    t.newDiscussion.subject = '';
-                    t.newDiscussion.files = [];
-                    t.newDiscussion.date = 0;
-                    t.newDiscussion.sticky = 0;
+            var formChange = subject || message || attachments.length > 0 || showsticky != 0 || showfrom != 0 || postas != 0;
+            var formDraftChange = t.editDraft.message != message ||  t.editDraft.subject != subject || t.editDraft.postas != postas ||
+                t.editDraft.sticky != showsticky || t.editDraft.date != showfrom || haveDifferentFiles;
+            if (!draft && !t.isAddDraft && formChange) {
+                return outerThis.CoreDomUtilsProvider.showConfirm(outerThis.TranslateService.instant('plugin.mod_forumng.leavemessage')).then(function() {
+                    t.newDiscussion =  outerThis.resetData(t.newDiscussion);
                     return outerThis.CoreFileUploaderProvider.clearTmpFiles(attachments);
                 });
+            } else if ((draft || t.isAddDraft) && !t.isAddDiscussion && formDraftChange) {
+                return outerThis.CoreDomUtilsProvider.showConfirm(outerThis.TranslateService.instant('plugin.mod_forumng.leavemessage')).then(function() {
+                    t.editDraft = outerThis.resetData(t.editDraft);
+                    t.isAddDraft = 0;
+                    t.isEditDraft = 0;
+                    outerThis.addDiscussionControl.setValue('');
+                    outerThis.CONTENT_OTHERDATA.draftid = 0;
+                    if (attachments.length > 0) {
+                        return outerThis.CoreFileUploaderProvider.clearTmpFiles(attachments);
+                    }
+                });
+            } else {
+                outerThis.subject = '';
+                outerThis.message = '';
+                outerThis.addDiscussionControl.setValue('');
+                outerThis.CONTENT_OTHERDATA.files = []; // Type [FileEntry].
+                outerThis.CONTENT_OTHERDATA.showsticky = 0;
+                outerThis.CONTENT_OTHERDATA.showfrom = 0;
+                outerThis.CONTENT_OTHERDATA.postas = 0;
+                t.editDraft = outerThis.resetData(t.editDraft);
+                t.isEditDraft = 0;
+                if (t.isAddDraft || draft) {
+                    t.isAddDraft = 0;
+                    t.newDiscussion.files = [];
+                    outerThis.CONTENT_OTHERDATA.draftid = 0;
+                    t.mod_forumng.currentDiscussionsPage.refreshContent();
+                }
             }
             return;
         };
@@ -1136,6 +1553,7 @@
             var messagetext = div.textContent;
             if (!messagetext.match(regexp)) {
                 text = '';
+                outerThis.message = '';
             }
             t.newDiscussion.message = text;
         };

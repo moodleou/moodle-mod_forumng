@@ -34,6 +34,8 @@ use \mod_forumng\local\external\mark_all_post_read;
 use \mod_forumng\local\external\lock_discussion;
 use \mod_forumng\local\external\delete_post;
 use \mod_forumng\local\external\undelete_post;
+use \mod_forumng\local\external\add_draft;
+use \mod_forumng\local\external\delete_draft;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -488,6 +490,83 @@ class mobile_testcase extends \advanced_testcase {
         $this->assertTrue($post1->is_unread());
         // Mark all post read for User 2.
         mark_all_post_read::mark_all_post_read($forum->cmid, 0, -1);
+    }
+
+    /**
+     * Test the draft webservice functionality.
+     */
+    public function test_mobile_forumng_add_draft() {
+        $this->resetAfterTest();
+
+        $generator = $this->getDataGenerator();
+        $course = $generator->create_course();
+        $student = $generator->create_user();
+        $generator->enrol_user($student->id, $course->id, 'student');
+        $this->setUser($student);
+        $forumnggenerator = $generator->get_plugin_generator('mod_forumng');
+        $forum = $forumnggenerator->create_instance(['course' => $course->id]);
+        $group = -1;
+        $subject = 'Test subject';
+        $message = 'Test message';
+        $filerecord = ['filename' => 'basepic.jpg'];
+        $file = self::create_draft_file($filerecord);
+        $draftarea = $file->get_itemid();
+
+        // Add a new draft via the WS.
+        $result = add_draft::add_draft($forum->id, 0, $group, 0,
+            $subject, $message, $draftarea, 0, 0, 0, false,false);
+        $this->assertTrue($result['success']);
+        $this->assertEmpty($result['errormsg']);
+        $this->assertContains(\mod_forumng_utils::display_date(time()), $result['successmsg']);
+        $drafid = $result['draft'];
+        // Check the new draft exists.
+        $draft = \mod_forumng_draft::get_from_id($drafid, 0);
+        $this->assertEquals($subject, $draft->get_subject());
+        // Edit draft vis the WS.
+        $newsubject = 'Test new subject';
+        $newresult = add_draft::add_draft($forum->id, $drafid, $group, 0,
+            $newsubject, $message, $draftarea, 0, true, 0, false,false);
+        $draft = \mod_forumng_draft::get_from_id($newresult['draft'], 0);
+        $this->assertEquals($newsubject, $draft->get_subject());
+        $this->assertEquals($newresult['draft'], $result['draft']);
+        $this->assertEquals(true, $draft->get_options()->sticky);
+         //Check the attachment.
+        $forumng = \mod_forumng::get_from_id($draft->get_forumng_id(), 0);
+        $filecontext = $forumng->get_context(true);
+        $fs = get_file_storage();
+        foreach ($fs->get_area_files($filecontext->id, 'mod_forumng', 'draft',
+            $draft->get_id(), 'filename', false) as $file) {
+
+            $attachments[] = $file->get_filename();
+        }
+        $this->assertEquals('basepic.jpg', $attachments[0]);
+        // Delete draft via the WS
+        $deletedraft = delete_draft::delete_draft($newresult['draft']);
+        $this->assertTrue($deletedraft['success']);
+        $this->assertEmpty($deletedraft['errormsg']);
+        // Add draft reply via the WS
+        $subject = 'Test subject reply';
+        $message = 'Tes message reply';
+        $discussion = $forumnggenerator->create_discussion(['course' => $course, 'forum' => $forum->id, 'userid' => $student->id]);
+        $post = $forumnggenerator->create_post(array('discussionid' => $discussion[0], 'parentpostid' => $discussion[1], 'userid' => $student->id));
+        $result = add_draft::add_draft($forum->id, 0, $group, $post->parentpostid,
+            $subject, $message, $draftarea, 0, true, 0, false,false);
+        $this->assertTrue($result['success']);
+        $this->assertEmpty($result['errormsg']);
+        $this->assertContains(\mod_forumng_utils::display_date(time()), $result['successmsg']);
+        // Edit draft reply vis the WS.
+        $drafid = $result['draft'];
+        $newsubject = 'Test new subject reply';
+        $newresult = add_draft::add_draft($forum->id, $drafid, $group, $post->parentpostid,
+            $newsubject, $message, $draftarea, 0, 0, 0, false,true);
+        $draft = \mod_forumng_draft::get_from_id($newresult['draft'], 0);
+        $this->assertEquals($newsubject, $draft->get_subject());
+        $this->assertEquals($newresult['draft'], $result['draft']);
+        $this->assertEquals(true, $draft->get_options()->setimportant);
+        // Delete draft via the WS
+        $deletedraft = delete_draft::delete_draft($newresult['draft']);
+        $this->assertTrue($deletedraft['success']);
+        $this->assertEmpty($deletedraft['errormsg']);
     }
 
     /**

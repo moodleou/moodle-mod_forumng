@@ -54,6 +54,9 @@
 
 }}
 {{=<% %>=}}
+<ion-item *ngIf="CONTENT_OTHERDATA.draftexists.length > 0" id="mma-forumng-draftexists" class="mma-forumng-draftexists">
+    <core-format-text [text]="CONTENT_OTHERDATA.draftexists" component="mod_forumng" componentId="<% cmid %>" text-wrap></core-format-text>
+</ion-item>
 <ion-item>
     <ion-label stacked>{{ 'plugin.mod_forumng.subject' | translate }}</ion-label>
     <ion-input (ionChange)="onSubjectChange()" type="text" [placeholder]="'plugin.mod_forumng.subject' | translate" [(ngModel)]="subject"></ion-input>
@@ -91,7 +94,8 @@
        </ion-select>
    </ion-item>
 <%/ hasoption %>
-<ion-item>
-    <button id="mma-forumng-add-discussion-button" ion-button block (click)="addDiscussion()" [disabled]="subject == '' || message == null || message == ''"><% submitlabel %></button>
+<ion-item class="mma-forumng-group-button">
+    <button id="mma-forumng-add-discussion-button" ion-button (click)="addDiscussion()" [disabled]="subject == '' || message == null || message == ''"><% submitlabel %></button>
     <button ion-button (click)="NewDiscussionCancel()">{{ 'core.cancel' | translate }}</button>
+    <button id="mma-forumng-add-draft-button" ion-button (click)="addDraft()" [disabled]="subject == '' || message == null || message == ''"><% submitdraftlabel %></button>
 </ion-item>

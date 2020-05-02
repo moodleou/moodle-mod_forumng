@@ -47,10 +47,6 @@
     margin-bottom: 10px !important;
 }
 
-.mma-forumng-discussion-list .mma-forumng-drafts ion-col strong {
-    display: inline-block;
-}
-
 .mma-forumng-discussion-list core-format-text[maxHeight].core-text-formatted.core-shortened.mma-forumng-discussion-introduction {
     max-height: 100px !important;
 }
@@ -64,8 +60,7 @@
     display: block;
 }
 
-.mma-forumng-discussion-list .mma-forumng-drafts,
-.mma-forumng-discussion-list .mma-forumng-drafts ion-col {
+.mma-forumng-discussion-list .mma-forumng-drafts {
     padding-left: 0;
     padding-right: 0;
 }
@@ -75,7 +70,8 @@
 }
 
 .mma-forumng-discussion-list .mma-forumng-drafts .mma-forumng-draft-heading img {
-    vertical-align: text-bottom;
+    position: relative;
+    top: 1px;
 }
 
 .mma-forumng-discussion-list .mma-forumng-drafts ion-row,
@@ -477,6 +473,15 @@ ion-app.app-root.md .button-md#mod_forumg_add_discussion,
 ion-app.app-root.ios .button-ios#mod_forumg_add_discussion {
     display: inline-block;
     max-width: 160px;
+}
+
+.mma-forumng-group-button ion-label {
+    display: flex;
+    flex-flow: row wrap;
+}
+
+.mma-forumng-draftexists {
+    font-weight: 700;
 }
 
 html[style="font-size: 75.89%;"] ion-app.app-root.md .button-md#mod_forumg_add_discussion,

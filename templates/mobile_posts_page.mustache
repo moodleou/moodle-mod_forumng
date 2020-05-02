@@ -210,6 +210,9 @@
         <ion-item class="bold-text red-text" text-wrap *ngIf="!CONTENT_OTHERDATA.edittimeout && CONTENT_OTHERDATA.isEdit">
             <% edittimeoutmsg %>
         </ion-item>
+        <ion-item *ngIf="CONTENT_OTHERDATA.draftexists.length > 0" id="mma-forumng-draftexists-<% postid %>" class="mma-forumng-draftexists">
+            <core-format-text [text]="CONTENT_OTHERDATA.draftexists" component="mod_forumng" componentId="<% cmid %>" text-wrap></core-format-text>
+        </ion-item>
         <ion-item *ngIf="CONTENT_OTHERDATA.lock == 1">
             <core-format-text text="Lock discussion: <% subject %>"></core-format-text>
         </ion-item>
@@ -254,7 +257,7 @@
             </ion-select>
         </ion-item>
         <%/ hasoption %>
-        <ion-item>
+        <ion-item class="mma-forumng-group-button">
             <button *ngIf="!CONTENT_OTHERDATA.lock && !CONTENT_OTHERDATA.isEdit" class="mma-forumng-reply-button" ion-button (click)="edit()"
                     [disabled]="message == null || message == '' || !isOnline() || CONTENT_OTHERDATA.disable">
                 {{ 'plugin.mod_forumng.postreply' | translate }}
@@ -268,6 +271,10 @@
                 {{ 'plugin.mod_forumng.lockdiscussion' | translate }}
             </button>
             <button ion-button (click)="cancel()">{{ 'core.cancel' | translate }}</button>
+            <button *ngIf="!CONTENT_OTHERDATA.lock && !CONTENT_OTHERDATA.isEdit" class="mma-forumng-add-draft-button" ion-button (click)="addDraft()"
+                    [disabled]="message == null || message == '' || !isOnline()">
+                {{ 'plugin.mod_forumng.savedraft' | translate }}
+            </button>
         </ion-item>
     </ion-list>
     <%# hasreplies %>
@@ -369,6 +376,9 @@
                 <ion-item class="bold-text red-text" text-wrap *ngIf="!CONTENT_OTHERDATA.edittimeout && CONTENT_OTHERDATA.isEdit">
                     <% edittimeoutmsg %>
                 </ion-item>
+                <ion-item *ngIf="CONTENT_OTHERDATA.draftexists.length > 0" id="mma-forumng-draftexists-{{reply.postid}}" class="mma-forumng-draftexists">
+                    <core-format-text [text]="CONTENT_OTHERDATA.draftexists" component="mod_forumng" componentId="<% cmid %>" text-wrap></core-format-text>
+                </ion-item>
                 <ion-item>
                     <ion-label stacked>{{ 'plugin.mod_forumng.subject' | translate }}</ion-label>
                     <ion-input type="text" (ionChange)="onSubjectChange()" [placeholder]="'plugin.mod_forumng.optionalsubject' | translate" [(ngModel)]="subject"></ion-input>
@@ -393,7 +403,7 @@
                         </ion-option>
                     </ion-select>
                 </ion-item>
-                <ion-item>
+                <ion-item class="mma-forumng-group-button">
                     <button *ngIf="!CONTENT_OTHERDATA.isEdit" class="mma-forumng-reply-button" ion-button (click)="edit()"
                             [disabled]="message == null || message == '' || !isOnline() || CONTENT_OTHERDATA.disable">
                         {{ 'plugin.mod_forumng.postreply' | translate }}
@@ -403,6 +413,10 @@
                         {{ 'plugin.mod_forumng.editpostmobile' | translate }}
                     </button>
                     <button ion-button (click)="cancel()">{{ 'core.cancel' | translate }}</button>
+                    <button *ngIf="!CONTENT_OTHERDATA.isEdit" class="mma-forumng-add-draft-button" ion-button (click)="addDraft()"
+                            [disabled]="message == null || message == '' || !isOnline()">
+                        {{ 'plugin.mod_forumng.savedraft' | translate }}
+                    </button>
                 </ion-item>
             </ion-list>
             <ion-item *ngIf="reply.subreplies.length > 0" class="sub-reply">
@@ -502,6 +516,9 @@
                         <ion-item class="bold-text red-text" text-wrap *ngIf="!CONTENT_OTHERDATA.edittimeout && CONTENT_OTHERDATA.isEdit">
                             <% edittimeoutmsg %>
                         </ion-item>
+                        <ion-item *ngIf="CONTENT_OTHERDATA.draftexists.length > 0" id="mma-forumng-draftexists-{{subreply.postid}}" class="mma-forumng-draftexists">
+                            <core-format-text [text]="CONTENT_OTHERDATA.draftexists" component="mod_forumng" componentId="<% cmid %>" text-wrap></core-format-text>
+                        </ion-item>
                         <ion-item>
                             <ion-label stacked>{{ 'plugin.mod_forumng.subject' | translate }}</ion-label>
                             <ion-input type="text" (ionChange)="onSubjectChange()" [placeholder]="'plugin.mod_forumng.optionalsubject' | translate" [(ngModel)]="subject"></ion-input>
@@ -526,7 +543,7 @@
                                 </ion-option>
                             </ion-select>
                         </ion-item>
-                        <ion-item>
+                        <ion-item class="mma-forumng-group-button">
                             <button *ngIf="!CONTENT_OTHERDATA.isEdit" class="mma-forumng-reply-button" ion-button (click)="edit()"
                                     [disabled]="message == null || message == '' || !isOnline() || CONTENT_OTHERDATA.disable">
                                 {{ 'plugin.mod_forumng.postreply' | translate }}
@@ -536,6 +553,10 @@
                                 {{ 'plugin.mod_forumng.editpostmobile' | translate }}
                             </button>
                             <button ion-button (click)="cancel()">{{ 'core.cancel' | translate }}</button>
+                            <button *ngIf="!CONTENT_OTHERDATA.isEdit" class="mma-forumng-add-draft-button" ion-button (click)="addDraft()"
+                                    [disabled]="message == null || message == '' || !isOnline()">
+                                {{ 'plugin.mod_forumng.savedraft' | translate }}
+                            </button>
                         </ion-item>
                     </ion-list>
                 </ion-list>

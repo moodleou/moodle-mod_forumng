@@ -1073,3 +1073,4 @@ $string['cannotlockdiscussion'] = 'Could not lock discussion.';
 $string['expandallpost'] = 'Expand all';
 $string['collapseallpost'] = 'Collapse all';
 $string['editpostmobile'] = 'Edit post';
+$string['cannotcreatedraft'] = 'Could not create draft';

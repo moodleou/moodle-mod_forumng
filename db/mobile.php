@@ -38,7 +38,7 @@ $addons = [
                 'downloadbutton' => false,
                 'styles' => [
                     'url' => $CFG->wwwroot . '/mod/forumng/mobileapp.css',
-                    'version' => 2020042507
+                    'version' => 2020042600
                 ],
                 'init' => 'mobile_forumng_init'
             ]
@@ -87,6 +87,8 @@ $addons = [
             ['editpostmobile', 'forumng'],
             ['expandallpost', 'forumng'],
             ['collapseallpost', 'forumng'],
+            ['savedraft', 'forumng'],
+            ['cannotcreatedraft', 'forumng'],
         ]
     ]
 ];

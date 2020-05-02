@@ -192,7 +192,7 @@ class mobile {
         self::prep_discussions($forumng, $normal, $discussions);
 
         // Print info about the start and end dates of the forum from the form setting.
-        $message = '';
+        $restrictionmessage = '';
         $stringend =
             has_capability('mod/forumng:ignorepostlimits', $forumng->get_context())
                 ? 'capable' : '';
@@ -200,15 +200,15 @@ class mobile {
         $enddate = $forumng->get_postinguntil();
 
         if (time() < $startdate) {
-            $message = get_string('beforestartdate' . $stringend,
+            $restrictionmessage = get_string('beforestartdate' . $stringend,
                 'forumng', \mod_forumng_utils::display_date($startdate));
         } else if (time() < $enddate) {
-            $message = get_string('beforeenddate' . $stringend,
+            $restrictionmessage = get_string('beforeenddate' . $stringend,
                 'forumng', \mod_forumng_utils::display_date($enddate));
         }
 
         if ($enddate && time() >= $enddate) {
-            $message = get_string('afterenddate' . $stringend,
+            $restrictionmessage = get_string('afterenddate' . $stringend,
                 'forumng', \mod_forumng_utils::display_date($enddate));
 
         }
@@ -218,7 +218,6 @@ class mobile {
         $hasdrafts = false;
         $draftposts = [];
         $decorators = '';
-        $shortenedlenght = 40;
         if (count($drafts) > 0) {
             $hasdrafts = true;
 
@@ -230,27 +229,34 @@ class mobile {
                 'content' => get_string('drafts_help', 'forumng')];
             foreach ($drafts as $draft) {
                 $subject = format_string($draft->get_subject());
-                $subject = format_text($subject, FORMAT_HTML);
-                $summary = strip_tags($draft->get_formatted_message($forumng));
-                $summary = self::one_line($summary, $shortenedlenght);
+                $message = strip_tags($draft->get_formatted_message($forumng));
+
+                $summary = '<strong>' . $subject . '</strong> ' . $message;
+                $summary = str_replace('<strong></strong>', '', $summary);
+                $summary = \mod_forumng_renderer::nice_shorten_text($summary);
                 $summary = format_text($summary, FORMAT_HTML);
                 if (trim($summary) === '') {
                     $summary = get_string('notext', 'forumng');
                 }
-                if (strlen($subject) >= $shortenedlenght) {
-                    $subject = self::one_line($subject, $shortenedlenght);
-                    $summary = '';
-                }
+
                 if ($draft->is_reply()) {
                     $user = fullname($draft->get_reply_to_user(), has_capability('moodle/site:viewfullnames', $context));
-                    $discussionsubject = format_string($draft->get_discussion_subject()) . get_string('draft_inreplyto',
+                    $discussionsubject = format_string($draft->get_discussion_subject()) . ' ' .get_string('draft_inreplyto',
                             'forumng', $user);
                 } else {
                     $discussionsubject = get_string('draft_newdiscussion', 'forumng');
                 }
                 $date = \mod_forumng_utils::display_date($draft->get_saved());
-                $draftposts[] = (object)['subject' => $subject, 'message' => $summary,
-                    'discussionsubject' => $discussionsubject, 'date' => $date];
+                $draftposts[] = (object)[
+                    'id' => $draft->get_id(),
+                    'summary' => $summary,
+                    'discussionid' => $draft->is_reply() ? $draft->get_discussion_id() : 0,
+                    'groupid' => $draft->get_group_id(),
+                    'discussionsubject' => $discussionsubject,
+                    'date' => $date,
+                    'replytoid' => $draft->is_reply() ? $draft->get_parent_post_id() : 0,
+                    'isreply' => $draft->is_reply()
+                ];
             }
         }
 
@@ -298,7 +304,7 @@ class mobile {
             'cmid' => $cm->id,
             'courseid' => $course->id,
             'canstartdiscussion' => $canstartdiscussion,
-            'message' => $message,
+            'restrictionmessage' => $restrictionmessage,
             'decorators' => $decorators,
             'hasdrafts' => $hasdrafts,
             'isipud' => $isipud,
@@ -468,7 +474,8 @@ class mobile {
         $defaultimage = $OUTPUT->image_url('u/f2');
         $moderator = get_string('moderator', 'forumng');
         $postdata = self::get_common_post_data($discussion, $root, $defaultimage, $moderator);
-        $postdata['cmid'] = $discussion->get_course_module()->id;
+        $cmid = $discussion->get_course_module()->id;
+        $postdata['cmid'] = $cmid;
         // No of posts or replies.
         $noofposts = $discussion->get_num_posts() - 1; // Do not count the first message as a reply.
         if ($noofposts == 1) {
@@ -494,6 +501,7 @@ class mobile {
         $displaysticky = get_string('displayoption', 'mod_forumng');
         $displayperiod = get_string('displayperiodmobile', 'mod_forumng');
         $postdata['hasreplies'] = count($replies);
+        $forumng = $discussion->get_forum();
         $islock = false;
         $lockpost = '';
         if ($discussion->is_locked()) {
@@ -512,6 +520,24 @@ class mobile {
         $rootpost->displayperiod = $displayperiod;
         $rootpost->displaysticky = $displaysticky;
         $rootpost->canmanage = $canmanage;
+
+        // Check is draft.
+        $draftid = empty($args->draft) ? 0 : $args->draft;
+        $replytoid = empty($args->replytoid) ? 0 : $args->replytoid;
+        $draftexists = '';
+        $setimportant = false;
+        $attachmentforform = [];
+        if ($draftid) {
+            $draft = \mod_forumng_draft::get_from_id($draftid);
+            $forumng = \mod_forumng::get_from_id($draft->get_forumng_id(), 0);
+            $draftexists = get_string('draftexists', 'forumng', \mod_forumng_utils::display_date($draft->get_saved()));
+            if ($draftoptions = $draft->get_options()) {
+                if ($draftoptions->setimportant) {
+                    $setimportant = true;
+                }
+            }
+            $attachmentforform = self::get_attachment_draft_post($draftid);
+        }
 
         return [
             'templates' => [
@@ -541,7 +567,7 @@ class mobile {
                 'isEdit' => 0,
                 'currentReplyToId' => 0,
                 'currentEditedPostId' => 0,
-                'forumngid' => $discussion->get_forum()->get_id(),
+                'forumngid' => $forumng->get_id(),
                 'rootpostmessage' =>  $rootpost->message,
                 'rootpostid' =>  $rootpost->postid,
                 'originalrootpostmessage' => $root->get_formatted_message(),
@@ -549,6 +575,14 @@ class mobile {
                 'limittime' => 0,
                 'disable' => 0,
                 'maxyear' => date('Y', strtotime('+30 years')),
+                'draftid' => $draftid,
+                'draftsubject' => $draftid ? $draft->get_subject() : '',
+                'draftmessage' => $draftid ? $draft->get_formatted_message($forumng) : '',
+                'draftexists' => $draftexists,
+                'replytoid' => $replytoid,
+                'important' => $setimportant,
+                'attachmentsforform' => json_encode($attachmentforform),
+                'cmid' => $cmid,
             ],
             'files' => []
         ];
@@ -862,6 +896,32 @@ class mobile {
         $postas = get_string('postasmobile', 'mod_forumng');
         $displayoption = get_string('displayoption', 'mod_forumng');
         $displayperiod = get_string('displayperiodmobile', 'mod_forumng');
+
+        // Check is draft.
+        $showsticky = 0;
+        $showfrom = 0;
+        $draftid = empty($args->draft) ? 0 : $args->draft;
+        $draftexists = '';
+        $draft = null;
+        $attachmentforform = [];
+        if ($draftid) {
+            $draft = \mod_forumng_draft::get_from_id($draftid);
+            $forumng = \mod_forumng::get_from_id($draft->get_forumng_id(), 0);
+            $draftexists = get_string('draftexists', 'forumng', \mod_forumng_utils::display_date($draft->get_saved()));
+            if ($draftoptions = $draft->get_options()) {
+                if ($draftoptions->timestart) {
+                    $timestamp = $draftoptions->timestart;
+                    $date = new \DateTime();
+                    $date->setTimestamp($timestamp);
+                    $showfrom = $date->format('Y-m-d');
+                }
+                if ($draftoptions->sticky) {
+                    $showsticky = true;
+                }
+            }
+            $attachmentforform = self::get_attachment_draft_post($draftid);
+        }
+
         $data = [
             'cmid' => $cmid,
             'submitlabel' => get_string('postdiscussion', 'mod_forumng'),
@@ -876,6 +936,7 @@ class mobile {
             'postas' => $postas,
             'displayoption' => $displayoption,
             'displayperiod' => $displayperiod,
+            'submitdraftlabel' => get_string('savedraft', 'mod_forumng'),
         ];
         $html = $OUTPUT->render_from_template('mod_forumng/mobile_add_discussion', $data);
 
@@ -892,11 +953,16 @@ class mobile {
                 'forumng' => $forumng->get_id(),
                 'discussion' => $discussionid,
                 'group' => $groupid,
-                'showsticky' => 0,
-                'showfrom' => 0,
+                'showsticky' => $showsticky,
+                'showfrom' => $showfrom,
                 'postas' => 0,
                 'cmid' => $forumng->get_course_module_id(),
                 'maxyear' => date('Y', strtotime('+30 years')),
+                'draftid' => $draftid,
+                'draftsubject' => $draftid ? $draft->get_subject() : '',
+                'draftmessage' => $draftid ? $draft->get_formatted_message($forumng) : '',
+                'draftexists' => $draftexists,
+                'attachmentsforform' => json_encode($attachmentforform),
             ],
             'files' => []
         ];
@@ -1052,5 +1118,33 @@ class mobile {
             }
         }
         return $iscollapseall;
+    }
+
+    /**
+     * Gets the names and url of all attachments for draft post.
+     *
+     * @param int $draftid Draft ID
+     * @return array
+     */
+    private static function get_attachment_draft_post(int $draftid): array {
+        $draft = \mod_forumng_draft::get_from_id($draftid);
+        $forumng = \mod_forumng::get_from_id($draft->get_forumng_id(), 0);
+        $filecontext = $forumng->get_context(true);
+        $fs = get_file_storage();
+        $attachments = [];
+        if (!$draft->has_attachments()) {
+            return $attachments;
+        }
+        foreach ($fs->get_area_files($filecontext->id, 'mod_forumng', 'draft',
+            $draft->get_id(), 'filename', false) as $file) {
+            $params = [];
+            if ($forumng->is_shared()) {
+                $params['clone'] = $forumng->get_course_module_id();
+            }
+            $url = new \moodle_url('/pluginfile.php/' . $filecontext->id . '/mod_forumng/draft/' .
+                $draft->get_id() . '/' . rawurlencode($file->get_filename()), $params);
+            $attachments[] = (object)['filename' => $file->get_filename(), 'url' => $url->out()];
+        }
+        return $attachments;
     }
 }
