@@ -582,3 +582,25 @@ ion-app.app-root .mma-forumng-posts-list-wrapper core-format-text[maxHeight] {
 .mma-forumng-posts-list-wrapper .mma-forumng-post-reply .sub-reply .unread-post ion-list.mma-forumng-attachments:last-child {
     margin-bottom: 5px;
 }
+
+.mma-forumng-drafts .c0 div {
+    display: inline-block;
+}
+.delete-draft-popup {
+    margin-bottom: 10px;
+    text-align: center;
+    padding-bottom: 10px;
+    margin-top: 50px;
+    background: #ffffff;
+}
+.mma-forumng-draft-subject {
+    font-weight: 700;
+    color: #002158;
+}
+.delete-draft-message-warning {
+    padding-top: 20px;
+    padding-bottom: 20px;
+}
+.mma-forumng-delete-draft {
+    vertical-align: middle;
+}

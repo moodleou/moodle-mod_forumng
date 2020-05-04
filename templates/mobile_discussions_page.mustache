@@ -134,12 +134,16 @@
                 </ion-row>
                 <ion-row *ngFor="let draft of CONTENT_OTHERDATA.draftposts">
                     <ion-col text-wrap class="cell c0">
-                        <div core-site-plugins-new-content component="mod_forumng" [method]="draft.isreply ? 'posts_view' : 'add_discussion'"
-                             [args]="{cmid: <% cmid %>, discussionid: draft.isreply ? draft.discussionid : 0,
+                        <div>
+                            <core-format-text
+                                    core-site-plugins-new-content component="mod_forumng" [method]="draft.isreply ? 'posts_view' : 'add_discussion'"
+                                    [args]="{cmid: <% cmid %>, discussionid: draft.isreply ? draft.discussionid : 0,
                                       groupid: CONTENT_OTHERDATA.defaultgroup, draft: draft.id, replytoid: draft.replytoid}"
-                             title="Discussion" [preSets]="{getFromCache: 0}">
-                            <core-format-text [text]="draft.summary" component="mod_forumng" componentId="<% cmid %>" text-wrap>
+                                    title="Discussion" [preSets]="{getFromCache: 0}"
+                                    [text]="draft.summary" component="mod_forumng" componentId="<% cmid %>" text-wrap>
                             </core-format-text>
+                            <img class="mma-forumng-delete-draft" core-site-plugins-new-content component="mod_forumng" method="draft_view"
+                                 [args]="{draftid: draft.id}" [preSets]="{getFromCache: 0}" src="{{draft.deleteicon}}" alt="{{draft.deletealt}}"/>
                         </div>
                     </ion-col>
                     <ion-col text-wrap class="cell c1">

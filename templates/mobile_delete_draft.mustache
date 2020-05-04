@@ -1,0 +1,63 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template mod_forumng/mobile_delete_draft
+
+    Mobile form that allows delete draft
+
+    Classes required for JS:
+    * none
+
+    Data attributes required for JS:
+    * none
+
+    Context variables required for this template:
+    * subject string
+    * message string
+
+    Example context (json):
+    {
+
+        'subject': '',
+        'message': '',
+    }
+
+}}
+{{=<% %>=}}
+<div class="delete-draft-popup">
+    <div class="delete-draft-message-warning">
+        <% deletemessage %>
+    </div>
+    <button ion-button id="mod_forumg_delete_draft" (click)="deleteDraftInPage(CONTENT_OTHERDATA.draftid)" [disabled]="!isOnline()" >
+        {{ 'plugin.mod_forumng.deletepostbutton' | translate }}
+    </button>
+    <button ion-button color="primary" class="button-cancel-draft" (click)="cancelDeleteDraft()" [disabled]="!isOnline()">
+        {{ 'core.cancel' | translate }}
+    </button>
+</div>
+
+
+<div class="mma-forumng-draft-post"><!-- Div vs. ion-content - see comments later. -->
+    <ion-list>
+        <ion-item>
+            <core-format-text text-wrap class="mma-forumng-draft-subject" text=" <% subject %>"></core-format-text>
+        </ion-item>
+        <ion-item>
+            <core-format-text text-wrap class="mma-forumng-draft-message" text=" <% message %>"></core-format-text>
+        </ion-item>
+    </ion-list>
+</div>

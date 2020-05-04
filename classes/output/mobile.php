@@ -227,6 +227,8 @@ class mobile {
             $althelp = get_string('helpprefix3', 'format_oustudyplan', $heading);
             $decorators = (object)['heading' => $heading, 'url' => $urlhelp, 'alt' => $althelp,
                 'content' => get_string('drafts_help', 'forumng')];
+            $deleteicon = $OUTPUT->image_url('t/delete')->out();
+            $deletealt = get_string('deletedraft', 'forumng');
             foreach ($drafts as $draft) {
                 $subject = format_string($draft->get_subject());
                 $message = strip_tags($draft->get_formatted_message($forumng));
@@ -255,7 +257,9 @@ class mobile {
                     'discussionsubject' => $discussionsubject,
                     'date' => $date,
                     'replytoid' => $draft->is_reply() ? $draft->get_parent_post_id() : 0,
-                    'isreply' => $draft->is_reply()
+                    'isreply' => $draft->is_reply(),
+                    'deleteicon' => $deleteicon,
+                    'deletealt' => $deletealt,
                 ];
             }
         }
@@ -528,15 +532,62 @@ class mobile {
         $setimportant = false;
         $attachmentforform = [];
         if ($draftid) {
-            $draft = \mod_forumng_draft::get_from_id($draftid);
-            $forumng = \mod_forumng::get_from_id($draft->get_forumng_id(), 0);
-            $draftexists = get_string('draftexists', 'forumng', \mod_forumng_utils::display_date($draft->get_saved()));
-            if ($draftoptions = $draft->get_options()) {
-                if ($draftoptions->setimportant) {
-                    $setimportant = true;
-                }
+            try {
+                $draft = \mod_forumng_draft::get_from_id($draftid);
+            } catch (\moodle_exception $e) {
+                $error = $e->getMessage();
+                $data = [
+                        'error' => $error,
+                ];
+
+                $html = $OUTPUT->render_from_template('mod_forumng/mobile_posts_page', $data);
+                return [
+                        'templates' => [
+                                [
+                                        'id' => 'main',
+                                        'html' => $html,
+                                ]
+                        ],
+                        'javascript' => '',
+                        'otherdata' => [
+                        ],
+                        'files' => []
+                ];
             }
-            $attachmentforform = self::get_attachment_draft_post($draftid);
+            if ($draft) {
+                $postid = $draft->get_parent_post_id();
+                $postwithdraft = \mod_forumng_post::get_from_id($postid, \mod_forumng::CLONE_DIRECT,
+                        false, false, 0, true);
+                $whynot = '';
+                $canreply = $postwithdraft->can_reply($whynot);
+                if (!$canreply) {
+                    $drafterror = get_string('draft_cannotreply', 'forumng',
+                            $forumng->get_url(mod_forumng::PARAM_HTML));
+                    $data = new \stdClass();
+                    $data->error = $drafterror;
+                    $html = $OUTPUT->render_from_template('mod_forumng/mobile_posts_page', $data);
+                    return [
+                            'templates' => [
+                                    [
+                                            'id' => 'main',
+                                            'html' => $html,
+                                    ]
+                            ],
+                            'javascript' => '',
+                            'otherdata' => [
+                            ],
+                            'files' => []
+                    ];
+                }
+                $forumng = \mod_forumng::get_from_id($draft->get_forumng_id(), 0);
+                $draftexists = get_string('draftexists', 'forumng', \mod_forumng_utils::display_date($draft->get_saved()));
+                if ($draftoptions = $draft->get_options()) {
+                    if ($draftoptions->setimportant) {
+                        $setimportant = true;
+                    }
+                }
+                $attachmentforform = self::get_attachment_draft_post($draftid);
+            }
         }
 
         return [
@@ -905,21 +956,44 @@ class mobile {
         $draft = null;
         $attachmentforform = [];
         if ($draftid) {
-            $draft = \mod_forumng_draft::get_from_id($draftid);
-            $forumng = \mod_forumng::get_from_id($draft->get_forumng_id(), 0);
-            $draftexists = get_string('draftexists', 'forumng', \mod_forumng_utils::display_date($draft->get_saved()));
-            if ($draftoptions = $draft->get_options()) {
-                if ($draftoptions->timestart) {
-                    $timestamp = $draftoptions->timestart;
-                    $date = new \DateTime();
-                    $date->setTimestamp($timestamp);
-                    $showfrom = $date->format('Y-m-d');
-                }
-                if ($draftoptions->sticky) {
-                    $showsticky = true;
-                }
+            try {
+                $draft = \mod_forumng_draft::get_from_id($draftid);
+            } catch (\moodle_exception $e) {
+                $error = $e->getMessage();
+                $data = [
+                        'error' => $error,
+                ];
+
+                $html = $OUTPUT->render_from_template('mod_forumng/mobile_posts_page', $data);
+                return [
+                        'templates' => [
+                                [
+                                        'id' => 'main',
+                                        'html' => $html,
+                                ]
+                        ],
+                        'javascript' => '',
+                        'otherdata' => [
+                        ],
+                        'files' => []
+                ];
             }
-            $attachmentforform = self::get_attachment_draft_post($draftid);
+            if ($draft) {
+                $forumng = \mod_forumng::get_from_id($draft->get_forumng_id(), 0);
+                $draftexists = get_string('draftexists', 'forumng', \mod_forumng_utils::display_date($draft->get_saved()));
+                if ($draftoptions = $draft->get_options()) {
+                    if ($draftoptions->timestart) {
+                        $timestamp = $draftoptions->timestart;
+                        $date = new \DateTime();
+                        $date->setTimestamp($timestamp);
+                        $showfrom = $date->format('Y-m-d');
+                    }
+                    if ($draftoptions->sticky) {
+                        $showsticky = true;
+                    }
+                }
+                $attachmentforform = self::get_attachment_draft_post($draftid);
+            }
         }
 
         $data = [
@@ -965,6 +1039,63 @@ class mobile {
                 'attachmentsforform' => json_encode($attachmentforform),
             ],
             'files' => []
+        ];
+    }
+
+    /**
+     * Draft view for mobile.
+     *
+     * @param array $args
+     * @return array
+     */
+    public static function draft_view(array $args) {
+        global $OUTPUT;
+
+        $args = (object) $args;
+        $draftid = (int)$args->draftid;
+        try {
+            $draft = \mod_forumng_draft::get_from_id($draftid);
+        } catch (\moodle_exception $e) {
+            $error = $e->getMessage();
+            $data = [
+                    'error' => $error,
+            ];
+
+            $html = $OUTPUT->render_from_template('mod_forumng/mobile_posts_page', $data);
+            return [
+                    'templates' => [
+                            [
+                                    'id' => 'main',
+                                    'html' => $html,
+                            ]
+                    ],
+                    'javascript' => '',
+                    'otherdata' => [
+                    ],
+                    'files' => []
+            ];
+        }
+        $forumngid = $draft->get_forumng_id();
+        $forumng = \mod_forumng::get_from_id($forumngid, \mod_forumng::CLONE_DIRECT);
+        $data = new \stdClass();
+        if ($draft) {
+            $data->subject = $draft->get_subject();
+            $data->message = $draft->get_formatted_message($forumng);
+            $data->deletemessage = get_string('confirmdeletedraft', 'forumng');
+        }
+        $html = $OUTPUT->render_from_template('mod_forumng/mobile_delete_draft', $data);
+        return [
+                'templates' => [
+                        [
+                                'id' => 'main',
+                                'html' => $html,
+                        ]
+                ],
+                'javascript' => 'window.forumngDraftPageInit(this)',
+                'otherdata' => [
+                    'draftid' => $draftid
+                ],
+                'files' => []
         ];
     }
 

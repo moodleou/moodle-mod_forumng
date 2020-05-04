@@ -217,7 +217,7 @@
             }
             // If there's a draft, delete it
             if (draftid) {
-                t.mod_forumng.deleteDraft(that, draftid);
+                t.mod_forumng.deleteDraft(that, draftid, false);
             }
 
             t.mod_forumng.setNeedUpdate(cmid, 1, userid);
@@ -387,21 +387,26 @@
      *
      * @param {object} that The this object when calling this function.
      * @param {int} draftid Draft ID.
+     * @param (bool) refresh
      */
-    t.mod_forumng.deleteDraft = function(that, draftid) {
+    t.mod_forumng.deleteDraft = function(that, draftid, refresh) {
         var site = that.CoreSitesProvider.getCurrentSite();
         site.write('mod_forumng_delete_draft', {'draftid': draftid}).then(function(result) {
             if (!result.errormsg) {
+                if (refresh) {
+                    t.mod_forumng.viewSubscribe = that.CoreAppProvider.appCtrl.viewDidEnter.subscribe(t.mod_forumng.forumngDraftRefreshContent);
+                    that.NavController.pop();
+                }
                 // Don't show anything.
             } else {
-                var alert = outerThis.AlertController.create({
+                var alert = that.AlertController.create({
                     title: "Error",
                     subTitle: result.errormsg,
                 });
                 alert.present();
             }
         }).catch( function(error) {
-            var alert = outerThis.AlertController.create({
+            var alert = that.AlertController.create({
                 title: "Error",
                 subTitle: error,
             });
@@ -426,6 +431,14 @@
             t.newDiscussion.files = [];
             t.newDiscussion.date = 0;
             t.newDiscussion.showsticky = 0;
+        }
+    };
+
+    t.mod_forumng.forumngDraftRefreshContent = function(view) {
+        if (view.name === 'CoreSitePluginsModuleIndexPage') {
+            t.mod_forumng.viewSubscribe.unsubscribe();
+            delete t.mod_forumng.viewSubscribe;
+            t.mod_forumng.currentDiscussionsPage.refreshContent();
         }
     };
 
@@ -570,6 +583,7 @@
                 popover.style.left = null;
             }
         };
+
         if (t.removeEvent) {
             window.addEventListener("orientationchange", PopoverTransition);
             t.removeEvent = false;
@@ -1233,7 +1247,7 @@
 
                     // If there's a draft, delete it
                     if (draftid) {
-                        t.mod_forumng.deleteDraft(outerThis, draftid);
+                        t.mod_forumng.deleteDraft(outerThis, draftid, false);
                         outerThis.updateContent({'cmid': outerThis.CONTENT_OTHERDATA.cmid, 'discussionid' : outerThis.CONTENT_OTHERDATA.discussionid}, 'mod_forumng', 'posts_view', true);
                     }
                     t.originalEdit = outerThis.resetData(t.originalEdit);
@@ -1416,6 +1430,21 @@
                 el[0].scrollIntoView();
             }
         }, 500);
+    };
+
+    window.forumngDraftPageInit = function(outerThis) {
+        var currentOuterThis = outerThis;
+        // Same for isOnline.
+        outerThis.isOnline = function() {
+            return outerThis.CoreAppProvider.isOnline();
+        };
+        outerThis.deleteDraftInPage = function(draftid) {
+            t.mod_forumng.deleteDraft(currentOuterThis, draftid, true);
+        };
+        outerThis.cancelDeleteDraft = function() {
+            outerThis.NavController.pop();
+        };
+        t.mod_forumng.currentDraftPage = outerThis;
     };
 
     /**

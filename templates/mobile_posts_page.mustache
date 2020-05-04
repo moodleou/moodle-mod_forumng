@@ -79,6 +79,10 @@
 
 }}
 {{=<% %>=}}
+<%# error %>
+<core-format-text text="<% error %>" component="mod_forumng" maxHeight="80" text-wrap></core-format-text>
+<%/ error %>
+<%^ error %>
 <core-navbar-buttons>
     <core-context-menu>
         <core-context-menu-item *ngIf="CONTENT_OTHERDATA.canlock" [priority]="850" [content]="'plugin.mod_forumng.lock' | translate"
@@ -565,3 +569,4 @@
     </ion-list>
     <%/ hasreplies %>
 </div>
+<%/ error %>

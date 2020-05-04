@@ -133,3 +133,51 @@ Feature:  Add draft in forumng and test app can view discussion listing page
     And I should see "Reply message 2"
     And I click on "page-core-site-plugins-plugin button.back-button" "css_element"
     Then I should not see "Test draft reply Reply message 2"
+
+
+  Scenario: Test delete draft
+    And I enter the app
+    And I log in as "student1"
+    And I press "Course 1" near "Recently accessed courses" in the app
+    And I press "Test forum discussion" in the app
+    When I click on "#mod_forumg_add_discussion" "css_element"
+    And I should see "Subject"
+    And I should see "Message"
+    And I should see "Attachments"
+    And I should not see "(Show as sticky)"
+    And I should not see "Only show from"
+    And I should not see "Post as:"
+    And I should not see "Date"
+    And I should not see "Standard Post"
+    And I set the field "Subject" to "Test draft 1" in the app
+    And I set the field "Message" to "Test message" in the app
+    When I press "Save as draft" in the app
+    And I press "Cancel" in the app
+    And "Test draft 1 Test message" "text" should exist in the ".mma-forumng-drafts .row .cell.c0" "css_element"
+    And "(new discussion)" "text" should exist in the ".mma-forumng-drafts .row .cell.c1" "css_element"
+    And I click on "Test draft 1 Test message" "text" in the ".mma-forumng-drafts .row .cell.c0" "css_element"
+    And I set the field "Message" to "Test update message" in the app
+    When I press "Save as draft" in the app
+    And I press "Cancel" in the app
+    And "Test draft 1 Test update message" "text" should exist in the ".mma-forumng-drafts .row .cell.c0" "css_element"
+    And I click on "Test draft 1 Test update message" "text" in the ".mma-forumng-drafts .row .cell.c0" "css_element"
+    When I press "Post discussion" in the app
+    And I should not see "Test draft 1 Test update message"
+    And I press "Test draft 1" in the app
+    And I press "Reply" in the app
+    And I should see "Subject"
+    And I should see "Message"
+    And I should see "Attachments"
+    And I should not see "Mark posts as important"
+    And I should not see "Post as?"
+    And I set the field "Change subject (optional)" to "Test draft reply" in the app
+    And I set the field "Message" to "Test draft reply message" in the app
+    And I press "Save as draft" in the app
+    And I click on "page-core-site-plugins-plugin button.back-button" "css_element"
+    And "Test draft reply Test draft reply..." "text" should exist in the ".mma-forumng-drafts .row .cell.c0" "css_element"
+    And "Test draft 1 (reply to Student 1)" "text" should exist in the ".mma-forumng-drafts .row .cell.c1" "css_element"
+    And ".mma-forumng-delete-draft" "css_element" should exist
+    And I click on ".mma-forumng-delete-draft" "css_element"
+    And I should see "Are you sure you want to delete this draft post"
+    And I press "Delete"
+    And I should not see "Test draft reply"
