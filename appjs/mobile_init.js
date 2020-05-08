@@ -1589,7 +1589,7 @@
             if (draft) {
                 haveDifferentFiles = t.mod_forumng.checkAttachments(attachments, t.editDraft.files);
             }
-
+            t.editDraft.message = t.editDraft.message.replace('<br />', '<br>');
             var formChange = subject || message || attachments.length > 0 || showsticky != 0 || showfrom != 0 || postas != 0;
             var formDraftChange = t.editDraft.message != message ||  t.editDraft.subject != subject || t.editDraft.postas != postas ||
                 t.editDraft.sticky != showsticky || t.editDraft.date != showfrom || haveDifferentFiles;

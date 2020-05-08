@@ -138,7 +138,7 @@
                             <core-format-text
                                     core-site-plugins-new-content component="mod_forumng" [method]="draft.isreply ? 'posts_view' : 'add_discussion'"
                                     [args]="{cmid: <% cmid %>, discussionid: draft.isreply ? draft.discussionid : 0,
-                                      groupid: CONTENT_OTHERDATA.defaultgroup, draft: draft.id, replytoid: draft.replytoid}"
+                                      groupid: draft.groupid, draft: draft.id, replytoid: draft.replytoid}"
                                     title="Discussion" [preSets]="{getFromCache: 0}"
                                     [text]="draft.summary" component="mod_forumng" componentId="<% cmid %>" text-wrap>
                             </core-format-text>

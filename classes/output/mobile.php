@@ -253,7 +253,7 @@ class mobile {
                     'id' => $draft->get_id(),
                     'summary' => $summary,
                     'discussionid' => $draft->is_reply() ? $draft->get_discussion_id() : 0,
-                    'groupid' => $draft->get_group_id(),
+                    'groupid' => $draft->get_group_id() === NULL ? -1 : $draft->get_group_id(),
                     'discussionsubject' => $discussionsubject,
                     'date' => $date,
                     'replytoid' => $draft->is_reply() ? $draft->get_parent_post_id() : 0,
