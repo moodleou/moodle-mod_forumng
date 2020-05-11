@@ -92,7 +92,9 @@
 </core-navbar-buttons>
 <div class="mma-forumng-posts-list-wrapper" no-lines>
     <ion-item class="mma-forumng-expandall">
-        <h2 class="mma-forumng-discussion-subject"><% subject %></h2>
+        <core-format-text class="mma-forumng-discussion-subject" text="<% subject %>" component="mod_forumng"
+                          componentId="<% cmid %>" maxHeight="80" text-wrap>
+        </core-format-text>
         <%# hasreplies %>
         <div *ngIf="(!CONTENT_OTHERDATA.iscollapseall && !CONTENT_OTHERDATA.isexpandall) || CONTENT_OTHERDATA.iscollapseall" ion-button class="mma-forumng-expandall-link" (click)="expand_all_posts()">
             <core-format-text [text]="CONTENT_OTHERDATA.expandall"></core-format-text>
@@ -157,7 +159,7 @@
                               componentId="<% cmid %>" maxHeight="80" text-wrap>
             </core-format-text>
             <%/ createdbymoderator %>
-            <core-format-text class="mma-forumng-posts-message" text="<%{ message }%>" component="mod_forumng"
+            <core-format-text class="mma-forumng-posts-message" text="<% message %>" component="mod_forumng"
                               componentId="<% cmid %>" maxHeight="80" text-wrap>
             </core-format-text>
             <ion-list class="mma-forumng-attachments">
@@ -176,7 +178,7 @@
                         </button>
                     </ion-col>
                     <ion-col col-auto *ngIf="<%{ canedit }%>">
-                        <button ion-button (click)="showEdit({ postid: <% postid %>, subject: '<% subject %>', isimportant: <% isimportant %>, postas: <% postas %>,
+                        <button ion-button (click)="showEdit({ postid: <% postid %>, isimportant: <% isimportant %>, postas: <% postas %>,
                          attachmentsforform: <% attachmentsforform %>, timelimit: <% limittime %>, showfrom: '<% showfrom %>', sticky: <% sticky %>})"
                                 title="<%{ editpoststring }%>" [disabled]="!isOnline() || CONTENT_OTHERDATA.currentEditedPostId || CONTENT_OTHERDATA.currentReplyToId">
                             <core-format-text text="<%{ edit }%>"></core-format-text>
@@ -285,17 +287,17 @@
     <ion-list class="mma-forumng-posts-list" no-lines>
         <ion-item *ngFor="let reply of CONTENT_OTHERDATA.replies" [id]="reply.postid"
                   class="mma-forumng-post-reply" color="light">
-            <div class="{{reply.isunread}} {{reply.importantclass}} {{reply.createdbymoderatorclass}} {{ reply.isdeleted ? ' deleted-post':'' }}">
+            <div *ngIf="!reply.hidepost" class="{{reply.isunread}} {{reply.importantclass}} {{reply.createdbymoderatorclass}} {{ reply.isdeleted ? ' deleted-post':'' }}">
                 <ion-item class="mma-forumng-post-info" *ngIf="!reply.isdeleted || (reply.showdeletemessage && reply.isdeleted) || (!reply.hidedeleteionformation && reply.isdeleted)">
-                    <ion-avatar item-start large *ngIf="!reply.hidedeleteionformation || reply.postanon">
+                    <ion-avatar item-start large *ngIf="reply.showavatar">
                         <img [src]="reply.startedbyurl">
                     </ion-avatar>
                     <div *ngIf="reply.isimportant" class="mma-forumng-important">
                         <img [src]="CONTENT_OTHERDATA.importanticon.url" [alt]="CONTENT_OTHERDATA.importanticon.alt">
                     </div>
-                    <core-format-text *ngIf="!reply.hidedeleteionformation || reply.postanon" class="mma-forumng-startedby" text="{{ reply.startedby }}"></core-format-text>
+                    <core-format-text class="mma-forumng-startedby" text="{{ reply.startedby }}"></core-format-text>
                     <core-format-text *ngIf="!reply.hidedeleteionformation" class="mma-forumng-startedate" text="{{ reply.starteddate }}"></core-format-text>
-                    <core-format-text *ngIf="!reply.hidedeleteionformation" class="mma-forumng-edit" text="{{ reply.historyedit }}" text-wrap></core-format-text>
+                    <core-format-text *ngIf="reply.showedithistory" class="mma-forumng-edit" text="{{ reply.historyedit }}" text-wrap></core-format-text>
                     <div *ngIf="reply.isflagged" class="mma-forumng-iconsize-correction">
                         <ion-icon name="flag"></ion-icon>
                     </div>
@@ -425,18 +427,18 @@
             </ion-list>
             <ion-item *ngIf="reply.subreplies.length > 0" class="sub-reply">
                 <ion-list *ngFor="let subreply of reply.subreplies">
-                    <ion-item [id]="subreply.postid" class="mma-forumng-align-items-normal">
+                    <ion-item *ngIf="!subreply.hidepost" [id]="subreply.postid" class="mma-forumng-align-items-normal">
                         <div class="{{subreply.isunread}} {{subreply.createdbymoderatorclass}} {{subreply.importantclass}} {{ subreply.isdeleted ? ' deleted-post':'' }}">
                             <ion-item class="mma-forumng-post-info" *ngIf="!subreply.isdeleted || (subreply.showdeletemessage && subreply.isdeleted) || (!subreply.hidedeleteionformation && subreply.isdeleted)">
-                                <ion-avatar item-start large *ngIf="!subreply.hidedeleteionformation || subreply.postanon">
+                                <ion-avatar item-start large *ngIf="subreply.showavatar">
                                     <img [src]="subreply.startedbyurl">
                                 </ion-avatar>
                                 <div *ngIf="subreply.isimportant" class="mma-forumng-important">
                                     <img [src]="CONTENT_OTHERDATA.importanticon.url" [alt]="CONTENT_OTHERDATA.importanticon.alt">
                                 </div>
-                                <core-format-text *ngIf="!subreply.hidedeleteionformation || subreply.postanon" class="mma-forumng-startedby" text="{{ subreply.startedby }}"></core-format-text>
+                                <core-format-text class="mma-forumng-startedby" text="{{ subreply.startedby }}"></core-format-text>
                                 <core-format-text *ngIf="!subreply.hidedeleteionformation" class="mma-forumng-startedate" text="{{ subreply.starteddate }}"></core-format-text>
-                                <core-format-text *ngIf="!subreply.hidedeleteionformation" class="mma-forumng-edit" text="{{ subreply.historyedit }}" text-wrap></core-format-text>
+                                <core-format-text *ngIf="subreply.showedithistory" class="mma-forumng-edit" text="{{ subreply.historyedit }}" text-wrap></core-format-text>
                                 <div *ngIf="subreply.isflagged" class="mma-forumng-iconsize-correction">
                                     <ion-icon name="flag"></ion-icon>
                                 </div>

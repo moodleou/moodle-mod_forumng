@@ -634,6 +634,7 @@ class mobile {
                 'important' => $setimportant,
                 'attachmentsforform' => json_encode($attachmentforform),
                 'cmid' => $cmid,
+                'rootpostsubject' => $rootpost->subject,
             ],
             'files' => []
         ];
@@ -649,28 +650,33 @@ class mobile {
      */
     public static function get_more_posts(\mod_forumng_discussion $discussion, int $from) : array {
         global $OUTPUT;
-        $posts = $discussion->get_root_post_replies(0); // 0 means get all.
+        $rootpost = $discussion->get_root_post();
+        $posts = $rootpost->get_replies();
         $replies = [];
         $defaultimage = $OUTPUT->image_url('u/f2');
         $moderator = get_string('moderator', 'forumng');
         foreach ($posts as $post) {
             // Get the main post data.
             $postdata = self::get_common_post_data($discussion, $post, $defaultimage, $moderator);
-            // Add any sub-replies. All sub-replies and any other deeper levels of reply
-            // will be displayed at just one level of indent.
-            $subreplies = [];
-            self::get_subreplies($discussion, $post, $defaultimage, $moderator, $subreplies);
-            $noofposts = count($subreplies);
-            if ($noofposts == 1) {
-                $noofreplies = strtolower(get_string('totalreply', 'forumng', $noofposts));
-            } else {
-                $noofreplies = strtolower(get_string('totalreplies', 'forumng', $noofposts));
+            if (!$postdata['hidepost']) {
+                // Add any sub-replies. All sub-replies and any other deeper levels of reply
+                // will be displayed at just one level of indent.
+                $subreplies = [];
+                self::get_subreplies($discussion, $post, $defaultimage, $moderator, $subreplies);
+
+                $noofposts = count($subreplies);
+                if ($noofposts == 1) {
+                    $noofreplies = strtolower(get_string('totalreply', 'forumng', $noofposts));
+                } else {
+                    $noofreplies = strtolower(get_string('totalreplies', 'forumng', $noofposts));
+                }
+                $postdata['hasreplies'] = $noofposts > 0;
+                $postdata['hasreplies'] = $noofposts > 0;
+                $postdata['noofreplies'] = $noofreplies;
+                $postdata['subreplies'] = $subreplies;
+                $reply = (object) $postdata;
+                $replies[] = $reply;
             }
-            $postdata['hasreplies'] = $noofposts > 0;
-            $postdata['noofreplies'] = $noofreplies;
-            $postdata['subreplies'] = $subreplies;
-            $reply = (object) $postdata;
-            $replies[] = $reply;
         }
         return $replies;
     }
@@ -690,8 +696,10 @@ class mobile {
         $rawsubreplies = $post->get_replies();
         foreach ($rawsubreplies as $sr) {
             $postdata = self::get_common_post_data($discussion, $sr, $defaultimage, $moderator);
-            $subreply = (object) $postdata;
-            $subreplies[] = $subreply;
+            if (!$postdata['hidepost']) {
+                $subreply = (object) $postdata;
+                $subreplies[] = $subreply;
+            }
             if (count($sr->get_replies())) {
                 self::get_subreplies($discussion, $sr, $defaultimage, $moderator, $subreplies);
             }
@@ -721,13 +729,16 @@ class mobile {
             $startedbyurl = $defaultimage;
         }
         $username = $discussion->get_forum()->display_user_name($poster);
-
+        $forumng = $discussion->get_forum();
+        $postasforumsetting = $forumng->get_can_post_anon();
         $hasanon = true;
         $postanon = false;
         $createdbymoderator = '';
-        if ($posteranon == \mod_forumng::ASMODERATOR_IDENTIFY) {
+        // When forum is setting post as normal.
+        // We don't care if post is setting as anon.
+        if ($posteranon == \mod_forumng::ASMODERATOR_IDENTIFY && $postasforumsetting) {
             $startedby = $username . '<br><strong>' . $moderator . '</strong>';
-        } else if ($posteranon == \mod_forumng::ASMODERATOR_ANON) {
+        } else if ($posteranon == \mod_forumng::ASMODERATOR_ANON && $postasforumsetting) {
             $startedby = $post->is_important() ? '<br><strong>' . $moderator . '</strong>' : '<strong>' . $moderator . '</strong>';
             $createdbymoderator = get_string('createdbymoderator', 'forumng', $username);
             if (!$discussion->get_forum()->can_post_anonymously()) {
@@ -767,7 +778,6 @@ class mobile {
         }
         // Mark post read.
         $canmarkread = false; // Don't show 'mark post as read' button.
-        $forumng = $discussion->get_forum();
         if ($forumng->can_mark_read() && !\mod_forumng::mark_read_automatically() && $post->is_unread()) {
             $canmarkread = true;
         }
@@ -812,13 +822,14 @@ class mobile {
                 }
             }
         }
-
+        $effectsuject = str_replace('"', '&quot;', $post->get_effective_subject(true));
+        $effectsuject = str_replace("'", '&#039;', $effectsuject);
         $editpoststring = get_string('editpost', 'forumng',
-                $post->get_effective_subject(true));
+                $effectsuject);
         $deletepoststring = get_string('deletepost', 'forumng',
-                $post->get_effective_subject(true));
+                $effectsuject);
         $undeletepoststring = get_string('undeletepost', 'forumng',
-                $post->get_effective_subject(true));
+                $effectsuject);
         $whynot = '';
         $deletedhide = $post->get_deleted() && !$post->can_view_deleted($whynot);
         $hidedeleteionformation = false;
@@ -826,7 +837,9 @@ class mobile {
         if ($deletedhide) {
             $hidedeleteionformation = true;
         }
+        $hidepost = false;
         $deletemessage = '';
+        $showedithistory = true;
         if ($post->get_deleted()) {
             $deletemessage = '<strong>' . get_string('deletedpost', 'forumng') . '</strong> ';
             if ($deletedhide && $post->has_children()) {
@@ -843,12 +856,44 @@ class mobile {
                         fullname($post->get_delete_user(),
                                 true) . '</a>';
                 $deletemessage .= get_string('deletedbyuser', 'forumng', $a);
+                if ($deletedhide && !$post->has_children()) {
+                    $hidepost = true;
+                }
             }
             $shortendisplay = $deletemessage . '<p>' . $shortendisplay . '</p>';
             if ($hidedeleteionformation) {
                 $shortendisplay = $deletemessage;
             }
         }
+        $showavatar = true;
+        if (!$postanon) {
+            $showavatar = false;
+        }
+        // Hide avatar when user can't see delete information.
+        if (!$hidedeleteionformation) {
+            $showavatar = false;
+        }
+        // We should show avatar even when user can't see delete information and post have hidden name option.
+        // The same as web.Not sure if it is correct ?
+        if (!$hidedeleteionformation && !$hasanon) {
+            $showavatar = false;
+        } else if (!$hidedeleteionformation && $hasanon) {
+            $showavatar = true;
+        }
+
+        if (!$showavatar && $posteranon == \mod_forumng::ASMODERATOR_IDENTIFY) {
+            $startedby = '<br><strong>' . $moderator . '</strong><br>';
+        }
+        if ($postasforumsetting == \mod_forumng::ASMODERATOR_ANON && $posteranon == \mod_forumng::ASMODERATOR_ANON && $deletedhide) {
+            $showedithistory = false;
+        }
+
+        if (($postasforumsetting == \mod_forumng::ASMODERATOR_NO ||
+                        $postasforumsetting == \mod_forumng::ASMODERATOR_IDENTIFY)  &&
+                $posteranon == \mod_forumng::ASMODERATOR_NO && $deletedhide) {
+            $startedby = '';
+        }
+
         // Add time limit info
         $timelimit = $post->can_ignore_edit_time_limit()
                 ? 0 : $post->get_edit_time_limit();
@@ -880,7 +925,7 @@ class mobile {
             'isunread' => $post->is_unread() ? 'unread-post' : '',
             'canmarkread' => $canmarkread,
             'isexpanded' => self::show_expanded($post),
-            'shortendisplay' => $shortendisplay,
+            'shortendisplay' => $post->is_root_post() ? '' : $shortendisplay,
             'canreply' => $post->can_reply($whynot),
             'canedit' => $post->can_edit($whynot),
             'candelete' => $post->can_delete($whynot),
@@ -914,6 +959,9 @@ class mobile {
             'hidedeleteionformation' => $hidedeleteionformation,
             'showdeletemessage' => $showdeletemessage,
             'postanon' => $postanon,
+            'showavatar' => $showavatar,
+            'hidepost' => $hidepost,
+            'showedithistory' => $showedithistory,
         ];
     }
 

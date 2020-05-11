@@ -111,6 +111,30 @@
         }
     };
 
+    t.mod_forumng.checkDuplicatedFiles = function(attachments) {
+        var showError = false;
+        var errorFileName = '';
+        if (attachments && attachments.length) {
+            for (var i = 0; i < attachments.length; i++) {
+                for (var j = i + 1; j < attachments.length; j++) {
+                    if (attachments[j].name == attachments[i].name) {
+                        showError = true;
+                        errorFileName = attachments[j].name;
+                        break;
+                    }
+                }
+                if (showError) {
+                    break;
+                }
+            }
+        }
+        if (errorFileName) {
+            return ' ' + errorFileName;
+        } else {
+            return '';
+        }
+    };
+
     /**
      * Add a new discussion.
      *
@@ -157,88 +181,95 @@
         message = that.CoreTextUtilsProvider.formatHtmlLines(message);
 
         modal = that.CoreUtilsProvider.domUtils.showModalLoading('core.sending', true);
-
         // Upload attachments first if any.
-        if (attachments.length) {
-            promise = that.CoreFileUploaderProvider.uploadOrReuploadFiles(attachments, 'mod_forumng', forumngId)
+        var error = t.mod_forumng.checkDuplicatedFiles(attachments);
+        var duplicatedmessage = that.TranslateService.instant('plugin.mod_forumng.cannotuploadfile');
+        if (!error) {
+            if (attachments.length) {
+                promise = that.CoreFileUploaderProvider.uploadOrReuploadFiles(attachments, 'mod_forumng', forumngId)
                     .catch(function() {
-                // Cannot upload them in online, save them in offline.
-                return Promise.reject('Offline not yet enabled');
-                //TODO switch below to our own offline functionality.
-                // saveOffline = true;
-                // return that.AddonModForumHelperProvider.uploadOrStoreNewDiscussionFiles(
-                //         forumngId, discTimecreated, attachments, saveOffline);
+                        // Cannot upload them in online, save them in offline.
+                        return Promise.reject('Offline not yet enabled');
+                        //TODO switch below to our own offline functionality.
+                        // saveOffline = true;
+                        // return that.AddonModForumHelperProvider.uploadOrStoreNewDiscussionFiles(
+                        //         forumngId, discTimecreated, attachments, saveOffline);
+                    });
+            } else {
+                promise = Promise.resolve(1);
+            }
+
+            promise.then(function(draftAreaId) {
+                if (saveOffline) {
+                    // Save discussion in offline.
+                    //TODO switch below to our own offline functionality.
+                    // return that.AddonModForumOfflineProvider.addNewDiscussion(forumngId, forumName, courseId, subject,
+                    //     message, options, groupId, discTimecreated).then(function() {
+                    //     // Don't return anything.
+                    // });
+                } else {
+                    // Try to send it to server.
+                    var site = that.CoreSitesProvider.getCurrentSite();
+                    var params = {
+                        forum: forumngId,
+                        discussion: discussionId,
+                        group: groupId,
+                        subject: subject,
+                        message: message,
+                        draftarea: draftAreaId, // Note this will be 1 if there are no files.
+                        showsticky: showsticky,
+                        showfrom: showfrom,
+                        postas: postas,
+                    };
+                    return site.write('mod_forumng_add_discussion', params).then(function(response) {
+                        // Other errors ocurring.
+                        if (!response || !response.discussion) {
+                            return Promise.reject(that.CoreWSProvider.createFakeWSError(response.errormsg));
+                        } else {
+                            return response.discussion;
+                        }
+                    });
+                    // Don't allow offline if there are attachments since they were uploaded fine.
+                    //TODO switch below to use our own offline functionality.
+                    // return that.AddonModForumProvider.addNewDiscussion(forumngId, forumName, courseId, subject, message, options,
+                    //    groupId, undefined, discTimecreated, !attachments.length);
+                }
+            }).then(function(discussionId) {
+                if (discussionId) {
+                    // Data sent to server, delete stored files (if any).
+                    //TODO switch below to our own offline functionality.
+                    //that.AddonModForumHelperProvider.deleteNewDiscussionStoredFiles(this.forumId, discTimecreated);
+                    //TODO trigger new discussion event or similar?
+                }
+                // If there's a draft, delete it
+                if (draftid) {
+                    t.mod_forumng.deleteDraft(that, draftid, false);
+                }
+
+                t.mod_forumng.setNeedUpdate(cmid, 1, userid);
+                //TODO check all functionality in core forum (new-discussion.ts) returnToDiscussions(discussionId) is covered.
+                // Navigate back to the discussions page and refresh to show new discussion.
+                t.mod_forumng.viewSubscribe =
+                    that.CoreAppProvider.appCtrl.viewDidEnter.subscribe(t.mod_forumng.forumngRefreshContent);
+                that.subject = '';
+                that.message = '';
+                that.CONTENT_OTHERDATA.files = []; // Type [FileEntry].
+                that.CONTENT_OTHERDATA.showsticky = 0;
+                that.CONTENT_OTHERDATA.showfrom = 0;
+                that.CONTENT_OTHERDATA.postas = 0;
+                t.newDiscussion.date = 0;
+                t.isAddDiscussion = 1;
+                that.NavController.pop();
+            }).catch(function(msg) {
+                that.CoreUtilsProvider.domUtils.showErrorModalDefault(msg, 'plugin.mod_forumng.cannotcreatediscussion', true);
+            }).finally(function() {
+                modal.dismiss();
             });
         } else {
-            promise = Promise.resolve(1);
+            modal.dismiss();
+            that.CoreUtilsProvider.domUtils.showErrorModalDefault(duplicatedmessage + error, 'plugin.mod_forumng.cannotcreatediscussion', true);
         }
 
-        promise.then(function(draftAreaId) {
-            if (saveOffline) {
-                // Save discussion in offline.
-                //TODO switch below to our own offline functionality.
-                // return that.AddonModForumOfflineProvider.addNewDiscussion(forumngId, forumName, courseId, subject,
-                //     message, options, groupId, discTimecreated).then(function() {
-                //     // Don't return anything.
-                // });
-            } else {
-                // Try to send it to server.
-                var site = that.CoreSitesProvider.getCurrentSite();
-                var params = {
-                    forum: forumngId,
-                    discussion: discussionId,
-                    group: groupId,
-                    subject: subject,
-                    message: message,
-                    draftarea: draftAreaId, // Note this will be 1 if there are no files.
-                    showsticky: showsticky,
-                    showfrom: showfrom,
-                    postas: postas,
-                };
-                return site.write('mod_forumng_add_discussion', params).then(function(response) {
-                    // Other errors ocurring.
-                    if (!response || !response.discussion) {
-                        return Promise.reject(that.CoreWSProvider.createFakeWSError(response.errormsg));
-                    } else {
-                        return response.discussion;
-                    }
-                });
-                // Don't allow offline if there are attachments since they were uploaded fine.
-                //TODO switch below to use our own offline functionality.
-                // return that.AddonModForumProvider.addNewDiscussion(forumngId, forumName, courseId, subject, message, options,
-                //    groupId, undefined, discTimecreated, !attachments.length);
-            }
-        }).then(function(discussionId) {
-            if (discussionId) {
-                // Data sent to server, delete stored files (if any).
-                //TODO switch below to our own offline functionality.
-                //that.AddonModForumHelperProvider.deleteNewDiscussionStoredFiles(this.forumId, discTimecreated);
-                //TODO trigger new discussion event or similar?
-            }
-            // If there's a draft, delete it
-            if (draftid) {
-                t.mod_forumng.deleteDraft(that, draftid, false);
-            }
-
-            t.mod_forumng.setNeedUpdate(cmid, 1, userid);
-            //TODO check all functionality in core forum (new-discussion.ts) returnToDiscussions(discussionId) is covered.
-            // Navigate back to the discussions page and refresh to show new discussion.
-            t.mod_forumng.viewSubscribe =
-                that.CoreAppProvider.appCtrl.viewDidEnter.subscribe(t.mod_forumng.forumngRefreshContent);
-            that.subject = '';
-            that.message = '';
-            that.CONTENT_OTHERDATA.files = []; // Type [FileEntry].
-            that.CONTENT_OTHERDATA.showsticky = 0;
-            that.CONTENT_OTHERDATA.showfrom = 0;
-            that.CONTENT_OTHERDATA.postas = 0;
-            t.newDiscussion.date = 0;
-            t.isAddDiscussion = 1;
-            that.NavController.pop();
-        }).catch(function(msg) {
-            that.CoreUtilsProvider.domUtils.showErrorModalDefault(msg, 'plugin.mod_forumng.cannotcreatediscussion', true);
-        }).finally(function() {
-            modal.dismiss();
-        });
     };
 
     /**
@@ -288,96 +319,104 @@
         modal = that.CoreUtilsProvider.domUtils.showModalLoading('core.sending', true);
 
         // Upload attachments first if any.
-        if (attachments.length) {
-            promise = that.CoreFileUploaderProvider.uploadOrReuploadFiles(attachments, 'mod_forumng', forumngId)
-                .catch(function() {
-                    // Cannot upload them in online, save them in offline.
-                    return Promise.reject('Offline not yet enabled');
+        var error = t.mod_forumng.checkDuplicatedFiles(attachments);
+        var duplicatedmessage = that.TranslateService.instant('plugin.mod_forumng.cannotuploadfile');
+        if (!error) {
+            if (attachments.length) {
+                promise = that.CoreFileUploaderProvider.uploadOrReuploadFiles(attachments, 'mod_forumng', forumngId)
+                    .catch(function() {
+                        // Cannot upload them in online, save them in offline.
+                        return Promise.reject('Offline not yet enabled');
+                        //TODO switch below to our own offline functionality.
+                        // saveOffline = true;
+                        // return that.AddonModForumHelperProvider.uploadOrStoreNewDiscussionFiles(
+                        //         forumngId, discTimecreated, attachments, saveOffline);
+                    });
+            } else {
+                promise = Promise.resolve(1);
+            }
+
+            promise.then(function(draftAreaId) {
+                if (saveOffline) {
+                    // Save discussion in offline.
                     //TODO switch below to our own offline functionality.
-                    // saveOffline = true;
-                    // return that.AddonModForumHelperProvider.uploadOrStoreNewDiscussionFiles(
-                    //         forumngId, discTimecreated, attachments, saveOffline);
-                });
+                    // return that.AddonModForumOfflineProvider.addNewDiscussion(forumngId, forumName, courseId, subject,
+                    //     message, options, groupId, discTimecreated).then(function() {
+                    //     // Don't return anything.
+                    // });
+                } else {
+                    // Try to send it to server.
+                    var site = that.CoreSitesProvider.getCurrentSite();
+                    var params = {
+                        forum: forumngId,
+                        draft: draftid,
+                        group: groupId,
+                        replyto: replytoId,
+                        subject: subject,
+                        message: message,
+                        draftarea: draftAreaId, // Note this will be 1 if there are no files.
+                        showsticky: showsticky,
+                        showfrom: showfrom,
+                        postas: postas,
+                        mailnow: false,
+                        setimportant: important,
+                    };
+                    return site.write('mod_forumng_add_draft', params).then(function(response) {
+                        // Other errors ocurring.
+                        if (!response || !response.draft) {
+                            return Promise.reject(that.CoreWSProvider.createFakeWSError(response.errormsg));
+                        } else {
+                            return {draftid: response.draft, successmsg: response.successmsg};
+                        }
+                    });
+                    // Don't allow offline if there are attachments since they were uploaded fine.
+                    //TODO switch below to use our own offline functionality.
+                    // return that.AddonModForumProvider.addNewDiscussion(forumngId, forumName, courseId, subject, message, options,
+                    //    groupId, undefined, discTimecreated, !attachments.length);
+                }
+            }).then(function(pageParams) {
+                if (pageParams.draftid) {
+                    // Data sent to server, delete stored files (if any).
+                    //TODO switch below to our own offline functionality.
+                    //that.AddonModForumHelperProvider.deleteNewDiscussionStoredFiles(this.forumId, discTimecreated);
+                    //TODO trigger new discussion event or similar?
+                    that.CONTENT_OTHERDATA.draftid = pageParams.draftid;
+                    that.CONTENT_OTHERDATA.draftexists = pageParams.successmsg;
+                    t.editDraft.subject = that.subject;
+                    t.editDraft.files = that.CONTENT_OTHERDATA.files;
+                    t.editDraft.postas = that.CONTENT_OTHERDATA.postas;
+                    t.editDraft.draftexists = pageParams.successmsg;
+                    if (isreply) {
+                        t.editDraft.important = that.CONTENT_OTHERDATA.important;
+                        t.editDraft.message = that.PostControl.value;
+                    } else {
+                        t.editDraft.sticky = that.CONTENT_OTHERDATA.showsticky;
+                        t.editDraft.date = that.CONTENT_OTHERDATA.showfrom;
+                        t.editDraft.message = that.addDiscussionControl.value;
+                    }
+                    setTimeout(function() {
+                        if (isreply) {
+                            document.getElementById('mma-forumng-draftexists-' + replytoId).scrollIntoView({
+                                behavior: 'smooth'
+                            });
+                        } else {
+                            document.getElementById('mma-forumng-draftexists').scrollIntoView({
+                                behavior: 'smooth'
+                            });
+                        }
+                    }, 100);
+                    t.isAddDraft = 1;
+                }
+            }).catch(function(msg) {
+                that.CoreUtilsProvider.domUtils.showErrorModalDefault(msg, 'plugin.mod_forumng.cannotcreatedraft', true);
+            }).finally(function() {
+                modal.dismiss();
+            });
         } else {
-            promise = Promise.resolve(1);
+            modal.dismiss();
+            that.CoreUtilsProvider.domUtils.showErrorModalDefault(duplicatedmessage + error, 'plugin.mod_forumng.cannotcreatediscussion', true);
         }
 
-        promise.then(function(draftAreaId) {
-            if (saveOffline) {
-                // Save discussion in offline.
-                //TODO switch below to our own offline functionality.
-                // return that.AddonModForumOfflineProvider.addNewDiscussion(forumngId, forumName, courseId, subject,
-                //     message, options, groupId, discTimecreated).then(function() {
-                //     // Don't return anything.
-                // });
-            } else {
-                // Try to send it to server.
-                var site = that.CoreSitesProvider.getCurrentSite();
-                var params = {
-                    forum: forumngId,
-                    draft: draftid,
-                    group: groupId,
-                    replyto: replytoId,
-                    subject: subject,
-                    message: message,
-                    draftarea: draftAreaId, // Note this will be 1 if there are no files.
-                    showsticky: showsticky,
-                    showfrom: showfrom,
-                    postas: postas,
-                    mailnow: false,
-                    setimportant: important,
-                };
-                return site.write('mod_forumng_add_draft', params).then(function(response) {
-                    // Other errors ocurring.
-                    if (!response || !response.draft) {
-                        return Promise.reject(that.CoreWSProvider.createFakeWSError(response.errormsg));
-                    } else {
-                        return {draftid: response.draft, successmsg: response.successmsg};
-                    }
-                });
-                // Don't allow offline if there are attachments since they were uploaded fine.
-                //TODO switch below to use our own offline functionality.
-                // return that.AddonModForumProvider.addNewDiscussion(forumngId, forumName, courseId, subject, message, options,
-                //    groupId, undefined, discTimecreated, !attachments.length);
-            }
-        }).then(function(pageParams) {
-            if (pageParams.draftid) {
-                // Data sent to server, delete stored files (if any).
-                //TODO switch below to our own offline functionality.
-                //that.AddonModForumHelperProvider.deleteNewDiscussionStoredFiles(this.forumId, discTimecreated);
-                //TODO trigger new discussion event or similar?
-                that.CONTENT_OTHERDATA.draftid = pageParams.draftid;
-                that.CONTENT_OTHERDATA.draftexists = pageParams.successmsg;
-                t.editDraft.subject = that.subject;
-                t.editDraft.files = that.CONTENT_OTHERDATA.files;
-                t.editDraft.postas = that.CONTENT_OTHERDATA.postas;
-                t.editDraft.draftexists = pageParams.successmsg;
-                if (isreply) {
-                    t.editDraft.important = that.CONTENT_OTHERDATA.important;
-                    t.editDraft.message = that.PostControl.value;
-                } else {
-                    t.editDraft.sticky = that.CONTENT_OTHERDATA.showsticky;
-                    t.editDraft.date = that.CONTENT_OTHERDATA.showfrom;
-                    t.editDraft.message = that.addDiscussionControl.value;
-                }
-                setTimeout(function() {
-                    if (isreply) {
-                        document.getElementById('mma-forumng-draftexists-' + replytoId).scrollIntoView({
-                            behavior: 'smooth'
-                        });
-                    } else {
-                        document.getElementById('mma-forumng-draftexists').scrollIntoView({
-                            behavior: 'smooth'
-                        });
-                    }
-                }, 100);
-                t.isAddDraft = 1;
-            }
-        }).catch(function(msg) {
-            that.CoreUtilsProvider.domUtils.showErrorModalDefault(msg, 'plugin.mod_forumng.cannotcreatedraft', true);
-        }).finally(function() {
-            modal.dismiss();
-        });
     };
 
     /**
@@ -473,69 +512,77 @@
         modal = that.CoreUtilsProvider.domUtils.showModalLoading('core.sending', true);
 
         // Upload attachments first if any.
-        if (attachments.length) {
-            promise = that.CoreFileUploaderProvider.uploadOrReuploadFiles(attachments, 'mod_forumng', forumngId)
-                .catch(function() {
-                    // Cannot upload them in online, save them in offline.
-                    return Promise.reject('Offline not yet enabled');
+        var error = t.mod_forumng.checkDuplicatedFiles(attachments);
+        var duplicatedmessage = that.TranslateService.instant('plugin.mod_forumng.cannotuploadfile');
+        if (!error) {
+            if (attachments.length) {
+                promise = that.CoreFileUploaderProvider.uploadOrReuploadFiles(attachments, 'mod_forumng', forumngId)
+                    .catch(function() {
+                        // Cannot upload them in online, save them in offline.
+                        return Promise.reject('Offline not yet enabled');
+                        //TODO switch below to our own offline functionality.
+                        // saveOffline = true;
+                        // return that.AddonModForumHelperProvider.uploadOrStoreNewDiscussionFiles(
+                        //         forumngId, discTimecreated, attachments, saveOffline);
+                    });
+            } else {
+                promise = Promise.resolve(1);
+            }
+
+            promise.then(function(draftAreaId) {
+                if (saveOffline) {
+                    // Save discussion in offline.
                     //TODO switch below to our own offline functionality.
-                    // saveOffline = true;
-                    // return that.AddonModForumHelperProvider.uploadOrStoreNewDiscussionFiles(
-                    //         forumngId, discTimecreated, attachments, saveOffline);
-                });
+                    // return that.AddonModForumOfflineProvider.addNewDiscussion(forumngId, forumName, courseId, subject,
+                    //     message, options, groupId, discTimecreated).then(function() {
+                    //     // Don't return anything.
+                    // });
+                } else {
+                    // Try to send it to server.
+                    var site = that.CoreSitesProvider.getCurrentSite();
+                    var params = {
+                        discussionid: discussionid,
+                        cloneid: 0,
+                        subject: subject,
+                        message: message,
+                        draftarea: draftAreaId,
+                        postas: postas,
+                    };
+                    if (!(subject === undefined || subject === '')) {
+                        params.subject = subject;
+                    }
+
+                    return site.write('mod_forumng_lock_discussion', params).then(function(response) {
+                        if (!response || !response.post) {
+                            return Promise.reject(that.CoreWSProvider.createFakeWSError(response.errormsg));
+                        } else {
+                            return response.post;
+                        }
+                    });
+                    // Don't allow offline if there are attachments since they were uploaded fine.
+                    //TODO switch below to use our own offline functionality.
+                    // return that.AddonModForumProvider.addNewDiscussion(forumngId, forumName, courseId, subject, message, options,
+                    //    groupId, undefined, discTimecreated, !attachments.length);
+                }
+            }).then(function(postId) {
+                if (postId) {
+                    // Data sent to server, delete stored files (if any).
+                    //TODO switch below to our own offline functionality.
+                    //that.AddonModForumHelperProvider.deleteNewDiscussionStoredFiles(this.forumId, discTimecreated);
+                    //TODO trigger new discussion event or similar?
+                }
+                //TODO check all functionality in core forum (new-discussion.ts) returnToDiscussions(discussionId) is covered.
+                that.refreshContent();
+            }).catch(function(msg) {
+                that.CoreUtilsProvider.domUtils.showErrorModalDefault(msg, 'plugin.mod_forumng.cannotlockdiscussion', true);
+            }).finally(function() {
+                modal.dismiss();
+            });
         } else {
-            promise = Promise.resolve(1);
+            modal.dismiss();
+            that.CoreUtilsProvider.domUtils.showErrorModalDefault(duplicatedmessage + error, 'plugin.mod_forumng.cannotcreatediscussion', true);
         }
 
-        promise.then(function(draftAreaId) {
-            if (saveOffline) {
-                // Save discussion in offline.
-                //TODO switch below to our own offline functionality.
-                // return that.AddonModForumOfflineProvider.addNewDiscussion(forumngId, forumName, courseId, subject,
-                //     message, options, groupId, discTimecreated).then(function() {
-                //     // Don't return anything.
-                // });
-            } else {
-                // Try to send it to server.
-                var site = that.CoreSitesProvider.getCurrentSite();
-                var params = {
-                    discussionid: discussionid,
-                    cloneid: 0,
-                    subject: subject,
-                    message: message,
-                    draftarea: draftAreaId,
-                    postas: postas,
-                };
-                if (!(subject === undefined || subject === '')) {
-                    params.subject = subject;
-                }
-
-                return site.write('mod_forumng_lock_discussion', params).then(function(response) {
-                    if (!response || !response.post) {
-                        return Promise.reject(that.CoreWSProvider.createFakeWSError(response.errormsg));
-                    } else {
-                        return response.post;
-                    }
-                });
-                // Don't allow offline if there are attachments since they were uploaded fine.
-                //TODO switch below to use our own offline functionality.
-                // return that.AddonModForumProvider.addNewDiscussion(forumngId, forumName, courseId, subject, message, options,
-                //    groupId, undefined, discTimecreated, !attachments.length);
-            }
-        }).then(function(postId) {
-            if (postId) {
-                // Data sent to server, delete stored files (if any).
-                //TODO switch below to our own offline functionality.
-                //that.AddonModForumHelperProvider.deleteNewDiscussionStoredFiles(this.forumId, discTimecreated);
-                //TODO trigger new discussion event or similar?
-            }
-            //TODO check all functionality in core forum (new-discussion.ts) returnToDiscussions(discussionId) is covered.
-            that.refreshContent();
-        }).catch(function(msg) {
-            that.CoreUtilsProvider.domUtils.showErrorModalDefault(msg, 'plugin.mod_forumng.cannotlockdiscussion', true);
-        }).finally(function() {
-            modal.dismiss();
-        });
     };
 
     /**
@@ -1113,7 +1160,9 @@
                     return;
                 }
             };
+            outerThis.subject = postdata.subject;
             if (postdata.postid == outerThis.CONTENT_OTHERDATA.rootpostid) {
+                outerThis.subject = outerThis.CONTENT_OTHERDATA.rootpostsubject;
                 outerThis.CONTENT_OTHERDATA.showfrom = postdata.showfrom;
                 outerThis.CONTENT_OTHERDATA.showsticky = postdata.sticky;
                 t.showsticky = postdata.sticky;
@@ -1132,7 +1181,6 @@
             outerThis.CONTENT_OTHERDATA.isEdit = 1;
             outerThis.CONTENT_OTHERDATA.currentReplyToId = 0;
             outerThis.CONTENT_OTHERDATA.currentEditedPostId = postdata.postid;
-            outerThis.subject = postdata.subject;
             outerThis.CONTENT_OTHERDATA.postas = postdata.postas;
             outerThis.CONTENT_OTHERDATA.important = postdata.isimportant;
             outerThis.CONTENT_OTHERDATA.edittimeout = 1;
@@ -1182,85 +1230,91 @@
 
                 modal = outerThis.CoreUtilsProvider.domUtils.showModalLoading('core.sending', true);
                 // Upload attachments first if any.
-                if (attachments && attachments.length) {
-                    promise = outerThis.CoreFileUploaderProvider.uploadOrReuploadFiles(attachments, 'mod_forumng', forumngId)
-                        .catch(function() {
-
-                            // Cannot upload them in online, save them in offline.
-                            return Promise.reject('Offline not yet enabled');
-                            //TODO switch below to our own offline functionality.
-                            // saveOffline = true;
-                            // return that.AddonModForumHelperProvider.uploadOrStoreNewDiscussionFiles(
-                            //         forumngId, discTimecreated, attachments, saveOffline);
-                        });
-                } else {
-                    promise = Promise.resolve(1);
-                }
-
-                promise.then(function(draftAreaId) {
-                    if (saveOffline) {
-                        // Save discussion in offline.
-                        //TODO switch below to our own offline functionality.
-                        // return that.AddonModForumOfflineProvider.addNewDiscussion(forumngId, forumName, courseId, subject,
-                        //     message, options, groupId, discTimecreated).then(function() {
-                        //     // Don't return anything.
-                        // });
+                var error = t.mod_forumng.checkDuplicatedFiles(attachments);
+                var duplicatedmessage = outerThis.TranslateService.instant('plugin.mod_forumng.cannotuploadfile');
+                if (!error) {
+                    if (attachments && attachments.length) {
+                        promise = outerThis.CoreFileUploaderProvider.uploadOrReuploadFiles(attachments, 'mod_forumng', forumngId)
+                            .catch(function() {
+                                // Cannot upload them in online, save them in offline.
+                                return Promise.reject('Offline not yet enabled');
+                                //TODO switch below to our own offline functionality.
+                                // saveOffline = true;
+                                // return that.AddonModForumHelperProvider.uploadOrStoreNewDiscussionFiles(
+                                //         forumngId, discTimecreated, attachments, saveOffline);
+                            });
                     } else {
-                        // Try to send it to server.
-                        var site = outerThis.CoreSitesProvider.getCurrentSite();
-                        var params = {
-                            replyto: replyto,
-                            message: message,
-                            draftarea: draftAreaId,
-                            postas: postas,
-                            important: important,
-                            editing: isedit ? 1 : 0,
-                            isrootpost : isrootpost,
-                            sticky: sticky,
-                            showfrom: showfrom,
-                        };
-                        if (!(subject === undefined || subject === '')) {
-                            params.subject = subject;
-                        }
-                        return site.write('mod_forumng_reply', params).then(function(response) {
-                            if (!response || !response.post) {
-                                return Promise.reject(outerThis.CoreWSProvider.createFakeWSError(response.errormsg));
-                            } else {
-                                return response.post;
-                            }
-                        });
-                        // Don't allow offline if there are attachments since they were uploaded fine.
-                        //TODO switch below to use our own offline functionality.
-                        // return that.AddonModForumProvider.addNewDiscussion(forumngId, forumName, courseId, subject, message, options,
-                        //    groupId, undefined, discTimecreated, !attachments.length);
+                        promise = Promise.resolve(1);
                     }
-                }).then(function(postId) {
-                    if (postId) {
-                        // Data sent to server, delete stored files (if any).
-                        //TODO switch below to our own offline functionality.
-                        //that.AddonModForumHelperProvider.deleteNewDiscussionStoredFiles(this.forumId, discTimecreated);
-                        //TODO trigger new discussion event or similar?
-                    }
-                    //TODO check all functionality in core forum (new-discussion.ts) returnToDiscussions(discussionId) is covered.
-                    // Navigate back to the post.mod_forumng.replyts page and refresh to show new post.
-                    // Clear all the form data.
 
-                    // If there's a draft, delete it
-                    if (draftid) {
-                        t.mod_forumng.deleteDraft(outerThis, draftid, false);
-                        outerThis.updateContent({'cmid': outerThis.CONTENT_OTHERDATA.cmid, 'discussionid' : outerThis.CONTENT_OTHERDATA.discussionid}, 'mod_forumng', 'posts_view', true);
-                    }
-                    t.originalEdit = outerThis.resetData(t.originalEdit);
-                    t.currentReply = outerThis.resetData(t.currentReply);
-                    t.editDraft = outerThis.resetData(t.editDraft);
-                    t.isEdit = 0;
-                    t.isReply = 0;
-                    outerThis.refreshContent();
-                }).catch(function(msg) {
-                    outerThis.CoreUtilsProvider.domUtils.showErrorModalDefault(msg, 'addon.mod_forum.cannotcreatereply', true);
-                }).finally(function() {
+                    promise.then(function(draftAreaId) {
+                        if (saveOffline) {
+                            // Save discussion in offline.
+                            //TODO switch below to our own offline functionality.
+                            // return that.AddonModForumOfflineProvider.addNewDiscussion(forumngId, forumName, courseId, subject,
+                            //     message, options, groupId, discTimecreated).then(function() {
+                            //     // Don't return anything.
+                            // });
+                        } else {
+                            // Try to send it to server.
+                            var site = outerThis.CoreSitesProvider.getCurrentSite();
+                            var params = {
+                                replyto: replyto,
+                                message: message,
+                                draftarea: draftAreaId,
+                                postas: postas,
+                                important: important,
+                                editing: isedit ? 1 : 0,
+                                isrootpost : isrootpost,
+                                sticky: sticky,
+                                showfrom: showfrom,
+                            };
+                            if (!(subject === undefined || subject === '')) {
+                                params.subject = subject;
+                            }
+                            return site.write('mod_forumng_reply', params).then(function(response) {
+                                if (!response || !response.post) {
+                                    return Promise.reject(outerThis.CoreWSProvider.createFakeWSError(response.errormsg));
+                                } else {
+                                    return response.post;
+                                }
+                            });
+                            // Don't allow offline if there are attachments since they were uploaded fine.
+                            //TODO switch below to use our own offline functionality.
+                            // return that.AddonModForumProvider.addNewDiscussion(forumngId, forumName, courseId, subject, message, options,
+                            //    groupId, undefined, discTimecreated, !attachments.length);
+                        }
+                    }).then(function(postId) {
+                        if (postId) {
+                            // Data sent to server, delete stored files (if any).
+                            //TODO switch below to our own offline functionality.
+                            //that.AddonModForumHelperProvider.deleteNewDiscussionStoredFiles(this.forumId, discTimecreated);
+                            //TODO trigger new discussion event or similar?
+                        }
+                        //TODO check all functionality in core forum (new-discussion.ts) returnToDiscussions(discussionId) is covered.
+                        // Navigate back to the post.mod_forumng.replyts page and refresh to show new post.
+                        // Clear all the form data.
+
+                        // If there's a draft, delete it
+                        if (draftid) {
+                            t.mod_forumng.deleteDraft(outerThis, draftid, false);
+                            outerThis.updateContent({'cmid': outerThis.CONTENT_OTHERDATA.cmid, 'discussionid' : outerThis.CONTENT_OTHERDATA.discussionid}, 'mod_forumng', 'posts_view', true);
+                        }
+                        t.originalEdit = outerThis.resetData(t.originalEdit);
+                        t.currentReply = outerThis.resetData(t.currentReply);
+                        t.editDraft = outerThis.resetData(t.editDraft);
+                        t.isEdit = 0;
+                        t.isReply = 0;
+                        outerThis.refreshContent();
+                    }).catch(function(msg) {
+                        outerThis.CoreUtilsProvider.domUtils.showErrorModalDefault(msg, 'addon.mod_forum.cannotcreatereply', true);
+                    }).finally(function() {
+                        modal.dismiss();
+                    });
+                } else {
                     modal.dismiss();
-                });
+                    outerThis.CoreUtilsProvider.domUtils.showErrorModalDefault(duplicatedmessage + error, 'plugin.mod_forumng.cannotcreatediscussion', true);
+                }
             } else {
 
             }
