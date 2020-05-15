@@ -367,10 +367,6 @@ html[style="font-size: 93.75%;"] ion-app.app-root #mma-forumng-add-discussion-bu
     font-weight: bold;
     font-size: 1.4rem;
 }
-ion-app.app-root core-rich-text-editor.forumng-add-discussion-message .core-rte-editor ol,
-ion-app.app-root core-rich-text-editor.forumng-add-discussion-message .core-rte-editor ul {
-    -webkit-padding-start: 20px;
-}
 
 .mma-forumng-discussion-list .mma-forumng-discussion .mma-forumng-ipud-discussion-subject {
     font-size: inherit;
@@ -541,20 +537,6 @@ ion-app.app-root .mod-forumng-subreply-option .item-inner .input-wrapper ion-sel
 
 ion-app.app-root .mod-forumng-subreply-option .item-inner .input-wrapper ion-select div {
     display: inline-block;
-}
-ion-app.app-root core-rich-text-editor.forumng-reply-message .core-rte-editor ol,
-ion-app.app-root core-rich-text-editor.forumng-reply-message .core-rte-editor ul {
-    -webkit-padding-start: 20px;
-}
-html[style="font-size: 93.75%;"] ion-app.app-root core-rich-text-editor.forumng-reply-message .core-rte-editor ol,
-html[style="font-size: 75.89%;"] ion-app.app-root core-rich-text-editor.forumng-reply-message .core-rte-editor ol,
-html[style="font-size: 93.75%;"] ion-app.app-root core-rich-text-editor.forumng-reply-message .core-rte-editor ul,
-html[style="font-size: 75.89%;"] ion-app.app-root core-rich-text-editor.forumng-reply-message .core-rte-editor ul,
-html[style="font-size: 93.75%;"] ion-app.app-root core-format-text ul,
-html[style="font-size: 75.89%;"] ion-app.app-root core-format-text ul,
-html[style="font-size: 93.75%;"] ion-app.app-root .item core-format-text ol,
-html[style="font-size: 75.89%;"] ion-app.app-root .item core-format-text ol {
-    -webkit-padding-start: 35px;
 }
 
 .red-text {
