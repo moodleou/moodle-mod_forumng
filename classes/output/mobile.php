@@ -1272,7 +1272,7 @@ class mobile {
                 $isexpandall = false;
                 break;
             }
-            if (count($r->subreplies) > 0) {
+            if (!empty($r->subreplies) && count($r->subreplies) > 0) {
                 $isexpandall = self::check_expand_all($r->subreplies);
             }
         }
@@ -1292,7 +1292,7 @@ class mobile {
                 $iscollapseall = false;
                 break;
             }
-            if (count($r->subreplies) > 0) {
+            if (!empty($r->subreplies) && count($r->subreplies) > 0) {
                 $iscollapseall = self::check_collapse_all($r->subreplies);
             }
         }
