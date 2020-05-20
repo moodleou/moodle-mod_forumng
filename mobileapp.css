@@ -618,3 +618,6 @@ ion-app.app-root .mma-forumng-posts-list-wrapper core-format-text[maxHeight] {
 .deleted-post .mma-forumng-posts-message strong {
     color: #000000;
 }
+ion-app.app-root core-format-text.mma-forumng-delete-draft-with-delete-discussion {
+    color: #000000;
+}

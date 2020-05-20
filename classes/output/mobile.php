@@ -240,11 +240,15 @@ class mobile {
                 if (trim($summary) === '') {
                     $summary = get_string('notext', 'forumng');
                 }
-
+                $isdeletediscussion = false;
                 if ($draft->is_reply()) {
                     $user = fullname($draft->get_reply_to_user(), has_capability('moodle/site:viewfullnames', $context));
                     $discussionsubject = format_string($draft->get_discussion_subject()) . ' ' .get_string('draft_inreplyto',
                             'forumng', $user);
+                    $discussion = \mod_forumng_discussion::get_from_id($draft->get_discussion_id(),
+                            \mod_forumng::CLONE_DIRECT);
+                    $isdeletediscussion = $discussion->is_deleted();
+
                 } else {
                     $discussionsubject = get_string('draft_newdiscussion', 'forumng');
                 }
@@ -260,6 +264,7 @@ class mobile {
                     'isreply' => $draft->is_reply(),
                     'deleteicon' => $deleteicon,
                     'deletealt' => $deletealt,
+                    'isdeletediscussion' => $isdeletediscussion,
                 ];
             }
         }
@@ -449,88 +454,14 @@ class mobile {
         global $OUTPUT;
 
         $args = (object) $args;
-        $discussion = \mod_forumng_discussion::get_from_id($args->discussionid, \mod_forumng::CLONE_DIRECT);
-        $discussion->require_view();
-
-        // Auto mark read - it seems that viewing any bit of a discussion counts as viewing all discussion posts.
-        if ($discussion->get_forum()->can_mark_read()) {
-            if (\mod_forumng::mark_read_automatically()) {
-                $discussion->mark_read();
-            }
-        }
-
-        // Check can lock discussion.
-        $canlock = false;
-        $type = $discussion->get_forum()->get_type();
-        foreach (\forumngfeature_discussion::get_all($type) as $feature) {
-            if (get_class($feature) === 'forumngfeature_lock' && $feature->should_display($discussion) &&
-                $type->allow_forumngfeature_discussion($discussion, $feature)) {
-                $canlock = true;
-            }
-        }
-
-        // Default collaspe all posts.
-        $toggle = get_string('expandallpost', 'forumng');
-        $expandall = get_string('expandallpost', 'forumng');
-        $collapseallpost = get_string('collapseallpost', 'forumng');
-        // Based on renderer.php render_post, and mod_forumng_post.php display_with_children.
-        $root = $discussion->get_root_post();
-        $defaultimage = $OUTPUT->image_url('u/f2');
-        $moderator = get_string('moderator', 'forumng');
-        $postdata = self::get_common_post_data($discussion, $root, $defaultimage, $moderator);
-        $cmid = $discussion->get_course_module()->id;
-        $postdata['cmid'] = $cmid;
-        // No of posts or replies.
-        $noofposts = $discussion->get_num_posts() - 1; // Do not count the first message as a reply.
-        if ($noofposts == 1) {
-            $noofreplies = strtolower(get_string('totalreply', 'forumng', $noofposts));
-        } else {
-            $noofreplies = strtolower(get_string('totalreplies', 'forumng', $noofposts));
-        }
-        $postdata['noofreplies'] = $noofreplies;
-        // Initial replies to the root message are prepared but sent via otherdata.
-        // Doing it this way allows sending of more chunks of data (via ajax) to be
-        // added to the view when required (user scrolls down for more).
-        $replies = self::get_more_posts($discussion, 0);
-        $isexpandall = self::check_expand_all($replies);
-        $iscollapseall = self::check_collapse_all($replies);
-
-        $renderer = $discussion->get_forum()->get_type()->get_renderer();
-        $importanticon = (object)[
-            'url' => $renderer->image_url('exclamation_mark', 'mod_forumng')->out(),
-            'alt' => get_string('important', 'forumng'),
-        ];
-
-        $canmanage = $discussion->get_forum()->can_manage_discussions();
-        $displaysticky = get_string('displayoption', 'mod_forumng');
-        $displayperiod = get_string('displayperiodmobile', 'mod_forumng');
-        $postdata['hasreplies'] = count($replies);
-        $forumng = $discussion->get_forum();
-        $islock = false;
-        $lockpost = '';
-        if ($discussion->is_locked()) {
-            $lockpost = end($replies);
-            $islock = true;
-            $canlock = false;
-            array_pop($replies);
-            if(is_null($lockpost->subject)) {
-                $lockpost->subject = 'Re: ' . $postdata['subject'];
-            }
-        }
-        $postdata['canlock'] = $canlock;
-        // Rootpost (or starter message) is now ready to pass to the template.
-        $rootpost = (object)$postdata;
-        $rootpost->edittimeoutmsg = get_string('edit_timeout', 'forumng');
-        $rootpost->displayperiod = $displayperiod;
-        $rootpost->displaysticky = $displaysticky;
-        $rootpost->canmanage = $canmanage;
-
         // Check is draft.
         $draftid = empty($args->draft) ? 0 : $args->draft;
         $replytoid = empty($args->replytoid) ? 0 : $args->replytoid;
         $draftexists = '';
         $setimportant = false;
         $attachmentforform = [];
+        $discussion = \mod_forumng_discussion::get_from_id($args->discussionid, \mod_forumng::CLONE_DIRECT);
+        $forumng = $discussion->get_forum();
         if ($draftid) {
             try {
                 $draft = \mod_forumng_draft::get_from_id($draftid);
@@ -589,6 +520,101 @@ class mobile {
                 $attachmentforform = self::get_attachment_draft_post($draftid);
             }
         }
+
+        try {
+            $discussion->require_view();
+        } catch (\moodle_exception $e) {
+            $error = $e->getMessage();
+            $data = [
+                    'error' => $error,
+            ];
+
+            $html = $OUTPUT->render_from_template('mod_forumng/mobile_posts_page', $data);
+            return [
+                    'templates' => [
+                            [
+                                    'id' => 'main',
+                                    'html' => $html,
+                            ]
+                    ],
+                    'javascript' => '',
+                    'otherdata' => [
+                    ],
+                    'files' => []
+            ];
+        }
+
+        // Auto mark read - it seems that viewing any bit of a discussion counts as viewing all discussion posts.
+        if ($discussion->get_forum()->can_mark_read()) {
+            if (\mod_forumng::mark_read_automatically()) {
+                $discussion->mark_read();
+            }
+        }
+
+        // Check can lock discussion.
+        $canlock = false;
+        $type = $discussion->get_forum()->get_type();
+        foreach (\forumngfeature_discussion::get_all($type) as $feature) {
+            if (get_class($feature) === 'forumngfeature_lock' && $feature->should_display($discussion) &&
+                $type->allow_forumngfeature_discussion($discussion, $feature)) {
+                $canlock = true;
+            }
+        }
+
+        // Default collaspe all posts.
+        $toggle = get_string('expandallpost', 'forumng');
+        $expandall = get_string('expandallpost', 'forumng');
+        $collapseallpost = get_string('collapseallpost', 'forumng');
+        // Based on renderer.php render_post, and mod_forumng_post.php display_with_children.
+        $root = $discussion->get_root_post();
+        $defaultimage = $OUTPUT->image_url('u/f2');
+        $moderator = get_string('moderator', 'forumng');
+        $postdata = self::get_common_post_data($discussion, $root, $defaultimage, $moderator);
+        $cmid = $discussion->get_course_module()->id;
+        $postdata['cmid'] = $cmid;
+        // No of posts or replies.
+        $noofposts = $discussion->get_num_posts() - 1; // Do not count the first message as a reply.
+        if ($noofposts == 1) {
+            $noofreplies = strtolower(get_string('totalreply', 'forumng', $noofposts));
+        } else {
+            $noofreplies = strtolower(get_string('totalreplies', 'forumng', $noofposts));
+        }
+        $postdata['noofreplies'] = $noofreplies;
+        // Initial replies to the root message are prepared but sent via otherdata.
+        // Doing it this way allows sending of more chunks of data (via ajax) to be
+        // added to the view when required (user scrolls down for more).
+        $replies = self::get_more_posts($discussion, 0);
+        $isexpandall = self::check_expand_all($replies);
+        $iscollapseall = self::check_collapse_all($replies);
+
+        $renderer = $discussion->get_forum()->get_type()->get_renderer();
+        $importanticon = (object)[
+            'url' => $renderer->image_url('exclamation_mark', 'mod_forumng')->out(),
+            'alt' => get_string('important', 'forumng'),
+        ];
+
+        $canmanage = $discussion->get_forum()->can_manage_discussions();
+        $displaysticky = get_string('displayoption', 'mod_forumng');
+        $displayperiod = get_string('displayperiodmobile', 'mod_forumng');
+        $postdata['hasreplies'] = count($replies);
+        $islock = false;
+        $lockpost = '';
+        if ($discussion->is_locked()) {
+            $lockpost = end($replies);
+            $islock = true;
+            $canlock = false;
+            array_pop($replies);
+            if(is_null($lockpost->subject)) {
+                $lockpost->subject = 'Re: ' . $postdata['subject'];
+            }
+        }
+        $postdata['canlock'] = $canlock;
+        // Rootpost (or starter message) is now ready to pass to the template.
+        $rootpost = (object)$postdata;
+        $rootpost->edittimeoutmsg = get_string('edit_timeout', 'forumng');
+        $rootpost->displayperiod = $displayperiod;
+        $rootpost->displaysticky = $displaysticky;
+        $rootpost->canmanage = $canmanage;
 
         return [
             'templates' => [
@@ -990,8 +1016,28 @@ class mobile {
         if (!empty($options)) {
             $hasoption = true;
         }
+        try {
+            $forumng->require_start_discussion($groupid);
+        } catch (\moodle_exception $e) {
+            $error = $e->getMessage();
+            $data = [
+                    'error' => $error,
+            ];
 
-        $forumng->require_start_discussion($groupid);
+            $html = $OUTPUT->render_from_template('mod_forumng/mobile_posts_page', $data);
+            return [
+                    'templates' => [
+                            [
+                                    'id' => 'main',
+                                    'html' => $html,
+                            ]
+                    ],
+                    'javascript' => '',
+                    'otherdata' => [
+                    ],
+                    'files' => []
+            ];
+        }
         $postas = get_string('postasmobile', 'mod_forumng');
         $displayoption = get_string('displayoption', 'mod_forumng');
         $displayperiod = get_string('displayperiodmobile', 'mod_forumng');
