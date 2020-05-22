@@ -133,13 +133,18 @@
     font-size: 1.2rem;
 }
 
-.mma-forumng-discussion-list .mma-forumng-discussion.forumng-timeout * {
+.mma-forumng-discussion-list .mma-forumng-discussion.forumng-timeout *,
+.mma-forumng-discussion-list .mma-forumng-discussion.forumng-deleted * {
     color: #888;
 }
 
 .mma-forumng-discussion-list .mma-forumng-discussion ion-label,
 .mma-forumng-discussion-list .mma-forumng-discussion-sort {
     margin: 0 !important;
+}
+
+.mma-forumng-discussion-list .mma-forumng-discussion.forumng-deleted .mma-forumng-discussion-subject {
+    text-decoration: line-through;
 }
 
 .mma-forumng-infinite-scroll,
