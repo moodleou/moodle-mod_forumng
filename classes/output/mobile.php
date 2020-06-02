@@ -794,12 +794,12 @@ class mobile {
         foreach ($attachments as $key => $attachment) {
             $attachmentarray[] = (object) [
                     'name' => $attachment,
-                    'url' => $post->get_attachment_url($attachment)->out(),
+                    'url' => self::get_attachment_url($post->get_forum(), $attachment, $post->get_id(), 'attachment')->out(),
             ];
             // When using for form,we need the filename,not the name.
             $attachmentforform[] = (object) [
                     'filename' => $attachment,
-                    'url' => $post->get_attachment_url($attachment)->out(),
+                    'url' => self::get_attachment_url($post->get_forum(), $attachment, $post->get_id(), 'attachment')->out(),
             ];
         }
         // Mark post read.
@@ -1362,14 +1362,27 @@ class mobile {
         }
         foreach ($fs->get_area_files($filecontext->id, 'mod_forumng', 'draft',
             $draft->get_id(), 'filename', false) as $file) {
-            $params = [];
-            if ($forumng->is_shared()) {
-                $params['clone'] = $forumng->get_course_module_id();
-            }
-            $url = new \moodle_url('/pluginfile.php/' . $filecontext->id . '/mod_forumng/draft/' .
-                $draft->get_id() . '/' . rawurlencode($file->get_filename()), $params);
+            $url = self::get_attachment_url($forumng, $file->get_filename(), $draft->get_id(), 'draft');
             $attachments[] = (object)['filename' => $file->get_filename(), 'url' => $url->out()];
         }
         return $attachments;
+    }
+
+    /**
+     * @param mod_forumng $forumng
+     * @param string $attachment Attachment name (will not be checked for existence)
+     * @param int $itemid Item id
+     * @param string $filearea File area
+     * @return moodle_url URL to attachment
+     */
+    private static function get_attachment_url(\mod_forumng $forumng, $attachment, $itemid, $filearea){
+        $filecontext = $forumng->get_context(true);
+        $params = [];
+        if ($forumng->is_shared()) {
+            $params['clone'] = $forumng->get_course_module_id();
+        }
+        $token = \optional_param('wstoken', '', PARAM_RAW);
+        return new \moodle_url('/webservice/pluginfile.php/' . $filecontext->id . '/mod_forumng/' . $filearea . '/' .
+            $itemid . '/' . rawurlencode($attachment) . '?token=' . $token, $params);
     }
 }
