@@ -640,9 +640,7 @@ ul.forumng-commands li.forumng-replylink {
 .forumng-iframe#page-mod-forumng-editpost .fp-pathbar {
     display: none;
 }
-.forumng-iframe#page-mod-forumng-editpost div[id^=fitem_id_message] .felement.feditor,
-.forumng-iframe#page-mod-forumng-editpost #fitem_id_subject .felement,
-.forumng-iframe#page-mod-forumng-editpost #fitem_id_attachments .felement {
+.forumng-iframe#page-mod-forumng-editpost div[id^=fitem_id_message] .felement.feditor {
     clear: left;
     margin-left: 0;
 }
