@@ -1084,6 +1084,10 @@ class mod_forumng_renderer extends plugin_renderer_base {
             !$options[mod_forumng_post::OPTION_VISIBLE_POST_NUMBERS])
             ? '' : $post->get_number();
 
+        if (!empty($options[mod_forumng_post::OPTION_JUMP_PARENT])) {
+            $options[mod_forumng_post::OPTION_PARENT_POSTNUMBER] = $post->get_parent()->get_number();
+        }
+
         $lf = "\n";
 
         // Initialise result
@@ -1493,7 +1497,8 @@ class mod_forumng_renderer extends plugin_renderer_base {
                     $nextid = $options[mod_forumng_post::OPTION_JUMP_NEXT];
                     $pid = $options[mod_forumng_post::OPTION_JUMP_PREVIOUS];
                     $parentid = $options[mod_forumng_post::OPTION_JUMP_PARENT];
-                    if ($jumptotext = $this->render_commands_jumpto($nextid, $pid, $parentid)) {
+                    $parentnumber = $parentid ? $options[mod_forumng_post::OPTION_PARENT_POSTNUMBER] : '';
+                    if ($jumptotext = $this->render_commands_jumpto($nextid, $pid, $parentid, $parentnumber)) {
                         $commandsarray['forumng-jumpto'] = $jumptotext;
                     }
                 }
@@ -1728,9 +1733,10 @@ class mod_forumng_renderer extends plugin_renderer_base {
      * @param int $nextid id of the next unread post
      * @param int $pid id of the previous unread post
      * @param int $parentid id of the parent post
+     * @param int $parentnumber number of the parent post
      * @return string HTML code for the jumpto buttons
      */
-    public function render_commands_jumpto($nextid, $pid, $parentid) {
+    public function render_commands_jumpto($nextid, $pid, $parentid, $parentnumber) {
         $output = '';
         if ($nextid) {
             $output .= ' <a href="#p'. $nextid . '" class="forumng-next">' .
@@ -1747,7 +1753,8 @@ class mod_forumng_renderer extends plugin_renderer_base {
         }
         if ($parentid) {
             $output .= ' <a href="#p'. $parentid . '" class="forumng-parent">' .
-                    get_string('jumpparent', 'forumng') . '</a>';
+                    get_string('jumpparent', 'forumng') .
+                    '<span class="accesshide"> to post ' . $parentnumber . '</span>' . '</a>';
         }
         if (!empty($output)) {
             $output = '<span class="forumng-jumpto-label">' .

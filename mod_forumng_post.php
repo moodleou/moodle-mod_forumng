@@ -68,6 +68,7 @@ class mod_forumng_post {
     const OPTION_PARTICIPATION = 'in_participation_screen';
     const OPTION_DONT_DISPLAY_ROOTPOST = 'dont_display_rootpost';
     const OPTION_COMMAND_TOTALREPLY = 'command_total_reply';
+    const OPTION_PARENT_POSTNUMBER = 'parent_post_number';
     /** Constant indicating that post is not rated by user */
     const NO_RATING = 999;
 
