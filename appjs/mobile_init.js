@@ -1305,6 +1305,7 @@
                         t.editDraft = outerThis.resetData(t.editDraft);
                         t.isEdit = 0;
                         t.isReply = 0;
+                        t.isAddDraft = 0;
                         outerThis.refreshContent();
                     }).catch(function(msg) {
                         outerThis.CoreUtilsProvider.domUtils.showErrorModalDefault(msg, 'addon.mod_forum.cannotcreatereply', true);

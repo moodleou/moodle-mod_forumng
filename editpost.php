@@ -745,6 +745,9 @@ try {
                 if (isset($options->setimportant)) {
                     $initialvalues->setimportant = $options->setimportant;
                 }
+                if (isset($options->asmoderator)) {
+                    $initialvalues->asmoderator = $options->asmoderator;
+                }
             }
             $draftitemid = file_get_submitted_draft_itemid('attachments');
             file_prepare_draft_area($draftitemid, $filecontext->id, 'mod_forumng',

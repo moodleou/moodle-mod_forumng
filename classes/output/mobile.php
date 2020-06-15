@@ -462,6 +462,7 @@ class mobile {
         $attachmentforform = [];
         $discussion = \mod_forumng_discussion::get_from_id($args->discussionid, \mod_forumng::CLONE_DIRECT);
         $forumng = $discussion->get_forum();
+        $setpostas = 0;
         if ($draftid) {
             try {
                 $draft = \mod_forumng_draft::get_from_id($draftid);
@@ -515,6 +516,9 @@ class mobile {
                 if ($draftoptions = $draft->get_options()) {
                     if ($draftoptions->setimportant) {
                         $setimportant = true;
+                    }
+                    if ($draftoptions->asmoderator) {
+                        $setpostas = $draftoptions->asmoderator;
                     }
                 }
                 $attachmentforform = self::get_attachment_draft_post($draftid);
@@ -637,7 +641,7 @@ class mobile {
                 'islock' => $islock,
                 'lockpost' => json_encode($lockpost),
                 'lock' => 0,
-                'postas' => 0,
+                'postas' => $setpostas,
                 'isexpandall' => $isexpandall,
                 'iscollapseall' => $iscollapseall,
                 'isReply' => 0,
@@ -762,9 +766,9 @@ class mobile {
         $createdbymoderator = '';
         // When forum is setting post as normal.
         // We don't care if post is setting as anon.
-        if ($posteranon == \mod_forumng::ASMODERATOR_IDENTIFY && $postasforumsetting) {
+        if ($posteranon == \mod_forumng::ASMODERATOR_IDENTIFY && isset($postasforumsetting)) {
             $startedby = $username . '<br><strong>' . $moderator . '</strong>';
-        } else if ($posteranon == \mod_forumng::ASMODERATOR_ANON && $postasforumsetting) {
+        } else if ($posteranon == \mod_forumng::ASMODERATOR_ANON && isset($postasforumsetting)) {
             $startedby = $post->is_important() ? '<br><strong>' . $moderator . '</strong>' : '<strong>' . $moderator . '</strong>';
             $createdbymoderator = get_string('createdbymoderator', 'forumng', $username);
             if (!$discussion->get_forum()->can_post_anonymously()) {
@@ -1043,6 +1047,7 @@ class mobile {
         $displayperiod = get_string('displayperiodmobile', 'mod_forumng');
 
         // Check is draft.
+        $postasoption = 0;
         $showsticky = 0;
         $showfrom = 0;
         $draftid = empty($args->draft) ? 0 : $args->draft;
@@ -1085,6 +1090,9 @@ class mobile {
                     if ($draftoptions->sticky) {
                         $showsticky = true;
                     }
+                    if ($draftoptions->asmoderator) {
+                        $postasoption = $draftoptions->asmoderator;
+                    }
                 }
                 $attachmentforform = self::get_attachment_draft_post($draftid);
             }
@@ -1123,7 +1131,7 @@ class mobile {
                 'group' => $groupid,
                 'showsticky' => $showsticky,
                 'showfrom' => $showfrom,
-                'postas' => 0,
+                'postas' => $postasoption,
                 'cmid' => $forumng->get_course_module_id(),
                 'maxyear' => date('Y', strtotime('+30 years')),
                 'draftid' => $draftid,
