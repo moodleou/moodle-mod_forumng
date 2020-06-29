@@ -4,3 +4,6 @@ DISABLE_SAMS
 <Files pluginfile.php>
 DISABLE_SAMS
 </Files>
+<Files mobileapp.css>
+DISABLE_SAMS
+</Files>
