@@ -25,13 +25,6 @@ defined('MOODLE_INTERNAL') || die();
  */
 
 $services = array(
-        'Forum list service' => array(
-                'shortname' => 'forumlist',
-                'functions' => array ('mod_forumng_get_forum_list'),
-                'requiredcapability' => '',
-                'restrictedusers' => 0,
-                'enabled' => 1
-        ),
         'ForumNG IPUD' => array(
                 'shortname' => 'ipud',
                 'functions' => array(
@@ -49,13 +42,6 @@ $services = array(
 );
 
 $functions = array(
-        'mod_forumng_get_forum_list' => array(
-                'classname'   => 'mod_forumng_external',
-                'methodname'  => 'get_forum_list',
-                'classpath'   => 'mod/forumng/externallib.php',
-                'description' => 'Lists forums for user on course',
-                'type'        => 'read'
-        ),
         'mod_forumng_get_posts' => array(
                 'classname'   => 'mod_forumng\local\external\get_posts',
                 'methodname'  => 'get_posts',
