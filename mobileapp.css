@@ -75,7 +75,7 @@
 }
 
 .mma-forumng-discussion-list .mma-forumng-drafts ion-row,
-.mma-forumng-discussion-list ion-item.mma-forumng-discussion-item {
+.mma-forumng-discussion-list ion-item.mma-forumng-discussion-item:not(.no-lines) {
     border-bottom: 0.55px solid #c8c7cc !important;
 }
 
@@ -112,7 +112,16 @@
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    align-items: center;
+    align-items: baseline;
+    margin: 13px 0;
+}
+
+.mma-forumng-discussion-list .mma-forumng-discussion .mma-forumng-discussion-icons {
+    padding-right: 0.85em;
+}
+
+.mma-forumng-discussion-list .mma-forumng-discussion .mma-forumng-discussion-subject {
+    margin-bottom: 2px;
 }
 
 .mma-forumng-discussion-list .mma-forumng-discussion .mma-forumng-discussion-subject,

@@ -93,6 +93,7 @@ Feature:  Add discussion in forumng and test app can view discussion listing pag
     And I log in as "teacher1"
     And I press "Course 1" near "Recently accessed courses" in the app
     And I press "Test forum name" in the app
+    And I should see "Sort discussions"
     And "//div[@class='mma-forumng-discussion-icons']/span[contains(@class, 'forumng-locked forumng-timeout forumng-sticky')]/span/img[contains(@alt, 'read-only')]" "xpath_element" should exist
     And "//div[@class='mma-forumng-discussion-icons']/span[contains(@class, 'forumng-locked forumng-timeout forumng-sticky')]/span/img[contains(@alt, '(time limit)')]" "xpath_element" should exist
     And "//div[@class='mma-forumng-discussion-icons']/span[contains(@class, 'forumng-locked forumng-timeout forumng-sticky')]/span/img[contains(@alt, 'top of list')]" "xpath_element" should exist
@@ -100,6 +101,7 @@ Feature:  Add discussion in forumng and test app can view discussion listing pag
     And I log in as "student1"
     And I press "Course 1" near "Recently accessed courses" in the app
     And I press "Test forum discussion" in the app
+    And I should see "Sort discussions"
     # Discussions has sticky always in the top list.
     And I should see "b discussion" in the "//ion-list[contains(@class,'mma-forumng-discussion-list')]/ion-item[contains(@class, 'mma-forumng-discussion-short')][1]" "xpath_element"
     And I should see "c discussion" in the "//ion-list[contains(@class,'mma-forumng-discussion-list')]/ion-item[contains(@class, 'mma-forumng-discussion-short')][2]" "xpath_element"

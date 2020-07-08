@@ -1075,3 +1075,4 @@ $string['collapseallpost'] = 'Collapse all';
 $string['editpostmobile'] = 'Edit post';
 $string['cannotcreatedraft'] = 'Could not create draft';
 $string['cannotuploadfile'] = 'File name already exists';
+$string['sortdiscussions'] = 'Sort discussions';

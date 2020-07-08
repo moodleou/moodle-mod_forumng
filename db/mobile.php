@@ -37,8 +37,8 @@ $addons = [
                 'offlinefunctions' => [],
                 'downloadbutton' => false,
                 'styles' => [
-                    'url' => $CFG->wwwroot . '/mod/forumng/mobileapp.css',
-                    'version' => 2020070900
+                    'url' => $CFG->wwwroot . '/mod/forumng/mobile_css.php?v=2020071700',
+                    'version' => 2020071700
                 ],
                 'init' => 'mobile_forumng_init'
             ]
@@ -91,6 +91,7 @@ $addons = [
             ['cannotcreatedraft', 'forumng'],
             ['confirmdeletedraft', 'forumng'],
             ['cannotuploadfile', 'forumng'],
+            ['sortdiscussions', 'forumng'],
         ]
     ]
 ];

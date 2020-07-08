@@ -163,10 +163,10 @@
             </ion-grid>
         </ion-item>
         <%/ hasdrafts %>
-        <ion-item class="mma-forumng-discussion-item">
+        <ion-item class="mma-forumng-discussion-item no-lines">
             <%^ isipud %>
             <%# canstartdiscussion %>
-            <button ion-button block id="mod_forumg_add_discussion" core-site-plugins-new-content color="primary"
+            <button ion-button outline block id="mod_forumg_add_discussion" core-site-plugins-new-content color="primary"
                     title="{{ 'plugin.mod_forumng.addanewdiscussion' | translate }}" component="mod_forumng"
                     method="add_discussion"
                     [args]="{cmid: <% cmid %>, discussionid: 0, groupid: CONTENT_OTHERDATA.defaultgroup}"
@@ -180,7 +180,10 @@
             </button>
             <%/ hasdiscussions %>
             <%/ isipud %>
-            <%# hasdiscussions %>
+        </ion-item>
+        <%# hasdiscussions %>
+        <ion-item class="mma-forumng-discussion-item">
+            <ion-label>{{ 'plugin.mod_forumng.sortdiscussions' | translate }}</ion-label>
             <core-context-menu class="mma-forumng-discussion-sort" item-end>
                 <core-context-menu-item *ngFor="let option of CONTENT_OTHERDATA.sortoption" [priority]="900"
                                         [content]="option.title" autoLogin="no"
@@ -188,8 +191,8 @@
                                         [iconAction]="CONTENT_OTHERDATA.selectedsort == option.sortid ? 'radio-button-on' : 'radio-button-off'">
                 </core-context-menu-item>
             </core-context-menu>
-            <%/ hasdiscussions %>
         </ion-item>
+        <%/ hasdiscussions %>
         <%# hasdiscussions %>
         <ion-item *ngFor="let discussion of CONTENT_OTHERDATA.discussions"
                   class="mma-forumng-discussion-item mma-forumng-discussion-short">
