@@ -231,6 +231,15 @@ html[style="font-size: 93.75%;"] .mma-forumng-discussion-listing .select-icon .s
 .mma-forumng-posts-list-wrapper .mma-forumng-attachments {
     margin: 0;
 }
+.mma-forumng-posts-list-wrapper .mma-forumng-attachments .input-wrapper {
+    display: block;
+    margin-top: 20px;
+    min-height: 40px;
+}
+
+.mma-subreply-form core-attachments core-file .input-wrapper {
+    margin-top: 8px;
+}
 
 .mma-forumng-posts-list > .item-block,
 .mma-forumng-posts-list-wrapper .mma-forumng-align-items-normal.item-block > .item-inner,
