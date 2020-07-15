@@ -69,8 +69,7 @@
 <%^ isipud %>
 <core-navbar-buttons>
     <core-context-menu>
-            <core-context-menu-item *ngIf="CONTENT_OTHERDATA.manualmark" [priority]="850" [content]="'plugin.mod_forumng.automarkpostasread' | translate" (action)="enableAutoMarkPostAsRead(false)" [iconAction]="'radio-button-off'"></core-context-menu-item>
-            <core-context-menu-item *ngIf="!CONTENT_OTHERDATA.manualmark" [priority]="850" [content]="'plugin.mod_forumng.manuallymarkpostasread' | translate" (action)="enableAutoMarkPostAsRead(true)" [iconAction]="'radio-button-off'"></core-context-menu-item>
+            <core-context-menu-item [priority]="850" [content]="'plugin.mod_forumng.markallasread' | translate" (action)="MarkAllPostsRead()" [iconAction]="'radio-button-off'"></core-context-menu-item>
     </core-context-menu>
 </core-navbar-buttons>
 <%/ isipud %>
@@ -174,11 +173,6 @@
                 {{ 'plugin.mod_forumng.addanewdiscussion' | translate }}
             </button>
             <%/ canstartdiscussion %>
-            <%# hasdiscussions %>
-            <button ion-button color="primary" class="button-discussion-makeallread" *ngIf="CONTENT_OTHERDATA.manualmark" (click)="MarkAllPostsRead()">
-                {{ 'plugin.mod_forumng.markallasread' | translate }}
-            </button>
-            <%/ hasdiscussions %>
             <%/ isipud %>
         </ion-item>
         <%# hasdiscussions %>

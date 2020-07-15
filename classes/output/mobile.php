@@ -619,6 +619,7 @@ class mobile {
         $rootpost->displayperiod = $displayperiod;
         $rootpost->displaysticky = $displaysticky;
         $rootpost->canmanage = $canmanage;
+        $manualmark = !mod_forumng::mark_read_automatically();
 
         return [
             'templates' => [
@@ -665,6 +666,7 @@ class mobile {
                 'attachmentsforform' => json_encode($attachmentforform),
                 'cmid' => $cmid,
                 'rootpostsubject' => $rootpost->subject,
+                'manualmark' => $manualmark,
             ],
             'files' => []
         ];

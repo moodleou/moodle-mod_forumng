@@ -1059,8 +1059,6 @@ $string['sortbytitle'] = 'Sort by title (A to Z)';
 $string['sortbymostunreadposts'] = 'Sort by most unread posts';
 $string['date'] = 'Date';
 $string['markallasread'] = 'Mark all as read';
-$string['automarkpostasread'] = 'Automatically mark posts as read';
-$string['manuallymarkpostasread'] = 'Manually mark posts as read';
 $string['displayoption'] = '<span class="mma-forumng-boldtitle">Discussion options</span> (Show as sticky)';
 $string['displayperiodmobile'] = '<span class="mma-forumng-boldtitle">Display period:</span> Only show from';
 $string['postasmobile'] = '<span class="mma-forumng-boldtitle">Post as:</span>';

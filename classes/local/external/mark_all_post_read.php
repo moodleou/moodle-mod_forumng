@@ -45,6 +45,7 @@ class mark_all_post_read extends external_api {
                 'cmid' => new external_value(PARAM_INT, 'Course module Forumng ID', VALUE_DEFAULT, 0),
                 'cloneid' => new external_value(PARAM_INT, 'Clone ID', VALUE_DEFAULT, 0),
                 'groupid' => new external_value(PARAM_INT, 'group ID', VALUE_DEFAULT, -1),
+                'discussionid' => new external_value(PARAM_INT, 'Discussion Id', VALUE_DEFAULT, 0),
         ]);
     }
 
@@ -68,14 +69,16 @@ class mark_all_post_read extends external_api {
      * @param int $cmid course module id
      * @param int $cloneid Clone id
      * @param int $groupid Clone id
+     * @param int $discussionid Discussion id
      * @return array
      */
-    public static function mark_all_post_read($cmid, $cloneid, $groupid) : array {
+    public static function mark_all_post_read($cmid, $cloneid, $groupid, $discussionid = 0) : array {
         try {
             $data = [
                     'cmid' => $cmid,
                     'cloneid' => $cloneid,
-                    'groupid' => $groupid
+                    'groupid' => $groupid,
+                    'discussionid' => $discussionid
             ];
             $data = self::validate_parameters(self::mark_all_post_read_parameters(), $data);
             if ($data['cmid'] == 0) {
@@ -96,7 +99,16 @@ class mark_all_post_read extends external_api {
             if (!$forum->can_mark_read()) {
                 throw new \moodle_exception('error_cannotmarkread', 'forumng');
             }
-            $forum->mark_read($groupid);
+            if (!$discussionid) {
+                $forum->mark_read($groupid);
+            } else {
+                $discussion = \mod_forumng_discussion::get_from_id($discussionid, $cloneid);
+                $discussion->require_view();
+                if (!$discussion->get_forum()->can_mark_read()) {
+                    print_error('error_cannotmarkread', 'forumng');
+                }
+                $discussion->mark_read();
+            }
             return ['result' => true, 'errormsg' => ''];
         } catch (\Exception $e) {
             return ['result' => '', 'errormsg' => $e->getMessage()];

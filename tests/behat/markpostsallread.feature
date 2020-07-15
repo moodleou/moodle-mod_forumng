@@ -40,15 +40,24 @@ Feature: Add forumng activity and test mark post all read in the app.
     And I press "Test forum name" in the app
     And I should not see "Mark all as read"
     # We can't use press page menu in the app because there are two core context menu #
-    And I click on "//page-core-site-plugins-module-index//core-context-menu[not(contains(@class, 'mma-forumng-discussion-sort'))]//button" "xpath_element"
-    When I press "Manually mark posts as read" in the app
-    And ".mma-forumng-read-only" "css_element" should exist
-    And I should see "Mark all as read"
-    When I press "Mark all as read" in the app
-    And ".mma-forumng-read-only" "css_element" should not exist in the ".mma-forumng-discussion-item" "css_element"
-    And I am on site homepage
+    When I click on "//page-core-site-plugins-module-index//core-context-menu[not(contains(@class, 'mma-forumng-discussion-sort'))]//button" "xpath_element"
+    Then I should see "Mark all as read"
+    # Test mark as all read function on post page.
+    And I am on homepage
     When I log in as "student1"
+    And I change viewport size to "1280x768"
     And I am on "Course 1" course homepage
     And I follow "Test forum name"
-    And I click on ".mobileshow" "css_element"
-    And I should see "Manually mark as read"
+    When I click on "Change" "link"
+    Then I should see "Manually mark as read"
+    When I enter the app
+    And I log in as "student1"
+    Then I should see "Course 1"
+    And I press "Course 1" near "Recently accessed courses" in the app
+    And I press "Test forum name" in the app
+    And I should not see "Mark all as read"
+    When I press "Discussion 1" in the app
+    Then I should see "Mark post read"
+    When I press the page menu button in the app
+    And I press "Mark all as read" in the app
+    Then I should not see "Mark post read"

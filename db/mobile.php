@@ -66,8 +66,6 @@ $addons = [
             ['drafts', 'forumng'],
             ['draft', 'forumng'],
             ['date', 'forumng'],
-            ['automarkpostasread', 'forumng'],
-            ['manuallymarkpostasread', 'forumng'],
             ['markpostread', 'forumng'],
             ['noselection', 'forumng'],
             ['leavemessage', 'forumng'],
