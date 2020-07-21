@@ -37,8 +37,8 @@ $addons = [
                 'offlinefunctions' => [],
                 'downloadbutton' => false,
                 'styles' => [
-                    'url' => $CFG->wwwroot . '/mod/forumng/mobile_css.php?v=2020071700',
-                    'version' => 2020071700
+                    'url' => $CFG->wwwroot . '/mod/forumng/mobile_css.php?v=2020072810',
+                    'version' => 2020072810
                 ],
                 'init' => 'mobile_forumng_init'
             ]

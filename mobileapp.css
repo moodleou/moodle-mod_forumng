@@ -47,8 +47,14 @@
     margin-bottom: 10px !important;
 }
 
+html[style="font-size: 93.75%;"] .mma-forumng-discussion-list core-format-text[maxHeight].core-text-formatted.core-shortened.mma-forumng-discussion-introduction {
+    max-height: 105px !important;
+}
+html[style="font-size: 75.89%;"] .mma-forumng-discussion-list core-format-text[maxHeight].core-text-formatted.core-shortened.mma-forumng-discussion-introduction {
+    max-height: 90px !important;
+}
 .mma-forumng-discussion-list core-format-text[maxHeight].core-text-formatted.core-shortened.mma-forumng-discussion-introduction {
-    max-height: 100px !important;
+    max-height: 80px !important;
 }
 
 .mma-forumng-discussion-list core-format-text[maxHeight].core-text-formatted.core-shortened.mma-forumng-discussion-introduction:before {
@@ -466,6 +472,17 @@ html[style="font-size: 93.75%;"] .mma-forumng-discussion-list core-format-text[m
 .mma-forumng-discussion-list ion-fab {
     position: absolute;
     top: 10px;
+}
+@media (max-device-width: 640px) {
+    html[style="font-size: 93.75%;"] ion-app.app-root.md .mma-forumng-discussion-list core-format-text[maxHeight].core-text-formatted.core-shortened.mma-forumng-discussion-introduction {
+        max-height: 95px !important;
+    }
+    html[style="font-size: 75.89%;"] ion-app.app-root.md .mma-forumng-discussion-list core-format-text[maxHeight].core-text-formatted.core-shortened.mma-forumng-discussion-introduction {
+        max-height: 80px !important;
+    }
+    ion-app.app-root.md .mma-forumng-discussion-list core-format-text[maxHeight].core-text-formatted.core-shortened.mma-forumng-discussion-introduction {
+        max-height: 70px !important;
+    }
 }
 @media only screen
     and (min-device-width: 375px)
