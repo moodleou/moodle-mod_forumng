@@ -1292,7 +1292,7 @@ class mobile {
      */
     private static function post_as_option(\mod_forumng $forumng) {
         $options = [];
-        if ($forumng->can_indicate_moderator()) {
+        if ($forumng->can_post_anonymously() || $forumng->can_indicate_moderator()) {
             $option1 = new \stdClass();
             $option1->key = \mod_forumng::ASMODERATOR_NO;
             if ($forumng->get_can_post_anon() == mod_forumng::CANPOSTATON_NONMODERATOR) {
@@ -1301,10 +1301,12 @@ class mobile {
                 $option1->value = get_string('asmoderator_post', 'forumng');
             }
             $options[] = $option1;
-            $option2 = new \stdClass();
-            $option2->key = \mod_forumng::ASMODERATOR_IDENTIFY;
-            $option2->value = get_string('asmoderator_self', 'forumng');
-            $options[] = $option2;
+            if ($forumng->can_indicate_moderator()) {
+                $option2 = new \stdClass();
+                $option2->key = \mod_forumng::ASMODERATOR_IDENTIFY;
+                $option2->value = get_string('asmoderator_self', 'forumng');
+                $options[] = $option2;
+            }
             if ($forumng->can_post_anonymously()) {
                 $option3 = new \stdClass();
                 $option3->key = \mod_forumng::ASMODERATOR_ANON;

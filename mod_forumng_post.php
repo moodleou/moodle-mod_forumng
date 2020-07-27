@@ -1301,12 +1301,17 @@ ORDER BY
             $update->modified = $now;
         }
         $update->edituserid = mod_forumng_utils::get_real_userid($userid);
-
         $update->id = $this->postfields->id;
-        if ($forum->can_post_anonymously($userid)) {
+        $postanon = $forum->can_post_anonymously($userid);
+        $postasmoderator = $forum->can_indicate_moderator($userid);
+        if (($postanon && $postasmoderator) ||
+                ($postasmoderator && $asmoderator == mod_forumng::ASMODERATOR_IDENTIFY) ||
+                ($postanon && $asmoderator == mod_forumng::ASMODERATOR_ANON)) {
             $update->asmoderator = $asmoderator;
         } else {
-            $update->asmoderator = $this->get_asmoderator();
+            // We should not change the value if the value is standard post.
+            $update->asmoderator = (int)$asmoderator === mod_forumng::ASMODERATOR_NO ?
+                    $asmoderator : $this->get_asmoderator();
         }
 
         $DB->update_record('forumng_posts', $update);
