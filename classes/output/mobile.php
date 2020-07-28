@@ -769,9 +769,9 @@ class mobile {
         // When forum is setting post as normal.
         // We don't care if post is setting as anon.
         if ($posteranon == \mod_forumng::ASMODERATOR_IDENTIFY && isset($postasforumsetting)) {
-            $startedby = $username . '<br><strong>' . $moderator . '</strong>';
+            $startedby = $username . '<strong>' . $moderator . '</strong>';
         } else if ($posteranon == \mod_forumng::ASMODERATOR_ANON && isset($postasforumsetting)) {
-            $startedby = $post->is_important() ? '<br><strong>' . $moderator . '</strong>' : '<strong>' . $moderator . '</strong>';
+            $startedby = '<strong>' . $moderator . '</strong>';
             $createdbymoderator = get_string('createdbymoderator', 'forumng', $username);
             if (!$discussion->get_forum()->can_post_anonymously()) {
                 $startedbyurl = $defaultimage;
@@ -834,7 +834,8 @@ class mobile {
         if ((($isanon && $discussion->get_forum()->can_post_anonymously()) || $indicatemoderator) || !$isanon) {
             if ($edituser = $post->get_edit_user()) {
                 $edit = new \stdClass;
-                $edit->date = \mod_forumng_utils::display_date($post->get_modified());
+                $edit->date = userdate($post->get_modified(),
+                                get_string('strftimedatetime', 'langconfig'), $USER->timezone);
 
                 if (\mod_forumng_utils::display_discussion_author_anonymously($post, $USER->id)) {
                     $edit->name = get_string('identityprotected', 'mod_forumng');
@@ -914,7 +915,7 @@ class mobile {
         }
 
         if (!$showavatar && $posteranon == \mod_forumng::ASMODERATOR_IDENTIFY) {
-            $startedby = '<br><strong>' . $moderator . '</strong><br>';
+            $startedby = '<strong>' . $moderator . '</strong>';
         }
         if ($postasforumsetting == \mod_forumng::ASMODERATOR_ANON && $posteranon == \mod_forumng::ASMODERATOR_ANON && $deletedhide) {
             $showedithistory = false;
@@ -944,13 +945,15 @@ class mobile {
             $date->setTimestamp($timestart);
             $showfrom = $date->format('Y-m-d');
         }
+        $starteddate = $deletedhide ? '' : userdate($post->get_created(),
+            get_string('strftimedatetime', 'langconfig'), $USER->timezone);
         return [
             'postid' => $post->get_id(),
             'subject' => $suject,
             'startedby' => $startedby,
             'startedbyurl' => $startedbyurl,
             'message' => $message,
-            'starteddate' => \mod_forumng_utils::display_date($post->get_created()),
+            'starteddate' => $starteddate,
             'attachments' => $attachmentarray,
             'isimportant' => $post->is_important(),
             'isflagged' => $post->is_flagged(),
