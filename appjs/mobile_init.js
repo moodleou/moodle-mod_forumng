@@ -33,6 +33,21 @@
     AddonModForumngLinkHandler.prototype.constructor = AddonModForumngLinkHandler;
     t.CoreContentLinksDelegate.registerHandler(new AddonModForumngLinkHandler());
 
+    /* Prefetch handler (download). */
+    function AddonModForumngModulePrefetchHandler() {
+        t.CoreCourseActivityPrefetchHandlerBase.call(this, t.TranslateService, t.CoreAppProvider, t.CoreUtilsProvider,
+            t.CoreCourseProvider, t.CoreFilepoolProvider, t.CoreSitesProvider, t.CoreDomUtilsProvider,
+            t.CoreFilterHelperProvider, t.CorePluginFileDelegate, t.CoreUrlUtilsProvider, t.CoreFileProvider, t.CoreConfigConstants);
+        this.name = "AddonModForumngModulePrefetchHandler";
+        this.modName = "forumng";
+        this.component = "mod_forumng";
+        this.updatesNames = /^configuration$|^.*files$/;
+    }
+
+    AddonModForumngModulePrefetchHandler.prototype = Object.create(t.CoreCourseActivityPrefetchHandlerBase.prototype);
+    AddonModForumngModulePrefetchHandler.prototype.constructor = AddonModForumngModulePrefetchHandler;
+    t.CoreCourseModulePrefetchDelegate.registerHandler(new AddonModForumngModulePrefetchHandler());
+
    t.newDiscussion = {
        subject: '',
        message: '',
@@ -630,6 +645,14 @@
                 popover.style.left = null;
             }
         };
+        var defaultarg = {
+            'cmid': cmid,
+            'courseid' : courseid,
+            'group' : outerThis.CONTENT_OTHERDATA.defaultgroup,
+            'sortid': outerThis.CONTENT_OTHERDATA.selectedsort,
+            'isupdate': '1',
+        };
+        outerThis.CoreSitePluginsProvider.getContent('mod_forumng', 'forumng_view', defaultarg, preSets);
 
         if (t.removeEvent) {
             window.addEventListener("orientationchange", PopoverTransition);
