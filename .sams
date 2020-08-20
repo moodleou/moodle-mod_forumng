@@ -7,3 +7,6 @@ DISABLE_SAMS
 <Files mobileapp.css>
 DISABLE_SAMS
 </Files>
+<Files mobile_css.php>
+DISABLE_SAMS
+</Files>

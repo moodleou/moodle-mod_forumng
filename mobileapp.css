@@ -434,8 +434,12 @@ ion-app.app-root .mma-forumng-posts-list-wrapper .item .item-inner,
 .mma-forumng-posts-list-wrapper .mma-forumng-post-info > .item-inner > .input-wrapper {
     align-self: flex-start;
 }
-.mma-forumng-posts-list-wrapper .mma-forumng-p1 {
+.mma-forumng-posts-list-wrapper .mma-forumng-p1,
+.mma-forumng-post-reply:last-child .item-inner .mma-subreply-form  .item-block .item-inner {
     border-bottom: 1px solid #dedede;
+}
+.mma-forumng-post-reply:last-child .item-inner .mma-subreply-form > .item-block[no-lines] .item-inner {
+    border: 0;
 }
 .mma-forumng-posts-list-wrapper  ion-list#mma-forumng-form,
 .mma-forumng-posts-list-wrapper .mma-forumng-post-reply ion-list {
