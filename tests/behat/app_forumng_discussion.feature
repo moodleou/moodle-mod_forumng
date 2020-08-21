@@ -29,6 +29,7 @@ Feature:  Add discussion in forumng and test app can view discussion listing pag
     Given I log in as "teacher1"
     And I am on "Course 1" course homepage
     And I follow "Test forum name"
+    Then ".mma-forumng-discussion-title" "css_element" should not exist
     And I add a discussion with the following data:
       | Subject | Discussion 1 |
       | Message | abc          |
@@ -240,7 +241,7 @@ Feature:  Add discussion in forumng and test app can view discussion listing pag
     And I click on "//ion-list[contains(@class,'mma-forumng-discussion-list')]/ion-item[contains(@class, 'mma-forumng-discussion-short')][1]" "xpath_element"
     # Before click Expand all, I should see short message with (...) .
     And I should see "..."
-    And I should see "EXPAND ALL"
-    And I click on ".mma-forumng-expandall-link" "css_element"
-    And I should not see "..."
-    And I should see "COLLAPSE ALL"
+    And I should see "EXPAND ALL POSTS"
+    And I press "EXPAND ALL POSTS"
+    And I should not see "EXPAND ALL POSTS"
+    And I should see "COLLAPSE ALL POSTS"

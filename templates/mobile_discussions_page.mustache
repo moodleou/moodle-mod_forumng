@@ -95,7 +95,6 @@
     <%/ hasgroups %>
     <ion-list class="mma-forumng-discussion-list" no-lines>
         <ion-item>
-            <h2 class="mma-forumng-discussion-title"><% forum.name %></h2>
             <core-format-text class="mma-forumng-discussion-introduction" text="<% forum.introduction %>"
                               component="mod_forumng" componentId="<% cmid %>" maxHeight="66"
                               text-wrap></core-format-text>
@@ -176,7 +175,7 @@
             <%/ isipud %>
         </ion-item>
         <%# hasdiscussions %>
-        <ion-item class="mma-forumng-discussion-item">
+        <ion-item class="mma-forumng-discussion-item mma-forumng-sort-discussion">
             <ion-label>{{ 'plugin.mod_forumng.sortdiscussions' | translate }}</ion-label>
             <core-context-menu class="mma-forumng-discussion-sort" item-end>
                 <core-context-menu-item *ngFor="let option of CONTENT_OTHERDATA.sortoption" [priority]="900"

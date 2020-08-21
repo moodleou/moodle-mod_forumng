@@ -43,13 +43,6 @@ ion-app.app-root {
     margin-bottom: 0px !important;
 }
 
-.mma-forumng-discussion-list .mma-forumng-discussion-title {
-    font-weight: 700;
-    color: #002158;
-    font-size: 2em;
-    margin-bottom: 10px !important;
-}
-
 html[style="font-size: 93.75%;"] .mma-forumng-discussion-list core-format-text[maxHeight].core-text-formatted.core-shortened.mma-forumng-discussion-introduction {
     max-height: 105px !important;
 }
@@ -898,3 +891,6 @@ core-attachments.mma-forumng-attachments a.item-button .button-effect {
     padding-left: calc(var(--default-margin) * 2);
 }
 
+ion-item.mma-forumng-sort-discussion {
+    border-top: 0.55px solid #c8c7cc !important;
+}
