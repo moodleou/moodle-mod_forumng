@@ -796,7 +796,7 @@ ion-app.app-root core-format-text.mma-forumng-delete-draft-with-delete-discussio
 
 .mma-forumng-required-after:after,
 .mma-forumng-required-before:before {
-    background-image: url("@@WWWROOT@@/pix/req.gif");
+    background-image: url("@@WWWROOT@@/theme/osep/pix_plugins/mod/forumng/req.gif");
     background-position: center;
     background-repeat: no-repeat;
     padding-left: 10px;
