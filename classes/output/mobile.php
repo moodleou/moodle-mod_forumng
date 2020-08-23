@@ -789,10 +789,6 @@ class mobile {
         }
         $suject = $post->get_subject();
         $message = $post->get_formatted_message();
-        if ($post->is_root_post()) {
-            $suject = str_replace('"', '&quot;', $post->get_subject());
-            $message = str_replace('"', '&quot;', $post->get_formatted_message());
-        }
         // Attachments.
         $attachmentarray = [];
         $attachments = $post->get_attachment_names();
