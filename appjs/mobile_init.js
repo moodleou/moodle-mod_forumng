@@ -1085,6 +1085,11 @@
 
         outerThis.onSubjectChange = function() {
             t.currentReply.subject = outerThis.subject;
+            if (outerThis.CONTENT_OTHERDATA.rootpostid == outerThis.CONTENT_OTHERDATA.currentEditedPostId && outerThis.subject == '') {
+                outerThis.CONTENT_OTHERDATA.disable = true;
+            } else {
+                outerThis.CONTENT_OTHERDATA.disable = false;
+            }
         };
 
         outerThis.onMessageChange = function (text) {
@@ -1312,6 +1317,11 @@
                         t.isEdit = 0;
                         t.isReply = 0;
                         t.isAddDraft = 0;
+                        if (isrootpost && isedit) {
+                            var currentView = document.querySelector('[style="z-index: '+ outerThis.NavController.getActive()._zIndex + ';"]');
+                            var currentTitle = currentView.querySelector('.toolbar-title');
+                            currentTitle.textContent = subject;
+                        }
                         outerThis.refreshContent();
                     }).catch(function(msg) {
                         outerThis.CoreUtilsProvider.domUtils.showErrorModalDefault(msg, 'addon.mod_forum.cannotcreatereply', true);

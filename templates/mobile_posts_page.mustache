@@ -230,8 +230,12 @@
             <core-format-text class="mma-forumng-boldtitle" text="Lock discussion: <% subject %>"></core-format-text>
         </ion-item>
         <ion-item class="mma-forumng-label-subject" no-lines>
-            <ion-label stacked class="mma-forumng-boldtitle">{{ 'plugin.mod_forumng.subject' | translate }}</ion-label>
-            <ion-input type="text" (ionChange)="onSubjectChange()" [placeholder]="'plugin.mod_forumng.optionalsubject' | translate" [(ngModel)]="subject"></ion-input>
+            <ion-label *ngIf="CONTENT_OTHERDATA.rootpostid == CONTENT_OTHERDATA.currentEditedPostId" stacked
+                       class="mma-forumng-boldtitle mma-forumng-required-after">{{ 'plugin.mod_forumng.subject' | translate }}</ion-label>
+            <ion-label *ngIf="!(CONTENT_OTHERDATA.rootpostid == CONTENT_OTHERDATA.currentEditedPostId)" stacked
+                       class="mma-forumng-boldtitle">{{ 'plugin.mod_forumng.subject' | translate }}</ion-label>
+            <ion-input type="text" *ngIf="CONTENT_OTHERDATA.rootpostid == CONTENT_OTHERDATA.currentEditedPostId" (ionChange)="onSubjectChange()" [placeholder]="'plugin.mod_forumng.requiredsubject' | translate" [(ngModel)]="subject"></ion-input>
+            <ion-input type="text" *ngIf="!(CONTENT_OTHERDATA.rootpostid == CONTENT_OTHERDATA.currentEditedPostId)" (ionChange)="onSubjectChange()" [placeholder]="'plugin.mod_forumng.optionalsubject' | translate" [(ngModel)]="subject"></ion-input>
         </ion-item>
         <ion-item class="mma-forumng-label-message">
             <ion-label stacked class="mma-forumng-boldtitle mma-forumng-required-after">{{ 'plugin.mod_forumng.message' | translate }}</ion-label>

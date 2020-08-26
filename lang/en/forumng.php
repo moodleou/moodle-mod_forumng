@@ -299,6 +299,7 @@ $string['replytopost'] = 'Reply to post: {$a}';
 $string['editpost'] = 'Edit post: {$a}';
 $string['editdiscussionoptions'] = 'Edit discussion options: {$a}';
 $string['optionalsubject'] = 'Change subject (optional)';
+$string['requiredsubject'] = 'Change subject';
 $string['attachmentnum'] = 'Attachment {$a}';
 $string['sticky'] = 'Sticky discussion?';
 $string['sticky_no'] = 'Discussion is sorted normally';

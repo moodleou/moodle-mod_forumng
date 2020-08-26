@@ -92,6 +92,7 @@ $addons = [
             ['unread', 'forumng'],
             ['important', 'forumng'],
             ['required', 'forumng'],
+            ['requiredsubject', 'forumng'],
         ]
     ]
 ];
