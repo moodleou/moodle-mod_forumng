@@ -1077,3 +1077,4 @@ $string['cannotuploadfile'] = 'File name already exists';
 $string['sortdiscussions'] = 'Sort discussions';
 $string['unread'] = 'Unread post';
 $string['required'] = 'Required';
+$string['eqn'] = '[eqn]';

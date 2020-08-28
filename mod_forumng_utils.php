@@ -804,4 +804,31 @@ WHERE
         }
         return false;
     }
+
+    /**
+     * Format content for showmore.
+     *
+     * @param string $content
+     * @return array
+     *
+     */
+    public static function format_forum_content($content) {
+        $pattern = '/(?:(?:&lt;|<)(?:tex|math)|\$\$)((?s).*?)(?:(?:&lt;|<)\/(?:tex|math)(?:&gt;|>)|\$\$)/';
+        $showmore = preg_match('~<img(?s).*?>~', $content) || preg_match($pattern, $content);
+        $content = self::replace_equation($content);
+        $content = \mod_forumng_renderer::nice_shorten_text(strip_tags($content, '<img>'), strlen($content));
+        return [$content, $showmore];
+    }
+
+    /**
+     * Replace equation to [eqn];
+     *
+     * @param string $content
+     * @return string
+     *
+     */
+    public static function replace_equation($content) {
+        $pattern = '/(?:(?:&lt;|<)(?:tex|math)|\$\$)((?s).*?)(?:(?:&lt;|<)\/(?:tex|math)(?:&gt;|>)|\$\$)/';
+        return preg_replace($pattern, get_string('eqn', 'mod_forumng'), $content);
+    }
 }
