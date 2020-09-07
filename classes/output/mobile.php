@@ -237,6 +237,8 @@ class mobile {
                 $summary = str_replace('<strong></strong>', '', $summary);
                 $summary = \mod_forumng_renderer::nice_shorten_text($summary);
                 $summary = format_text($summary, FORMAT_HTML);
+                $summary = self::add_external_content_to_image($summary);
+
                 if (trim($summary) === '') {
                     $summary = get_string('notext', 'forumng');
                 }
@@ -295,6 +297,8 @@ class mobile {
         list($forum->introduction, $unusedintroductionformat) =
                 external_format_text($forumng->get_introduction(), $forumng->get_introduction_format(), $context->id,
                     'mod_forumng', 'introduction');
+        $forum->introduction = self::add_external_content_to_image($forum->introduction);
+
         $whynot = '';
         // O or NULL we can't start discussion.
         // -1 should be fine.
@@ -789,6 +793,8 @@ class mobile {
         }
         $suject = $post->get_subject();
         $message = $post->get_formatted_message();
+        $message = self::add_external_content_to_image($message);
+
         // Attachments.
         $attachmentarray = [];
         $attachments = $post->get_attachment_names();
@@ -1395,5 +1401,15 @@ class mobile {
         $token = \optional_param('wstoken', '', PARAM_RAW);
         return new \moodle_url('/webservice/pluginfile.php/' . $filecontext->id . '/mod_forumng/' . $filearea . '/' .
             $itemid . '/' . rawurlencode($attachment) . '?token=' . $token, $params);
+    }
+
+    /**
+     * Add attribute core-external-content for offline used in image.
+     *
+     * @param string $html
+     * @return string
+     */
+    private static function add_external_content_to_image($html) {
+        return str_replace('<img ', '<img core-external-content ', $html);
     }
 }

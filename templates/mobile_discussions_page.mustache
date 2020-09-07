@@ -114,7 +114,7 @@
                     <ion-col>
                         <div class="mma-forumng-draft-heading">
                             <% decorators.heading %>
-                            <img src="<%decorators.url%>" title="<%decorators.alt%>" alt="<%decorators.alt%>"
+                            <img core-external-content src="<%decorators.url%>" title="<%decorators.alt%>" alt="<%decorators.alt%>"
                                  (click)="showMessage('<%decorators.content%>')"/>
                         </div>
                     </ion-col>
@@ -140,14 +140,14 @@
                                     title="Discussion" [preSets]="{getFromCache: 0}"
                                     [text]="draft.summary" component="mod_forumng" componentId="<% cmid %>" text-wrap>
                             </core-format-text>
-                            <img class="mma-forumng-delete-draft" core-site-plugins-new-content component="mod_forumng" method="draft_view"
+                            <img core-external-content class="mma-forumng-delete-draft" core-site-plugins-new-content component="mod_forumng" method="draft_view"
                                  [args]="{draftid: draft.id}" [preSets]="{getFromCache: 0}" src="{{draft.deleteicon}}" alt="{{draft.deletealt}}"/>
                         </div>
                         <div *ngIf="draft.isdeletediscussion">
                             <core-format-text class="mma-forumng-delete-draft-with-delete-discussion"
                                     [text]="draft.summary" component="mod_forumng" componentId="<% cmid %>" text-wrap>
                             </core-format-text>
-                            <img class="mma-forumng-delete-draft" core-site-plugins-new-content component="mod_forumng" method="draft_view"
+                            <img core-external-content class="mma-forumng-delete-draft" core-site-plugins-new-content component="mod_forumng" method="draft_view"
                                  [args]="{draftid: draft.id}" [preSets]="{getFromCache: 0}" src="{{draft.deleteicon}}" alt="{{draft.deletealt}}"/>
                         </div>
                     </ion-col>
@@ -212,7 +212,7 @@
                                     <span *ngIf="discussion.classes" class="{{ discussion.classes }}">
                                     <!-- Add icon(s) as needed indicating sticky discussions etc. -->
                                         <span *ngFor="let decorator of discussion.decorators">
-                                            <img *ngIf="decorator.src; else elseBlock" [src]="decorator.src"
+                                            <img core-external-content *ngIf="decorator.src; else elseBlock" [src]="decorator.src"
                                                  alt="{{ decorator.alt }}"
                                                  title="{{ decorator.alt }}" class="mma-forumng-image-correction">
                                             <ng-template #elseBlock><span
@@ -245,7 +245,7 @@
                                 <span *ngIf="discussion.classes" class="{{ discussion.classes }}">
                                 <!-- Add icon(s) as needed indicating sticky discussions etc. -->
                                     <span *ngFor="let decorator of discussion.decorators">
-                                        <img *ngIf="decorator.src; else elseBlock" [src]="decorator.src"
+                                        <img core-external-content *ngIf="decorator.src; else elseBlock" [src]="decorator.src"
                                              alt="{{ decorator.alt }}"
                                              title="{{ decorator.alt }}" class="mma-forumng-image-correction">
                                         <ng-template #elseBlock><span
