@@ -91,11 +91,8 @@ class mark_all_post_read extends external_api {
             } else if ($groupid == -1) {
                 $groupid = mod_forumng::NO_GROUPS;
             }
-            if (!defined('PHPUNIT_TEST')) {
-                // There are some issue when we using the require_course_login in the require view
-                // For unit test because it want to change the context causing exception.
-                $forum->require_view($groupid);
-            }
+
+            $forum->require_view($groupid);
             if (!$forum->can_mark_read()) {
                 throw new \moodle_exception('error_cannotmarkread', 'forumng');
             }
