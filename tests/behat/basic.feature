@@ -230,7 +230,7 @@ Feature: Add forumng activity and test basic functionality
 
     # Check flagged posts display ok on main forum page
     And I follow "Test forum name"
-    And "3 flagged posts" "link" should exist
+    And "Skip to starred posts" "link" should exist
     And ".forumng-flagged-link" "css_element" should exist
     And ".forumng-flagged" "css_element" should exist
     And "REPLY3" "link" should exist
@@ -253,7 +253,7 @@ Feature: Add forumng activity and test basic functionality
 
     # Check numbner of flagged posts display on main forum page
     And I follow "Test forum name"
-    And "1 flagged posts" "link" should exist
+    And "Skip to starred posts" "link" should exist
     And ".forumng-flagged-link" "css_element" should exist
     And ".forumng-flagged" "css_element" should exist
     And "REPLY2" "link" should exist
@@ -297,7 +297,7 @@ Feature: Add forumng activity and test basic functionality
 
     # Check flagged posts display ok on main forum page
     And I follow "Test forum name"
-    And "3 flagged posts" "link" should exist
+    And "Skip to starred posts" "link" should exist
     And ".forumng-flagged-link" "css_element" should exist
     And ".forumng-flagged" "css_element" should exist
     And "REPLY3" "link" should exist
@@ -320,7 +320,7 @@ Feature: Add forumng activity and test basic functionality
 
     # Check number of flagged posts display on main forum page.
     And I follow "Test forum name"
-    And "1 flagged posts" "link" should exist
+    And "Skip to starred posts" "link" should exist
     And ".forumng-flagged-link" "css_element" should exist
     And ".forumng-flagged" "css_element" should exist
     And "REPLY3" "link" should not exist

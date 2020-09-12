@@ -22,6 +22,9 @@
 #page-mod-forumng-view #footer {
     clear:left;
 }
+#page-mod-forumng-view .btn-link .icon {
+    margin-left: 5px;
+}
 /*
 // Icon links
 /////////////
@@ -215,7 +218,7 @@ a.forumng-sortlink:hover {
 }
 
 .forumng-drafts {
-    margin: 1em 0 2em;
+    margin: 11px 0 2em;
 }
 .forumng-drafts .forumng-heading,
 .forumng-flagged .forumng-heading {
@@ -250,19 +253,38 @@ div.forumng-flagpost a img {
     vertical-align: -3px;
 }
 
+.forumng_header_info .show-message-notify {
+    margin-bottom: 7px;
+}
 .forumng-shareinfo {
     margin: 2em 0 2em;
 }
 
 .forumng-flagged-link {
     padding-bottom: 2px;
-    border-bottom: 2px solid #CCCCCC;
+    display: flex;
+    margin-top: 1px;
 }
 
 .forumng-flagged-link a {
     text-decoration: none;
+    margin-right: 10px;
+    display: flex;
+    align-items: flex-start;
 }
-
+.forumng-flagged-link a img {
+    margin-right: 5px;
+    height: 18px;
+    width: 18px;
+}
+.forumng-flagged-link a img.arrow-down-icon {
+    align-self: center;
+}
+.forumng-flag input[type="image"] {
+    width: 18px;
+    height: 18px;
+    margin-bottom: -2px;
+}
 .forumng-startedby-wrapper {
     margin-left: 0;
 }
@@ -275,7 +297,7 @@ div.forumng-flagpost a img {
 
 .forumng-startedbyuser {
     display: inline;
-    vertical-align:middle;
+    vertical-align: middle;
     text-align: left;
     width: 355px;
 }
@@ -1093,5 +1115,36 @@ padding-top: 1em;
     /* Checkbox align on wide (ForumNG - feature copy multiple discussions) */
     body#page-mod-forumng-feature-copy-copyall .mform:not(.unresponsive) #id_hidelater {
         margin-top: -4px;
+    }
+}
+
+/* CSS for toggle shorten content */
+.wrapper_fullcontent {
+    display: none;
+}
+.wrapper_shortencontent,
+.wrapper_fullcontent {
+    margin-bottom: 15px;
+}
+.wrapper_fullcontent p,
+.wrapper_shortencontent p {
+    margin-bottom: 0;
+}
+.toggle_showmore,
+.toggle_showless {
+    color: #0b55a8;
+    cursor: pointer;
+}
+.wrapper_shortencontent p {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    word-break: break-word;
+}
+
+@media (max-width: 767px) {
+    .forumng-flagged-link > div:first-of-type {
+        height: 37px;
     }
 }

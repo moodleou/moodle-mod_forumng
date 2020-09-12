@@ -27,6 +27,11 @@ defined('MOODLE_INTERNAL') || die();
 class mod_forumng_renderer extends plugin_renderer_base {
 
     /**
+     * @var int SHORTENED_LENGTH Text shortened length.
+     */
+    const SHORTENED_LENGTH = 200;
+
+    /**
      * Displays a discussion (main part of discussion page) with given options.
      * @param mod_forumng_discussion $discussion
      * @param object $options
@@ -275,7 +280,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
         if ($discussion->is_locked()) {
             $classes .= ' forumng-locked';
             $alts[] = get_string('alt_discussion_locked', 'forumng');
-            $icons[] = array('i/unlock', 'moodle');
+            $icons[] = $this->render_lock_icon();
         }
 
         // Classes for Moodle table styles
@@ -373,6 +378,15 @@ class mod_forumng_renderer extends plugin_renderer_base {
 
         $result .= '</tr>';
         return $result;
+    }
+
+    /**
+     * Render lock icon for forumng.
+     *
+     * @return string[]
+     */
+    protected function render_lock_icon() {
+        return ['i/unlock', 'moodle'];
     }
 
     /**
@@ -495,16 +509,16 @@ class mod_forumng_renderer extends plugin_renderer_base {
         }
 
         if ($discuss) {
-            $flaggedtxt = get_string('flaggeddiscussionslink', 'forumng', $numberflagged);
+            $flaggedtxt = get_string('starreddiscussionslink', 'forumng', $numberflagged);
             $forumngflagged = 'forumng-flaggeddiscussions';
         } else {
-            $flaggedtxt = get_string('flaggedpostslink', 'forumng', $numberflagged);
+            $flaggedtxt = get_string('starredpostslink', 'forumng', $numberflagged);
             $forumngflagged = 'forumng-flaggedposts';
         }
 
         return '<div><a href="#' . $forumngflagged . '">' .
-            '<img src="' . $this->image_url('flag.on', 'mod_forumng'). '" alt="' .
-            get_string('flagon', 'forumng') . '"/> ' . $flaggedtxt. '</a></div>';
+            '<img src="' . $this->image_url('star.on', 'mod_forumng'). '" alt="' .
+            get_string('staron', 'forumng') . '"/> ' . $flaggedtxt. '</a></div>';
     }
 
     /**
@@ -518,18 +532,18 @@ class mod_forumng_renderer extends plugin_renderer_base {
 
         if ($discuss) {
             $flagid = 'forumng-flaggeddiscussions';
-            $title = get_string('flaggeddiscussions', 'forumng');
+            $title = get_string('starreddiscussions', 'forumng');
             $th0 = get_string('discussion', 'forumng');
             $th1 = get_string('startedby', 'forumng');
             $th2 = get_string('lastpost', 'forumng');
-            $helptext = $this->help_icon('flaggeddiscussions', 'forumng');
+            $helptext = $this->help_icon('starreddiscussions', 'forumng');
         } else {
             $flagid = 'forumng-flaggedposts';
-            $title = get_string('flaggedposts', 'forumng');
+            $title = get_string('starredposts', 'forumng');
             $th0 = get_string('post', 'forumng');
             $th1 = get_string('discussion', 'forumng');
             $th2 = get_string('date');
-            $helptext = $this->help_icon('flaggedposts', 'forumng');
+            $helptext = $this->help_icon('starredposts', 'forumng');
         }
 
         $result = '<div class="forumng-flagged" id="' .$flagid .'">
@@ -573,11 +587,8 @@ class mod_forumng_renderer extends plugin_renderer_base {
         $result .= ' <form class="forumng-flag" action="flagpost.php" method="post"><div>' .
                 '<input type="hidden" name="p" value="' . $post->get_id() . '" />'.
                 '<input type="hidden" name="back" value="view" />'.
-                '<input type="hidden" name="flag" value="0" />'.
-                '<input type="image" title="' . get_string('clearflag', 'forumng') .
-                '" src="' . $this->image_url('flag.on', 'mod_forumng'). '" alt="' .
-                get_string('flagon', 'forumng') .
-                '" /></div></form>&nbsp;';
+                '<input type="hidden" name="flag" value="0" />'. $this->render_flag_icon() .
+                '</div></form>&nbsp;';
 
         // Get post URL
         $discussion = $post->get_discussion();
@@ -643,11 +654,8 @@ class mod_forumng_renderer extends plugin_renderer_base {
         $result .= ' <form class="forumng-flag" action="feature/flagdiscussion/flag.php" method="post"><div>' .
                 '<input type="hidden" name="d" value="' . $discussion->get_id() . '" />'.
                 '<input type="hidden" name="back" value="view" />'.
-                '<input type="hidden" name="flag" value="0" />'.
-                '<input type="image" title="' . get_string('clearflag', 'forumng') .
-                '" src="' . $this->image_url('flag.on', 'mod_forumng'). '" alt="' .
-                get_string('flagon', 'forumng') .
-                '" /></div></form>&nbsp;';
+                '<input type="hidden" name="flag" value="0" />'. $this->render_flag_icon() .
+                '</div></form>&nbsp;';
 
         $result .= "<a href='discuss.php?" .
                 $discussion->get_link_params(mod_forumng::PARAM_HTML) . "'>" .
@@ -665,6 +673,22 @@ class mod_forumng_renderer extends plugin_renderer_base {
         $result .= $lastpostcell . "</tr>";
 
         return $result;
+    }
+
+    /**
+     * Render flag icon for forumng.
+     *
+     * @param {object} $object
+     * @return string
+     */
+    protected function render_flag_icon() {
+        $attrs = [
+            'type' => 'image',
+            'title' => get_string('clearstar', 'forumng'),
+            'src' => $this->image_url('star.on', 'mod_forumng'),
+            'alt' => get_string('staron', 'forumng'),
+        ];
+        return html_writer::tag('input', '', $attrs);
     }
 
     /**
@@ -691,6 +715,8 @@ class mod_forumng_renderer extends plugin_renderer_base {
         $context = context_module::instance($forum->get_course_module_id(true));
         $options = array('noclean' => true, 'para' => false, 'filter' => true, 'context' => $context, 'overflowdiv' => true);
         $intro = file_rewrite_pluginfile_urls($forum->get_introduction(), 'pluginfile.php', $context->id, 'mod_forumng', 'introduction', null);
+        $intro = self::render_showmore($intro, self::SHORTENED_LENGTH);
+        $intro = html_writer::tag('h6', get_string('forumintroduction', 'mod_forumng'), ['class' => 'forumng-listing-introduction']) . $intro;
         $intro = format_text($intro, $forum->get_introduction_format(), $options, null);
 
         // Box styling appears to be consistent with some other modules
@@ -698,6 +724,31 @@ class mod_forumng_renderer extends plugin_renderer_base {
                 'id' => 'intro'));
 
         return $intro;
+    }
+
+    /**
+     * Render show more for long content.
+     *
+     * @param string $content
+     * @param int $length
+     * @return string
+     * @throws coding_exception
+     */
+    protected static function render_showmore($content, $length = 200) {
+        if (trim($content) === '') {
+            return '';
+        }
+        list($shortentext, $showmore) = \mod_forumng_utils::format_forum_content($content);
+        $showmore = $showmore ? $showmore : strlen($shortentext) >= self::SHORTENED_LENGTH;
+        if ($showmore) {
+            $shortencontent = html_writer::div('<p>' . self::nice_shorten_text($shortentext, $length) .'</p>' .
+                html_writer::span(get_string('showmore', 'mod_forumng'), 'toggle_showmore'), 'wrapper_shortencontent');
+
+            $fullcontent = html_writer::div('<p>' . $content .'</p>'.
+                html_writer::span(get_string('showless', 'mod_forumng'), 'toggle_showless'), 'wrapper_fullcontent');
+            $content = $shortencontent . $fullcontent;
+        }
+        return $content;
     }
 
     /**
@@ -830,7 +881,50 @@ class mod_forumng_renderer extends plugin_renderer_base {
                     '?simple=1">' . get_string('switchto_simple_link', 'forumng') . '</a></div>';
         }
     }
-
+    /**
+     * Render subscribe button.
+     * @param mod_forumng $forum
+     * @param int $subscribed
+     * @return string
+     */
+    protected function render_subscribe_button($forum, $subscribed) {
+        $cm = $forum->get_course_module();
+        $currentgroupid = mod_forumng::get_activity_group($cm, true);
+        $outsubmit = '';
+        if ($currentgroupid == mod_forumng::NO_GROUPS) {
+            $currentgroupid = 0;
+        }
+        if ($subscribed == mod_forumng::FULLY_SUBSCRIBED ||
+            $subscribed == mod_forumng::FULLY_SUBSCRIBED_GROUPMODE) {
+            $outsubmit .= '<input type="submit" name="submitunsubscribe" value="' .
+                get_string('unsubscribeshort', 'forumng') . '" />';
+        } else if ($subscribed == mod_forumng::PARTIALLY_SUBSCRIBED) {
+            // Print both subscribe button and unsubscribe button.
+            $outsubmit .= '<input type="submit" name="submitsubscribe" value="' .
+                get_string('subscribelong', 'forumng') . '" />' .
+                '<input type="submit" name="submitunsubscribe" value="' .
+                get_string('unsubscribelong', 'forumng') . '" />';
+        } else if ($subscribed == mod_forumng::NOT_SUBSCRIBED) {
+            // Default unsubscribed, print subscribe button.
+            $outsubmit .= '<input type="submit" name="submitsubscribe" value="' .
+                get_string('subscribeshort', 'forumng') . '" />';
+        } else if ($subscribed == mod_forumng::THIS_GROUP_PARTIALLY_SUBSCRIBED) {
+            $outsubmit .= '<input type="submit" name="submitsubscribe_thisgroup" value="' .
+                get_string('subscribegroup', 'forumng') . '" />' .
+                '<input type="submit" name="submitunsubscribe_thisgroup" value="' .
+                get_string('unsubscribegroup_partial', 'forumng') . '" />'.
+                '<input type="hidden" name="g" value="' . $currentgroupid . '" />';
+        } else if ($subscribed == mod_forumng::THIS_GROUP_SUBSCRIBED) {
+            $outsubmit .= '<input type="submit" name="submitunsubscribe_thisgroup" value="' .
+                get_string('unsubscribegroup', 'forumng') . '" />'.
+                '<input type="hidden" name="g" value="' . $currentgroupid . '" />';
+        } else if ($subscribed == mod_forumng::THIS_GROUP_NOT_SUBSCRIBED) {
+            $outsubmit .= '<input type="submit" name="submitsubscribe_thisgroup" value="' .
+                get_string('subscribegroup', 'forumng') . '" />'.
+                '<input type="hidden" name="g" value="' . $currentgroupid . '" />';
+        }
+        return $outsubmit;
+    }
     /**
      * Display subscribe options.
      * @param mod_forumng $forum Forum
@@ -847,42 +941,8 @@ class mod_forumng_renderer extends plugin_renderer_base {
             '<h3>' . get_string('subscription', 'forumng') . '</h3>' .
             '<p>' . $text . '</p>';
         $out .= '</div>';
-        $cm = $forum->get_course_module();
         if ($button) {
-            $outsubmit = '';
-            $currentgroupid = mod_forumng::get_activity_group($cm, true);
-            if ($currentgroupid == mod_forumng::NO_GROUPS) {
-                $currentgroupid = 0;
-            }
-            if ($subscribed == mod_forumng::FULLY_SUBSCRIBED ||
-                    $subscribed == mod_forumng::FULLY_SUBSCRIBED_GROUPMODE) {
-                $outsubmit .= '<input type="submit" name="submitunsubscribe" value="' .
-                        get_string('unsubscribeshort', 'forumng') . '" />';
-            } else if ($subscribed == mod_forumng::PARTIALLY_SUBSCRIBED) {
-                // Print both subscribe button and unsubscribe button.
-                $outsubmit .= '<input type="submit" name="submitsubscribe" value="' .
-                    get_string('subscribelong', 'forumng') . '" />' .
-                    '<input type="submit" name="submitunsubscribe" value="' .
-                    get_string('unsubscribelong', 'forumng') . '" />';
-            } else if ($subscribed == mod_forumng::NOT_SUBSCRIBED) {
-                // Default unsubscribed, print subscribe button.
-                $outsubmit .= '<input type="submit" name="submitsubscribe" value="' .
-                        get_string('subscribeshort', 'forumng') . '" />';
-            } else if ($subscribed == mod_forumng::THIS_GROUP_PARTIALLY_SUBSCRIBED) {
-                $outsubmit .= '<input type="submit" name="submitsubscribe_thisgroup" value="' .
-                    get_string('subscribegroup', 'forumng') . '" />' .
-                    '<input type="submit" name="submitunsubscribe_thisgroup" value="' .
-                    get_string('unsubscribegroup_partial', 'forumng') . '" />'.
-                    '<input type="hidden" name="g" value="' . $currentgroupid . '" />';
-            } else if ($subscribed == mod_forumng::THIS_GROUP_SUBSCRIBED) {
-                $outsubmit .= '<input type="submit" name="submitunsubscribe_thisgroup" value="' .
-                    get_string('unsubscribegroup', 'forumng') . '" />'.
-                    '<input type="hidden" name="g" value="' . $currentgroupid . '" />';
-            } else if ($subscribed == mod_forumng::THIS_GROUP_NOT_SUBSCRIBED) {
-                $outsubmit .= '<input type="submit" name="submitsubscribe_thisgroup" value="' .
-                    get_string('subscribegroup', 'forumng') . '" />'.
-                    '<input type="hidden" name="g" value="' . $currentgroupid . '" />';
-            }
+            $outsubmit = $this->render_subscribe_button($forum, $subscribed);
 
             $out .= '<form action="subscribe.php" method="post"><div>' .
                 $forum->get_link_params(mod_forumng::PARAM_FORM) .

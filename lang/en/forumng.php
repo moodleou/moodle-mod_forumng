@@ -1077,4 +1077,25 @@ $string['cannotuploadfile'] = 'File name already exists';
 $string['sortdiscussions'] = 'Sort discussions';
 $string['unread'] = 'Unread post';
 $string['required'] = 'Required';
+$string['forumintroduction'] = 'Introduction';
+$string['starreddiscussions'] = 'Starred discussions';
+$string['starreddiscussionslink'] = 'Skip to starred discussions';
+$string['starreddiscussions_help'] = 'Starred discussions appear in this list. To jump to a starred discussion,
+click on it.
+
+To remove the star from a discussion, click on the star icon (here or the \'Remove star\' button in the discussion).';
+$string['starredposts'] = 'Starred posts';
+$string['starredpostslink'] = 'Skip to starred posts';
+$string['starredposts_help'] = 'Starred posts appear in this list. To jump to a starred post,
+click on it.
+
+To remove the star from a post, click on the star icon (here or in the post).';
+$string['clearstar'] = 'Remove star';
+$string['starpost'] = 'Star post';
+$string['setstar'] = 'Star this post for future reference';
+$string['staron'] = 'You have starred this post';
+$string['staroff'] = 'Not starred';
+$string['showmore'] = 'Show more';
+$string['showless'] = 'Show less';
+$string['subscriptionhelptitle'] = 'Email subscription';
 $string['eqn'] = '[eqn]';
