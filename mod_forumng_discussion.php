@@ -2648,22 +2648,6 @@ WHERE
         return $out->render_unread_skip_link();
     }
 
-    /**
-     * @return string HTML links for RSS/Atom feeds to this discussion (if
-     *   enabled etc)
-     */
-    public function display_feed_links() {
-        // Check they're allowed to see it
-        if ($this->get_forum()->get_effective_feed_option()
-            != mod_forumng::FEEDTYPE_ALL_POSTS) {
-            return '';
-        }
-
-        $out = mod_forumng_utils::get_renderer();
-        return $out->render_feed_links($this->get_feed_url(mod_forumng::FEEDFORMAT_ATOM),
-                $this->get_feed_url(mod_forumng::FEEDFORMAT_RSS));
-    }
-
     // Feeds
     /*//////*/
 

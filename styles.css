@@ -46,25 +46,6 @@ a.forumng-iconlink:hover {
     top: 4px;
 }
 
-.forumng-feedlinks a:link,
-.forumng-feedlinks a:visited,
-.forumng-feedlinks a:active {
-    text-decoration: none;
-    color: black;
-}
-.generaltable .forumng-feedlinks a:link,
-.generaltable .forumng-feedlinks a:visited,
-.generaltable .forumng-feedlinks a:active {
-    color: black;
-}
-
-.forumng-feedlinks a:hover {
-    text-decoration: underline;
-}
-.forumng-feedlinks a.forumng-iconlink:hover {
-    text-decoration: none;
-}
-
 /*
 // Errors
 /////////
@@ -84,8 +65,7 @@ a.forumng-iconlink:hover {
 .forumng-subscribecell div {
     display:inline;
 }
-.forumng-subscribecell input,
-.forumng-feedlinks {
+.forumng-subscribecell input {
     font-size:0.85em;
 }
 .forumng-subscribecell {
@@ -228,11 +208,6 @@ a.forumng-sortlink:hover {
 
 .forumng-sortcurrent {
     padding-left:0.3em;
-}
-
-#page-mod-forumng-view .forumng-feedlinks,
-#page-mod-forumng-discuss .forumng-feedlinks {
-    margin-top: 0.5em;
 }
 
 .forumng-draft-inreplyto {
@@ -560,7 +535,6 @@ ul.forumng-commands li.forumng-replylink {
     background: #eee;
     padding: 0.5em 0 0;
 }
-.forumng-selectmode .forumng-feedlinks,
 .forumng-selectmode #forumng-arrowback,
 .forumng-selectmode .forumng-info .forumng-flag .forumng-flagpost,
 .forumng-selectmode .forumng-edit {
