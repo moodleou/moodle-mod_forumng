@@ -289,15 +289,13 @@ div.forumng-flagpost a img {
 }
 
 .forumng-startedby-wrapper {
-    margin-left: 51px;
-    overflow: hidden;
+    margin-left: 0;
 }
 
 .forumng-startedbyimage {
     display: inline;
     float: left;
-    margin-right: 5px;
-    overflow: hidden;
+    margin-right: 0;
 }
 
 .forumng-startedbyuser {
@@ -305,7 +303,6 @@ div.forumng-flagpost a img {
     vertical-align:middle;
     text-align: left;
     width: 355px;
-    overflow: hidden;
 }
 
 .forumng-moderator {

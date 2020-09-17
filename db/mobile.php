@@ -36,9 +36,10 @@ $addons = [
                 ],
                 'offlinefunctions' => [],
                 'downloadbutton' => false,
+                'displayprefetch' => false,
                 'styles' => [
-                    'url' => $CFG->wwwroot . '/mod/forumng/mobileapp.css',
-                    'version' => 2020042627
+                    'url' => $CFG->wwwroot . '/mod/forumng/mobile_css.php?v=2020082100',
+                    'version' => 2020082100
                 ],
                 'init' => 'mobile_forumng_init'
             ]
@@ -66,9 +67,6 @@ $addons = [
             ['drafts', 'forumng'],
             ['draft', 'forumng'],
             ['date', 'forumng'],
-            ['automarkpostasread', 'forumng'],
-            ['manuallymarkpostasread', 'forumng'],
-            ['markpostread', 'forumng'],
             ['noselection', 'forumng'],
             ['leavemessage', 'forumng'],
             ['displayoption', 'forumng'],
@@ -86,11 +84,15 @@ $addons = [
             ['undeletepostbutton', 'forumng'],
             ['editpostmobile', 'forumng'],
             ['expandallpost', 'forumng'],
-            ['collapseallpost', 'forumng'],
             ['savedraft', 'forumng'],
             ['cannotcreatedraft', 'forumng'],
             ['confirmdeletedraft', 'forumng'],
             ['cannotuploadfile', 'forumng'],
+            ['sortdiscussions', 'forumng'],
+            ['unread', 'forumng'],
+            ['important', 'forumng'],
+            ['required', 'forumng'],
+            ['requiredsubject', 'forumng'],
         ]
     ]
 ];

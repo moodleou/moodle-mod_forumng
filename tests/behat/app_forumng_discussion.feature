@@ -29,6 +29,7 @@ Feature:  Add discussion in forumng and test app can view discussion listing pag
     Given I log in as "teacher1"
     And I am on "Course 1" course homepage
     And I follow "Test forum name"
+    Then ".mma-forumng-discussion-title" "css_element" should not exist
     And I add a discussion with the following data:
       | Subject | Discussion 1 |
       | Message | abc          |
@@ -93,6 +94,7 @@ Feature:  Add discussion in forumng and test app can view discussion listing pag
     And I log in as "teacher1"
     And I press "Course 1" near "Recently accessed courses" in the app
     And I press "Test forum name" in the app
+    And I should see "Sort discussions"
     And "//div[@class='mma-forumng-discussion-icons']/span[contains(@class, 'forumng-locked forumng-timeout forumng-sticky')]/span/img[contains(@alt, 'read-only')]" "xpath_element" should exist
     And "//div[@class='mma-forumng-discussion-icons']/span[contains(@class, 'forumng-locked forumng-timeout forumng-sticky')]/span/img[contains(@alt, '(time limit)')]" "xpath_element" should exist
     And "//div[@class='mma-forumng-discussion-icons']/span[contains(@class, 'forumng-locked forumng-timeout forumng-sticky')]/span/img[contains(@alt, 'top of list')]" "xpath_element" should exist
@@ -100,6 +102,7 @@ Feature:  Add discussion in forumng and test app can view discussion listing pag
     And I log in as "student1"
     And I press "Course 1" near "Recently accessed courses" in the app
     And I press "Test forum discussion" in the app
+    And I should see "Sort discussions"
     # Discussions has sticky always in the top list.
     And I should see "b discussion" in the "//ion-list[contains(@class,'mma-forumng-discussion-list')]/ion-item[contains(@class, 'mma-forumng-discussion-short')][1]" "xpath_element"
     And I should see "c discussion" in the "//ion-list[contains(@class,'mma-forumng-discussion-list')]/ion-item[contains(@class, 'mma-forumng-discussion-short')][2]" "xpath_element"
@@ -238,7 +241,29 @@ Feature:  Add discussion in forumng and test app can view discussion listing pag
     And I click on "//ion-list[contains(@class,'mma-forumng-discussion-list')]/ion-item[contains(@class, 'mma-forumng-discussion-short')][1]" "xpath_element"
     # Before click Expand all, I should see short message with (...) .
     And I should see "..."
-    And I should see "EXPAND ALL"
-    And I click on ".mma-forumng-expandall-link" "css_element"
-    And I should not see "..."
-    And I should see "COLLAPSE ALL"
+    And I should see "EXPAND ALL POSTS"
+    And I press "EXPAND ALL POSTS"
+    And I should not see "EXPAND ALL POSTS"
+    And I should see "COLLAPSE ALL POSTS"
+
+  @_file_upload
+  Scenario: Add forum downloads to manage downloads page
+    Given I log in as "teacher1"
+    And I am on "Course 1" course homepage
+    And I follow "Test forum discussion"
+    And I add a discussion with the following data:
+      | Subject | a discussion |
+      | Message | test message |
+    And I reply to post "1" with the following data:
+      | Message    | REPLY1                               |
+      | Attachment | mod/forumng/tests/fixtures/Reply.txt |
+    And I enter the app
+    And I log in as "student1"
+    And I press "Course 1" near "Recently accessed courses" in the app
+    And I press "Test forum discussion" in the app
+    And I click on "//ion-list[contains(@class,'mma-forumng-discussion-list')]/ion-item[contains(@class, 'mma-forumng-discussion-short')][1]" "xpath_element"
+    And I press "Reply.txt" in the app
+    And I close the browser tab opened by the app
+    And I click on "page-core-site-plugins-plugin button.back-button" "css_element"
+    And I click on "page-core-site-plugins-module-index core-context-menu button" "css_element"
+    Then I should see "Remove files 374 bytes"

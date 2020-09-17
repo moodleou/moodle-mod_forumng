@@ -54,48 +54,67 @@
 
 }}
 {{=<% %>=}}
-<ion-item *ngIf="CONTENT_OTHERDATA.draftexists.length > 0" id="mma-forumng-draftexists" class="mma-forumng-draftexists">
-    <core-format-text [text]="CONTENT_OTHERDATA.draftexists" component="mod_forumng" componentId="<% cmid %>" text-wrap></core-format-text>
-</ion-item>
-<ion-item>
-    <ion-label stacked>{{ 'plugin.mod_forumng.subject' | translate }}</ion-label>
-    <ion-input (ionChange)="onSubjectChange()" type="text" [placeholder]="'plugin.mod_forumng.subject' | translate" [(ngModel)]="subject"></ion-input>
-</ion-item>
-<ion-item>
-    <ion-label stacked>{{ 'plugin.mod_forumng.message' | translate }}</ion-label>
-    <core-rich-text-editor item-content (contentChanged)="onMessageChange($event)" [control]="addDiscussionControl" class="forumng-add-discussion-message"
-                [placeholder]="'plugin.mod_forumng.message' | translate" [name]="msg" [(ngModel)]="message"></core-rich-text-editor>
-</ion-item>
-<ion-item>
-    <ion-label class="mma-forumng-smaller-text">{{ 'plugin.mod_forumng.attachments' | translate }}</ion-label>
-</ion-item>
-<core-attachments (ionChange)="onFileChange()" [files]="CONTENT_OTHERDATA.files" [maxSize]="<% maxsize %>" [component]="mod_forumng" [componentId]="<% cmid %>" [acceptedTypes]="application/octet-stream" [allowOffline]="false"></core-attachments>
-<%# cantag %>
-    <ion-item>
+<div class="mma-forumng-add-discussion">
+    <ion-item *ngIf="CONTENT_OTHERDATA.draftexists.length > 0" id="mma-forumng-draftexists" class="mma-forumng-draftexists">
+        <core-format-text [text]="CONTENT_OTHERDATA.draftexists" component="mod_forumng" componentId="<% cmid %>"
+                          text-wrap></core-format-text>
+    </ion-item>
+    <ion-item class="mma-forumng-label-subject">
+        <ion-label stacked class="mma-forumng-boldtitle mma-forumng-required-after">{{ 'plugin.mod_forumng.subject' | translate }}</ion-label>
+        <ion-input (ionChange)="onSubjectChange()" type="text" [placeholder]="'plugin.mod_forumng.subject' | translate"
+                   [(ngModel)]="subject"></ion-input>
+    </ion-item>
+    <ion-item class="mma-forumng-label-message">
+        <ion-label stacked class="mma-forumng-boldtitle mma-forumng-required-after">{{ 'plugin.mod_forumng.message' | translate }}</ion-label>
+        <core-rich-text-editor item-content (contentChanged)="onMessageChange($event)" [control]="addDiscussionControl"
+                               class="forumng-add-discussion-message"
+                               [placeholder]="'plugin.mod_forumng.message' | translate" [name]="msg"
+                               [(ngModel)]="message"></core-rich-text-editor>
+    </ion-item>
+    <ion-item class="mma-forumng-label-attachment" no-lines>
+        <ion-label class="mma-forumng-boldtitle mma-forumng-no-margin-bottom">{{ 'plugin.mod_forumng.attachments' | translate }}</ion-label>
+    </ion-item>
+    <core-attachments class="mma-forumng-attachments" (ionChange)="onFileChange()" [files]="CONTENT_OTHERDATA.files"
+                      [maxSize]="<% maxsize %>" [component]="mod_forumng" [componentId]="<% cmid %>"
+                      [acceptedTypes]="application/octet-stream" [allowOffline]="false"></core-attachments>
+    <%# cantag %>
+    <ion-item class="mma-forumng-label-sticky">
         <ion-label text-wrap><%{ displayoption }%></ion-label>
-        <ion-toggle (ionChange)="onStickyChange()" id="mma-forumng-show-sticky" [(ngModel)]="CONTENT_OTHERDATA.showsticky"></ion-toggle>
+        <ion-toggle (ionChange)="onStickyChange()" id="mma-forumng-show-sticky"
+                    [(ngModel)]="CONTENT_OTHERDATA.showsticky"></ion-toggle>
     </ion-item>
-<%/ cantag %>
-<%# canviewhidden %>
-    <ion-item text-wrap>
-      <ion-label text-wrap><%{ displayperiod }%></ion-label>
-      <ion-datetime [max]="CONTENT_OTHERDATA.maxyear" (ionChange)="onDateChange()" [placeholder]="'core.date' | translate" [displayFormat]="dateFormat" [(ngModel)]="CONTENT_OTHERDATA.showfrom"></ion-datetime>
+    <%/ cantag %>
+    <%# canviewhidden %>
+    <ion-item text-wrap class="mma-forumng-label-date">
+        <ion-label text-wrap><%{ displayperiod }%></ion-label>
+        <ion-datetime [max]="CONTENT_OTHERDATA.maxyear" (ionChange)="onDateChange()"
+                      [placeholder]="'core.date' | translate" [displayFormat]="dateFormat"
+                      [(ngModel)]="CONTENT_OTHERDATA.showfrom"></ion-datetime>
     </ion-item>
-<%/ canviewhidden %>
-<%# hasoption %>
-   <ion-item text-wrap>
-       <ion-label text-wrap><%{ postas }%></ion-label>
-       <ion-select (ionChange)="PostAsChange()" [(ngModel)]="CONTENT_OTHERDATA.postas" interface="action-sheet" text-wrap>
-           <%# options %>
-                <ion-option value="<% key %>">
-                   <% value %>
-                </ion-option>
-           <%/ options %>
-       </ion-select>
-   </ion-item>
-<%/ hasoption %>
-<ion-item class="mma-forumng-group-button">
-    <button id="mma-forumng-add-discussion-button" ion-button (click)="addDiscussion()" [disabled]="subject == '' || message == null || message == ''"><% submitlabel %></button>
-    <button ion-button (click)="NewDiscussionCancel()">{{ 'core.cancel' | translate }}</button>
-    <button id="mma-forumng-add-draft-button" ion-button (click)="addDraft()" [disabled]="subject == '' || message == null || message == ''"><% submitdraftlabel %></button>
-</ion-item>
+    <%/ canviewhidden %>
+    <%# hasoption %>
+    <ion-item text-wrap class="mma-forumng-label-postas">
+        <ion-label text-wrap><%{ postas }%></ion-label>
+        <ion-select (ionChange)="PostAsChange()" [(ngModel)]="CONTENT_OTHERDATA.postas" interface="action-sheet" text-wrap>
+            <%# options %>
+            <ion-option value="<% key %>">
+                <% value %>
+            </ion-option>
+            <%/ options %>
+        </ion-select>
+    </ion-item>
+    <%/ hasoption %>
+    <ion-item class="mma-forumng-group-button" no-lines>
+        <button id="mma-forumng-add-discussion-button" ion-button outline (click)="addDiscussion()"
+                [disabled]="subject == '' || message == null || message == ''"><% submitlabel %>
+        </button>
+        <button ion-button outline (click)="NewDiscussionCancel()">{{ 'core.cancel' | translate }}</button>
+        <button id="mma-forumng-add-draft-button" ion-button outline (click)="addDraft()"
+                [disabled]="subject == '' || message == null || message == ''"><% submitdraftlabel %>
+        </button>
+    </ion-item>
+    <ion-item class="mma-forumng-label-required" no-lines>
+        <ion-label class="mma-forumng-boldtitle mma-forumng-required-before">
+            {{ 'plugin.mod_forumng.required' | translate }}</ion-label>
+    </ion-item>
+</div>

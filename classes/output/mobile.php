@@ -237,6 +237,8 @@ class mobile {
                 $summary = str_replace('<strong></strong>', '', $summary);
                 $summary = \mod_forumng_renderer::nice_shorten_text($summary);
                 $summary = format_text($summary, FORMAT_HTML);
+                $summary = self::add_external_content_to_image($summary);
+
                 if (trim($summary) === '') {
                     $summary = get_string('notext', 'forumng');
                 }
@@ -295,6 +297,8 @@ class mobile {
         list($forum->introduction, $unusedintroductionformat) =
                 external_format_text($forumng->get_introduction(), $forumng->get_introduction_format(), $context->id,
                     'mod_forumng', 'introduction');
+        $forum->introduction = self::add_external_content_to_image($forum->introduction);
+
         $whynot = '';
         // O or NULL we can't start discussion.
         // -1 should be fine.
@@ -462,6 +466,7 @@ class mobile {
         $attachmentforform = [];
         $discussion = \mod_forumng_discussion::get_from_id($args->discussionid, \mod_forumng::CLONE_DIRECT);
         $forumng = $discussion->get_forum();
+        $setpostas = 0;
         if ($draftid) {
             try {
                 $draft = \mod_forumng_draft::get_from_id($draftid);
@@ -515,6 +520,9 @@ class mobile {
                 if ($draftoptions = $draft->get_options()) {
                     if ($draftoptions->setimportant) {
                         $setimportant = true;
+                    }
+                    if ($draftoptions->asmoderator) {
+                        $setpostas = $draftoptions->asmoderator;
                     }
                 }
                 $attachmentforform = self::get_attachment_draft_post($draftid);
@@ -615,6 +623,7 @@ class mobile {
         $rootpost->displayperiod = $displayperiod;
         $rootpost->displaysticky = $displaysticky;
         $rootpost->canmanage = $canmanage;
+        $manualmark = !mod_forumng::mark_read_automatically();
 
         return [
             'templates' => [
@@ -637,7 +646,7 @@ class mobile {
                 'islock' => $islock,
                 'lockpost' => json_encode($lockpost),
                 'lock' => 0,
-                'postas' => 0,
+                'postas' => $setpostas,
                 'isexpandall' => $isexpandall,
                 'iscollapseall' => $iscollapseall,
                 'isReply' => 0,
@@ -661,6 +670,7 @@ class mobile {
                 'attachmentsforform' => json_encode($attachmentforform),
                 'cmid' => $cmid,
                 'rootpostsubject' => $rootpost->subject,
+                'manualmark' => $manualmark,
             ],
             'files' => []
         ];
@@ -762,10 +772,10 @@ class mobile {
         $createdbymoderator = '';
         // When forum is setting post as normal.
         // We don't care if post is setting as anon.
-        if ($posteranon == \mod_forumng::ASMODERATOR_IDENTIFY && $postasforumsetting) {
-            $startedby = $username . '<br><strong>' . $moderator . '</strong>';
-        } else if ($posteranon == \mod_forumng::ASMODERATOR_ANON && $postasforumsetting) {
-            $startedby = $post->is_important() ? '<br><strong>' . $moderator . '</strong>' : '<strong>' . $moderator . '</strong>';
+        if ($posteranon == \mod_forumng::ASMODERATOR_IDENTIFY && isset($postasforumsetting)) {
+            $startedby = $username . '<strong>' . $moderator . '</strong>';
+        } else if ($posteranon == \mod_forumng::ASMODERATOR_ANON && isset($postasforumsetting)) {
+            $startedby = '<strong>' . $moderator . '</strong>';
             $createdbymoderator = get_string('createdbymoderator', 'forumng', $username);
             if (!$discussion->get_forum()->can_post_anonymously()) {
                 $startedbyurl = $defaultimage;
@@ -783,10 +793,8 @@ class mobile {
         }
         $suject = $post->get_subject();
         $message = $post->get_formatted_message();
-        if ($post->is_root_post()) {
-            $suject = str_replace('"', '&quot;', $post->get_subject());
-            $message = str_replace('"', '&quot;', $post->get_formatted_message());
-        }
+        $message = self::add_external_content_to_image($message);
+
         // Attachments.
         $attachmentarray = [];
         $attachments = $post->get_attachment_names();
@@ -794,12 +802,12 @@ class mobile {
         foreach ($attachments as $key => $attachment) {
             $attachmentarray[] = (object) [
                     'name' => $attachment,
-                    'url' => $post->get_attachment_url($attachment)->out(),
+                    'url' => self::get_attachment_url($post->get_forum(), $attachment, $post->get_id(), 'attachment')->out(),
             ];
             // When using for form,we need the filename,not the name.
             $attachmentforform[] = (object) [
                     'filename' => $attachment,
-                    'url' => $post->get_attachment_url($attachment)->out(),
+                    'url' => self::get_attachment_url($post->get_forum(), $attachment, $post->get_id(), 'attachment')->out(),
             ];
         }
         // Mark post read.
@@ -828,7 +836,8 @@ class mobile {
         if ((($isanon && $discussion->get_forum()->can_post_anonymously()) || $indicatemoderator) || !$isanon) {
             if ($edituser = $post->get_edit_user()) {
                 $edit = new \stdClass;
-                $edit->date = \mod_forumng_utils::display_date($post->get_modified());
+                $edit->date = userdate($post->get_modified(),
+                                get_string('strftimedatetime', 'langconfig'), $USER->timezone);
 
                 if (\mod_forumng_utils::display_discussion_author_anonymously($post, $USER->id)) {
                     $edit->name = get_string('identityprotected', 'mod_forumng');
@@ -908,7 +917,7 @@ class mobile {
         }
 
         if (!$showavatar && $posteranon == \mod_forumng::ASMODERATOR_IDENTIFY) {
-            $startedby = '<br><strong>' . $moderator . '</strong><br>';
+            $startedby = '<strong>' . $moderator . '</strong>';
         }
         if ($postasforumsetting == \mod_forumng::ASMODERATOR_ANON && $posteranon == \mod_forumng::ASMODERATOR_ANON && $deletedhide) {
             $showedithistory = false;
@@ -938,13 +947,15 @@ class mobile {
             $date->setTimestamp($timestart);
             $showfrom = $date->format('Y-m-d');
         }
+        $starteddate = $deletedhide ? '' : userdate($post->get_created(),
+            get_string('strftimedatetime', 'langconfig'), $USER->timezone);
         return [
             'postid' => $post->get_id(),
             'subject' => $suject,
             'startedby' => $startedby,
             'startedbyurl' => $startedbyurl,
             'message' => $message,
-            'starteddate' => \mod_forumng_utils::display_date($post->get_created()),
+            'starteddate' => $starteddate,
             'attachments' => $attachmentarray,
             'isimportant' => $post->is_important(),
             'isflagged' => $post->is_flagged(),
@@ -1043,6 +1054,7 @@ class mobile {
         $displayperiod = get_string('displayperiodmobile', 'mod_forumng');
 
         // Check is draft.
+        $postasoption = 0;
         $showsticky = 0;
         $showfrom = 0;
         $draftid = empty($args->draft) ? 0 : $args->draft;
@@ -1085,6 +1097,9 @@ class mobile {
                     if ($draftoptions->sticky) {
                         $showsticky = true;
                     }
+                    if ($draftoptions->asmoderator) {
+                        $postasoption = $draftoptions->asmoderator;
+                    }
                 }
                 $attachmentforform = self::get_attachment_draft_post($draftid);
             }
@@ -1123,7 +1138,7 @@ class mobile {
                 'group' => $groupid,
                 'showsticky' => $showsticky,
                 'showfrom' => $showfrom,
-                'postas' => 0,
+                'postas' => $postasoption,
                 'cmid' => $forumng->get_course_module_id(),
                 'maxyear' => date('Y', strtotime('+30 years')),
                 'draftid' => $draftid,
@@ -1282,7 +1297,7 @@ class mobile {
      */
     private static function post_as_option(\mod_forumng $forumng) {
         $options = [];
-        if ($forumng->can_indicate_moderator()) {
+        if ($forumng->can_post_anonymously() || $forumng->can_indicate_moderator()) {
             $option1 = new \stdClass();
             $option1->key = \mod_forumng::ASMODERATOR_NO;
             if ($forumng->get_can_post_anon() == mod_forumng::CANPOSTATON_NONMODERATOR) {
@@ -1291,10 +1306,12 @@ class mobile {
                 $option1->value = get_string('asmoderator_post', 'forumng');
             }
             $options[] = $option1;
-            $option2 = new \stdClass();
-            $option2->key = \mod_forumng::ASMODERATOR_IDENTIFY;
-            $option2->value = get_string('asmoderator_self', 'forumng');
-            $options[] = $option2;
+            if ($forumng->can_indicate_moderator()) {
+                $option2 = new \stdClass();
+                $option2->key = \mod_forumng::ASMODERATOR_IDENTIFY;
+                $option2->value = get_string('asmoderator_self', 'forumng');
+                $options[] = $option2;
+            }
             if ($forumng->can_post_anonymously()) {
                 $option3 = new \stdClass();
                 $option3->key = \mod_forumng::ASMODERATOR_ANON;
@@ -1362,14 +1379,37 @@ class mobile {
         }
         foreach ($fs->get_area_files($filecontext->id, 'mod_forumng', 'draft',
             $draft->get_id(), 'filename', false) as $file) {
-            $params = [];
-            if ($forumng->is_shared()) {
-                $params['clone'] = $forumng->get_course_module_id();
-            }
-            $url = new \moodle_url('/pluginfile.php/' . $filecontext->id . '/mod_forumng/draft/' .
-                $draft->get_id() . '/' . rawurlencode($file->get_filename()), $params);
+            $url = self::get_attachment_url($forumng, $file->get_filename(), $draft->get_id(), 'draft');
             $attachments[] = (object)['filename' => $file->get_filename(), 'url' => $url->out()];
         }
         return $attachments;
+    }
+
+    /**
+     * @param mod_forumng $forumng
+     * @param string $attachment Attachment name (will not be checked for existence)
+     * @param int $itemid Item id
+     * @param string $filearea File area
+     * @return moodle_url URL to attachment
+     */
+    private static function get_attachment_url(\mod_forumng $forumng, $attachment, $itemid, $filearea){
+        $filecontext = $forumng->get_context(true);
+        $params = [];
+        if ($forumng->is_shared()) {
+            $params['clone'] = $forumng->get_course_module_id();
+        }
+        $token = \optional_param('wstoken', '', PARAM_RAW);
+        return new \moodle_url('/webservice/pluginfile.php/' . $filecontext->id . '/mod_forumng/' . $filearea . '/' .
+            $itemid . '/' . rawurlencode($attachment) . '?token=' . $token, $params);
+    }
+
+    /**
+     * Add attribute core-external-content for offline used in image.
+     *
+     * @param string $html
+     * @return string
+     */
+    private static function add_external_content_to_image($html) {
+        return str_replace('<img ', '<img core-external-content ', $html);
     }
 }

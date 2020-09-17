@@ -33,6 +33,21 @@
     AddonModForumngLinkHandler.prototype.constructor = AddonModForumngLinkHandler;
     t.CoreContentLinksDelegate.registerHandler(new AddonModForumngLinkHandler());
 
+    /* Prefetch handler (download). */
+    function AddonModForumngModulePrefetchHandler() {
+        t.CoreCourseActivityPrefetchHandlerBase.call(this, t.TranslateService, t.CoreAppProvider, t.CoreUtilsProvider,
+            t.CoreCourseProvider, t.CoreFilepoolProvider, t.CoreSitesProvider, t.CoreDomUtilsProvider,
+            t.CoreFilterHelperProvider, t.CorePluginFileDelegate, t.CoreUrlUtilsProvider, t.CoreFileProvider, t.CoreConfigConstants);
+        this.name = "AddonModForumngModulePrefetchHandler";
+        this.modName = "forumng";
+        this.component = "mod_forumng";
+        this.updatesNames = /^configuration$|^.*files$/;
+    }
+
+    AddonModForumngModulePrefetchHandler.prototype = Object.create(t.CoreCourseActivityPrefetchHandlerBase.prototype);
+    AddonModForumngModulePrefetchHandler.prototype.constructor = AddonModForumngModulePrefetchHandler;
+    t.CoreCourseModulePrefetchDelegate.registerHandler(new AddonModForumngModulePrefetchHandler());
+
    t.newDiscussion = {
        subject: '',
        message: '',
@@ -630,6 +645,14 @@
                 popover.style.left = null;
             }
         };
+        var defaultarg = {
+            'cmid': cmid,
+            'courseid' : courseid,
+            'group' : outerThis.CONTENT_OTHERDATA.defaultgroup,
+            'sortid': outerThis.CONTENT_OTHERDATA.selectedsort,
+            'isupdate': '1',
+        };
+        outerThis.CoreSitePluginsProvider.getContent('mod_forumng', 'forumng_view', defaultarg, preSets);
 
         if (t.removeEvent) {
             window.addEventListener("orientationchange", PopoverTransition);
@@ -676,57 +699,24 @@
             });
             successalert.present();
         };
-        /**
-         * Called by the menu option that shows/hides auto mark post as read features.
-         *
-         * @param {bool} enable True to show features, false to hide
-         */
-        outerThis.enableAutoMarkPostAsRead = function(enable) {
-            // Make this change after a slight delay so that it only happens after the menu
-            // animation finishes, otherwise the change of button looks bad.
-            if (outerThis.isOnline()) {
-                setTimeout(function() {
-                    site.write('mod_forumng_manual_mark', {'cmid': cmid, 'cloneid' : 0, 'value' : enable}).then(function(result) {
-                        if (!result.errormsg) {
-                            // We need to refresh because the cached page.
-                            outerThis.CONTENT_OTHERDATA.manualmark = enable;
-                            // We need to refresh because the cached page.
-                            t.mod_forumng.setPreference('AutoMarkPostAsRead', enable, userid);
-                            t.mod_forumng.setNeedUpdate(cmid, 1, userid);
-                            var args = {'cmid' : cmid, 'courseid': courseid, group: outerThis.CONTENT_OTHERDATA.defaultgroup,
-                                sortid: outerThis.CONTENT_OTHERDATA.selectedsort, isupdate: 1};
-                            var preSets = {updateFrequency: 0, getFromCache: false};
-                            outerThis.CoreSitePluginsProvider.getContent('mod_forumng', 'forumng_view', args, preSets);
-                            outerThis.updateContent(args, 'mod_forumng', 'forumng_view', true);
-                        } else {
-                            var alert = outerThis.AlertController.create({
-                                title: "Error",
-                                subTitle: result.errormsg,
-                            });
-                            alert.present();
-                        }
-                    }).catch( function(error) {
-                        var alert = outerThis.AlertController.create({
-                            title: "Error",
-                            subTitle: error,
-                        });
-                        alert.present();
-                    });
-                }, 100);
-            } else {
-                //TODO switch below to our own offline functionality.
-                // Will be implemented sync later.
-                t.mod_forumng.setPreference('AutoMarkPostAsRead', enable, userid);
-            }
-
-        };
 
         /**
          * Mark all post read.
          *
          */
         outerThis.MarkAllPostsRead = function() {
-            if (outerThis.isOnline()) {
+            t.mod_forumng.toMarkAllPostsRead(outerThis, site, cmid, courseid, userid, PopoverTransition, 1);
+        };
+        t.mod_forumng.currentDiscussionsPage = outerThis;
+    };
+
+    /**
+     * Mark all post read.
+     *
+     */
+    t.mod_forumng.toMarkAllPostsRead = function(outerThis, site, cmid, courseid, userid, PopoverTransition, forumView) {
+        if (outerThis.isOnline()) {
+            if (forumView) {
                 site.write('mod_forumng_mark_all_post_read', {'cmid': cmid, 'cloneid' : 0, 'groupid' : outerThis.CONTENT_OTHERDATA.defaultgroup}).then(function(result) {
                     if (!result.errormsg) {
                         // We need to update the newest content because the cached page.
@@ -752,17 +742,33 @@
                     alert.present();
                 });
             } else {
-                var alert = outerThis.AlertController.create({
-                    title: "Error",
-                    subTitle: "Offline is not supported",
+                site.write('mod_forumng_mark_all_post_read', {'cmid': cmid, 'cloneid' : 0, 'groupid' : 0, 'discussionid' : outerThis.CONTENT_OTHERDATA.discussionid}).then(function(result) {
+                    if (!result.errormsg) {
+                        outerThis.refreshContent();
+                    } else {
+                        var alert = outerThis.AlertController.create({
+                            title: "Error",
+                            subTitle: result.errormsg,
+                        });
+                        alert.present();
+                    }
+                }).catch( function(error) {
+                    var alert = outerThis.AlertController.create({
+                        title: "Error",
+                        subTitle: error,
+                    });
+                    alert.present();
                 });
-                alert.present();
-                //TODO switch below to our own offline functionality.
-                // Will be implemented sync later.
             }
-        };
-        // Outerthis has the refreshContent function, so get a link to it here.
-        t.mod_forumng.currentDiscussionsPage = outerThis;
+        } else {
+            var alert = outerThis.AlertController.create({
+                title: "Error",
+                subTitle: "Offline is not supported",
+            });
+            alert.present();
+            //TODO switch below to our own offline functionality.
+            // Will be implemented sync later.
+        }
     };
 
     /**
@@ -1079,6 +1085,11 @@
 
         outerThis.onSubjectChange = function() {
             t.currentReply.subject = outerThis.subject;
+            if (outerThis.CONTENT_OTHERDATA.rootpostid == outerThis.CONTENT_OTHERDATA.currentEditedPostId && outerThis.subject == '') {
+                outerThis.CONTENT_OTHERDATA.disable = true;
+            } else {
+                outerThis.CONTENT_OTHERDATA.disable = false;
+            }
         };
 
         outerThis.onMessageChange = function (text) {
@@ -1305,6 +1316,12 @@
                         t.editDraft = outerThis.resetData(t.editDraft);
                         t.isEdit = 0;
                         t.isReply = 0;
+                        t.isAddDraft = 0;
+                        if (isrootpost && isedit) {
+                            var currentView = document.querySelector('[style="z-index: '+ outerThis.NavController.getActive()._zIndex + ';"]');
+                            var currentTitle = currentView.querySelector('.toolbar-title');
+                            currentTitle.textContent = subject;
+                        }
                         outerThis.refreshContent();
                     }).catch(function(msg) {
                         outerThis.CoreUtilsProvider.domUtils.showErrorModalDefault(msg, 'addon.mod_forum.cannotcreatereply', true);
@@ -1435,6 +1452,17 @@
                     }, 'mod_forumng', 'posts_view', true);
                 }
             }
+        };
+        /**
+         * Mark all post read.
+         *
+         */
+        var site = outerThis.CoreSitesProvider.getCurrentSite();
+        var cmid = outerThis.CONTENT_OTHERDATA.cmid;
+        var userid = site.getUserId();
+        var courseid = outerThis.courseId;
+        outerThis.mark_all_post_read = function() {
+            t.mod_forumng.toMarkAllPostsRead(outerThis, site, cmid, courseid, userid, PopoverTransition, 0);
         };
 
         outerThis.lock_discussion = function() {

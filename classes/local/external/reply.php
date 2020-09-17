@@ -113,6 +113,12 @@ class reply extends external_api {
             $data = (object) self::validate_parameters(self::reply_parameters(), $data);
 
             $replypost = \mod_forumng_post::get_from_id($data->replyto, 0);
+            if ($data->editing) {
+                // Validation for server side.
+                if ($replypost->is_root_post() && (empty($data->subject) || empty($data->message))) {
+                    return ['success' => false, 'post' => 0, 'errormsg' => get_string('required', 'mod_forumng')];
+                }
+            }
             $replypost->require_view();
             $forum = $replypost->get_forum();
 

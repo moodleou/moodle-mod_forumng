@@ -15,17 +15,16 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version.
+ * CSS pre-processor to let us replace placeholders with URLs, for overriding icons in the mobile app.
  *
- * @package mod_forumng
- * @copyright 2014 The Open University
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    mod_forumng
+ * @copyright  2020 The Open University
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
-
-$plugin->version = 2020072000;
-$plugin->requires = 2016052300;
-$plugin->component = 'mod_forumng';
-$plugin->maturity = MATURITY_STABLE;
-$plugin->release = '3.7 r2';
+define('ABORT_AFTER_CONFIG', true);
+require_once(__DIR__ . '/../../config.php');
+$css = file_get_contents($CFG->dirroot . '/mod/forumng/mobileapp.css');
+$css = str_replace('@@WWWROOT@@', $CFG->wwwroot, $css);
+header('Content-Type: text/css');
+echo $css;

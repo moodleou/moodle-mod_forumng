@@ -147,3 +147,23 @@ Feature:  Add discussion in forumng and test app can view discussion listing pag
     And I press "Test forum anon" in the app
     And I press "Test discussion anon" in the app
     And I should not see "Teacher 1"
+
+  Scenario: Edit post and check post as moderator
+    And I log in as "admin"
+    And I am on "Course 1" course homepage
+    And I follow "Test forum name"
+    When I add a discussion with the following data:
+      | Subject | Discussion 1 |
+      | Message | abc          |
+    When I edit post "1" with the following data:
+      | Message     | REPLY3 EDIT                                 |
+      | asmoderator | Identify self as moderator (name displayed) |
+    Then I should see "REPLY3 EDIT"
+    And I should see "Moderator"
+    And I enter the app
+    And I log in as "teacher1"
+    And I press "Course 1" near "Recently accessed courses" in the app
+    And I press "Test forum name" in the app
+    When I click on "Discussion 1" "text"
+    Then I should see "REPLY3 EDIT"
+    And I should see "Moderator"
