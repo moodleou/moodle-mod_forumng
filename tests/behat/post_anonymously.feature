@@ -186,8 +186,8 @@ Feature: Test post anonymously functionality
     And I am on "Course 1" course homepage
     And I follow "ForumNG 4"
     And I follow "Discussion 1"
-    And I click on "Flag post" "link" in the ".forumng-post .forumng-commands .forumng-flagpost" "css_element"
-    Then I should see "Remove flag" in the ".forumng-post .forumng-commands .forumng-flagpost .flagtext" "css_element"
+    And I click on "Star post" "link" in the ".forumng-post .forumng-commands .forumng-flagpost" "css_element"
+    Then I should see "Remove star" in the ".forumng-post .forumng-commands .forumng-flagpost .flagtext" "css_element"
     When I follow "ForumNG 4"
     Then I should see "(by Identity protected)" in the ".forumng-flagged .cell.c0" "css_element"
 

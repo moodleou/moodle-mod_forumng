@@ -41,22 +41,25 @@ class forumngfeature_flagdiscussion extends forumngfeature_discussion {
     public function display($discussion) {
         $button = false;
         $script = 'feature/flagdiscussion/flag.php';
+        $starred = '';
         if ($discussion->is_flagged()) {
             $flag = 0;
-            $name = get_string('removeflag', 'forumngfeature_flagdiscussion');
+            $name = get_string('removestar', 'forumngfeature_flagdiscussion');
             $button = true;
+            $starred = 'starreddis';
         } else {
             if (!$discussion->is_deleted()) {
                 $flag = 1;
-                $name = get_string('flagdiscussion', 'forumngfeature_flagdiscussion');
+                $name = get_string('stardiscussion', 'forumngfeature_flagdiscussion');
                 $button = true;
+                $starred = 'no_stardis';
             }
         }
 
         if ($button) {
             $html = parent::get_button($discussion, $name, $script, false,
                     array('d' => $discussion->get_id(), 'flag' => $flag), '', false, false, 'fng-mobile-on');
-            return html_writer::div($html, "forumng_flagdis fngflg$flag");
+            return html_writer::div($html, "forumng_flagdis $starred fngflg$flag");
         }
     }
 

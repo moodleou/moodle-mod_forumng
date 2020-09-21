@@ -63,7 +63,7 @@ Feature: Show usage statistics for ForumNG
     And "Subscribe to discussion" "button" should exist
     Given I press "Subscribe to discussion"
     And I wait "1" seconds
-    And I press "Flag discussion"
+    And I press "Star discussion"
     Then I should see "Your email preferences"
     Given I follow "Test forum name marking"
     And I log out
@@ -76,13 +76,13 @@ Feature: Show usage statistics for ForumNG
     And I reply to post "1" with the following data:
       | Message | REPLY-D2-S2 |
     And I wait "1" seconds
-    And I press "Flag discussion"
+    And I press "Star discussion"
     Given I follow "Test forum name marking"
     And I follow "Discussion 3"
     And I reply to post "1" with the following data:
       | Message | REPLY-D3-S2 |
     And I wait "1" seconds
-    And I press "Flag discussion"
+    And I press "Star discussion"
     Given I follow "Test forum name marking"
     And I log out
 
@@ -113,13 +113,13 @@ Feature: Show usage statistics for ForumNG
     And I reply to post "1" with the following data:
       | Message | REPLY-D2-S3 |
     And I wait "1" seconds
-    And I press "Flag discussion"
+    And I press "Star discussion"
     Given I follow "Test forum name marking"
     And I follow "Discussion 4"
     And I reply to post "1" with the following data:
       | Message | REPLY-D4-S3 |
     And I wait "1" seconds
-    And I press "Flag discussion"
+    And I press "Star discussion"
     Given I follow "Test forum name marking"
     And I log out
 

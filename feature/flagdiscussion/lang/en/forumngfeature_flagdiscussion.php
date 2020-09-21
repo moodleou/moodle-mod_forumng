@@ -20,8 +20,8 @@
  * @copyright 2014 The Open University
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-$string['flagdiscussion'] = 'Flag discussion';
-$string['removeflag'] = 'Remove flag';
-$string['pluginname'] = 'Flag discussion';
+$string['stardiscussion'] = 'Star discussion';
+$string['removestar'] = 'Remove star';
+$string['pluginname'] = 'Star discussion';
 $string['flaggingnotallowed'] = 'You not allowed to flag discussions';
 $string['privacy:metadata'] = 'The Flag discussion plugin does not store any personal data.';

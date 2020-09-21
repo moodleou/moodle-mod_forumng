@@ -23,7 +23,7 @@ Feature: View flagged discussions
     And I add a discussion with the following data:
       | Subject | D1 |
       | Message | abc |
-    And I press "Flag discussion"
+    And I press "Star discussion"
     And I follow "Test forum"
     And I add a discussion with the following data:
       | Subject | D2 |
@@ -44,22 +44,22 @@ Feature: View flagged discussions
     And I am on "Course 1" course homepage
     And I follow "Test forum"
     And I follow "D1"
-    When I press "Flag discussion"
-    Then "Remove flag" "button" should exist
+    When I press "Star discussion"
+    Then "Remove star" "button" should exist
     Given I follow "Test forum"
     When I follow "D3"
-    Then "Flag discussion" "button" should exist
+    Then "Star discussion" "button" should exist
     # Check flagged display.
     Given I follow "Test forum"
-    Then I should see "1 flagged discussions"
+    Then I should see "Skip to starred discussions"
     And "form.forumng-flag" "css_element" should exist
     Given I click on "form.forumng-flag input[type=image]" "css_element"
-    Then I should not see "1 flagged discussions"
+    Then I should not see "Skip to starred discussions"
     And "form.forumng-flag" "css_element" should not exist
     And I log out
     Given I log in as "admin"
     And I am on "Course 1" course homepage
     And I follow "Test forum"
-    Then I should see "1 flagged discussions"
+    Then I should see "Skip to starred discussions"
     Given I follow "D2"
-    Then "Flag discussion" "button" should not exist
+    Then "Star discussion" "button" should not exist

@@ -32,6 +32,11 @@ class mod_forumng_renderer extends plugin_renderer_base {
     const SHORTENED_LENGTH = 200;
 
     /**
+    * @var int POST_SHORTENED_LENGTH Shortened length of message in the post.
+    */
+    const POST_SHORTENED_LENGTH = 80;
+
+    /**
      * Displays a discussion (main part of discussion page) with given options.
      * @param mod_forumng_discussion $discussion
      * @param object $options
@@ -952,15 +957,23 @@ class mod_forumng_renderer extends plugin_renderer_base {
         if ($subscribed != mod_forumng::NOT_SUBSCRIBED) {
             $out .= $this->render_subscribe_info($forum->get_context());
         }
-        if ($viewlink) {
-            $out .= ' <div class="forumng-subscribe-admin">' .
-                '<a href="subscribers.php?' .
-                $forum->get_link_params(mod_forumng::PARAM_HTML) . '">' .
-                get_string('viewsubscribers', 'forumng') . '</a></div>';
-        }
         $out .= '</div>';
         return $out;
     }
+
+    /**
+     * Re-render status.
+     * @param string $status
+     * @param bool $subscribe True if user can subscribe, False if user can unsubscribe.
+     * @return string HTML fragment.
+     */
+    public function render_discussion_subscribe_detail($status, $subscribe) {
+        return '<div class="forumng-subscribe-details">' .
+            '<h3>' . get_string('subscription', 'forumng') . '</h3>' .
+            '<p>' . $status .
+            '</p></div>';
+    }
+
     /**
      * Display subscribe option for discussions.
      * @param mod_forumng_discussion $discussion Forum
@@ -983,14 +996,11 @@ class mod_forumng_renderer extends plugin_renderer_base {
             $info = $this->render_subscribe_info($discussion->get_forum()->get_context());
         }
         return '<div class="clearfix"></div><div class="forumng-subscribe-options" id="forumng-subscribe-options">' .
-            '<div class="forumng-subscribe-details">' .
-            '<h3>' . get_string('subscription', 'forumng') . '</h3>' .
-            '<p>' . $status .
-            '</p></div>' . '&nbsp;<form action="subscribe.php" method="post"><div>' .
+                 '&nbsp;<form action="subscribe.php" method="post"><div>' .
             $discussion->get_link_params(mod_forumng::PARAM_FORM) .
             '<input type="hidden" name="back" value="discuss" />' .
             '<input type="submit" name="' . $submit . '" value="' .
-            $button . '" /></div></form>' . $info . '</div>';
+            $button . '" /></div></form>' . $info . $this->render_discussion_subscribe_detail($status, $subscribe) .'</div>';
     }
 
     /**
@@ -1055,6 +1065,25 @@ class mod_forumng_renderer extends plugin_renderer_base {
         global $USER, $COURSE;
         return new moodle_url('/mod/forumng/preferences.php',
                 array('id' => $USER->id, 'course' => $COURSE->id, 'fid' => $forumngid));
+    }
+
+    /**
+     * Returns permalink button.
+     * @param mod_forumng_post $post Post object
+     * @param int $postnumber cmid
+     * @param mod_forumng_discussion $discussion Forum
+     * @param array $options Associative array of name=>option
+     * @param array $commandsarray Array of HTML strings
+     * @return
+     */
+    public function render_permalink($post, $postnumber, $discussion, $options) {
+        if ($options[mod_forumng_post::OPTION_COMMAND_DIRECTLINK]) {
+            return '<a href="discuss.php?' .
+                $discussion->get_link_params(mod_forumng::PARAM_HTML) . '#p' .
+                $post->get_id() . '" title="' .
+                get_string('directlinktitle', 'forumng').'">' .
+                get_string('directlink', 'forumng', $postnumber) . '</a>';
+        }
     }
 
     /**
@@ -1261,7 +1290,9 @@ class mod_forumng_renderer extends plugin_renderer_base {
         if (!$expanded && !$deletedhide) {
             $expandlink = $this->render_expand_link($linkprefix, $discussion, $post);
         }
-
+        if ($expanded && !$deletedhide && !$post->is_root_post() && !$discussion->is_locked()) {
+            $expandlink = $this->render_collapse_link($linkprefix, $discussion, $post);
+        }
         // Byline
         $by = new stdClass;
         $by->name = $deletedhide ? '' : fullname($post->get_user(),
@@ -1343,6 +1374,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
                         $post->get_id() . '">' .
                         get_string('selectlabel', 'forumng', $postnumber) . '</label>';
             }
+            $out .= $this->render_discussion_status($post);
             // End: forumng-info.
             $out .= html_writer::end_tag('div');
             // End: forumng-pic-info.
@@ -1443,7 +1475,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
                 $messagetosummarise = $subject !== null
                     ? '<h3>' . $subject . '</h3>&nbsp;' . $stripped
                     : $stripped;
-                $summary = self::nice_shorten_text($messagetosummarise, 50);
+                $summary = $this->render_discussion_showmore($messagetosummarise, self::POST_SHORTENED_LENGTH, $linkprefix, $discussion, $post);
                 $out .= $lf . '<div class="forumng-summary"><div class="forumng-text">' .
                      $summary . '</div> ' . $expandlink . '</div>';
             }
@@ -1451,6 +1483,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
 
         // Start of post main section
         if ($expanded && !$deletedhide) {
+            $out .= $expandlink;
             if ($html) {
                 $out .= '<div class="forumng-postmain">';
             }
@@ -1485,7 +1518,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
                     $message = preg_replace('~<a[^>]*\shref\s*=\s*[\'"](http:.*?)[\'"][^>]*>' .
                     '(?!(http:|www\.)).*?</a>~', "$0 [$1]", $message);
                 }
-                $out .= $lf . '<div class="forumng-message">' . $this->render_message($message, $post) . '</div>';
+                $out .= $lf . '<div class="forumng-message">' . $this->render_message($message, self::POST_SHORTENED_LENGTH,  $linkprefix, $discussion, $post) . '</div>';
             } else {
                 $out .= $post->get_email_message();
                 $out .= "\n\n";
@@ -1576,24 +1609,17 @@ class mod_forumng_renderer extends plugin_renderer_base {
                             array('p' => $post->get_id(),
                                     'timeread' => $options[mod_forumng_post::OPTION_READ_TIME],
                                     'flag' => ($post->is_flagged() ? 0 : 1)));
-                    $icon = "flag." . ($post->is_flagged() ? 'on' : 'off');
-                    $iconalt = get_string($post->is_flagged() ? 'clearflag' : 'setflag', 'forumng');
-                    $bnstr = get_string($post->is_flagged() ? 'clearflag' : 'flagpost', 'forumng');
+                    $icon = "star." . ($post->is_flagged() ? 'on' : 'off');
+                    $iconalt = get_string($post->is_flagged() ? 'clearstar' : 'setstar', 'forumng');
+                    $bnstr = get_string($post->is_flagged() ? 'clearstar' : 'starpost', 'forumng');
                     $iconhtml = $OUTPUT->pix_icon($icon, '', 'forumng');
                     $iconhtml .= html_writer::span($bnstr, 'flagtext');
                     $link = html_writer::link($flagurl, $iconhtml,
                         array('title' => $iconalt));
-                    $commandsarray['forumng-flagpost'] = html_writer::div($link, 'forumng-flagpost');
+                    $statedis = $post->is_flagged() ? "starred-post" : "";
+                    $commandsarray['forumng-flagpost'] = html_writer::div($link, 'forumng-flagpost ' . $statedis);
                 }
-
-                // Direct link.
-                if ($options[mod_forumng_post::OPTION_COMMAND_DIRECTLINK]) {
-                    $commandsarray['forumng-permalink'] = '<a href="discuss.php?' .
-                            $discussion->get_link_params(mod_forumng::PARAM_HTML) . '#p' .
-                            $post->get_id() . '" title="' .
-                            get_string('directlinktitle', 'forumng').'">' .
-                            get_string('directlink', 'forumng', $postnumber) . '</a>';
-                }
+                $commandsarray['forumng-permalink'] = $this->render_permalink($post, $postnumber, $discussion, $options);
 
                 // Alert link.
                 $forum = $discussion->get_forum();
@@ -1776,10 +1802,13 @@ class mod_forumng_renderer extends plugin_renderer_base {
      * Render message inner text
      *
      * @param string $text
-     * @param mod_forumng_post $post
+     * @param int $length length of text need to format.
+     * @param string $linkprefix prefix of the showless link url.
+     * @param mod_forumng_discussion $discussion object.
+     * @param mod_forumng_post $post object.
      * @return string
      */
-    public function render_message($text, $post) {
+    public function render_message($text, $length = 80,  $linkprefix, $discussion, $post) {
         return $text;
     }
 
@@ -1848,6 +1877,41 @@ class mod_forumng_renderer extends plugin_renderer_base {
                 '</span></a>] <img src="' . $this->image_url('spacer') .
                 '" width="16" height="16" alt="" /></span>';
         return $out;
+    }
+
+    /**
+     * Renders the collapse link for each post.
+     * @param string $linkprefix prefix of the collapse link url
+     * @param mod_forumng_discussion $discussion objectcollapse_text
+     * @param mod_forumng_post $post object
+     * @return string HTML code for the collapse link
+     */
+    public function render_collapse_link($linkprefix, $discussion, $post) {
+        return '';
+    }
+
+    /**
+     * Format text and showmore link.
+     *
+     * @param string $content messsage text content.
+     * @param int $length length of text need to format.
+     * @param string $linkprefix prefix of the showmore link url.
+     * @param mod_forumng_discussion $discussion object.
+     * @param mod_forumng_post $post object.
+     * @return string
+     */
+    public function render_discussion_showmore($content, $length = 80, $linkprefix, $discussion, $post) {
+        list($shortentext, $showmore) = \mod_forumng_utils::format_forum_content($content);
+        return self::nice_shorten_text($shortentext, $length);
+    }
+
+    /**
+     * Renders the status of post.
+     * @param mod_forumng_post $post object
+     * @return string HTML code for the status.
+     */
+    public function render_discussion_status($post) {
+        return '';
     }
 
     public static function nice_shorten_text($text, $length=40) {

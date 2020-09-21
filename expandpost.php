@@ -28,7 +28,9 @@ require_once('mod_forumng.php');
 $postid = required_param('p', PARAM_INT);
 $cloneid = optional_param('clone', 0, PARAM_INT);
 $raw = optional_param('raw', 0, PARAM_INT);
+$short = required_param('short', PARAM_BOOL);
 $pageparams = array('p' => $postid);
+$options = array('short' => $short);
 if ($cloneid) {
     $pageparams['clone'] = $cloneid;
 }
@@ -49,7 +51,7 @@ try {
     if ($raw) {
         print $post->prepare_edit_json();
     } else {
-        mod_forumng_post::print_for_ajax_and_exit($post);
+        mod_forumng_post::print_for_ajax_and_exit($post, null, $options);
     }
 } catch (coding_exception $e) {
     header('Content-Type: text/plain', true, 500);

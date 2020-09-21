@@ -3995,6 +3995,7 @@ WHERE
         $mainstrings = array(
             'rate' => null,
             'expand' => '#',
+            'collapse' => '#',
             'jserr_load' => null,
             'jserr_save' => null,
             'jserr_alter' => null,
@@ -4025,11 +4026,11 @@ WHERE
             'selectorselecteddisc' => null,
             'selectordiscall' => null,
             'selectdiscintro' => null,
-            'flagon' => null,
-            'flagoff' => null,
-            'clearflag' => null,
-            'setflag' => null,
-            'flagpost' => null);
+            'staron' => null,
+            'staroff' => null,
+            'clearstar' => null,
+            'setstar' => null,
+            'starpost' => null);
         if ($this->has_post_quota()) {
             $mainstrings['quotaleft_plural'] = (object)array(
                 'posts'=>'#', 'period' => $this->get_max_posts_period(true, true));
