@@ -459,7 +459,7 @@
             <ion-item *ngIf="reply.subreplies.length > 0" class="sub-reply">
                 <ion-list *ngFor="let subreply of reply.subreplies">
                     <ion-item *ngIf="!subreply.hidepost" [id]="subreply.postid" class="mma-forumng-align-items-normal" no-lines>
-                        <div class="{{subreply.isunread}} {{subreply.createdbymoderatorclass}} {{subreply.importantclass}} {{ subreply.isdeleted ? ' deleted-post':'' }}">
+                        <div class="sub-reply-item {{subreply.isunread}} {{subreply.createdbymoderatorclass}} {{subreply.importantclass}} {{ subreply.isdeleted ? ' deleted-post':'' }}">
                             <div *ngIf="subreply.isimportant" class="important-badge">
                                 <core-format-text [text]="'plugin.mod_forumng.important' | translate "></core-format-text>
                             </div>

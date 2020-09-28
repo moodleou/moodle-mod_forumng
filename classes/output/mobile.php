@@ -824,7 +824,7 @@ class mobile {
         }
         $whynot = ''; // Required by can_reply but not used.
         $shortentext = self::shorten_text_display($post);
-        $shortendisplay = '<strong>' . $shortentext->shortensubject . '</strong> ' . $shortentext->shortenmessage;
+        $shortendisplay = '<strong>' . $shortentext->shortensubject . '</strong><p>' . $shortentext->shortenmessage . '</p>';
         if (strlen($suject) >= self::SHORTENED_LENGTH) {
             $shortendisplay = '<strong>' . $shortentext->shortensubject . '</strong>';
         }

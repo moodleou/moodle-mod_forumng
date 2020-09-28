@@ -38,8 +38,8 @@ $addons = [
                 'downloadbutton' => false,
                 'displayprefetch' => false,
                 'styles' => [
-                    'url' => $CFG->wwwroot . '/mod/forumng/mobile_css.php?v=2020082100',
-                    'version' => 2020082100
+                    'url' => $CFG->wwwroot . '/mod/forumng/mobile_css.php?v=2020100600',
+                    'version' => 2020100600
                 ],
                 'init' => 'mobile_forumng_init'
             ]
