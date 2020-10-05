@@ -45,18 +45,20 @@ if (empty($querytext)) {
             '&amp;action=0');
 }
 
-// Search form for header
-$buttontext = $forum->display_search_form($querytext);
-
-// Display header
+// Page setup.
 $PAGE->set_url(new moodle_url('/mod/forumng/search.php', $pageparams));
 $PAGE->set_context($forum->get_context());
 $PAGE->set_heading($course->fullname);
 $PAGE->set_title($course->shortname . ': ' . format_string($forum->get_name()));
-$PAGE->set_button($buttontext);
 $PAGE->set_cm($cm, $course);
 $PAGE->set_pagelayout('base');
 $PAGE->navbar->add(get_string('searchfor', 'local_ousearch', $querytext));
+
+// Search form for header
+$buttontext = $forum->display_search_form($querytext);
+$PAGE->set_button($buttontext);
+
+// Display header
 $out = mod_forumng_utils::get_renderer();
 print $out->header();
 
