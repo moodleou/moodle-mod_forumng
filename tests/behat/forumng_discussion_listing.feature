@@ -20,7 +20,6 @@ Feature: Testing for forumng discussion listing
     And I log in as "student1"
     And I am on "Course 1" course homepage
     And I follow "Test forum name 1"
-    And I should see "Introduction"
     And I should not see "Show more"
     And I am on "Course 1" course homepage
     And I follow "Test forum name 2"

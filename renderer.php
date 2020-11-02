@@ -721,7 +721,6 @@ class mod_forumng_renderer extends plugin_renderer_base {
         $options = array('noclean' => true, 'para' => false, 'filter' => true, 'context' => $context, 'overflowdiv' => true);
         $intro = file_rewrite_pluginfile_urls($forum->get_introduction(), 'pluginfile.php', $context->id, 'mod_forumng', 'introduction', null);
         $intro = self::render_showmore($intro, self::SHORTENED_LENGTH);
-        $intro = html_writer::tag('h6', get_string('forumintroduction', 'mod_forumng'), ['class' => 'forumng-listing-introduction']) . $intro;
         $intro = format_text($intro, $forum->get_introduction_format(), $options, null);
 
         // Box styling appears to be consistent with some other modules
@@ -1791,7 +1790,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
             $alt = get_mimetype_description(mimeinfo('type', $attachment));
 
             $out .= '<li><a href="' . $post->get_attachment_url($attachment) . '">' .
-                    '<img src="' . $iconsrc . '" alt="' . $alt . '" /> <span>' .
+                    '<img src="' . $iconsrc . '" alt="' . $alt . '" /> <span class="break-filename">' .
                     htmlspecialchars($attachment) . '</span></a> </li>';
         }
 
