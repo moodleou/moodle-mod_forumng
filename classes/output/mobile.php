@@ -760,7 +760,10 @@ class mobile {
         $posteranon = $post->get_asmoderator();
         if ($poster) {
             $userimage = new \user_picture($poster);
-            $startedbyurl = $userimage->get_url($PAGE)->out();
+            $token = optional_param('wstoken', '', PARAM_RAW);
+            $userurl = $userimage->get_url($PAGE);
+            $userurl->param('wstoken', $token);
+            $startedbyurl = self::change_web_service_url($userurl->out());
         } else {
             $startedbyurl = $defaultimage;
         }
@@ -1411,5 +1414,15 @@ class mobile {
      */
     private static function add_external_content_to_image($html) {
         return str_replace('<img ', '<img core-external-content ', $html);
+    }
+
+    /**
+     * Add webservice url for files.
+     *
+     * @param string $url
+     * @return string url
+     */
+    private static function change_web_service_url($url) {
+        return str_replace('pluginfile.php', 'webservice/pluginfile.php', $url);
     }
 }

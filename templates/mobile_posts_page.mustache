@@ -110,7 +110,7 @@
         <%! Note no ion-card-header as it adds padding so mis-aligns the user image with the contents below. %>
         <ion-item class="mma-forumng-post-info">
             <ion-avatar item-start large *ngIf="CONTENT_OTHERDATA.lockpost.hasanon">
-                <img [src]="CONTENT_OTHERDATA.lockpost.startedbyurl">
+                <img core-external-content [src]="CONTENT_OTHERDATA.lockpost.startedbyurl">
             </ion-avatar>
             <core-format-text class="mma-forumng-startedby" [text]="CONTENT_OTHERDATA.lockpost.startedby"></core-format-text>
             <core-format-text [text]="CONTENT_OTHERDATA.lockpost.starteddate"></core-format-text>
@@ -138,7 +138,7 @@
         <%! Note no ion-card-header as it adds padding so mis-aligns the user image with the contents below. %>
         <ion-item class="mma-forumng-post-info">
             <ion-avatar item-start large *ngIf="<%{ hasanon }%>">
-                <img src="<% startedbyurl %>">
+                <img core-external-content src="<% startedbyurl %>">
             </ion-avatar>
             <core-format-text class="mma-forumng-startedby" text="<% startedby %>" text-wrap></core-format-text>
             <core-format-text class="mma-forumng-startedate" text="<% starteddate %>" text-wrap></core-format-text>
@@ -310,7 +310,7 @@
                 </div>
                 <ion-item class="mma-forumng-post-info" *ngIf="!reply.isdeleted || (reply.showdeletemessage && reply.isdeleted) || (!reply.hidedeleteionformation && reply.isdeleted)">
                     <ion-avatar item-start large *ngIf="reply.showavatar">
-                        <img [src]="reply.startedbyurl">
+                        <img core-external-content [src]="reply.startedbyurl">
                     </ion-avatar>
                     <core-format-text class="mma-forumng-startedby" text="{{ reply.startedby }}" text-wrap></core-format-text>
                     <core-format-text *ngIf="!reply.hidedeleteionformation" class="mma-forumng-startedate" text="{{ reply.starteddate }}" text-wrap></core-format-text>
@@ -465,7 +465,7 @@
                             </div>
                             <ion-item class="mma-forumng-post-info" *ngIf="!subreply.isdeleted || (subreply.showdeletemessage && subreply.isdeleted) || (!subreply.hidedeleteionformation && subreply.isdeleted)">
                                 <ion-avatar item-start large *ngIf="subreply.showavatar">
-                                    <img [src]="subreply.startedbyurl">
+                                    <img core-external-content [src]="subreply.startedbyurl">
                                 </ion-avatar>
                                 <core-format-text class="mma-forumng-startedby" text="{{ subreply.startedby }}" text-wrap></core-format-text>
                                 <core-format-text *ngIf="!subreply.hidedeleteionformation" class="mma-forumng-startedate" text="{{ subreply.starteddate }}" text-wrap></core-format-text>
