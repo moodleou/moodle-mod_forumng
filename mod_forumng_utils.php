@@ -810,14 +810,15 @@ WHERE
      * Format content for showmore.
      *
      * @param string $content
+     * @param string $allowable_tags [optional]
      * @return array
      *
      */
-    public static function format_forum_content($content) {
+    public static function format_forum_content($content, $allowable_tags = '') {
         $pattern = '/(?:(?:&lt;|<)(?:tex|math)|\$\$)((?s).*?)(?:(?:&lt;|<)\/(?:tex|math)(?:&gt;|>)|\$\$)/';
         $showmore = preg_match('~<img(?s).*?>~', $content) || preg_match($pattern, $content);
         $content = self::replace_equation($content);
-        $content = \mod_forumng_renderer::nice_shorten_text(strip_tags($content, '<img>'), strlen($content));
+        $content = \mod_forumng_renderer::nice_shorten_text(strip_tags($content, '<img>' . $allowable_tags), strlen($content));
         return [$content, $showmore];
     }
 

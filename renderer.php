@@ -1901,7 +1901,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
      * @return string
      */
     public function render_discussion_showmore($content, $length = 80, $linkprefix, $discussion, $post) {
-        list($shortentext, $showmore) = \mod_forumng_utils::format_forum_content($content);
+        list($shortentext, $showmore) = \mod_forumng_utils::format_forum_content($content, '<h3>');
         return self::nice_shorten_text($shortentext, $length);
     }
 
