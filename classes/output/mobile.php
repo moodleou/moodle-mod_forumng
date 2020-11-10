@@ -762,8 +762,8 @@ class mobile {
             $userimage = new \user_picture($poster);
             $token = optional_param('wstoken', '', PARAM_RAW);
             $userurl = $userimage->get_url($PAGE);
-            $userurl->param('wstoken', $token);
-            $startedbyurl = self::change_web_service_url($userurl->out());
+            $userurl->param('token', $token);
+            $startedbyurl = self::change_web_service_url($userurl->out(false));
         } else {
             $startedbyurl = $defaultimage;
         }
