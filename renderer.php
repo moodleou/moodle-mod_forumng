@@ -1288,10 +1288,11 @@ class mod_forumng_renderer extends plugin_renderer_base {
 
         // Link used to expand post
         $expandlink = '';
+        $lockpostid = $discussion->get_lock_post() ? $discussion->get_lock_post()->get_id() : 0;
         if (!$expanded && !$deletedhide) {
             $expandlink = $this->render_expand_link($linkprefix, $discussion, $post);
         }
-        if ($expanded && !$deletedhide && !$post->is_root_post() && !$discussion->is_locked()) {
+        if ($expanded && !$deletedhide && !$post->is_root_post() && $post->get_id() !== $lockpostid) {
             if (!$donotdisplaycollapsed) {
                 $expandlink = $this->render_collapse_link($linkprefix, $discussion, $post);
             }
