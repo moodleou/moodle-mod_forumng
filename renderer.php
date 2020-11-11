@@ -710,6 +710,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
      * @return string Intro HTML or '' if none
      */
     public function render_introduction($forum) {
+        global $PAGE;
         // Don't output anything if no text, so we don't get styling around
         // something blank
         $text = $forum->get_introduction();
@@ -726,7 +727,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
         // Box styling appears to be consistent with some other modules
         $intro = html_writer::tag('div', $intro, array('class' => 'generalbox box',
                 'id' => 'intro'));
-
+        $PAGE->requires->js_call_amd('mod_forumng/toggleshortencontent', 'initial');
         return $intro;
     }
 
@@ -1136,6 +1137,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
         $discussion = $post->get_discussion();
 
         $expanded = $options[mod_forumng_post::OPTION_EXPANDED];
+        $donotdisplaycollapsed = isset($options[mod_forumng_post::OPTION_DONT_DISPLAY_COLLAPSED]);
         $export = $options[mod_forumng_post::OPTION_EXPORT];
         $email = $options[mod_forumng_post::OPTION_EMAIL];
         $displaytouserid = $options[mod_forumng_post::OPTION_MAILTO_USERID] !== false ?
@@ -1290,7 +1292,9 @@ class mod_forumng_renderer extends plugin_renderer_base {
             $expandlink = $this->render_expand_link($linkprefix, $discussion, $post);
         }
         if ($expanded && !$deletedhide && !$post->is_root_post() && !$discussion->is_locked()) {
-            $expandlink = $this->render_collapse_link($linkprefix, $discussion, $post);
+            if (!$donotdisplaycollapsed) {
+                $expandlink = $this->render_collapse_link($linkprefix, $discussion, $post);
+            }
         }
         // Byline
         $by = new stdClass;
@@ -1517,7 +1521,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
                     $message = preg_replace('~<a[^>]*\shref\s*=\s*[\'"](http:.*?)[\'"][^>]*>' .
                     '(?!(http:|www\.)).*?</a>~', "$0 [$1]", $message);
                 }
-                $out .= $lf . '<div class="forumng-message">' . $this->render_message($message, self::POST_SHORTENED_LENGTH,  $linkprefix, $discussion, $post) . '</div>';
+                $out .= $lf . '<div class="forumng-message">' . $this->render_message($message, self::POST_SHORTENED_LENGTH,  $linkprefix, $discussion, $post, $donotdisplaycollapsed) . '</div>';
             } else {
                 $out .= $post->get_email_message();
                 $out .= "\n\n";
@@ -1805,9 +1809,10 @@ class mod_forumng_renderer extends plugin_renderer_base {
      * @param string $linkprefix prefix of the showless link url.
      * @param mod_forumng_discussion $discussion object.
      * @param mod_forumng_post $post object.
+     * @param $donotdisplaycollapsed bool
      * @return string
      */
-    public function render_message($text, $length = 80,  $linkprefix, $discussion, $post) {
+    public function render_message($text, $length = 80,  $linkprefix, $discussion, $post, $donotdisplaycollapsed = false) {
         return $text;
     }
 

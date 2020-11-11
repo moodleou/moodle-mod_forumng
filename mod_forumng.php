@@ -3634,7 +3634,6 @@ WHERE
         if ($features) {
             $PAGE->requires->string_for_js('tooltip_show_features', 'mod_forumng');
             $PAGE->requires->js_call_amd('mod_forumng/featurebtns', 'initMobileHide');
-            $PAGE->requires->js_call_amd('mod_forumng/toggleshortencontent', 'initial');
             return '<div id="forumng-features">' . $features . '</div>';
         } else {
             return '';

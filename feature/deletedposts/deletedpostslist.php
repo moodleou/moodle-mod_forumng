@@ -203,7 +203,9 @@ $options = array(
         mod_forumng_post::OPTION_EXPANDED => true,
         mod_forumng_post::OPTION_COMMAND_UNDELETE => true,
         mod_forumng_post::OPTION_SINGLE_POST => true,
-        mod_forumng_post::OPTION_VIEW_DELETED_INFO => true);
+        mod_forumng_post::OPTION_VIEW_DELETED_INFO => true,
+        mod_forumng_post::OPTION_DONT_DISPLAY_COLLAPSED => true,
+);
 
 $rootpostoptions  = array(
         mod_forumng_post::OPTION_NO_COMMANDS => true,
