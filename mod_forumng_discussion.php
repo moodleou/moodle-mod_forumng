@@ -703,15 +703,24 @@ class mod_forumng_discussion {
                 $posts = unserialize($this->postscache);
             }
 
-            // Add numbers to posts
+            // Add numbers to parent post.
             $i = 1;
             foreach ($posts as $post) {
-                $post->number = $i++;
+                if (is_null($post->parentpostid)) {
+                    $post->number = $i;
+                    $i++;
+                    break;
+                }
             }
 
             // Obtain post relationships
             $children = array();
             foreach ($posts as $id => $fields) {
+                // Add numbers to posts.
+                if (!is_null($fields->parentpostid)) {
+                    $fields->number = $i++;
+                }
+
                 if (!array_key_exists($fields->parentpostid, $children)) {
                     $children[$fields->parentpostid] = array();
                 }
