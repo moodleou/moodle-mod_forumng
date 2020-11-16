@@ -902,3 +902,17 @@ core-attachments.mma-forumng-attachments a.item-button .button-effect {
 ion-item.mma-forumng-sort-discussion {
     border-top: 0.55px solid #c8c7cc !important;
 }
+
+/*
+ * Dark mode overrides
+ *
+ * NOTE: These styles should ideally be moved above, probably directly next to any style that sets a
+ * text or background colour.
+ */
+body.scheme-dark .mma-forumng-discussion .mma-forumng-discussion-subject,
+body.scheme-dark .mma-forumng-startedby,
+body.scheme-dark .mma-forumng-posts-list-wrapper .mma-forumng-startedate,
+body.scheme-dark .mma-forumng-discussion-list .mma-forumng-discussion .mma-forumng-discussion-subject,
+body.scheme-dark .mma-forumng-discussion-list .mma-forumng-drafts .cell.c0 {
+    color: white;
+}
