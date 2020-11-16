@@ -478,6 +478,12 @@ html[style="font-size: 75.89%;"] ion-app.app-root #mma-forumng-add-discussion-bu
 html[style="font-size: 93.75%;"] ion-app.app-root #mma-forumng-add-discussion-button {
     max-width: 155px;
 }
+
+ion-app.app-root.md #mma-forumng-add-discussion-button,
+html[style="font-size: 75.89%;"] ion-app.app-root.md #mma-forumng-add-discussion-button,
+html[style="font-size: 93.75%;"] ion-app.app-root.md #mma-forumng-add-discussion-button {
+    max-width: min-content;
+}
 [dir=ltr] .mma-forumng-boldtitle {
     line-height: 1;
     font-weight: bold;
@@ -625,6 +631,9 @@ ion-app.app-root.ios .button-ios#mod_forumg_add_discussion {
     display: inline-block;
     max-width: 160px;
 }
+ion-app.app-root.md .button-md#mod_forumg_add_discussion {
+    max-width: min-content;
+}
 
 .mma-forumng-group-button ion-label {
     display: flex;
@@ -640,11 +649,9 @@ ion-app.app-root.ios .button-ios#mod_forumg_add_discussion {
     font-weight: 700;
 }
 
-html[style="font-size: 75.89%;"] ion-app.app-root.md .button-md#mod_forumg_add_discussion,
 html[style="font-size: 75.89%;"] ion-app.app-root.ios .button-ios#mod_forumg_add_discussion {
     max-width: 220px;
 }
-html[style="font-size: 93.75%;"] ion-app.app-root.md .button-md#mod_forumg_add_discussion,
 html[style="font-size: 93.75%;"] ion-app.app-root.ios .button-ios#mod_forumg_add_discussion {
     max-width: 250px;
 }
