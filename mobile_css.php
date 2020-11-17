@@ -26,5 +26,6 @@ define('ABORT_AFTER_CONFIG', true);
 require_once(__DIR__ . '/../../config.php');
 $css = file_get_contents($CFG->dirroot . '/mod/forumng/mobileapp.css');
 $css = str_replace('@@WWWROOT@@', $CFG->wwwroot, $css);
+header('Access-Control-Allow-Origin: *');
 header('Content-Type: text/css');
 echo $css;
