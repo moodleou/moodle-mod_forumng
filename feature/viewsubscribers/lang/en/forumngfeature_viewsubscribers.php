@@ -24,3 +24,4 @@
 
 $string['pluginname'] = 'View Subscribers button';
 $string['viewsubscribers'] = 'View subscribers';
+$string['privacy:metadata'] = 'The View subscribers plugin does not store any personal data.';
