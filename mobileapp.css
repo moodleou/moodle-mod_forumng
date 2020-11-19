@@ -140,6 +140,10 @@ html[style="font-size: 75.89%;"] .mma-forumng-discussion-list core-format-text[m
     font-weight: 700;
     display: block;
 }
+body.scheme-dark .mma-forumng-discussion-list .mma-forumng-drafts .mma-forumng-draft-heading,
+body.scheme-dark .mma-forumng-posts-list-wrapper .mma-forumng-posts-subject {
+    color: white;
+}
 
 .mma-forumng-discussion-list .mma-forumng-discussion .mma-forumng-discussion-last-post {
     font-size: 1.2rem;
@@ -273,6 +277,10 @@ body.scheme-dark .mma-forumng-posts-list-wrapper {
     color: #000;
     font-size: 1em;
 }
+body.scheme-dark .mma-forumng-posts-list-wrapper .mma-forumng-post-info .mma-forumng-startedate {
+    color: white;
+}
+
 .mma-forumng-posts-list-wrapper .mma-forumng-post-info .mma-forumng-edit,
 .mma-forumng-posts-list-wrapper .mma-forumng-post-info .mma-forumng-iconsize-correction {
     font-size: .857142em;
@@ -493,7 +501,9 @@ html[style="font-size: 93.75%;"] ion-app.app-root.md #mma-forumng-add-discussion
     font-size: 1.4rem;
     color: #000;
 }
-
+body.scheme-dark .mma-forumng-boldtitle {
+    color: white;
+}
 .mma-forumng-discussion-list .mma-forumng-discussion .mma-forumng-ipud-discussion-subject {
     font-size: inherit;
     font-weight: 400;
@@ -767,8 +777,17 @@ ion-app.app-root .mma-forumng-posts-list-wrapper core-format-text[maxHeight] {
 .deleted-post .mma-forumng-edit {
     color: #888;
 }
+body.scheme-dark .mma-forumng-posts-list-wrapper .deleted-post .mma-forumng-post-info .mma-forumng-startedate,
+body.scheme-dark .mma-forumng-posts-list-wrapper .deleted-post .mma-forumng-post-info .mma-forumng-startedby strong,
+body.scheme-dark .deleted-post .mma-forumng-edit {
+    color: #dedede;
+}
+
 .deleted-post .mma-forumng-posts-message strong {
     color: #000000;
+}
+body.scheme-dark .deleted-post .mma-forumng-posts-message strong {
+    color: white;
 }
 ion-app.app-root core-format-text.mma-forumng-delete-draft-with-delete-discussion {
     color: #000000;
@@ -924,7 +943,6 @@ ion-item.mma-forumng-sort-discussion {
  */
 body.scheme-dark .mma-forumng-discussion .mma-forumng-discussion-subject,
 body.scheme-dark .mma-forumng-startedby,
-body.scheme-dark .mma-forumng-posts-list-wrapper .mma-forumng-startedate,
 body.scheme-dark .mma-forumng-discussion-list .mma-forumng-discussion .mma-forumng-discussion-subject,
 body.scheme-dark .mma-forumng-discussion-list .mma-forumng-drafts .cell.c0 {
     color: white;
