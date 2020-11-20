@@ -1507,7 +1507,7 @@
         t.mod_forumng.currentPostsPage = outerThis;
 
         setTimeout(function(){
-            var el = document.querySelectorAll('div[class="unread-post"]');
+            var el = document.querySelectorAll('.unread-post');
             if (el && el.length) {
                 el[0].scrollIntoView();
             }
