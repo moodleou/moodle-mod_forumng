@@ -785,4 +785,39 @@ class mod_forumng_post_test extends forumng_test_lib {
         $this->assertEquals('Reply 1.1', $post->get_replies()[0]->get_raw_message());
         $this->assertEquals('Reply 1.2', $post->get_replies()[1]->get_raw_message());
     }
+
+    /**
+     * Test replace html tags.
+     */
+    public function test_remove_html_tag() {
+        // Normal html tags.
+        $string = '<p>String</p>with html<br /> tag';
+        $actual = mod_forumng_utils::html_to_text($string);
+        $this->assertEquals('String with html tag', $actual);
+
+        // Orderedlist and paragraph tags.
+        $string = '<p>paragraph 1</p><ul><li>item 1</li><li>item 2</li></ul><p>paragraph 2</p><ol><li>item 1</li><li>item 2</li></ol>';
+        $actual = mod_forumng_utils::html_to_text($string);
+        $this->assertEquals('paragraph 1 item 1 item 2 paragraph 2 item 1 item 2', $actual);
+
+        // Orderedlist with multi level.
+        $string = '<p>paragraph 1</p><ol><li>item 1<ol><li>subitem 1</li><li>subitem 2<ol><li>sub subitem 1</li><li>sub subitem 2</li></ol></li></ol></li><li>item 2</li></ol><p>paragraph 2</p><ul><li>item 1</li><li>item 2</li></ul>';
+        $actual = mod_forumng_utils::html_to_text($string);
+        $this->assertEquals('paragraph 1 item 1 subitem 1 subitem 2 sub subitem 1 sub subitem 2 item 2 paragraph 2 item 1 item 2', $actual);
+
+        // Heading tags.
+        $string = '<h1>heading 1</h1><h2>heading 2</h2><h3>heading 3</h3><h4>heading 4</h4><h5>heading 5</h5><h6>heading 6</h6><p>paragraph 1</p><br /><p>paragraph 2</p>';
+        $actual = mod_forumng_utils::html_to_text($string);
+        $this->assertEquals('heading 1 heading 2 heading 3 heading 4 heading 5 heading 6 paragraph 1 paragraph 2', $actual);
+
+        // Content with img tag.
+        $string = 'a picture <img src="https://example.com/bg.jpg" />';
+        $actual = mod_forumng_utils::html_to_text($string);
+        $this->assertEquals('a picture <img src="https://example.com/bg.jpg" />', $actual);
+
+        // Mixed content.
+        $string = '<h1>heading 1</h1><h2>heading 2</h2>with a picture <img src="https://example.com/bg.jpg" /><br /> and<p>paragraph 1</p>';
+        $actual = mod_forumng_utils::html_to_text($string);
+        $this->assertEquals('heading 1 heading 2 with a picture <img src="https://example.com/bg.jpg" /> and paragraph 1', $actual);
+    }
 }

@@ -833,4 +833,18 @@ WHERE
         $pattern = '/(?:(?:&lt;|<)(?:tex|math)|\$\$)((?s).*?)(?:(?:&lt;|<)\/(?:tex|math)(?:&gt;|>)|\$\$)/';
         return preg_replace($pattern, get_string('eqn', 'mod_forumng'), $content);
     }
+
+    /**
+     * Convert html format to plaintext with single line.
+     * @param $content
+     * @return string
+     */
+    public static function html_to_text($content): string {
+        $text = preg_replace('/(<(?:\/){0,1}[^>]*(?:\/){0,1}>)/i', '$1 ', $content);
+        $text = strip_tags(
+            preg_replace('~<script.*?</script>~s', '', $text), '<img>');
+        // Remove multiple spaces.
+        $text = trim(preg_replace('/\s+/i', ' ', $text));
+        return $text;
+    }
 }

@@ -1490,8 +1490,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
             if (!$expanded && !$deletedhide) {
                 // When not expanded and no subject, we include a summary of the
                 // message
-                $stripped = strip_tags(
-                    preg_replace('~<script.*?</script>~s', '', $message), '<img>');
+                $stripped = mod_forumng_utils::html_to_text($message);
                 $messagetosummarise = $subject !== null
                     ? '<h3>' . $subject . '</h3>&nbsp;' . $stripped
                     : $stripped;
