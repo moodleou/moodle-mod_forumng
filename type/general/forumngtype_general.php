@@ -214,6 +214,8 @@ class forumngtype_general extends forumngtype {
                 $this->get_string($forum, 'nodiscussions') . '</p>';
         }
 
+        print $out->render_forum_footer_above($forum, $groupid);
+
         print $list->display_paging_bar($baseurl);
 
         print $forum->display_forumngfeature_discussion_lists($groupid);

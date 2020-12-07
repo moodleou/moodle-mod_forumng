@@ -779,7 +779,21 @@ class mod_forumng_renderer extends plugin_renderer_base {
         // Subscribe and view subscribers links.
         $toreturn .= $forum->display_subscribe_options();
 
+        // Atom/RSS links.
+        $toreturn .= $forum->display_feed_links($groupid);
+
         return $toreturn;
+    }
+
+    /**
+     * Bottom of forum page (above info).
+     *
+     * @param mod_forumng $forum
+     * @param int|null $groupid
+     * @return string
+     */
+    public function render_forum_footer_above(mod_forumng $forum, ?int $groupid): string {
+        return '';
     }
 
     /**
@@ -803,6 +817,8 @@ class mod_forumng_renderer extends plugin_renderer_base {
         // Display the subscription options to this disucssion if available.
         $toreturn .= $discussion->display_subscribe_options();
 
+        // Atom/RSS links.
+        $toreturn .= $discussion->display_feed_links();
         return $toreturn;
     }
 
@@ -2082,6 +2098,19 @@ class mod_forumng_renderer extends plugin_renderer_base {
         $out .= get_string('skiptofirstunread', 'forumng');
         $out .= '</a></div>';
         return $out;
+    }
+
+    public function render_feed_links($atomurl, $rssurl) {
+        // Icon (decoration only) and Atom/RSS links
+        $strrss = get_string('rss');
+        $stratom = get_string('atom', 'forumng');
+        $feed = '<div class="forumng-feedlinks">';
+        $feed .= '<a class="forumng-iconlink" href="'. htmlspecialchars($atomurl) . '">';
+        $feed .= "<img src='" . $this->image_url('i/rss') . "' alt=''/> " .
+            '<span class="forumng-textbyicon">' . $stratom . '</span></a> ';
+        $feed .= '<a href="'. htmlspecialchars($rssurl) . '">' . $strrss . '</a> ';
+        $feed .= '</div>';
+        return $feed;
     }
 
     /**

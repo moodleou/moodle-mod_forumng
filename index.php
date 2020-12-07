@@ -182,6 +182,19 @@ foreach ($forums as $forum) {
         $row[] = $subscribetext;
     }
 
+    // If this forum has RSS/Atom feeds, show link
+    if ($showrss) {
+        if ($type = $forum->get_effective_feed_option()) {
+            // Get group (may end up being none)
+            $groupid = mod_forumng::get_activity_group(
+                $forum->get_course_module(), false);
+
+            $row[] = $forum->display_feed_links($groupid);
+        } else {
+            $row[] = '&nbsp;';
+        }
+    }
+
     $table->data[] = $row;
 }
 

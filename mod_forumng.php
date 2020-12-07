@@ -3851,6 +3851,25 @@ WHERE
     }
 
     /**
+     * @param int $groupid Group ID
+     * @return string HTML links for RSS/Atom feeds to this discussion (if
+     *   enabled etc)
+     */
+    public function display_feed_links($groupid) {
+        global $CFG;
+
+        // Check they're allowed to see it
+        if ($this->get_effective_feed_option() == self::FEEDTYPE_NONE) {
+            return '';
+        }
+
+        // Icon (decoration only) and Atom link
+        $out = mod_forumng_utils::get_renderer();
+        return $out->render_feed_links($this->get_feed_url(self::FEEDFORMAT_ATOM, $groupid),
+                $this->get_feed_url(self::FEEDFORMAT_RSS, $groupid));
+    }
+
+    /**
      * Displays warnings for the invalid forum archive setting.
      * @return string HTML code for the warning message
      */
