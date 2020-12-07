@@ -289,20 +289,12 @@ M.mod_forumng = {
             if (match && link.hasClass('forumng-expandlink')) {
                 this.init_expand(link, match[2], expandposts[parseInt(match[2])]);
             }
-            // 'Showmore' links
-            if (match && link.hasClass('forumng-showmore')) {
-                this.init_showmore(link, match[2], true);
-            }
-            
+
             // 'Collapse' links
             var match = href.match(
                 /\/discuss\.php\?d=([0-9]+).*&collapse=1#p([0-9]+)$/);
             if (match && link.hasClass('forumng-collapselink')) {
                 this.init_collapse(link, match[2]);
-            }
-            // 'Showless' links
-            if (match && link.hasClass('forumng-showless')) {
-                this.init_showmore(link, match[2], false);
             }
 
             // Magicalise 'Reply' links
@@ -1304,18 +1296,6 @@ M.mod_forumng = {
             }
             link.inProcess = true;
         }, this);
-    },
-
-    /**
-     * Initialises an showmore/showless link so that it can use AJAX to retrieve the message.
-     * @param link Link node
-     * @param postid Post ID
-     * @param is_showmore If true, expand this post.
-     */
-    init_showmore: function(link, postid, is_showmore) {
-        link.post = link.ancestor('.forumng-post');
-        link.postid = postid;
-        this.process_link_retrieve_message(link, is_showmore);
     },
 
     /**

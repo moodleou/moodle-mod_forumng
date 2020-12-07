@@ -32,8 +32,8 @@ class mod_forumng_renderer extends plugin_renderer_base {
     const SHORTENED_LENGTH = 200;
 
     /**
-    * @var int POST_SHORTENED_LENGTH Shortened length of message in the post.
-    */
+     * @var int POST_SHORTENED_LENGTH Shortened length of message in the post.
+     */
     const POST_SHORTENED_LENGTH = 80;
 
     /**
@@ -1495,7 +1495,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
                 $messagetosummarise = $subject !== null
                     ? '<h3>' . $subject . '</h3>&nbsp;' . $stripped
                     : $stripped;
-                $summary = $this->render_discussion_showmore($messagetosummarise, self::POST_SHORTENED_LENGTH, $linkprefix, $discussion, $post);
+                $summary = self::nice_shorten_text($messagetosummarise, self::POST_SHORTENED_LENGTH);
                 $out .= $lf . '<div class="forumng-summary"><div class="forumng-text">' .
                      $summary . '</div> ' . $expandlink . '</div>';
             }
@@ -1538,7 +1538,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
                     $message = preg_replace('~<a[^>]*\shref\s*=\s*[\'"](http:.*?)[\'"][^>]*>' .
                     '(?!(http:|www\.)).*?</a>~', "$0 [$1]", $message);
                 }
-                $out .= $lf . '<div class="forumng-message">' . $this->render_message($message, self::POST_SHORTENED_LENGTH,  $linkprefix, $discussion, $post, $donotdisplaycollapsed) . '</div>';
+                $out .= $lf . '<div class="forumng-message">' . $this->render_message($message, $post) . '</div>';
             } else {
                 $out .= $post->get_email_message();
                 $out .= "\n\n";
@@ -1822,14 +1822,10 @@ class mod_forumng_renderer extends plugin_renderer_base {
      * Render message inner text
      *
      * @param string $text
-     * @param int $length length of text need to format.
-     * @param string $linkprefix prefix of the showless link url.
-     * @param mod_forumng_discussion $discussion object.
      * @param mod_forumng_post $post object.
-     * @param $donotdisplaycollapsed bool
      * @return string
      */
-    public function render_message($text, $length = 80,  $linkprefix, $discussion, $post, $donotdisplaycollapsed = false) {
+    public function render_message($text, $post) {
         return $text;
     }
 
@@ -1909,21 +1905,6 @@ class mod_forumng_renderer extends plugin_renderer_base {
      */
     public function render_collapse_link($linkprefix, $discussion, $post) {
         return '';
-    }
-
-    /**
-     * Format text and showmore link.
-     *
-     * @param string $content messsage text content.
-     * @param int $length length of text need to format.
-     * @param string $linkprefix prefix of the showmore link url.
-     * @param mod_forumng_discussion $discussion object.
-     * @param mod_forumng_post $post object.
-     * @return string
-     */
-    public function render_discussion_showmore($content, $length = 80, $linkprefix, $discussion, $post) {
-        list($shortentext, $showmore) = \mod_forumng_utils::format_forum_content($content, '<h3>');
-        return self::nice_shorten_text($shortentext, $length);
     }
 
     /**
