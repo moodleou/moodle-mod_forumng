@@ -56,12 +56,20 @@ $rss = $format == 'rss';
 
 // Load forum
 if ($d) {
-    $discussion = mod_forumng_discussion::get_from_id($d, $cloneid);
+    try {
+        $discussion = mod_forumng_discussion::get_from_id($d, $cloneid);
+    } catch (\dml_exception $ex) {
+        redirect(new moodle_url('/local/error/http-error.php', ['test' => '404']));
+    }
     $forum = $discussion->get_forum();
     $groupid = $discussion->get_group_id();
     $url = $discussion->get_url(mod_forumng::PARAM_PLAIN);
 } else {
-    $forum = mod_forumng::get_from_cmid($cmid, $cloneid);
+    try {
+        $forum = mod_forumng::get_from_cmid($cmid, $cloneid);
+    } catch (\moodle_exception $e) {
+        redirect(new moodle_url('/local/error/http-error.php', ['test' => '404']));
+    }
     $url = $forum->get_url(mod_forumng::PARAM_PLAIN);
     if ($groupid == 'unspecified') {
         $groupid = $forum->get_group_mode() == SEPARATEGROUPS
