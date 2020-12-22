@@ -22,6 +22,7 @@ Feature:  Add draft in forumng and test app can view discussion listing page
       | forumng  | Test forum name       | Test forum description     | C1     | forumng1 | 0           |
       | forumng  | Test forum discussion | Test forum description     | C1     | forumng2 | 0           |
       | forumng  | Test forum anon       | Test ForumNG 3 description | C1     | forumng3 | 1           |
+      | forumng  | Test forum anon 2     | Test ForumNG 4 description | C1     | forumng4 | 2           |
 
 
   Scenario: Add draft and edit draft and check options in the app
@@ -181,3 +182,32 @@ Feature:  Add draft in forumng and test app can view discussion listing page
     And I should see "Are you sure you want to delete this draft post"
     And I press "Delete"
     And I should not see "Test draft reply"
+
+  Scenario: Test draft reply anon
+    And I enter the app
+    And I log in as "teacher1"
+    And I press "Course 1" near "Recently accessed courses" in the app
+    And I press "Test forum anon 2" in the app
+    When I click on "#mod_forumg_add_discussion" "css_element"
+    And I set the field "Subject" to "Test discussion draft 1" in the app
+    And I set the field "Message" to "Test message" in the app
+    And I click on "#mma-forumng-show-sticky" "css_element"
+    And I click on "ion-datetime" "css_element"
+    And I press "Done"
+    When I press "Post discussion" in the app
+    And I enter the app
+    And I log in as "student1"
+    And I press "Course 1" near "Recently accessed courses" in the app
+    And I press "Test forum anon 2" in the app
+    And I press "Test discussion draft 1" in the app
+    And I press "Reply" in the app
+    And I set the field "Change subject (optional)" to "Test draft reply" in the app
+    And I set the field "Message" to "Test draft reply message" in the app
+    And I press "Save as draft" in the app
+    And I click on "page-core-site-plugins-plugin button.back-button" "css_element"
+    And I should see "reply to Identity protected"
+    And I am on homepage
+    And I log in as "student1"
+    And I am on "Course 1" course homepage
+    And I follow "Test forum anon 2"
+    And I should see "reply to Identity protected"

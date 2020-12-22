@@ -476,11 +476,14 @@ class mod_forumng_renderer extends plugin_renderer_base {
             get_string('deletedraft', 'forumng') . '"/></a></td>';
 
         if ($draft->is_reply()) {
+            $replytoid = $draft->get_parent_post_id();
+            $replyto = \mod_forumng_post::get_from_id($replytoid, \mod_forumng::CLONE_DIRECT);
+            $asmoderator = $replyto->get_asmoderator();
+            $username = $forum->display_author_name($draft->get_reply_to_user(), $asmoderator);
             $result .= '<td class="cell c1">' .
                 format_string($draft->get_discussion_subject()) . ' ';
             $result .= '<span class="forumng-draft-inreplyto">' .
-                get_string('draft_inreplyto', 'forumng',
-                    $forum->display_user_link($draft->get_reply_to_user()));
+                get_string('draft_inreplyto', 'forumng', $username);
             $result .= '</span></td>';
         } else {
             $result .= '<td class="cell c1">' .

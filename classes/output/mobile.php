@@ -244,8 +244,11 @@ class mobile {
                 }
                 $isdeletediscussion = false;
                 if ($draft->is_reply()) {
-                    $user = fullname($draft->get_reply_to_user(), has_capability('moodle/site:viewfullnames', $context));
-                    $discussionsubject = format_string($draft->get_discussion_subject()) . ' ' .get_string('draft_inreplyto',
+                    $replytoid = $draft->get_parent_post_id();
+                    $replyto = \mod_forumng_post::get_from_id($replytoid, \mod_forumng::CLONE_DIRECT);
+                    $asmoderator = $replyto->get_asmoderator();
+                    $user = strip_tags($forumng->display_author_name($draft->get_reply_to_user(), $asmoderator));
+                    $discussionsubject = format_string($draft->get_discussion_subject()) . ' ' . get_string('draft_inreplyto',
                             'forumng', $user);
                     $discussion = \mod_forumng_discussion::get_from_id($draft->get_discussion_id(),
                             \mod_forumng::CLONE_DIRECT);
