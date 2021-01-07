@@ -347,6 +347,7 @@ Feature: Add forumng activity and test basic functionality
     And "Unsubscribe from discussion" "button" should exist
     Given I follow "Test forum name"
     Then I should see "You receive messages from some discussions in"
+    And "Unsubscribe from discussions" "button" should exist
     And I should see "Your email preferences ("
     Given I press "Subscribe to whole forum"
     Then I should see "You receive messages from this forum via email to"
