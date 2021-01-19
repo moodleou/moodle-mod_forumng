@@ -427,6 +427,8 @@ $string['forumng:setimportant'] = 'Mark posts as important';
 $string['forumng:managediscussions'] = 'Manage discussion options';
 $string['forumng:viewallposts'] = 'View hidden and deleted posts';
 $string['forumng:viewreadinfo'] = 'See who has read a post';
+$string['forumng:showatom'] = 'Can see the atom link';
+$string['forumng:showrss'] = 'Can see the rss link';
 $string['editlimited'] = 'Warning: You must save any changes to this post before {$a}. After that
 time you will no longer be allowed to edit the post.';
 $string['badbrowser'] = '<h3>Reduced forum features</h3>&nbsp;<p>You are using {$a}. If you\'d

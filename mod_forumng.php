@@ -3857,16 +3857,25 @@ WHERE
      */
     public function display_feed_links($groupid) {
         global $CFG;
+        $canseeatom = has_capability('mod/forumng:showatom', $this->get_context());
+        $canseerss = has_capability('mod/forumng:showrss', $this->get_context());
 
         // Check they're allowed to see it
-        if ($this->get_effective_feed_option() == self::FEEDTYPE_NONE) {
+        if ($this->get_effective_feed_option() == self::FEEDTYPE_NONE || (!$canseeatom && !$canseerss)) {
             return '';
+        }
+        $atom = '';
+        $rss = '';
+        if ($canseeatom) {
+            $atom = $this->get_feed_url(self::FEEDFORMAT_ATOM, $groupid);
+        }
+        if ($canseerss) {
+            $rss = $this->get_feed_url(self::FEEDFORMAT_RSS, $groupid);
         }
 
         // Icon (decoration only) and Atom link
         $out = mod_forumng_utils::get_renderer();
-        return $out->render_feed_links($this->get_feed_url(self::FEEDFORMAT_ATOM, $groupid),
-                $this->get_feed_url(self::FEEDFORMAT_RSS, $groupid));
+        return $out->render_feed_links($atom, $rss);
     }
 
     /**
@@ -4144,6 +4153,8 @@ WHERE
 
     /**
      * Gets URL for an Atom/RSS feed.
+     * Returns empty string in the user does not have capability to see the specified feed type.
+     *
      * @param int $feedformat FEEDFORMAT_xx constant
      * @param int $groupid Group ID
      * @param int $userid User ID or 0 for current

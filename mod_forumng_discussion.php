@@ -2668,9 +2668,23 @@ WHERE
             return '';
         }
 
+        $canseeatom = has_capability('mod/forumng:showatom', $this->get_forum()->get_context());
+        $canseerss = has_capability('mod/forumng:showrss', $this->get_forum()->get_context());
+        // Check they're allowed to see it
+        if (!$canseeatom && !$canseerss) {
+            return '';
+        }
+        $atom = '';
+        $rss = '';
+        if ($canseeatom) {
+            $atom = $this->get_feed_url(mod_forumng::FEEDFORMAT_ATOM);
+        }
+        if ($canseerss) {
+            $rss = $this->get_feed_url(mod_forumng::FEEDFORMAT_RSS);
+        }
+
         $out = mod_forumng_utils::get_renderer();
-        return $out->render_feed_links($this->get_feed_url(mod_forumng::FEEDFORMAT_ATOM),
-                $this->get_feed_url(mod_forumng::FEEDFORMAT_RSS));
+        return $out->render_feed_links($atom, $rss);
     }
 
     // Feeds

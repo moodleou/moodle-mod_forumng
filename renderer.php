@@ -2088,10 +2088,14 @@ class mod_forumng_renderer extends plugin_renderer_base {
         $strrss = get_string('rss');
         $stratom = get_string('atom', 'forumng');
         $feed = '<div class="forumng-feedlinks">';
-        $feed .= '<a class="forumng-iconlink" href="'. htmlspecialchars($atomurl) . '">';
-        $feed .= "<img src='" . $this->image_url('i/rss') . "' alt=''/> " .
-            '<span class="forumng-textbyicon">' . $stratom . '</span></a> ';
-        $feed .= '<a href="'. htmlspecialchars($rssurl) . '">' . $strrss . '</a> ';
+        if (!empty($atomurl)) {
+            $feed .= '<a class="forumng-iconlink" href="'. htmlspecialchars($atomurl) . '">';
+            $feed .= "<img src='" . $this->image_url('i/rss') . "' alt=''/> " .
+                    '<span class="forumng-textbyicon">' . $stratom . '</span></a> ';
+        }
+        if (!empty($rssurl)) {
+            $feed .= '<a href="'. htmlspecialchars($rssurl) . '">' . $strrss . '</a> ';
+        }
         $feed .= '</div>';
         return $feed;
     }

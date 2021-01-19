@@ -1033,4 +1033,32 @@ class mod_forumng_discussion_testcase  extends forumng_test_lib {
         $this->assertTrue($record->modified >= $before && $record->modified <= $after);
         $this->assertEquals(0, $record->deleted);
     }
+
+    public function test_feed_links() {
+        global $CFG, $DB, $USER;
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        // Create course, forum, discussion and post with fake plugin file.
+        $course = $this->get_new_course('Course 1');
+        $forum = $this->get_new_forumng($course->id, array(
+            'name' => 'ForumNG 1',
+            'intro' => 'Intro',
+            'groupmode' => SEPARATEGROUPS,
+            'feedtype' => 2
+        ));
+        $CFG->forumng_enablerssfeeds =1;
+        $CFG->enablerssfeeds = 1;
+        $this->assertNotEmpty($forum->display_feed_links(0));
+        $discuss = $this->get_new_discussion($forum, ['userid' => $USER->id]);
+        $this->assertNotEmpty($discuss->display_feed_links());
+        // Remove permissions.
+        $role = $DB->get_record('role', array('shortname' => 'student'));
+        role_change_permission($role->id, $forum->get_context(), 'mod/forumng:showatom', CAP_PREVENT);
+        $student = $this->get_new_user('student');
+        $this->setUser($student);
+        $this->assertNotEmpty($discuss->display_feed_links());
+        role_change_permission($role->id, $forum->get_context(), 'mod/forumng:showrss', CAP_PREVENT);
+        $this->assertEmpty($discuss->display_feed_links());
+    }
 }

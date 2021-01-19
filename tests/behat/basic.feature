@@ -503,3 +503,55 @@ Feature: Add forumng activity and test basic functionality
     And I should see "13 November 2030" in the ".forumng-pic-info" "css_element"
     And I follow "Test forum name"
     And I should see "13/11/30" in the ".forumng-lastpost" "css_element"
+
+  Scenario: Check atom and rss links displayed as expected
+    Given the following config values are set as admin:
+      | enablerssfeeds   | 1 |
+      | forumng_feedtype | 2 |
+      | forumng_enablerssfeeds | 1 |
+    Given I log in as "admin"
+    And I am on "Course 1" course homepage
+    When I follow "Test forum name"
+    Then "Atom" "link" should exist
+    And "RSS" "link" should exist
+    When I add a discussion with the following data:
+      | Subject            | Discussion 1 |
+      | Message            | abc          |
+    Then "Atom" "link" should exist
+    And "RSS" "link" should exist
+    Given the following "permission overrides" exist:
+      | capability           | permission | role    | contextlevel | reference |
+      | mod/forumng:showatom | Prevent    | student | System       |           |
+    And I log out
+    Given I log in as "student1"
+    And I am on "Course 1" course homepage
+    When I follow "Test forum name"
+    Then "Atom" "link" should not exist
+    And "RSS" "link" should exist
+    When I follow "Discussion 1"
+    Then "Atom" "link" should not exist
+    And "RSS" "link" should exist
+    Given the following "permission overrides" exist:
+      | capability           | permission | role    | contextlevel | reference |
+      | mod/forumng:showrss  | Prevent    | student | System       |           |
+      | mod/forumng:showatom | Allow      | student | System       |           |
+    And I am on "Course 1" course homepage
+    When I follow "Test forum name"
+    Then "Atom" "link" should exist
+    And "RSS" "link" should not exist
+    When I follow "Discussion 1"
+    Then "Atom" "link" should exist
+    And "RSS" "link" should not exist
+    Given the following "permission overrides" exist:
+      | capability           | permission | role    | contextlevel | reference |
+      | mod/forumng:showrss  | Prevent    | student | System       |           |
+      | mod/forumng:showatom | Prevent    | student | System       |           |
+    And I am on "Course 1" course homepage
+    When I follow "Test forum name"
+    Then "Atom" "link" should not exist
+    And "RSS" "link" should not exist
+    And ".forumng-feedlinks" "css_element" should not exist
+    When I follow "Discussion 1"
+    Then "Atom" "link" should not exist
+    And "RSS" "link" should not exist
+    And ".forumng-feedlinks" "css_element" should not exist

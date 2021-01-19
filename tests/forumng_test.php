@@ -716,4 +716,31 @@ class mod_forumng_forumng_testcase extends forumng_test_lib {
             'rawmessage' => $message
         ));
     }
+
+    public function test_feed_links() {
+        global $CFG, $DB;
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        // Create course, forum, discussion and post with fake plugin file.
+        $course = $this->get_new_course('Course 1');
+        $forum = $this->get_new_forumng($course->id, array(
+            'name' => 'ForumNG 1',
+            'intro' => 'Intro',
+            'groupmode' => SEPARATEGROUPS,
+            'feedtype' => 2
+        ));
+        $CFG->forumng_enablerssfeeds =1;
+        $CFG->enablerssfeeds = 1;
+        $this->assertNotEmpty($forum->display_feed_links(0));
+
+        // Remove permissions.
+        $role = $DB->get_record('role', array('shortname' => 'student'));
+        role_change_permission($role->id, $forum->get_context(), 'mod/forumng:showatom', CAP_PREVENT);
+        $student = $this->get_new_user('student');
+        $this->setUser($student);
+        $this->assertNotEmpty($forum->display_feed_links(0));
+        role_change_permission($role->id, $forum->get_context(), 'mod/forumng:showrss', CAP_PREVENT);
+        $this->assertEmpty($forum->display_feed_links(0));
+    }
 }
