@@ -47,7 +47,7 @@ class mobile {
     /**
      * @var int SHORTENED_LENGTH Shortened post message length.
      */
-    const SHORTENED_LENGTH = 50;
+    const SHORTENED_LENGTH = 120;
 
     /** Discussion sort: by date. */
     const SORT_DATE = 0;
