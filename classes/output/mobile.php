@@ -674,6 +674,8 @@ class mobile {
                 'cmid' => $cmid,
                 'rootpostsubject' => $rootpost->subject,
                 'manualmark' => $manualmark,
+                'discussionurl' => $discussion->get_url(),
+                'refreshicon' => 'refresh'
             ],
             'files' => []
         ];

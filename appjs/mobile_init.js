@@ -742,7 +742,8 @@
                     alert.present();
                 });
             } else {
-                site.write('mod_forumng_mark_all_post_read', {'cmid': cmid, 'cloneid' : 0, 'groupid' : 0, 'discussionid' : outerThis.CONTENT_OTHERDATA.discussionid}).then(function(result) {
+                // We should use default -1 not 0 for discussion.
+                site.write('mod_forumng_mark_all_post_read', {'cmid': cmid, 'cloneid' : 0, 'groupid' : -1, 'discussionid' : outerThis.CONTENT_OTHERDATA.discussionid}).then(function(result) {
                     if (!result.errormsg) {
                         outerThis.refreshContent();
                     } else {
@@ -910,6 +911,14 @@
                     document.getElementById('mma-forumng-form').scrollIntoViewIfNeeded();
                 }, 100);
             }
+        };
+
+        // Refresh current content.
+        outerThis.doRefresh = function() {
+            outerThis.CONTENT_OTHERDATA.refreshicon = 'spinner';
+            outerThis.refreshContent().finally(function() {
+               outerThis.CONTENT_OTHERDATA.refreshicon = 'refresh';
+            });
         };
 
         outerThis.ionViewCanLeave = function() {

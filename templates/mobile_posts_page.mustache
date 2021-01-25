@@ -85,6 +85,8 @@
 <%^ error %>
 <core-navbar-buttons>
     <core-context-menu>
+        <core-context-menu-item [priority]="900" [content]="'core.openinbrowser' | translate" [href]="CONTENT_OTHERDATA.discussionurl" [iconAction]="'open'" autoLogin="no"></core-context-menu-item>
+        <core-context-menu-item [priority]="800" [content]="'core.refresh' | translate" (action)="doRefresh()" [iconAction]="CONTENT_OTHERDATA.refreshicon"></core-context-menu-item>
         <core-context-menu-item *ngIf="CONTENT_OTHERDATA.canlock" [priority]="850" [content]="'plugin.mod_forumng.lock' | translate"
                                 (action)="lock()" [iconAction]="CONTENT_OTHERDATA.lock ? 'radio-button-on' : 'radio-button-off'">
         </core-context-menu-item>

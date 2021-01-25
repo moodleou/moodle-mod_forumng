@@ -108,7 +108,7 @@ class mark_all_post_read extends external_api {
             }
             return ['result' => true, 'errormsg' => ''];
         } catch (\Exception $e) {
-            return ['result' => '', 'errormsg' => $e->getMessage()];
+            return ['result' => false, 'errormsg' => $e->getMessage()];
         }
     }
 }

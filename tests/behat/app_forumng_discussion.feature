@@ -245,6 +245,9 @@ Feature:  Add discussion in forumng and test app can view discussion listing pag
     And I press "EXPAND ALL POSTS"
     And I should not see "EXPAND ALL POSTS"
     And I should see "COLLAPSE ALL POSTS"
+    Then I click on "page-core-site-plugins-plugin core-context-menu button" "css_element"
+    And I should see "Open in browser"
+    And I should see "Refresh"
 
   @_file_upload
   Scenario: Add forum downloads to manage downloads page
@@ -266,4 +269,4 @@ Feature:  Add discussion in forumng and test app can view discussion listing pag
     And I close the browser tab opened by the app
     And I click on "page-core-site-plugins-plugin button.back-button" "css_element"
     And I click on "page-core-site-plugins-module-index core-context-menu button" "css_element"
-    Then I should see "Remove files 374 bytes"
+    Then I should see "Clear storage 6.46 KB"
