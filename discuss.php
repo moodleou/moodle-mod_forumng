@@ -65,7 +65,12 @@ if ($draftid) {
 }
 
 // Check that discussion can be viewed [Handles all other permissions]
+$beforeuserid = $USER->id;
 $discussion->require_view();
+if (!$beforeuserid && $USER->id) {
+    // If the user is now logged in, we need to reload the discussion object.
+    $discussion = mod_forumng_discussion::get_from_id($discussionid, $cloneid, 0, false, true);
+}
 
 // Atom header meta tag
 $feedtype = $forum->get_effective_feed_option();

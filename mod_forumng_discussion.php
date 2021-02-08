@@ -2333,6 +2333,11 @@ WHERE
         // Check forum view permission and group access
         $this->forum->require_view($groupid, $userid, true);
 
+        // User id might be different now after require_login call in require_view.
+        if (!$userid) {
+            $userid = mod_forumng_utils::get_real_userid($userid);
+        }
+
         // Check viewdiscussion
         require_capability('mod/forumng:viewdiscussion',
             $this->forum->get_context(), $userid);
