@@ -35,6 +35,7 @@ use \mod_forumng\local\external\delete_post;
 use \mod_forumng\local\external\undelete_post;
 use \mod_forumng\local\external\add_draft;
 use \mod_forumng\local\external\delete_draft;
+use \mod_forumng\local\external\get_discussion;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -533,6 +534,34 @@ class mobile_testcase extends \advanced_testcase {
         $deletedraft = delete_draft::delete_draft($newresult['draft']);
         $this->assertTrue($deletedraft['success']);
         $this->assertEmpty($deletedraft['errormsg']);
+    }
+
+    /**
+     * Test the get_discussion webservice functionality.
+     */
+    public function test_mobile_forumng_get_discussion() {
+        global $CFG;
+
+        $this->resetAfterTest();
+
+        $generator = $this->getDataGenerator();
+        $course = $generator->create_course();
+        $student = $generator->create_user();
+        $generator->enrol_user($student->id, $course->id, 'student');
+        $this->setUser($student);
+        $forumnggenerator = $generator->get_plugin_generator('mod_forumng');
+        $forum = $forumnggenerator->create_instance(['course' => $course->id]);
+        $cm = get_coursemodule_from_instance('forumng', $forum->id);
+
+        // Add discussions.
+        $record = [];
+        $record['course'] = $course->id;
+        $record['forum'] = $forum->id;
+        $record['userid'] = $student->id;
+        $record['subject'] = 'Test subject';
+        list($discussionid) = $forumnggenerator->create_discussion($record);
+        $result = get_discussion::get_discussion($discussionid);
+        $this->assertEquals($result['subject'], 'Test subject');
     }
 
     /**

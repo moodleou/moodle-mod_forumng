@@ -49,6 +49,14 @@ $functions = array(
                 'type'        => 'read',
                 'ajax'        => true
         ),
+        'mod_forumng_get_discussion' => array(
+            'classname'   => 'mod_forumng\local\external\get_discussion',
+            'methodname'  => 'get_discussion',
+            'description' => 'Get discussion',
+            'type'        => 'read',
+            'capabilities' => 'mod/forumng:viewdiscussion',
+            'services' => [MOODLE_OFFICIAL_MOBILE_SERVICE, 'local_mobile']
+        ),
         'mod_forumng_expand_post' => array(
                 'classname'   => 'mod_forumng\local\external\expand_post',
                 'methodname'  => 'expand_post',

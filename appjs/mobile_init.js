@@ -33,7 +33,40 @@
     AddonModForumngLinkHandler.prototype.constructor = AddonModForumngLinkHandler;
     t.CoreContentLinksDelegate.registerHandler(new AddonModForumngLinkHandler());
 
-    /* Prefetch handler (download). */
+    /* Register a link handler to open mod/forumng/discuss links anywhere in the app. */
+    function AddonModForumNGModuleDiscussionLinkToPageHandler() {
+        this.pattern = new RegExp('\/mod\/forumng\/discuss\\.php\\?d=(\\d+)#p(\\d+)');
+        this.name = "AddonModForumNGModuleDiscussionLinkToPageHandler";
+        this.priority = 0;
+    }
+    AddonModForumNGModuleDiscussionLinkToPageHandler.prototype = Object.create(t.CoreContentLinksHandlerBase.prototype);
+    AddonModForumNGModuleDiscussionLinkToPageHandler.prototype.constructor = AddonModForumNGModuleDiscussionLinkToPageHandler;
+    AddonModForumNGModuleDiscussionLinkToPageHandler.prototype.getActions = function(siteIds, url, params) {
+        var action = {
+            action: function(siteId, navCtrl) {
+                t.CoreSitesProvider.getSite(siteId).then(function(site) {
+                    site.read('mod_forumng_get_discussion', {discussionid: parseInt(params.d, 10)}).then(function(result) {
+                        if (!result) {
+                            return Promise.reject(that.CoreWSProvider.createFakeWSError(response.errormsg));
+                        } else {
+                            var pageParams = {
+                                title: result.subject,
+                                component: 'mod_forumng',
+                                method: 'posts_view',
+                                args: {discussionid: params.d},
+                                initResult: {},
+                            };
+                            t.CoreContentLinksHelperProvider.goInSite(navCtrl, 'CoreSitePluginsPluginPage', pageParams, siteId);
+                        }
+                    });
+                });
+            }
+        };
+        return [action];
+    };
+    t.CoreContentLinksDelegate.registerHandler(new AddonModForumNGModuleDiscussionLinkToPageHandler());
+
+/* Prefetch handler (download). */
     function AddonModForumngModulePrefetchHandler() {
         t.CoreCourseActivityPrefetchHandlerBase.call(this, t.TranslateService, t.CoreAppProvider, t.CoreUtilsProvider,
             t.CoreCourseProvider, t.CoreFilepoolProvider, t.CoreSitesProvider, t.CoreDomUtilsProvider,
@@ -993,7 +1026,7 @@
                     }
                     t.mod_forumng.currentDiscussionsPage.refreshContent();
                 });
-            } else {
+            } else if (t.mod_forumng.currentDiscussionsPage) {
                 window.removeEventListener("orientationchange", PopoverTransition);
                 t.mod_forumng.currentDiscussionsPage.refreshContent();
                 t.originalEdit = outerThis.resetData(t.originalEdit);
@@ -1007,7 +1040,7 @@
                 outerThis.CONTENT_OTHERDATA.currentEditedPostId = 0;
                 outerThis.CONTENT_OTHERDATA.currentReplyToId = 0;
             }
-            return;
+            return true;
         };
 
         outerThis.showDelete = function(postid) {
