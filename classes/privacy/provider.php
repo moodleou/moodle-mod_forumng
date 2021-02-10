@@ -162,7 +162,7 @@ class provider implements
              LEFT JOIN {forumng_read} hasreadd ON hasreadd.discussionid = d.id AND hasreadd.userid = :hasreadduserid
              LEFT JOIN {forumng_read_posts} hasreadp ON hasreadp.postid = p.id AND hasreadp.userid = :hasreadpuserid
              LEFT JOIN {forumng_drafts} draft ON draft.forumngid = f.id AND draft.userid = :draftuserid
-             LEFT JOIN {forumng_flags} flag ON flag.postid = p.id OR flag.discussionid = d.id AND flag.userid = :flaguserid
+             LEFT JOIN {forumng_flags} flag ON (flag.postid = p.id OR flag.discussionid = d.id) AND flag.userid = :flaguserid
                        {$ratingsql->join}
                  WHERE (
                        p.userid = :postuserid OR

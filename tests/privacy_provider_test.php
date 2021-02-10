@@ -919,4 +919,26 @@ class mod_forumng_privacy_provider_testcase extends \core_privacy\tests\provider
         $this->assertNotEquals($users[2]->id, $flags[2]->userid);
         $this->assertNotEquals($users[3]->id, $flags[2]->userid);
     }
+
+    /**
+     * Tests the get_contexts_for_userid function.
+     *
+     * (This is a rather basic test added while fixing a bug, it doesn't test very thoroughly.)
+     */
+    public function test_get_contexts_for_userid(): void {
+        [$users, , $forums, , ] = $this->create_basic_test_data();
+
+        $context1 = $forums[1]->get_context();
+        $context2 = $forums[2]->get_context();
+
+        // User 1 has content in both forums.
+        $contextids = provider::get_contexts_for_userid($users[1]->id)->get_contextids();
+        $this->assertTrue(in_array($context1->id, $contextids));
+        $this->assertTrue(in_array($context2->id, $contextids));
+
+        // User 3 has content in neither forum.
+        $contextids = provider::get_contexts_for_userid($users[3]->id)->get_contextids();
+        $this->assertFalse(in_array($context1->id, $contextids));
+        $this->assertFalse(in_array($context2->id, $contextids));
+    }
 }
