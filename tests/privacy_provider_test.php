@@ -93,7 +93,7 @@ class mod_forumng_privacy_provider_testcase extends \core_privacy\tests\provider
         $dis1->create_reply($lastpost, 'Welcome/to the Developing as a Researcher seminar', 'reply',
                 FORMAT_HTML, false, false, false, $user->id);
         // Set flag for discussion.
-        $dis1->set_flagged(true. $otheruser->id);
+        $dis1->set_flagged(true, $otheruser->id);
         // Mark read for discussion.
         $dis1->mark_read(1420070400, $user->id);
         $cm = get_coursemodule_from_instance('forumng', $forum->get_id());
@@ -271,10 +271,7 @@ class mod_forumng_privacy_provider_testcase extends \core_privacy\tests\provider
         // Check discussion flag data.
         $flag = $discussionarea;
         $flag[] = get_string('forumngflagdiscussion', 'mod_forumng');
-        $this->assertEquals((object)[
-            'userid' => get_string('privacy_you', 'mod_forumng'),
-            'flagged' => \core_privacy\local\request\transform::yesno(1)
-        ], $contextdata->get_data($flag));
+        $this->assertEmpty($contextdata->get_data($flag));
         // Check post data.
         $postarea = $discussionarea;
         $postarea[] = get_string('posts', 'mod_forumng');
