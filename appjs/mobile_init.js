@@ -467,6 +467,46 @@
 
     };
 
+    t.mod_forumng.deleteDiscussion = function (outerThis, site) {
+        var discussionid = outerThis.CONTENT_OTHERDATA.discussionid;
+
+        if (outerThis.isOnline()) {
+            var args = {
+                'discussionid': discussionid,
+                'cloneid': 0,
+                'isdeleted': outerThis.CONTENT_OTHERDATA.isdeleteddiscussion,
+            };
+            site.write('mod_forumng_delete_discussion', args).then(function(result) {
+                if (!result.errormsg) {
+                    if(args.isdeleted) {
+                        outerThis.refreshContent();
+                    } else {
+                        outerThis.NavController.pop();
+                    }
+                } else {
+                    var alert = outerThis.AlertController.create({
+                        title: "Error",
+                        subTitle: result.errormsg,
+                    });
+                    alert.present();
+                }
+            }).catch( function(error) {
+                var alert = outerThis.AlertController.create({
+                    title: "Error",
+                    subTitle: error,
+                });
+                alert.present();
+            });
+        } else {
+            var alert = outerThis.AlertController.create({
+                title: "Error",
+                subTitle: "Offline is not supported",
+            });
+            alert.present();
+            //TODO switch below to our own offline functionality.
+            // Will be implemented sync later.
+        }
+    };
     /**
      * Delete draft
      *
@@ -1061,6 +1101,29 @@
             }).present();
         };
 
+        outerThis.showDeleteDiscussion = function () {
+            var confirmmes = outerThis.TranslateService.instant('plugin.mod_forumng.confirmdeletediscussion'),
+                button = {
+                    text: outerThis.TranslateService.instant('plugin.mod_forumng.delete'),
+                    handler: function () {
+                        outerThis.delete_discussion();
+                    }
+                };
+            if (outerThis.CONTENT_OTHERDATA.isdeleteddiscussion) {
+                confirmmes = outerThis.TranslateService.instant('plugin.mod_forumng.confirmundeletediscussion');
+                button.text = outerThis.TranslateService.instant('plugin.mod_forumng.undelete');
+            }
+            outerThis.AlertController.create({
+                message: confirmmes,
+                buttons: [
+                    {
+                        text: outerThis.TranslateService.instant('core.cancel'),
+                        role: 'cancel'
+                    },
+                    button
+                ]
+            }).present();
+        }
         outerThis.showUnDelete = function(postid) {
             outerThis.AlertController.create({
                 message: outerThis.TranslateService.instant('plugin.mod_forumng.confirmundelete'),
@@ -1505,6 +1568,9 @@
         var courseid = outerThis.courseId;
         outerThis.mark_all_post_read = function() {
             t.mod_forumng.toMarkAllPostsRead(outerThis, site, cmid, courseid, userid, PopoverTransition, 0);
+        };
+        outerThis.delete_discussion = function() {
+            t.mod_forumng.deleteDiscussion(outerThis, site);
         };
 
         outerThis.lock_discussion = function() {

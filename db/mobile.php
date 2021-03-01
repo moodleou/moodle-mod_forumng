@@ -38,8 +38,8 @@ $addons = [
                 'downloadbutton' => false,
                 'displayprefetch' => false,
                 'styles' => [
-                    'url' => $CFG->wwwroot . '/mod/forumng/mobile_css.php?v=2021030800',
-                    'version' => 2021030800
+                    'url' => $CFG->wwwroot . '/mod/forumng/mobile_css.php?v=2021031900',
+                    'version' => 2021031900
                 ],
                 'init' => 'mobile_forumng_init'
             ]
@@ -93,6 +93,10 @@ $addons = [
             ['important', 'forumng'],
             ['required', 'forumng'],
             ['requiredsubject', 'forumng'],
+            ['confirmdeletediscussion', 'forumngfeature_delete'],
+            ['confirmundeletediscussion', 'forumngfeature_delete'],
+            ['delete', 'forumng'],
+            ['undelete', 'forumng'],
         ]
     ]
 ];

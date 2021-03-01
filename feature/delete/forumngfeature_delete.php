@@ -27,20 +27,10 @@ class forumngfeature_delete extends forumngfeature_discussion {
     }
 
     public function should_display($discussion) {
-        global $USER;
         // Display even if deleted.
         // Display to those without capability if:
         // First post author, no replies + they can edit first post.
-        if ($discussion->can_manage()) {
-            return true;
-        }
-        $root = $discussion->get_root_post();
-        $childposts = $root->has_children();
-        $creator = $discussion->get_poster();
-        if ($creator->id == $USER->id && !$childposts && $root->can_edit($whynot)) {
-            return true;
-        }
-        return false;
+        return $discussion->can_delete($whynot);
     }
 
     public function display($discussion) {

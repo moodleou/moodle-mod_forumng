@@ -2449,6 +2449,23 @@ WHERE
         return false;
     }
 
+    /**
+     * Checks whether the user can delete this discussion.
+     * @return bool True if this user is allowed to delete.
+     */
+    public function can_delete(&$whynot) {
+        global $USER;
+        if ($this->can_manage()) {
+            return true;
+        }
+        $root = $this->get_root_post();
+        $childposts = $root->has_children();
+        $creator = $this->get_poster();
+        if ($creator->id == $USER->id && !$childposts && $root->can_edit($whynot)) {
+            return true;
+        }
+        return false;
+    }
     // UI
     // //.
 

@@ -172,4 +172,12 @@ $functions = array(
                 'capabilities' => 'mod/forumng:startdiscussion',
                 'services' => array(MOODLE_OFFICIAL_MOBILE_SERVICE, 'local_mobile')
         ),
+        'mod_forumng_delete_discussion' => array(
+                'classname' => '\mod_forumng\local\external\delete_discussion',
+                'methodname' => 'delete_discussion',
+                'description' => 'Delete discussion',
+                'type' => 'write',
+                'capabilities' => 'mod/forumng:managediscussions',
+                'services' => array(MOODLE_OFFICIAL_MOBILE_SERVICE, 'local_mobile')
+        ),
 );

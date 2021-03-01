@@ -24,6 +24,7 @@
 
 namespace tests\mod_forumng;
 
+use mod_forumng\local\external\delete_discussion;
 use \mod_forumng\output\mobile;
 use \mod_forumng\local\external\more_discussions;
 use \mod_forumng\local\external\add_discussion;
@@ -597,5 +598,38 @@ class mobile_testcase extends \advanced_testcase {
         $file->set_source($source);
 
         return $file;
+    }
+
+    /**
+     * Test delete discussion mobile service.
+     */
+    public function test_mobile_delete_discussion() {
+        $this->resetAfterTest();
+
+        $generator = $this->getDataGenerator();
+        $course = $generator->create_course();
+        $student1 = $generator->create_user();
+        $student2 = $generator->create_user();
+        $generator->enrol_user($student1->id, $course->id, 'student');
+        $generator->enrol_user($student2->id, $course->id, 'student');
+        $forumnggenerator = $generator->get_plugin_generator('mod_forumng');
+        $forum = $forumnggenerator->create_instance(['course' => $course->id]);
+        list($discussion1id, $post1id) = $forumnggenerator->create_discussion(['forum' => $forum->id, 'userid' => $student1->id]);
+        $discussion1 = \mod_forumng_discussion::get_from_id($discussion1id, 0);
+        $this->setUser($student1);
+
+        $result = delete_discussion::delete_discussion($discussion1id, 0, false);
+        $this->assertTrue($result->result);
+        $this->assertEmpty($result->errormsg);
+
+        // Student can't undelete.
+        $result2 = delete_discussion::delete_discussion($discussion1id, 0, true);
+        $this->assertFalse($result2->result);
+        $this->assertNotEmpty($result2->errormsg);
+
+        $this->setUser($student2);
+        $result = delete_discussion::delete_discussion($discussion1id, 0, $discussion1->is_deleted());
+        $this->assertFalse($result->result);
+        $this->assertNotEmpty($result->errormsg);
     }
 }

@@ -398,6 +398,7 @@ $string['js_clicktosetrating'] = 'Click to give this post # stars.';
 $string['js_clicktosetrating1'] = 'Click to give this post 1 star.';
 $string['js_clicktoclearrating'] = 'Click to remove your rating.';
 $string['undelete'] = 'Undelete';
+$string['delete'] = 'Delete';
 $string['exportword'] = 'Export to Word';
 $string['exportedtitle'] = 'Forum discussion &lsquo;{$a->subject}&rsquo; exported on {$a->date}';
 $string['set'] = 'Set';

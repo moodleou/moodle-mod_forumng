@@ -91,9 +91,10 @@
                                 (action)="lock()" [iconAction]="CONTENT_OTHERDATA.lock ? 'radio-button-on' : 'radio-button-off'">
         </core-context-menu-item>
         <core-context-menu-item *ngIf="CONTENT_OTHERDATA.manualmark" [content]="'plugin.mod_forumng.markallasread' | translate" (action)="mark_all_post_read()" [iconAction]="'radio-button-off'"></core-context-menu-item>
+        <core-context-menu-item *ngIf="CONTENT_OTHERDATA.candeletediscussion" [content]="CONTENT_OTHERDATA.textdelete" (action)="showDeleteDiscussion()" [iconAction]="'radio-button-off'"></core-context-menu-item>
     </core-context-menu>
 </core-navbar-buttons>
-<div class="mma-forumng-posts-list-wrapper">
+<div class="mma-forumng-posts-list-wrapper {{ CONTENT_OTHERDATA.isdeleteddiscussion ? 'deleted-discussion': ''}}">
     <ion-item class="mma-forumng-expandall" no-lines>
         <%# hasreplies %>
         <div class="button-align-right">

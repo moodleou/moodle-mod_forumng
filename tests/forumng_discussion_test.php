@@ -1061,4 +1061,60 @@ class mod_forumng_discussion_testcase  extends forumng_test_lib {
         role_change_permission($role->id, $forum->get_context(), 'mod/forumng:showrss', CAP_PREVENT);
         $this->assertEmpty($discuss->display_feed_links());
     }
+
+    public function test_can_delete() {
+        $this->resetAfterTest();
+
+        $generator = $this->getDataGenerator();
+        $student1 = $generator->create_user();
+        $student2 = $generator->create_user();
+        $course = $this->get_new_course('Course 1');
+        $this->getDataGenerator()->enrol_user($student1->id, $course->id, 'student');
+        $this->getDataGenerator()->enrol_user($student2->id, $course->id, 'student');
+        $forum = $this->get_new_forumng($course->id, array(
+                'name' => 'ForumNG 1',
+                'intro' => 'Intro',
+                'feedtype' => 2
+        ));
+        $discuss = $this->get_new_discussion($forum, ['userid' => $student1->id]);
+
+        $this->setAdminUser();
+        $this->assertTrue($discuss->can_delete($whynot));
+
+        $this->setUser($student1);
+        $this->assertTrue($discuss->can_delete($whynot));
+
+        $this->setUser($student2);
+        $this->assertFalse($discuss->can_delete($whynot));
+    }
+
+    public function test_can_delete_with_childpost() {
+        $this->resetAfterTest();
+
+        $generator = $this->getDataGenerator();
+        $student1 = $generator->create_user();
+        $student2 = $generator->create_user();
+        $course = $this->get_new_course('Course 1');
+        $this->getDataGenerator()->enrol_user($student1->id, $course->id, 'student');
+        $this->getDataGenerator()->enrol_user($student2->id, $course->id, 'student');
+        $forum = $this->get_new_forumng($course->id, array(
+                'name' => 'ForumNG 1',
+                'intro' => 'Intro',
+                'feedtype' => 2
+        ));
+
+        $discuss = $this->get_new_discussion($forum, ['userid' => $student1->id]);
+        $this->setUser($student2);
+        $lastpost = mod_forumng_post::get_from_id($discuss->get_last_post_id(), 0);
+        $discuss->create_reply($lastpost, 'reply', 'reply', FORMAT_HTML);
+
+        $this->setUser($student2);
+        $this->assertFalse($discuss->can_delete($whynot));
+
+        $this->setUser($student1);
+        $this->assertFalse($discuss->can_delete($whynot));
+
+        $this->setAdminUser();
+        $this->assertTrue($discuss->can_delete($whynot));
+    }
 }

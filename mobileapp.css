@@ -189,6 +189,10 @@ ion-app.app-root .mma-forumng-posts-list-wrapper .item .item-inner,
 .mma-forumng-posts-list-wrapper {
     background-color: #fff;
 }
+.mma-forumng-posts-list-wrapper.deleted-discussion .mma-forumng-posts .mma-forumng-posts-message p,
+.mma-forumng-posts-list-wrapper.deleted-discussion .mma-forumng-p1 .mma-forumng-posts-message p {
+    color: #888 !important;
+}
 body.scheme-dark .mma-forumng-posts-list-wrapper {
     background-color: #3a3a3a;
 }
