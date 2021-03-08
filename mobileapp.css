@@ -159,6 +159,9 @@ body.scheme-dark .mma-forumng-posts-list-wrapper .mma-forumng-posts-subject {
 .mma-forumng-discussion-list .mma-forumng-discussion.forumng-deleted * {
     color: #888;
 }
+.mma-forumng-discussion-list .mma-forumng-discussion.forumng-deleted .mma-forumng-discussion-subject {
+    text-decoration: line-through;
+}
 
 .mma-forumng-discussion-list .mma-forumng-discussion ion-label,
 .mma-forumng-discussion-list .mma-forumng-discussion-sort {
