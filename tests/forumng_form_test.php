@@ -36,7 +36,7 @@ class mod_forumng_form_testcase extends forumng_test_lib {
     /**
      * Set up for form test
      */
-    protected function setUp() {
+    protected function setUp(): void {
         $this->resetAfterTest(true);
         $this->setAdminUser();
     }

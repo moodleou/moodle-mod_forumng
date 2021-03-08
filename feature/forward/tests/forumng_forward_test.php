@@ -31,7 +31,7 @@ class mod_forumng_forward_testcase  extends forumng_test_lib {
 
     protected $helper;
 
-    public function setUp() {
+    public function setUp(): void {
         $helper = new stdClass();
 
         // Catch all messages.
@@ -43,7 +43,7 @@ class mod_forumng_forward_testcase  extends forumng_test_lib {
         $this->helper = $helper;
     }
 
-    public function tearDown() {
+    public function tearDown(): void {
         $this->helper->mailsink->clear();
         $this->helper->mailsink->close();
     }

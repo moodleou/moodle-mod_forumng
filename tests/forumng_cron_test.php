@@ -46,7 +46,7 @@ class mod_forumng_cron_testcase extends forumng_test_lib
     /**
      * Set up user, course, forum, discussion for tests
      */
-    protected function setUp() {
+    protected function setUp(): void {
         global $USER, $CFG;
         $this->resetAfterTest(true);
         $this->setAdminUser();

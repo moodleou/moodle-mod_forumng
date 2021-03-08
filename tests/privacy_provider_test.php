@@ -68,7 +68,7 @@ class mod_forumng_privacy_provider_testcase extends \core_privacy\tests\provider
     /**
      * Test setUp.
      */
-    public function setUp() {
+    public function setUp(): void {
         $this->resetAfterTest(true);
         // Create a course, with a forum, our user under test, another user, and a discussion + post from the other user.
         $course = $this->getDataGenerator()->create_course();
@@ -744,7 +744,7 @@ class mod_forumng_privacy_provider_testcase extends \core_privacy\tests\provider
 
         $sql = "discussionid = ? AND parentpostid IS NOT NULL";
         $posts = array_values($DB->get_records_select('forumng_posts', $sql, ['discussionid' => $dis[1]->get_id()]));
-        
+
         $this->assertCount(1, $posts);
         $this->assertEquals($posts[0]->subject, '');
         $this->assertEquals($posts[0]->message, '');

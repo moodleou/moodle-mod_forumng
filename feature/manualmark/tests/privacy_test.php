@@ -38,7 +38,7 @@ use forumngfeature_manualmark\privacy\provider;
  */
 class forumngfeature_manualmark_privacy_testcase extends provider_testcase {
 
-    public function setUp() {
+    public function setUp(): void {
         $this->resetAfterTest();
     }
 

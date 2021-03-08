@@ -63,7 +63,7 @@ class forumng_display_anon_test extends forumng_test_lib {
      *
      * @throws coding_exception
      */
-    protected function setUp() {
+    protected function setUp(): void {
         $this->resetAfterTest(true);
 
         $this->generator = $this->getDataGenerator()->get_plugin_generator('mod_forumng');
