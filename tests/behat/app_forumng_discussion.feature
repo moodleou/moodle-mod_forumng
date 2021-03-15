@@ -83,7 +83,9 @@ Feature:  Add discussion in forumng and test app can view discussion listing pag
       | Subject | c discussion |
       | Message | test message |
     And I reply to post "1" with the following data:
-      | Message | REPLY1 |
+      | Message | <del>REPLY1<del> |
+    And I reload the page
+    And "//div[@class='forumng-text']//del[contains(text(), 'REPLY1')]" "xpath_element" should exist
     And I reply to post "1" with the following data:
       | Message | REPLY2 |
     And I reply to post "1" with the following data:
@@ -120,6 +122,8 @@ Feature:  Add discussion in forumng and test app can view discussion listing pag
     And I should see "b discussion" in the "//ion-list[contains(@class,'mma-forumng-discussion-list')]/ion-item[contains(@class, 'mma-forumng-discussion-short')][1]" "xpath_element"
     And I should see "c discussion" in the "//ion-list[contains(@class,'mma-forumng-discussion-list')]/ion-item[contains(@class, 'mma-forumng-discussion-short')][2]" "xpath_element"
     And I should see "a discussion" in the "//ion-list[contains(@class,'mma-forumng-discussion-list')]/ion-item[contains(@class, 'mma-forumng-discussion-short')][3]" "xpath_element"
+    And I press "c discussion" in the app
+    And "//core-format-text//del[contains(text(), 'REPLY1')]" "xpath_element" should exist
 
   Scenario: Display post basic and lock discussion
     Given I log in as "teacher1"

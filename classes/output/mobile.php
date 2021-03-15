@@ -1266,7 +1266,7 @@ class mobile {
      * @return string
      */
     private static function shorten_text_display(\mod_forumng_post $post) : object {
-        $message = strip_tags($post->get_formatted_message(), '<img>');
+        $message = strip_tags($post->get_formatted_message(), '<img><del>');
         $subject = format_string($post->get_subject());
         $subject = format_text($subject, FORMAT_HTML);
 

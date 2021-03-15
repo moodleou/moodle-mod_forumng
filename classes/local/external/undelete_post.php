@@ -102,7 +102,7 @@ class undelete_post extends external_api {
                 'rawmessage' => $response->postinfo->content
             ));
             $response->postinfo->shortcontent = \mod_forumng_renderer::nice_shorten_text(
-                strip_tags($response->postinfo->content, '<img>'), \mod_forumng::IPUD_SHORTEN_LENGTH
+                strip_tags($response->postinfo->content, '<img><del>'), \mod_forumng::IPUD_SHORTEN_LENGTH
             );
         } else {
             // User can't delete post, return reason.

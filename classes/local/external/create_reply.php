@@ -159,7 +159,7 @@ class create_reply extends external_api {
                 'postid' => $postobj->postid,
                 'rawmessage' => $postobj->content
             ));
-            $postobj->shortcontent = \mod_forumng_renderer::nice_shorten_text(strip_tags($postobj->content, '<img>'),
+            $postobj->shortcontent = \mod_forumng_renderer::nice_shorten_text(strip_tags($postobj->content, '<img><del>'),
                 \mod_forumng::IPUD_SHORTEN_LENGTH);
 
             // Clear the atto editor saved message.

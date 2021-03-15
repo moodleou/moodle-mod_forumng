@@ -840,9 +840,18 @@ WHERE
      * @return string
      */
     public static function html_to_text($content): string {
-        $text = preg_replace('/(<(?:\/){0,1}[^>]*(?:\/){0,1}>)/i', '$1 ', $content);
+        // Convert &nbsp; to space so we can trim multiple space.
+        $content = htmlentities($content, null, 'utf-8');
+        $content = str_replace('&nbsp;', ' ', $content);
+        $content = html_entity_decode($content);
+        // Only add spacing after block tags or end line tag.
+        $blocktags = ['address', 'article', 'aside', 'audio', 'blockquote', 'canvas', 'dd', 'div', 'dl', 'fieldset', 'figcaption',
+                'figure', 'footer', 'form', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'header', 'hgroup', 'hr', 'noscript', 'ol',
+                'output', 'p', 'pre', 'section', 'table', 'tfoot', 'ul', 'video', 'br', 'li'];
+        $regexptags = implode($blocktags, '|');
+        $text = preg_replace('/(<(?:\/){0,1}(?:' . $regexptags . ')[^>]*(?:\/)?>)/i', '$1 ', $content);
         $text = strip_tags(
-            preg_replace('~<script.*?</script>~s', '', $text), '<img>');
+            preg_replace('~<script.*?</script>~s', '', $text), '<img><del>');
         // Remove multiple spaces.
         $text = trim(preg_replace('/\s+/i', ' ', $text));
         return $text;

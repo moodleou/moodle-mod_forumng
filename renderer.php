@@ -1919,6 +1919,9 @@ class mod_forumng_renderer extends plugin_renderer_base {
     }
 
     public static function nice_shorten_text($text, $length=40) {
+        $text = htmlentities($text, null, 'utf-8');
+        $text = str_replace('&nbsp;', ' ', $text);
+        $text = html_entity_decode($text);
         $text = trim($text);
         // Replace image tag by placeholder text.
         $text = preg_replace('/<img.*?>/', get_string('image_placeholder', 'mod_forumng'), $text);
