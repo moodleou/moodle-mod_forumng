@@ -137,14 +137,8 @@ Feature: To Create a ForumNG on Learn2
     And I press "Discussion options"
     #changing the display options to the following
     When I set the following fields to these values:
-      | timestart[enabled] | 1                    |
-      | timestart[day]     | ## -2 days ## j ##   |
-      | timestart[month]   | ## -2 days ## n ##   |
-      | timestart[year]    | ## -2 days ## Y ##   |
-      | timeend[enabled]   | 1                    |
-      | timeend[day]       | ## yesterday ## j ## |
-      | timeend[month]     | ## yesterday ## n ## |
-      | timeend[year]      | ## yesterday ## Y ## |
+      | Only show from      | ## -2 days ##   |
+      | Only show until end | ## yesterday ## |
     And I press "Save changes"
     And I follow "F.wc"
     And I add a discussion with the following data:
@@ -153,14 +147,8 @@ Feature: To Create a ForumNG on Learn2
     And I press "Discussion options"
     #changing the display options to the following
     When I set the following fields to these values:
-      | timestart[enabled] | 1                     |
-      | timestart[day]     | ## yesterday  ## j ## |
-      | timestart[month]   | ## yesterday  ## n ## |
-      | timestart[year]    | ## yesterday  ## Y ## |
-      | timeend[enabled]   | 1                     |
-      | timeend[day]       | ## tomorrow ## j ##   |
-      | timeend[month]     | ## tomorrow ## n ##   |
-      | timeend[year]      | ## tomorrow ## Y ##   |
+      | Only show from      | ## yesterday  ## |
+      | Only show until end | ## tomorrow ##   |
     And I press "Save changes"
     And I follow "F.wc"
     And I add a discussion with the following data:
@@ -169,14 +157,8 @@ Feature: To Create a ForumNG on Learn2
     And I press "Discussion options"
     #changing the display options to the following
     When I set the following fields to these values:
-      | timestart[enabled] | 1                   |
-      | timestart[day]     | ## tomorrow ## j ## |
-      | timestart[month]   | ## tomorrow ## n ## |
-      | timestart[year]    | ## tomorrow ## Y ## |
-      | timeend[enabled]   | 1                   |
-      | timeend[day]       | ## +2 days ## j ##  |
-      | timeend[month]     | ## +2 days ## n ##  |
-      | timeend[year]      | ## +2 days ## Y ##  |
+      | Only show from      | ## tomorrow ## |
+      | Only show until end | ## +2 days ##  |
     And I press "Save changes"
     And I log out
     And I log in as "student1"
