@@ -651,14 +651,14 @@ class mod_forumng_forumng_testcase extends forumng_test_lib {
         $postid = $discussion->get_root_post()->reply('Subject 1', $message, 1);
 
         $response = mod_forumng_output_fragment_formatmessage(array(
-            'postid' => $postid,
-            'rawmessage' => $message
+                'postid' => $postid,
+                'rawmessage' => $message
         ));
 
         // Check that @@PLUGINFILE@@ have been replaced by real link.
-        $this->assertContains('https://www.example.com/moodle/pluginfile.php', $response);
-        $this->assertContains('image.png', $response);
-        $this->assertNotContains('@@PLUGINFILE@@', $response);
+        $this->assertStringContainsString('https://www.example.com/moodle/pluginfile.php', $response);
+        $this->assertStringContainsString('image.png', $response);
+        $this->assertStringNotContainsString('@@PLUGINFILE@@', $response);
     }
 
     /**

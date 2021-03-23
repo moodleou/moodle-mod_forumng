@@ -62,27 +62,29 @@ class mod_forumng_form_testcase extends forumng_test_lib {
 
         // Create new post for discussion.
         $post1 = $generator->create_post(array(
-                'discussionid' => $discussion[0],
-                'parentpostid' => $discussion[1],
-                'userid' => $USER->id)
+                        'discussionid' => $discussion[0],
+                        'parentpostid' => $discussion[1],
+                        'userid' => $USER->id)
         );
 
         $formhtml = mod_forumng_output_fragment_postform(['replyto' => $post1->id]);
 
         // Check fields other than message field are hidden or not rendered.
-        $this->assertContains('input id="id_subject" name="subject" type="hidden"', $formhtml);
-        $this->assertContains('input name="attachments" type="hidden" value="0"', $formhtml);
-        $this->assertContains('input name="asmoderator" type="hidden" value="0"', $formhtml);
-        $this->assertContains('name="replyto" type="hidden" value="' . $post1->id . '"', $formhtml);
-        $this->assertNotContains('setimportant', $formhtml);
+        $this->assertStringContainsString('input id="id_subject" name="subject" type="hidden"', $formhtml);
+        $this->assertStringContainsString('input name="attachments" type="hidden" value="0"', $formhtml);
+        $this->assertStringContainsString('input name="asmoderator" type="hidden" value="0"', $formhtml);
+        $this->assertStringContainsString('name="replyto" type="hidden" value="' . $post1->id . '"', $formhtml);
+        $this->assertStringNotContainsString('setimportant', $formhtml);
 
         $formhtml = mod_forumng_output_fragment_postform(['edit' => $post1->id]);
 
         // Check post data is filled to form correctly.
-        $this->assertContains('input id="id_subject" name="subject" type="hidden" value="Forum post subject 1"', $formhtml);
-        $this->assertContains('input name="p" type="hidden" value="' . $post1->id . '"', $formhtml);
-        $this->assertContains(
-            'textarea id="id_message' . $post1->id . '" name="message[text]" class="form-control" rows="30" cols="50" spellcheck="true" >&lt;p&gt;Forum message post 1&lt;/p&gt;',
-            $formhtml);
+        $this->assertStringContainsString('input id="id_subject" name="subject" type="hidden" value="Forum post subject 1"',
+                $formhtml);
+        $this->assertStringContainsString('input name="p" type="hidden" value="' . $post1->id . '"', $formhtml);
+        $this->assertStringContainsString(
+                'textarea id="id_message' . $post1->id .
+                '" name="message[text]" class="form-control" rows="30" cols="50" spellcheck="true" >&lt;p&gt;Forum message post 1&lt;/p&gt;',
+                $formhtml);
     }
 }

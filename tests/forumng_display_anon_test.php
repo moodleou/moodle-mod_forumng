@@ -218,8 +218,8 @@ class forumng_display_anon_test extends forumng_test_lib {
         $discussion = mod_forumng_discussion::get_from_id($tmp[0], 0);
         $post = mod_forumng_post::get_from_id($tmp[1], 0, true);
         $postdata = $method->invoke(new \mod_forumng\output\mobile, $discussion, $post, 'defaultimage', $moderator);
-        $this->assertContains($fullname, $postdata['startedby']);
-        $this->assertContains($moderator, $postdata['startedby']);
+        $this->assertStringContainsString($fullname, $postdata['startedby']);
+        $this->assertStringContainsString($moderator, $postdata['startedby']);
 
         // Non-moderator always post anonymous.
         $tmp = $this->generator->create_discussion([
@@ -231,7 +231,7 @@ class forumng_display_anon_test extends forumng_test_lib {
         $post1 = mod_forumng_post::get_from_id($tmp[1], 0, true);
         $postdata = $method->invoke(new \mod_forumng\output\mobile, $discussion1, $post1, 'defaultimage', $moderator);
         $this->assertEquals($identityprotected, $postdata['startedby']);
-        $this->assertContains('defaultimage', $postdata['startedbyurl']);
+        $this->assertStringContainsString('defaultimage', $postdata['startedbyurl']);
 
         $tmp = $this->generator->create_discussion([
                 'course' => $this->course,
@@ -241,8 +241,8 @@ class forumng_display_anon_test extends forumng_test_lib {
         $discussion2 = mod_forumng_discussion::get_from_id($tmp[0], 0);
         $post2 = mod_forumng_post::get_from_id($tmp[1], 0, true);
         $postdata = $method->invoke(new \mod_forumng\output\mobile, $discussion2, $post2, 'defaultimage', $moderator);
-        $this->assertContains($fullname, $postdata['startedby']);
-        $this->assertContains($moderator, $postdata['startedby']);
+        $this->assertStringContainsString($fullname, $postdata['startedby']);
+        $this->assertStringContainsString($moderator, $postdata['startedby']);
 
         $tmp = $this->generator->create_discussion([
                 'course' => $this->course,
@@ -252,22 +252,22 @@ class forumng_display_anon_test extends forumng_test_lib {
         $discussion3 = mod_forumng_discussion::get_from_id($tmp[0], 0);
         $post3 = mod_forumng_post::get_from_id($tmp[1], 0, true);
         $postdata = $method->invoke(new \mod_forumng\output\mobile, $discussion3, $post3, 'defaultimage', $moderator);
-        $this->assertEquals('<strong>'.$moderator.'</strong>', $postdata['startedby']);
-        $this->assertContains('defaultimage', $postdata['startedbyurl']);
+        $this->assertEquals('<strong>' . $moderator . '</strong>', $postdata['startedby']);
+        $this->assertStringContainsString('defaultimage', $postdata['startedbyurl']);
 
         // Login as Moderator.
         $this->setUser($this->users[0]->id);
         $postdata = $method->invoke(new \mod_forumng\output\mobile, $discussion1, $post1, 'defaultimage', $moderator);
         $this->assertEquals($fullname, $postdata['startedby']);
-        $this->assertNotContains('defaultimage', $postdata['startedbyurl']);
+        $this->assertStringNotContainsString('defaultimage', $postdata['startedbyurl']);
 
         $postdata = $method->invoke(new \mod_forumng\output\mobile, $discussion2, $post2, 'defaultimage', $moderator);
-        $this->assertContains($fullname, $postdata['startedby']);
-        $this->assertContains($moderator, $postdata['startedby']);
+        $this->assertStringContainsString($fullname, $postdata['startedby']);
+        $this->assertStringContainsString($moderator, $postdata['startedby']);
 
         $postdata = $method->invoke(new \mod_forumng\output\mobile, $discussion3, $post3, 'defaultimage', $moderator);
-        $this->assertContains($moderator, $postdata['startedby']);
-        $this->assertNotContains($fullname, $postdata['startedby']);
-        $this->assertNotContains('defaultimage', $postdata['startedbyurl']);
+        $this->assertStringContainsString($moderator, $postdata['startedby']);
+        $this->assertStringNotContainsString($fullname, $postdata['startedby']);
+        $this->assertStringNotContainsString('defaultimage', $postdata['startedbyurl']);
     }
 }

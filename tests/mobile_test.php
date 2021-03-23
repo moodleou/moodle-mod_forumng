@@ -76,7 +76,7 @@ class mobile_testcase extends \advanced_testcase {
         $this->assertEquals(1, $otherdata['page']);
         $template = $result['templates'][0];
         $this->assertEquals('main', $template['id']);
-        $this->assertContains('Test forum 1', $template['html']);
+        $this->assertStringContainsString('Test forum 1', $template['html']);
 
         // Add a discussion.
         $record = [];
@@ -484,7 +484,7 @@ class mobile_testcase extends \advanced_testcase {
             $subject, $message, $draftarea, 0, 0, 0, false,false);
         $this->assertTrue($result['success']);
         $this->assertEmpty($result['errormsg']);
-        $this->assertContains(\mod_forumng_utils::display_date(time()), $result['successmsg']);
+        $this->assertStringContainsString(\mod_forumng_utils::display_date(time()), $result['successmsg']);
         $drafid = $result['draft'];
         // Check the new draft exists.
         $draft = \mod_forumng_draft::get_from_id($drafid, 0);
@@ -520,7 +520,7 @@ class mobile_testcase extends \advanced_testcase {
             $subject, $message, $draftarea, 0, true, 0, false,false);
         $this->assertTrue($result['success']);
         $this->assertEmpty($result['errormsg']);
-        $this->assertContains(\mod_forumng_utils::display_date(time()), $result['successmsg']);
+        $this->assertStringContainsString(\mod_forumng_utils::display_date(time()), $result['successmsg']);
         // Edit draft reply vis the WS.
         $drafid = $result['draft'];
         $newsubject = 'Test new subject reply';

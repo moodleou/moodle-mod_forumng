@@ -88,23 +88,23 @@ class forumngfeature_usage_usage_testcase extends forumng_test_lib {
         $this->assertRegExp('~forumng_usage_list_tot">3<.*?discussion 1.*?' .
                 'forumng_usage_list_tot">2<.*?discussion 3.*?' .
                 'forumng_usage_list_tot">1<.*?discussion 2~s', $result);
-        $this->assertNotContains('discussion 4', $result);
+        $this->assertStringNotContainsString('discussion 4', $result);
 
         // Try for group 1.
         $params['group'] = $group1->id;
         $result = forumngfeature_usage_show_mostreaders($params);
         $this->assertRegExp('~forumng_usage_list_tot">2<.*?discussion 1.*?' .
                 'forumng_usage_list_tot">1<.*?discussion 2~s', $result);
-        $this->assertNotContains('discussion 3', $result);
-        $this->assertNotContains('discussion 4', $result);
+        $this->assertStringNotContainsString('discussion 3', $result);
+        $this->assertStringNotContainsString('discussion 4', $result);
 
         // Try for group 2.
         $params['group'] = $group2->id;
         $result = forumngfeature_usage_show_mostreaders($params);
         $this->assertRegExp('~forumng_usage_list_tot">2<.*?discussion 3~s', $result);
-        $this->assertNotContains('discussion 1', $result);
-        $this->assertNotContains('discussion 2', $result);
-        $this->assertNotContains('discussion 4', $result);
+        $this->assertStringNotContainsString('discussion 1', $result);
+        $this->assertStringNotContainsString('discussion 2', $result);
+        $this->assertStringNotContainsString('discussion 4', $result);
     }
 
 }
