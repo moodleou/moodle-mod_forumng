@@ -128,7 +128,7 @@ html[style="font-size: 75.89%;"] .mma-forumng-discussion-list core-format-text[m
 
 .mma-forumng-discussion-list .mma-forumng-discussion .mma-forumng-discussion-subject,
 .mma-forumng-discussion-list .mma-forumng-drafts .cell.c0 {
-    font-size: 1.4rem;
+    font-size: 1.6rem;
     font-weight: 400;
     line-height: normal;
     color: #0b55a8;
@@ -152,7 +152,7 @@ body.scheme-dark .mma-forumng-posts-list-wrapper .mma-forumng-posts-subject {
 }
 
 .mma-forumng-discussion-list .mma-forumng-discussion .mma-forumng-discussion-last-post {
-    font-size: 1.2rem;
+    font-size: 1.4rem;
 }
 
 .mma-forumng-discussion-list .mma-forumng-discussion.forumng-timeout *,

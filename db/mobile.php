@@ -39,7 +39,7 @@ $addons = [
                 'displayprefetch' => false,
                 'styles' => [
                     'url' => $CFG->wwwroot . '/mod/forumng/mobile_css.php?v=2021031900',
-                    'version' => 2021031900
+                    'version' => 2021032900
                 ],
                 'init' => 'mobile_forumng_init'
             ]
