@@ -44,9 +44,7 @@ try {
 
     // Do all access security checks
     $post->require_view();
-    $post->get_discussion()->init_page(new moodle_url('/mod/forumng/expandpost.php', $pageparams),
-            '');
-
+    $post->get_discussion()->init_page(new moodle_url($post->get_url()), '');
     // Display post
     if ($raw) {
         print $post->prepare_edit_json();
