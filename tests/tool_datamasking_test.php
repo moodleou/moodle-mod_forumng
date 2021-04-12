@@ -19,7 +19,7 @@ namespace mod_forumng;
 /**
  * Tests the tool_datamasking class for this plugin.
  *
- * @package tool_datamasking
+ * @package mod_forumng
  * @copyright 2021 The Open University
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -59,6 +59,14 @@ class tool_datamasking_test extends \advanced_testcase {
                 ['forumngid' => 1, 'userid' => 1, 'saved' => 1, 'messageformat' => 1,
                 'subject' => 'Q!', 'message' => '']);
 
+        // Add some files.
+        $fileids = [];
+        $fileids[] = \tool_datamasking\testing_utils::add_file('mod_forumng', 'attachment', 'a.txt', 'a');
+        $fileids[] = \tool_datamasking\testing_utils::add_file('mod_forumng', 'draft', 'b.txt', 'bb');
+        $fileids[] = \tool_datamasking\testing_utils::add_file('mod_forumng', 'draftmessage', 'c.txt', 'ccc');
+        $fileids[] = \tool_datamasking\testing_utils::add_file('mod_forumng', 'message', 'd.txt', 'dddd');
+        $fileids[] = \tool_datamasking\testing_utils::add_file('mod_forumng', 'intro', 'e.txt', 'eeeee');
+
         // Before checks.
         $forumngreportingemailsql = 'SELECT reportingemail FROM {forumng} ORDER BY id';
         $this->assertEquals(['secret@example.org', ''], $DB->get_fieldset_sql($forumngreportingemailsql));
@@ -73,6 +81,12 @@ class tool_datamasking_test extends \advanced_testcase {
         $forumngdraftssubjectsql = 'SELECT subject FROM {forumng_drafts} ORDER BY id';
         $this->assertEquals([null, 'Q!'], $DB->get_fieldset_sql($forumngdraftssubjectsql));
 
+        \tool_datamasking\testing_utils::check_file($this, $fileids[0], 'a.txt', 1);
+        \tool_datamasking\testing_utils::check_file($this, $fileids[1], 'b.txt', 2);
+        \tool_datamasking\testing_utils::check_file($this, $fileids[2], 'c.txt', 3);
+        \tool_datamasking\testing_utils::check_file($this, $fileids[3], 'd.txt', 4);
+        \tool_datamasking\testing_utils::check_file($this, $fileids[4], 'e.txt', 5);
+
         // Run the full masking plan including this plugin.
         \tool_datamasking\api::get_plan()->execute();
 
@@ -85,5 +99,11 @@ class tool_datamasking_test extends \advanced_testcase {
 
         $this->assertEquals(['<p>X.</p>', ''], $DB->get_fieldset_sql($forumngdraftsmessagesql));
         $this->assertEquals([null, 'X!'], $DB->get_fieldset_sql($forumngdraftssubjectsql));
+
+        \tool_datamasking\testing_utils::check_file($this, $fileids[0], 'masked.txt', 224);
+        \tool_datamasking\testing_utils::check_file($this, $fileids[1], 'masked.txt', 224);
+        \tool_datamasking\testing_utils::check_file($this, $fileids[2], 'masked.txt', 224);
+        \tool_datamasking\testing_utils::check_file($this, $fileids[3], 'masked.txt', 224);
+        \tool_datamasking\testing_utils::check_file($this, $fileids[4], 'e.txt', 5);
     }
 }

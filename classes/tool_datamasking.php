@@ -31,14 +31,19 @@ class tool_datamasking implements \tool_datamasking\plugin {
         $plan->table('forumng')->add(
                 new \tool_datamasking\unique_email_mask('reportingemail'));
 
-        $plan->table('forumng_posts')->add(
-                new \tool_datamasking\similar_text_mask('message', true, 'forumposts-1000-1pc-2pc'));
-        $plan->table('forumng_posts')->add(
-                new \tool_datamasking\similar_text_mask('subject', false, 'forumsubjects-500-1pc-2pc'));
+        $plan->table('forumng_posts')->add(new \tool_datamasking\similar_text_mask(
+                'message', true, \tool_datamasking\similar_text_mask::MODEL_POST));
+        $plan->table('forumng_posts')->add(new \tool_datamasking\similar_text_mask(
+                'subject', false, \tool_datamasking\similar_text_mask::MODEL_SUBJECT));
 
-        $plan->table('forumng_drafts')->add(
-                new \tool_datamasking\similar_text_mask('message', true, 'forumposts-1000-1pc-2pc'));
-        $plan->table('forumng_drafts')->add(
-                new \tool_datamasking\similar_text_mask('subject', false, 'forumsubjects-500-1pc-2pc'));
+        $plan->table('forumng_drafts')->add(new \tool_datamasking\similar_text_mask(
+                'message', true, \tool_datamasking\similar_text_mask::MODEL_POST));
+        $plan->table('forumng_drafts')->add(new \tool_datamasking\similar_text_mask(
+                'subject', false, \tool_datamasking\similar_text_mask::MODEL_SUBJECT));
+
+        $plan->table('files')->add(new \tool_datamasking\files_mask('mod_forumng', 'attachment'));
+        $plan->table('files')->add(new \tool_datamasking\files_mask('mod_forumng', 'draft'));
+        $plan->table('files')->add(new \tool_datamasking\files_mask('mod_forumng', 'draftmessage'));
+        $plan->table('files')->add(new \tool_datamasking\files_mask('mod_forumng', 'message'));
     }
 }
