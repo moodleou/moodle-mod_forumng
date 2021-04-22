@@ -274,9 +274,6 @@ class forumngtype_general extends forumngtype {
             || $PAGE->devicetypeinuse == 'legacy';
         // 'Expand all' option (always chosen for non-JS browsers)
         $collapseall = optional_param('collapse', 0, PARAM_INT);
-        if (!$collapseall && !$expandall && $PAGE->devicetypeinuse == 'mobile') {
-            $collapseall = 1;
-        }
 
         // Link back to first unread post if there is one
         print $discussion->display_unread_skip_link();
