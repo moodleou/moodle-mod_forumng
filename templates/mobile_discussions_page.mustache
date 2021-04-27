@@ -141,7 +141,7 @@
                                     [text]="draft.summary" component="mod_forumng" componentId="<% cmid %>" text-wrap>
                             </core-format-text>
                             <img core-external-content class="mma-forumng-delete-draft" core-site-plugins-new-content component="mod_forumng" method="draft_view"
-                                 [args]="{draftid: draft.id}" [preSets]="{getFromCache: 0}" src="{{draft.deleteicon}}" alt="{{draft.deletealt}}"/>
+                                 [args]="{draftid: draft.id}" [preSets]="{getFromCache: 0}" src="{{draft.deleteicon}}" alt=""/>
                         </div>
                         <div *ngIf="draft.isdeletediscussion">
                             <core-format-text class="mma-forumng-delete-draft-with-delete-discussion"
@@ -245,9 +245,8 @@
                                 <span *ngIf="discussion.classes" class="{{ discussion.classes }}">
                                 <!-- Add icon(s) as needed indicating sticky discussions etc. -->
                                     <span *ngFor="let decorator of discussion.decorators">
-                                        <img core-external-content *ngIf="decorator.src; else elseBlock" [src]="decorator.src"
-                                             alt="{{ decorator.alt }}"
-                                             title="{{ decorator.alt }}" class="mma-forumng-image-correction">
+                                        <img core-external-content *ngIf="decorator.src; else elseBlock" src="{{decorator.src}}"
+                                             alt="" class="mma-forumng-image-correction {{decorator.class}}">
                                         <ng-template #elseBlock><span
                                                 class='accesshide'>{{ decorator.alt }}</span></ng-template>
                                     </span>

@@ -37,6 +37,10 @@ ion-app.app-root {
     min-height: 10px;
 }
 
+.mma-forumng-discussion-listing .mma-forumng-infinite-scroll ion-infinite-scroll-content .infinite-loading {
+    margin: 10px 0;
+}
+
 /* Fixed large border at the bottom of FAB*/
 .mma-forumng-discussion-listing .fixed-content,
 .mma-forumng-discussion-listing .scroll-content {
