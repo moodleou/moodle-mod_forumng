@@ -33,6 +33,7 @@ M.mod_forumng_form = {
         // Check if there's a time limit.
         var timelimitfield = t.Y.one('input[name=timelimit]');
         var timelimit = 0;
+        let timeLimitExpired = false;
         if (timelimitfield) {
             timelimit = Number(timelimitfield.get('value'));
             var timelimitinfo = t.Y.one('#id_editlimit');
@@ -44,6 +45,7 @@ M.mod_forumng_form = {
                     timelimitinfo.setHTML('<strong>' + M.str.forumng.edit_timeout + '</strong>');
                     timelimitinfo.addClass('forumng-timeoutover');
                     // Disabled submit button.
+                    timeLimitExpired = true;
                     var buttonsubmit = t.Y.one('#id_submitbutton');
                     if (buttonsubmit) {
                         buttonsubmit.set('disabled', 'disabled');
@@ -64,6 +66,23 @@ M.mod_forumng_form = {
             }, 1000);
         }
         // Periodic processing to enable/disable the submit button.
+        let isUploading = false;
+        document.addEventListener('core_form/uploadStarted', function (e) {
+            e.preventDefault();
+            isUploading = true;
+        });
+        document.addEventListener('core_form/uploadCompleted', function (e) {
+            e.preventDefault();
+            isUploading = false;
+            // The editing time is over, we need to disable submit buttons.
+            if (timeLimitExpired) {
+                let buttonSaveChanges = document.getElementById('id_submitbutton');
+                let cancel = document.getElementById('id_cancel');
+                buttonSaveChanges.setAttribute('disabled', true);
+                cancel.removeAttribute('disabled');
+                e.stopImmediatePropagation();
+            }
+        });
         t.finterval = setInterval(function()
         {
             // Collect data for disabling buttons.
@@ -104,6 +123,7 @@ M.mod_forumng_form = {
                 }
 
                 // Disable saving and also drafts.
+                disable = isUploading || disable;
                 submit.set('disabled', disable);
                 if (savedraft) {
                     savedraft.set('disabled', disable);
