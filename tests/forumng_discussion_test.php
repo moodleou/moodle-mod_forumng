@@ -134,6 +134,16 @@ class mod_forumng_discussion_testcase  extends forumng_test_lib {
         $this->assertEquals($futuretime, $roota->get_created());
         $this->assertEquals($futuretime, $roota->get_modified());
 
+        // Test unsetting the future time.
+        $generator->create_post(['discussionid' => $discussionid, 'userid' => $USER->id]);
+        $discussion->edit_settings($discussion::NOCHANGE, 0, $discussion::NOCHANGE, $discussion::NOCHANGE,
+                $discussion::NOCHANGE);
+        $starttime = $discussion->get_time_start();
+        $this->assertEquals(0, $starttime);
+        // Set cache to false to stop it picking up old (cached) created and modified times.
+        $roota = $discussion->get_root_post(false);
+        $this->assertNotEquals($futuretime, $roota->get_created());
+        $this->assertNotEquals($futuretime, $roota->get_modified());
     }
 
     public function test_flag_discussion() {

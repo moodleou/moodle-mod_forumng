@@ -1127,20 +1127,17 @@ WHERE
         if ($timestart != $this->discussionfields->timestart) {
             $update->timestart = $timestart;
             $root = $this->get_root_post();
-            // When $timestart is not the same as $this->discussionfields->timestart
-            // and the discussion root post ($root) has no children.
-            if (!$root->has_children()) {
-                // Then the root post created and modified times are set to $timestart.
-                // Note will need to do this using DB function as no method to do this in classes.
-                if ($timestart == 0) {
-                    $timestart = time();
-                }
-                $revisedroot = new stdClass();
-                $revisedroot->created = $timestart;
-                $revisedroot->modified = $timestart;
-                $revisedroot->id = $root->get_id();
-                $DB->update_record('forumng_posts', $revisedroot);
+            // When $timestart is not the same as $this->discussionfields->timestart.
+            // Then the root post created and modified times are set to $timestart.
+            // Note will need to do this using DB function as no method to do this in classes.
+            if ($timestart == 0) {
+                $timestart = time();
             }
+            $revisedroot = new stdClass();
+            $revisedroot->created = $timestart;
+            $revisedroot->modified = $timestart;
+            $revisedroot->id = $root->get_id();
+            $DB->update_record('forumng_posts', $revisedroot);
         }
         if ($timeend != $this->discussionfields->timeend) {
             $update->timeend = $timeend;
