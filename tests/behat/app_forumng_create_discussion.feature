@@ -22,12 +22,13 @@ Feature:  Add discussion in forumng and test app can view discussion listing pag
       | forumng  | Test forum name       | Test forum description     | C1     | forumng1 | 0           |
       | forumng  | Test forum discussion | Test forum description     | C1     | forumng2 | 0           |
       | forumng  | Test forum anon       | Test ForumNG 3 description | C1     | forumng3 | 1           |
-
+    And the following config values are set as admin:
+      | disabledfeatures | CoreBlockDelegate_AddonBlockRecentlyAccessedCourses,CoreBlockDelegate_AddonBlockRecentlyAccessedItems | tool_mobile |
 
   Scenario: Add discussions and check options in the app
     And I enter the app
     And I log in as "teacher1"
-    And I press "Course 1" near "Recently accessed courses" in the app
+    And I press "Course 1" in the app
     And I press "Test forum discussion" in the app
     When I click on "#mod_forumg_add_discussion" "css_element"
     And I should see "Subject"
@@ -59,7 +60,7 @@ Feature:  Add discussion in forumng and test app can view discussion listing pag
     And I log out
     And I enter the app
     And I log in as "student1"
-    And I press "Course 1" near "Recently accessed courses" in the app
+    And I press "Course 1" in the app
     And I press "Test forum name" in the app
     When I click on "#mod_forumg_add_discussion" "css_element"
     And I should not see "(Show as sticky)"
@@ -81,7 +82,7 @@ Feature:  Add discussion in forumng and test app can view discussion listing pag
     And I should see "Test message student"
     And I enter the app
     And I log in as "student1"
-    And I press "Course 1" near "Recently accessed courses" in the app
+    And I press "Course 1" in the app
     And I press "Test forum name" in the app
     And I press "Test discussion 2 student" in the app
     And I should see "Reply"
@@ -107,7 +108,7 @@ Feature:  Add discussion in forumng and test app can view discussion listing pag
     And I should see "Test rootpost edited message"
     And I enter the app
     And I log in as "teacher1"
-    And I press "Course 1" near "Recently accessed courses" in the app
+    And I press "Course 1" in the app
     And I press "Test forum name" in the app
     And I should see "Test discussion 2 student"
     And I press "Test discussion 2 student" in the app
@@ -125,7 +126,7 @@ Feature:  Add discussion in forumng and test app can view discussion listing pag
     And I should not see "Deleted post. This post was deleted by"
     And I enter the app
     And I log in as "teacher1"
-    And I press "Course 1" near "Recently accessed courses" in the app
+    And I press "Course 1" in the app
     And I press "Test forum anon" in the app
     When I click on "#mod_forumg_add_discussion" "css_element"
     And I set the field "Subject" to "Test discussion anon" in the app
@@ -143,7 +144,7 @@ Feature:  Add discussion in forumng and test app can view discussion listing pag
     And I press "Post reply" in the app
     And I enter the app
     And I log in as "student1"
-    And I press "Course 1" near "Recently accessed courses" in the app
+    And I press "Course 1" in the app
     And I press "Test forum anon" in the app
     And I press "Test discussion anon" in the app
     And I should not see "Teacher 1"
@@ -162,7 +163,7 @@ Feature:  Add discussion in forumng and test app can view discussion listing pag
     And I should see "Moderator"
     And I enter the app
     And I log in as "teacher1"
-    And I press "Course 1" near "Recently accessed courses" in the app
+    And I press "Course 1" in the app
     And I press "Test forum name" in the app
     When I click on "Discussion 1" "text"
     Then I should see "REPLY3 EDIT"

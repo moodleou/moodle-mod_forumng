@@ -17,6 +17,8 @@ Feature: Add forumng activity and test mark post all read in the app.
     And the following "activities" exist:
       | activity | name            | introduction           | course | idnumber |
       | forumng  | Test forum name | Test forum description | C1     | forumng1 |
+    And the following config values are set as admin:
+      | disabledfeatures | CoreBlockDelegate_AddonBlockRecentlyAccessedCourses,CoreBlockDelegate_AddonBlockRecentlyAccessedItems | tool_mobile |
 
   @javascript
   Scenario: Add discussions and posts to check mark all post to read
@@ -36,7 +38,7 @@ Feature: Add forumng activity and test mark post all read in the app.
     When I enter the app
     And I log in as "student1"
     Then I should see "Course 1"
-    And I press "Course 1" near "Recently accessed courses" in the app
+    And I press "Course 1" in the app
     And I press "Test forum name" in the app
     And I should not see "Mark all as read"
     # We can't use press page menu in the app because there are two core context menu #
@@ -53,7 +55,7 @@ Feature: Add forumng activity and test mark post all read in the app.
     When I enter the app
     And I log in as "student1"
     Then I should see "Course 1"
-    And I press "Course 1" near "Recently accessed courses" in the app
+    And I press "Course 1" in the app
     And I press "Test forum name" in the app
     And I should not see "Mark all as read"
     When I press "Discussion 1" in the app

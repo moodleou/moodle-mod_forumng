@@ -23,6 +23,8 @@ Feature:  Add discussion in forumng and test app can view discussion listing pag
       | forumng  | Test forum discussion | Test forum description     | C1     | forumng2 | 0           |
       | forumng  | Test forum anon       | Test ForumNG 3 description | C1     | forumng3 | 1           |
       | forumng  | Test forum anon 2     | Test ForumNG 4 description | C1     | forumng4 | 2           |
+    And the following config values are set as admin:
+      | disabledfeatures | CoreBlockDelegate_AddonBlockRecentlyAccessedCourses,CoreBlockDelegate_AddonBlockRecentlyAccessedItems | tool_mobile |
 
 
   Scenario: Add discussions and check sticky and block and time limit
@@ -41,18 +43,19 @@ Feature:  Add discussion in forumng and test app can view discussion listing pag
     Then I press "Lock"
     And I set the following fields to these values:
       | Message | A lock post |
+    And I wait "2" seconds
     And I press "Lock discussion"
     And I press "Discussion options"
     #changing the display options to the following
     When I set the following fields to these values:
-      | timestart[enabled] | 1                    |
-      | timestart[day]     | ## yesterday ## j ## |
-      | timestart[month]   | ## yesterday ## n ## |
-      | timestart[year]    | ## yesterday ## Y ## |
-      | timeend[enabled]   | 1                    |
-      | timeend[day]       | ## yesterday ## j ## |
-      | timeend[month]     | ## yesterday ## n ## |
-      | timeend[year]      | ## yesterday ## Y ## |
+      | timestart[enabled] | 1    |
+      | timeend[enabled]   | 1    |
+      | timestart[day]     | 1    |
+      | timestart[month]   | 1    |
+      | timestart[year]    | 2016 |
+      | timeend[day]       | 1    |
+      | timeend[month]     | 1    |
+      | timeend[year]      | 2016 |
     And I press "Save changes"
     And I follow "Test forum name"
     And I add a discussion with the following data:
@@ -94,15 +97,15 @@ Feature:  Add discussion in forumng and test app can view discussion listing pag
       | Message | REPLY4 |
     And I enter the app
     And I log in as "teacher1"
-    And I press "Course 1" near "Recently accessed courses" in the app
+    And I press "Course 1" in the app
     And I press "Test forum name" in the app
     And I should see "Sort discussions"
-    And "//div[@class='mma-forumng-discussion-icons']/span[contains(@class, 'forumng-locked forumng-timeout forumng-sticky')]/span/img[contains(@alt, 'read-only')]" "xpath_element" should exist
-    And "//div[@class='mma-forumng-discussion-icons']/span[contains(@class, 'forumng-locked forumng-timeout forumng-sticky')]/span/img[contains(@alt, '(time limit)')]" "xpath_element" should exist
-    And "//div[@class='mma-forumng-discussion-icons']/span[contains(@class, 'forumng-locked forumng-timeout forumng-sticky')]/span/img[contains(@alt, 'top of list')]" "xpath_element" should exist
+    And "//div[@class='mma-forumng-discussion-icons']/span[contains(@class, 'forumng-locked forumng-timeout forumng-sticky')]/span/img" "xpath_element" should exist
+    And "//div[@class='mma-forumng-discussion-icons']/span[contains(@class, 'forumng-locked forumng-timeout forumng-sticky')]/span/img" "xpath_element" should exist
+    And "//div[@class='mma-forumng-discussion-icons']/span[contains(@class, 'forumng-locked forumng-timeout forumng-sticky')]/span/img" "xpath_element" should exist
     And I enter the app
     And I log in as "student1"
-    And I press "Course 1" near "Recently accessed courses" in the app
+    And I press "Course 1" in the app
     And I press "Test forum discussion" in the app
     And I should see "Sort discussions"
     # Discussions has sticky always in the top list.
@@ -141,7 +144,7 @@ Feature:  Add discussion in forumng and test app can view discussion listing pag
     And I follow "Test forum name"
     And I enter the app
     And I log in as "teacher1"
-    And I press "Course 1" near "Recently accessed courses" in the app
+    And I press "Course 1" in the app
     And I press "Test forum name" in the app
     And I click on "//ion-list[contains(@class,'mma-forumng-discussion-list')]/ion-item[contains(@class, 'mma-forumng-discussion-short')][1]" "xpath_element"
     Then I should see "Discussion 1"
@@ -175,7 +178,7 @@ Feature:  Add discussion in forumng and test app can view discussion listing pag
     And I follow "Test forum anon"
     And I enter the app
     And I log in as "student1"
-    And I press "Course 1" near "Recently accessed courses" in the app
+    And I press "Course 1" in the app
     And I press "Test forum anon" in the app
     And I click on "//ion-list[contains(@class,'mma-forumng-discussion-list')]/ion-item[contains(@class, 'mma-forumng-discussion-short')][1]" "xpath_element"
     And I should see "Discussion 1"
@@ -206,7 +209,7 @@ Feature:  Add discussion in forumng and test app can view discussion listing pag
     And I follow "Test forum anon 2"
     And I enter the app
     And I log in as "student1"
-    And I press "Course 1" near "Recently accessed courses" in the app
+    And I press "Course 1" in the app
     And I press "Test forum anon 2" in the app
     And I should see "Posts to this forum will be identity protected - individuals' names will not be displayed."
     And I click on "//ion-list[contains(@class,'mma-forumng-discussion-list')]/ion-item[contains(@class, 'mma-forumng-discussion-short')][1]" "xpath_element"
@@ -240,7 +243,7 @@ Feature:  Add discussion in forumng and test app can view discussion listing pag
       | Message | Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. |
     And I enter the app
     And I log in as "student1"
-    And I press "Course 1" near "Recently accessed courses" in the app
+    And I press "Course 1" in the app
     And I press "Test forum discussion" in the app
     And I click on "//ion-list[contains(@class,'mma-forumng-discussion-list')]/ion-item[contains(@class, 'mma-forumng-discussion-short')][1]" "xpath_element"
     # Before click Expand all, I should see short message with (...) .
@@ -266,11 +269,11 @@ Feature:  Add discussion in forumng and test app can view discussion listing pag
       | Attachment | mod/forumng/tests/fixtures/Reply.txt |
     And I enter the app
     And I log in as "student1"
-    And I press "Course 1" near "Recently accessed courses" in the app
+    And I press "Course 1" in the app
     And I press "Test forum discussion" in the app
     And I click on "//ion-list[contains(@class,'mma-forumng-discussion-list')]/ion-item[contains(@class, 'mma-forumng-discussion-short')][1]" "xpath_element"
     And I press "Reply.txt" in the app
     And I close the browser tab opened by the app
     And I click on "page-core-site-plugins-plugin button.back-button" "css_element"
     And I click on "page-core-site-plugins-module-index core-context-menu button" "css_element"
-    Then I should see "Clear storage 6.46 KB"
+    Then I should see "Clear storage"

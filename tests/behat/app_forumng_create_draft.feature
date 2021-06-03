@@ -23,12 +23,14 @@ Feature:  Add draft in forumng and test app can view discussion listing page
       | forumng  | Test forum discussion | Test forum description     | C1     | forumng2 | 0           |
       | forumng  | Test forum anon       | Test ForumNG 3 description | C1     | forumng3 | 1           |
       | forumng  | Test forum anon 2     | Test ForumNG 4 description | C1     | forumng4 | 2           |
+    And the following config values are set as admin:
+      | disabledfeatures | CoreBlockDelegate_AddonBlockRecentlyAccessedCourses,CoreBlockDelegate_AddonBlockRecentlyAccessedItems | tool_mobile |
 
 
   Scenario: Add draft and edit draft and check options in the app
     And I enter the app
     And I log in as "teacher1"
-    And I press "Course 1" near "Recently accessed courses" in the app
+    And I press "Course 1" in the app
     And I press "Test forum discussion" in the app
     When I click on "#mod_forumg_add_discussion" "css_element"
     And I should see "Subject"
@@ -85,7 +87,7 @@ Feature:  Add draft in forumng and test app can view discussion listing page
   Scenario: Add draft and edit draft and check options in the app for student
     And I enter the app
     And I log in as "student1"
-    And I press "Course 1" near "Recently accessed courses" in the app
+    And I press "Course 1" in the app
     And I press "Test forum discussion" in the app
     When I click on "#mod_forumg_add_discussion" "css_element"
     And I should see "Subject"
@@ -139,7 +141,7 @@ Feature:  Add draft in forumng and test app can view discussion listing page
   Scenario: Test delete draft
     And I enter the app
     And I log in as "student1"
-    And I press "Course 1" near "Recently accessed courses" in the app
+    And I press "Course 1" in the app
     And I press "Test forum discussion" in the app
     When I click on "#mod_forumg_add_discussion" "css_element"
     And I should see "Subject"
@@ -186,7 +188,7 @@ Feature:  Add draft in forumng and test app can view discussion listing page
   Scenario: Test draft reply anon
     And I enter the app
     And I log in as "teacher1"
-    And I press "Course 1" near "Recently accessed courses" in the app
+    And I press "Course 1" in the app
     And I press "Test forum anon 2" in the app
     When I click on "#mod_forumg_add_discussion" "css_element"
     And I set the field "Subject" to "Test discussion draft 1" in the app
@@ -197,7 +199,7 @@ Feature:  Add draft in forumng and test app can view discussion listing page
     When I press "Post discussion" in the app
     And I enter the app
     And I log in as "student1"
-    And I press "Course 1" near "Recently accessed courses" in the app
+    And I press "Course 1" in the app
     And I press "Test forum anon 2" in the app
     And I press "Test discussion draft 1" in the app
     And I press "Reply" in the app

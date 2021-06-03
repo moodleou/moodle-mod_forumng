@@ -17,6 +17,8 @@ Feature: Add forumng activity and test delete discussion.
     And the following "activities" exist:
       | activity | name            | introduction           | course | idnumber |
       | forumng  | Test forum name | Test forum description | C1     | forumng1 |
+    And the following config values are set as admin:
+      | disabledfeatures | CoreBlockDelegate_AddonBlockRecentlyAccessedCourses,CoreBlockDelegate_AddonBlockRecentlyAccessedItems | tool_mobile |
 
 
   @javascript
@@ -38,7 +40,7 @@ Feature: Add forumng activity and test delete discussion.
     And I enter the app
     And I log in as "student1"
     And I should see "Course 1"
-    And I press "Course 1" near "Recently accessed courses" in the app
+    And I press "Course 1" in the app
     And I press "Test forum name" in the app
     Then I should see "discussion1"
     Then I should see "discussion2"
@@ -51,7 +53,7 @@ Feature: Add forumng activity and test delete discussion.
     And I enter the app
     And I log in as "student2"
     And I should see "Course 1"
-    And I press "Course 1" near "Recently accessed courses" in the app
+    And I press "Course 1" in the app
     And I press "Test forum name" in the app
     And I press "discussion2" in the app
     And I should not see "Delete discussion"
@@ -66,7 +68,7 @@ Feature: Add forumng activity and test delete discussion.
     And I enter the app
     And I log in as "admin"
     And I should see "Course 1"
-    And I press "Course 1" near "Recently accessed courses" in the app
+    And I press "Course 1" in the app
     And I press "Test forum name" in the app
     Then I should see "discussion2"
     And I press "discussion2" in the app
