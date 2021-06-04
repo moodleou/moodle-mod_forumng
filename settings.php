@@ -26,6 +26,7 @@ defined('MOODLE_INTERNAL') || die();
 $plugin = new stdClass();
 require_once($CFG->dirroot . '/mod/forumng/settingslib.php');
 require_once($CFG->dirroot.'/mod/forumng/version.php');
+require_once($CFG->dirroot.'/mod/forumng/mod_forumng_utils.php');
 
 if (!empty($plugin->release)) {
 $settings->add(new admin_setting_heading('forumng_version', '',
@@ -141,4 +142,15 @@ $settings->add(new admin_setting_configtextarea('forumng_customeditortoolbar',
 $settings->add(new admin_setting_configduration('mod_forumng/cronlimit',
         get_string('cronlimit', 'forumng'),
         get_string('cronlimit_desc', 'forumng'), 18 * 60));
+
+// Manage old discussions after. The default value is 24 months.
+$options = mod_forumng_utils::create_remove_options();
+$settings->add(new admin_setting_configselect('forumng_removeolddiscussions',
+        get_string('removeolddiscussionsafter', 'forumng'),
+        get_string('configremoveolddiscussions', 'forumng'), 0, $options));
+
+$options = mod_forumng_utils::create_action_options();
+$settings->add(new admin_setting_configselect('forumng_withremoveddiscussions',
+        get_string('withremoveddiscussions', 'forumng'),
+        get_string('configremoveolddiscussions', 'forumng'), 0, $options));
 

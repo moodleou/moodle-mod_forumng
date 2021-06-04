@@ -570,3 +570,37 @@ Feature: Add forumng activity and test basic functionality
     And I click on "Expand all posts" "link"
     Given I click on "li.forumng-delete a" "css_element"
     Then I should see "Are you sure you want to delete this post?"
+
+  Scenario: Check configurations for manage old discussions and default setting
+    Given I log in as "admin"
+    And I am on "Course 1" course homepage
+    When I navigate to "Plugins > Activity modules > ForumNG" in site administration
+    Then I should see "Manage old discussions after"
+    And "//select[contains(@id,'id_s__forumng_removeolddiscussions')]/option[contains(@value, '62208000') and contains(@selected, '')]" "xpath_element" should exist
+    And I should see "Default: Never remove"
+    Then I should see "Action or move discussions to"
+    And "//select[contains(@id,'id_s__forumng_withremoveddiscussions')]/option[contains(@value, '0') and contains(@selected, '')]" "xpath_element" should exist
+    And I should see "Default: Delete permanently"
+    Then I am on "Course 1" course homepage
+    And I follow "Test forum name"
+    And I navigate to "Edit settings" in current page administration
+    Then "//select[contains(@id,'id_removeafter')]/option[contains(@value, '62208000') and contains(@selected, '')]" "xpath_element" should exist
+    And "//select[contains(@id,'id_removeto')]/option[contains(@value, '0') and contains(@selected, '')]" "xpath_element" should exist
+    And I press "Cancel"
+    And the following config values are set as admin:
+      | forumng_removeolddiscussions   | 31104000 |
+      | forumng_withremoveddiscussions | -1       |
+    And I am on "Course 1" course homepage
+    And I turn editing mode on
+    When I add a "ForumNG" to section "1" and I fill the form with:
+      | Forum name         | Test forum name 2      |
+      | Forum introduction | Test forum description |
+    And I follow "Test forum name 2"
+    And I navigate to "Edit settings" in current page administration
+    Then "//select[contains(@id,'id_removeafter')]/option[contains(@value, '31104000') and contains(@selected, '')]" "xpath_element" should exist
+    And "//select[contains(@id,'id_removeto')]/option[contains(@value, '-1') and contains(@selected, '')]" "xpath_element" should exist
+    And I am on "Course 1" course homepage
+    And I follow "Test forum name"
+    And I navigate to "Edit settings" in current page administration
+    Then "//select[contains(@id,'id_removeafter')]/option[contains(@value, '62208000') and contains(@selected, '')]" "xpath_element" should exist
+    And "//select[contains(@id,'id_removeto')]/option[contains(@value, '0') and contains(@selected, '')]" "xpath_element" should exist

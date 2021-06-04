@@ -856,4 +856,30 @@ WHERE
         $text = trim(preg_replace('/\s+/i', ' ', $text));
         return $text;
     }
+
+    /**
+     * Create options for remove old discussion.
+     *
+     * @return array
+     */
+    public static function create_remove_options() {
+        $options = [];
+        $options[0] = get_string('removeolddiscussionsdefault', 'forumng');
+        for ($i = 1; $i <= 36; $i++) {
+            $options[$i * 2592000] = $i > 1 ? get_string('nummonths', 'moodle', $i) : get_string('onemonth', 'forumng');
+        }
+        return $options;
+    }
+
+    /**
+     * Create options for remove old discussion action.
+     *
+     * @return array
+     */
+    public static function create_action_options() {
+        $options = [];
+        $options[0] = get_string('deletepermanently', 'forumng');
+        $options[-1] = get_string('automaticallylock', 'forumng');
+        return $options;
+    }
 }

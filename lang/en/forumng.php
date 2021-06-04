@@ -744,6 +744,7 @@ $string['removeolddiscussions'] = 'Manage old discussions';
 $string['removeolddiscussions_help'] = 'The system can automatically remove discussions if they
 have not had any new replies for a certain length of time.';
 $string['removeolddiscussionsafter'] = 'Manage old discussions after';
+$string['configremoveolddiscussions'] = 'Setting which will be used as default on all new forums.';
 $string['removeolddiscussionsdefault'] = 'Never remove';
 $string['withremoveddiscussions'] = 'Action or move discussions to';
 $string['automaticallylock'] = 'Automatically lock';

@@ -18,6 +18,7 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot . '/course/moodleform_mod.php');
 require_once($CFG->dirroot . '/mod/forumng/mod_forumng.php');
+require_once($CFG->dirroot.'/mod/forumng/mod_forumng_utils.php');
 
 /**
  * Form for editing module settings.
@@ -239,19 +240,17 @@ class mod_forumng_mod_form extends moodleform_mod {
         $mform->setDefault('limitgroup[maxpostsblock]', '10');
 
         // Remove old discussion.
-        $options = array();
-        $options[0] = get_string('removeolddiscussionsdefault', 'forumng');
-        for ($i = 1; $i <= 36; $i++) {
-            $options[$i * 2592000] = $i > 1 ? get_string('nummonths', 'moodle', $i) : get_string('onemonth', 'forumng');
-        }
+        $options = mod_forumng_utils::create_remove_options();
         $mform->addElement('header', '', get_string('removeolddiscussions', 'forumng'));
         $mform->addElement('select', 'removeafter',
                 get_string('removeolddiscussionsafter', 'forumng'), $options);
         $mform->addHelpButton('removeafter', 'removeolddiscussions', 'forumng');
+        // Just set default value when creating a new forum.
+        if (!$forumng) {
+            $mform->setDefault('removeafter', $CFG->forumng_removeolddiscussions);
+        }
 
-        $options = array();
-        $options[0] = get_string('deletepermanently', 'forumng');
-        $options[-1] = get_string('automaticallylock', 'forumng');
+        $options = mod_forumng_utils::create_action_options();
         $modinfo = get_fast_modinfo($COURSE);
         $targetforumngid = $this->_instance ? $this->_instance : 0;
         // Add all instances to drop down if the user can access them and
@@ -267,6 +266,10 @@ class mod_forumng_mod_form extends moodleform_mod {
                 get_string('withremoveddiscussions', 'forumng'), $options);
         $mform->disabledIf('removeto', 'removeafter', 'eq', 0);
         $mform->addHelpButton('removeto', 'withremoveddiscussions', 'forumng');
+        // Just set default value when creating a new forum.
+        if (!$forumng) {
+            $mform->setDefault('removeto', $CFG->forumng_withremoveddiscussions);
+        }
 
         // Sharing options are advanced and for administrators only.
         if ($CFG->forumng_enableadvanced && has_capability('mod/forumng:addinstance', context_system::instance())) {
