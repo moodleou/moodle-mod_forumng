@@ -870,6 +870,9 @@ body.scheme-dark .mma-forumng-posts-list-wrapper .mma-forumng-post-reply .unread
         background: linear-gradient(to bottom, rgba(98, 98, 98, 0) calc(100% - 65px), #626262 calc(100% - 20px));
     }
 }
+.mma-forumng-posts-list-wrapper .mma-forumng-post-reply .mma-forumng-posts .mma-forumng-posts-message p {
+    font-size: inherit;
+}
 .mma-forumng-posts-list-wrapper .mma-forumng-post-reply .mma-forumng-posts .collapse-post .custom-show-more {
     line-height: 1;
     color: #002158;
