@@ -555,3 +555,18 @@ Feature: Add forumng activity and test basic functionality
     Then "Atom" "link" should not exist
     And "RSS" "link" should not exist
     And ".forumng-feedlinks" "css_element" should not exist
+
+  @javascript
+  Scenario: Deleting post with collapse all.
+    Given I log in as "admin"
+    And I am on "Course 1" course homepage
+    And I follow "Test forum name"
+    And I add a discussion with the following data:
+      | Subject | Discussion 1 |
+      | Message | abc          |
+    And I reply to post "1" with the following data:
+      | Message | REPLY1 |
+    And I reload the page
+    And I click on "Expand all posts" "link"
+    Given I click on "li.forumng-delete a" "css_element"
+    Then I should see "Are you sure you want to delete this post?"
