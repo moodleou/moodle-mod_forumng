@@ -1,3 +1,6 @@
+.forumng_usage_section .btn.btn-link[data-content*="help-popover-container"] img {
+    margin-bottom: 3px;
+}
 .forumng_usage_sectitle {
     text-align: center;
 }
