@@ -605,6 +605,20 @@ Feature: Add forumng activity and test basic functionality
     Then "//select[contains(@id,'id_removeafter')]/option[contains(@value, '62208000') and contains(@selected, '')]" "xpath_element" should exist
     And "//select[contains(@id,'id_removeto')]/option[contains(@value, '0') and contains(@selected, '')]" "xpath_element" should exist
 
+  @javascript
+  Scenario: Permalink post with new param.
+    Given I log in as "admin"
+    And I am on "Course 1" course homepage
+    And I follow "Test forum name"
+    And I add a discussion with the following data:
+      | Subject | Discussion 1 |
+      | Message | abc          |
+    And I reply to post "1" with the following data:
+      | Message | REPLY1 |
+    And I reload the page
+    And I click on "Expand all posts" "link"
+    Then "//div[contains(@class, 'forumng-post')]//li[contains(@class, 'forumng-permalink')]//a[contains(@href, '&p=p')]" "xpath_element" should exist
+
   Scenario: Check user identity in list subscribers.
     Given the following "users" exist:
       | username | firstname | lastname | email            |

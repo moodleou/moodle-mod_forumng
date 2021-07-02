@@ -1098,10 +1098,10 @@ class mod_forumng_renderer extends plugin_renderer_base {
     public function render_permalink($post, $postnumber, $discussion, $options) {
         if ($options[mod_forumng_post::OPTION_COMMAND_DIRECTLINK]) {
             return '<a href="discuss.php?' .
-                $discussion->get_link_params(mod_forumng::PARAM_HTML) . '#p' .
-                $post->get_id() . '" title="' .
-                get_string('directlinktitle', 'forumng').'">' .
-                get_string('directlink', 'forumng', $postnumber) . '</a>';
+                    $discussion->get_link_params(mod_forumng::PARAM_HTML) . '&p=p' . $post->get_id() .
+                    '#p' . $post->get_id() .
+                    '" title="' . get_string('directlinktitle', 'forumng') . '">' .
+                    get_string('directlink', 'forumng', $postnumber) . '</a>';
         }
     }
 

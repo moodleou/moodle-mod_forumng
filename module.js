@@ -146,6 +146,20 @@ M.mod_forumng = {
         this.discussionid = window.location.search.replace(
             /^.*[?&]d=([0-9]+).*$/ , '$1');
 
+        // Get param post id
+        var postid = this.getValueParameter('p');
+        if (postid) {
+            var link = document.getElementById(postid);
+            if (link) {
+                // For bookmarking.
+                window.location.hash = link.id;
+                link.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center'
+                });
+            }
+        }
+
         // Tell CSS that we have JS working
         this.Y.one('#forumng-main').removeClass('forumng-nojs');
 
@@ -2589,6 +2603,19 @@ M.mod_forumng = {
             }
             update();
         }, this);
+    },
+
+    getValueParameter: function(parameterName) {
+        var result = null;
+        var tmp = [];
+        var items = window.location.search.substr(1).split('&');
+        for (var index = 0; index < items.length; index++) {
+            tmp = items[index].split('=');
+            if (tmp[0] === parameterName) {
+                result = decodeURIComponent(tmp[1]);
+            }
+        }
+        return result;
     }
 };
 
