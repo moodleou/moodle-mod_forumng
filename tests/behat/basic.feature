@@ -604,3 +604,31 @@ Feature: Add forumng activity and test basic functionality
     And I navigate to "Edit settings" in current page administration
     Then "//select[contains(@id,'id_removeafter')]/option[contains(@value, '62208000') and contains(@selected, '')]" "xpath_element" should exist
     And "//select[contains(@id,'id_removeto')]/option[contains(@value, '0') and contains(@selected, '')]" "xpath_element" should exist
+
+  Scenario: Check user identity in list subscribers.
+    Given the following "users" exist:
+      | username | firstname | lastname | email            |
+      | student3 | Student   | 3        | student3@asd.com |
+    And the following "course enrolments" exist:
+      | user     | course | role    |
+      | student3 | C1     | student |
+    And the following config values are set as admin:
+      | showuseridentity | username,email |
+    And I log in as "student3"
+    And I am on "Course 1" course homepage
+    And I follow "Test forum name"
+    And I should see "Subscribe to forum"
+    And I press "Subscribe to forum"
+    Then I log out
+
+    And I log in as "admin"
+    And I am on "Course 1" course homepage
+    And I follow "Test forum name"
+    And I press "Subscribe to forum"
+    And I press "View subscribers"
+    And I should see "Student 3"
+    And I should see "Email address"
+    And I should see "Username"
+    And I should see "student3"
+    And I should see "student3@asd.com"
+    And I should see "student3"

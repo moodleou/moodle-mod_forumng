@@ -900,6 +900,9 @@ form.markread input {
 }
 #page-mod-forumng-feature-readers-readers .generaltable {
     margin-top: 1em;
+    margin-bottom: 0;
+}
+#page-mod-forumng-feature-readers-readers .osep-scrollparent {
     margin-bottom: 1em;
 }
 
@@ -910,6 +913,9 @@ form.markread input {
 
 #page-mod-forumng-subscribers .generaltable {
     margin-top: 1em;
+    margin-bottom: 0;
+}
+#page-mod-forumng-subscribers .osep-scrollparent {
     margin-bottom: 1em;
 }
 
@@ -1083,6 +1089,9 @@ padding-top: 1em;
 }
 #page-mod-forumng-feature-userposts-list .generaltable {
     margin-top: 10px;
+    margin-bottom: 0;
+}
+#page-mod-forumng-feature-userposts-list .osep-scrollparent {
     margin-bottom: 10px;
 }
 #page-mod-forumng-feature-userposts-list .generaltable td {

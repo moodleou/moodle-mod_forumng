@@ -138,6 +138,7 @@ if ((has_capability('mod/forumng:viewanyrating', $context)) &&
         }
     }
 }
+$extrafields = \core_user\fields::get_identity_fields($context);
 if ($newheader == '') {
     $columnsarray = array('c1', 'numdiscussions', 'numposts', 'c4', $c5value);
     $headersarray = array($userstr, $discussions, $replies, $action, $grade);
@@ -176,6 +177,12 @@ if (!$ptable->is_downloading()) {
     $offset = 0;
     $perpage = 0;
 }
+$userfieldsapi = \core_user\fields::for_identity($context);
+[
+        'selects' => $userfieldsselects,
+        'joins' => $userfieldsjoin,
+        'params' => $params
+] = (array) $userfieldsapi->get_sql('u', true);
 
 // Get users posts parameters.
 $params["fd_forumngid1"] = $forum->get_id();
@@ -202,7 +209,9 @@ if ($newheader == 'Average rating' || $grade == 'Average rating' ) {
 
 $sql = "SELECT $userfields, COALESCE(ta.numposts, 0) AS numposts, COALESCE(td.numdiscussions, 0) AS numdiscussions,
         COALESCE(tr.ratingval, 0) AS ratingcol
+        $userfieldsselects
           FROM {user} u
+          $userfieldsjoin
      LEFT JOIN (
           SELECT fp.userid, COUNT(fp.userid) AS numposts
             FROM {forumng_posts} fp
@@ -312,7 +321,14 @@ foreach ($users as $u) {
         $userurl = new moodle_url('/user/view.php?', ['id' => $id, 'course' => $course->id]);
         $userdetails = html_writer::link($userurl, $username);
 
-        $username .= $CFG->forumng_showusername ? ' (' . $u->username . ')' : '';
+        $username .= ' (';
+        foreach ($extrafields as $extra) {
+            if (!empty($u->{$extra})) {
+                $username .= s($u->{$extra}) . ', ';
+            }
+        }
+        $username = rtrim($username, ', ') . ')';
+
     }
     $showallpostsby = null;
     // Number of discussions.

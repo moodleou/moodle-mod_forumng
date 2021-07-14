@@ -1778,17 +1778,26 @@ WHERE
         if ($this->get_forum()->is_shared()) {
             throw new coding_exception('get_readers not supported in shared forums');
         }
-
+        $context = $this->get_forum()->get_context();
+        $extrafields = \core_user\fields::get_identity_fields($context);
+        $userfieldsapi = \core_user\fields::for_identity($context);
+        [
+                'selects' => $userfieldsselects,
+                'joins' => $userfieldsjoin,
+                'params' => $userfieldsparams
+        ] = (array) $userfieldsapi->get_sql('u', true);
         list($sql, $params) = get_enrolled_sql(
                 $this->get_forum()->get_context(), '', $groupid ? $groupid : 0, true);
         $now = round(time(), -2);
         $params['discussionid'] = $this->discussionfields->id;
+        $params = array_merge($params, $userfieldsparams);
         $result = $DB->get_records_sql($sql = "
 SELECT
     fr.id,
     " . mod_forumng_utils::select_username_fields('u', false) . ",
     fr.time,
     u.idnumber AS u_idnumber
+    $userfieldsselects
 FROM
     (SELECT MAX(id) AS id, userid, discussionid, MAX(time) AS time
      FROM (
@@ -1804,6 +1813,7 @@ FROM
            ) frp
     ) rp GROUP BY userid, discussionid) fr
     INNER JOIN {user} u ON u.id = fr.userid
+    $userfieldsjoin
 WHERE
     fr.userid IN ($sql)
     AND fr.discussionid = :discussionid
@@ -1812,6 +1822,9 @@ ORDER BY
 
         foreach ($result as $item) {
             $item->user = mod_forumng_utils::extract_subobject($item, 'u_');
+            foreach ($extrafields as $field) {
+                $item->user->{$field} = $item->{$field} ?? '';
+            }
         }
 
         return $result;

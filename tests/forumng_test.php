@@ -556,6 +556,27 @@ class mod_forumng_forumng_testcase extends forumng_test_lib {
         $this->assertTrue($forum3->get_completion_state($USER->id, COMPLETION_OR));
     }
 
+    public function test_subscribers_with_oucu() {
+        global $DB, $CFG;
+        $this->resetAfterTest(true);
+        $this->setAdminUser();
+        $course = $this->get_new_course();
+        $CFG->showuseridentity = 'username,profile_field_oucu,profile_field_staffid';
+        $student1 = $this->getDataGenerator()->create_user(['profile_field_oucu' => 'student11111', 'profile_field_staffid' => 'A111']);
+        $student2 = $this->getDataGenerator()->create_user(['profile_field_oucu' => 'student22222', 'profile_field_staffid' => 'B111']);
+        $studentrole = $DB->get_record('role', array('shortname' => 'student'));
+        $this->getDataGenerator()->enrol_user($student1->id, $course->id, $studentrole->id, 'manual');
+        $this->getDataGenerator()->enrol_user($student2->id, $course->id, $studentrole->id, 'manual');
+        $forum = $this->get_new_forumng($course->id);
+        $forum->subscribe($student1->id);
+        $forum->subscribe($student2->id);
+
+        $subs = $forum->get_subscribers();
+        $this->assertEquals('student11111', $subs[$student1->id]->profile_field_oucu);
+        $this->assertEquals('A111', $subs[$student1->id]->profile_field_staffid);
+        $this->assertEquals('student22222', $subs[$student2->id]->profile_field_oucu);
+        $this->assertEquals('B111', $subs[$student2->id]->profile_field_staffid);
+    }
     /**
      * Checks timed discussions read
      */

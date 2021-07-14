@@ -2264,6 +2264,12 @@ WHERE
     public function get_subscribers($groupid= self::ALL_GROUPS) {
         global $DB;
 
+        $userfieldsapi = \core_user\fields::for_identity($this->context);
+        [
+                'selects' => $userfieldsselects,
+                'joins' => $userfieldsjoin,
+                'params' => $userfieldsparams
+        ] = (array) $userfieldsapi->get_sql('u');
         // Array that will contain result
         $users = array();
 
@@ -2293,6 +2299,7 @@ WHERE
         }
 
         $context = $this->get_context();
+        $extrafields = \core_user\fields::get_identity_fields($context);
 
         // For shared forums, we only return the subscribers for the current
         // clone
@@ -2318,14 +2325,17 @@ WHERE
             $groupparams = array($groupid);
         }
 
+        $groupparams = array_merge($userfieldsparams, $groupparams);
         $rs = $DB->get_recordset_sql($sql = "
 SELECT
-    ".mod_forumng_utils::select_username_fields('u', true).",
+    " . mod_forumng_utils::select_username_fields('u', true) . ",
     s.subscribed, s.discussionid, s.groupid, fd.groupid AS discussiongroupid,
     discussiongm.id AS discussiongroupmember, subscriptiongm.id AS subscriptiongroupmember
+    $userfieldsselects
 FROM
     {forumng_subscriptions} s
     INNER JOIN {user} u ON u.id = s.userid
+    $userfieldsjoin
     $groupcheck
     LEFT JOIN {forumng_discussions} fd ON fd.id = s.discussionid
     LEFT JOIN {groups_members} discussiongm ON fd.groupid = discussiongm.groupid
@@ -2336,7 +2346,7 @@ WHERE
     s.forumngid = ?
     AND (fd.forumngid = ? OR s.discussionid IS NULL)
     $clonecheck", array_merge($groupparams,
-            array($this->forumfields->id, $this->forumfields->id)));
+                array($this->forumfields->id, $this->forumfields->id)));
 
         // Filter the result against the list of allowed users
         $allowedusers = null;
@@ -2413,6 +2423,9 @@ WHERE
                         $user->wholeforum = true;
                         $ok = true;
                     }
+                }
+                foreach ($extrafields as $field) {
+                    $user->{$field} = $rec->{$field} ?? '';
                 }
                 // If this is a new user object, add it to the array provided the row was valid
                 if ($newuser && $ok) {

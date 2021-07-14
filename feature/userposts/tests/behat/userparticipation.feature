@@ -138,3 +138,36 @@ Feature: Add forumng activity and test user ratings
     And I should see "Grade"
     And I should see "3.5" in the "//div/table//tr[@id='mod-forumng-participation_r0']/td[@class='cell c5']/div[text()]" "xpath_element"
     And I log out
+
+  Scenario: Check user identity.
+    Given the following "users" exist:
+      | username | firstname | lastname | email            |
+      | student4 | Student   | 4        | student4@asd.com |
+    Then the following "course enrolments" exist:
+      | user     | course | role    |
+      | student4 | C1     | student |
+    And the following config values are set as admin:
+      | showuseridentity | email |
+    Given I log in as "student4"
+    When I am on "Course 1" course homepage
+    Then I follow "Test forum name"
+    And I follow "Admin1"
+    And I reply to post "2" with the following data:
+      | Change subject (optional) | Student 1 |
+      | Message                   | Test3     |
+    And I should see "Test3"
+    Then I log out
+
+    And I log in as "teacher1"
+    And I am on "Course 1" course homepage
+    And I follow "Test forum name"
+    And I follow "Test forum name"
+    And I add a discussion with the following data:
+      | Subject | Disc2   |
+      | Message | Test2   |
+    Then I log out
+    And I log in as "admin"
+    And I am on "Course 1" course homepage
+    And I follow "Test forum name"
+    And I press "Participation by user"
+    And I should see "Show all posts by Student 4 (student4@asd.com)"
