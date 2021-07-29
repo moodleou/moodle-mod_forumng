@@ -1641,7 +1641,10 @@ class mod_forumng_renderer extends plugin_renderer_base {
                     $statedis = $post->is_flagged() ? "starred-post" : "";
                     $commandsarray['forumng-flagpost'] = html_writer::div($link, 'forumng-flagpost ' . $statedis);
                 }
-                $commandsarray['forumng-permalink'] = $this->render_permalink($post, $postnumber, $discussion, $options);
+                // Direct link.
+                if ($options[mod_forumng_post::OPTION_COMMAND_DIRECTLINK]) {
+                    $commandsarray['forumng-permalink'] = $this->render_permalink($post, $postnumber, $discussion, $options);
+                }
 
                 // Alert link.
                 $forum = $discussion->get_forum();
