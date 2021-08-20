@@ -2627,9 +2627,15 @@ WHERE
      *   to construct the post
      * @param array $options Post options if any
      * @param int $postid ID of post
+     * @param string $url Relative URL of page we are really on (e.g. discuss.php), used to set PAGE
      */
     public static function print_for_iframe_and_exit($postorid, $cloneid=null,
-            $options=array()) {
+            $options = array(), string $url = '') {
+        global $PAGE;
+        if ($url) {
+            // Set PAGE url to alternate url so picked up in renderer.
+            $PAGE->set_url('/mod/forumng/' . $url);
+        }
         $posthtml = self::get_post_html($postorid, $cloneid, $options);
         $script = html_writer::tag('script', 'window.parent.iframe_success(window);',
                 array('type' => 'text/javascript'));

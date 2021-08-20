@@ -155,7 +155,7 @@ M.mod_forumng = {
                 window.location.hash = link.id;
                 link.scrollIntoView({
                     behavior: 'smooth',
-                    block: 'center'
+                    block: 'start'
                 });
             }
         }

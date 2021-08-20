@@ -32,6 +32,10 @@ $cloneid = optional_param('clone', 0, PARAM_INT);
 if ($cloneid) {
     $pageparams['clone' ]= $cloneid;
 }
+$postid = optional_param('p', '', PARAM_ALPHANUM);
+if ($postid) {
+    $pageparams['p'] = $postid;
+}
 
 // Construct discussion variable (will check id is valid)
 // Retrieve new copy of discussion from database, but store it in cache

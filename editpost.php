@@ -67,7 +67,7 @@ function finish($postid, $cloneid, $url, $fromform, $ajaxdata='', $iframeredirec
         } else {
             // Do not redirect, just output new post.
             mod_forumng_post::print_for_iframe_and_exit($postid, $cloneid,
-                array(mod_forumng_post::OPTION_DISCUSSION_SUBJECT => true));
+                array(mod_forumng_post::OPTION_DISCUSSION_SUBJECT => true), $url);
         }
     }
 
