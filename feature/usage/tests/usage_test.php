@@ -85,7 +85,7 @@ class forumngfeature_usage_usage_testcase extends forumng_test_lib {
         // Get results for all groups.
         $params = array('id' => $forum1->get_course_module_id());
         $result = forumngfeature_usage_show_mostreaders($params);
-        $this->assertRegExp('~forumng_usage_list_tot">3<.*?discussion 1.*?' .
+        $this->assertMatchesRegularExpression('~forumng_usage_list_tot">3<.*?discussion 1.*?' .
                 'forumng_usage_list_tot">2<.*?discussion 3.*?' .
                 'forumng_usage_list_tot">1<.*?discussion 2~s', $result);
         $this->assertStringNotContainsString('discussion 4', $result);
@@ -93,7 +93,7 @@ class forumngfeature_usage_usage_testcase extends forumng_test_lib {
         // Try for group 1.
         $params['group'] = $group1->id;
         $result = forumngfeature_usage_show_mostreaders($params);
-        $this->assertRegExp('~forumng_usage_list_tot">2<.*?discussion 1.*?' .
+        $this->assertMatchesRegularExpression('~forumng_usage_list_tot">2<.*?discussion 1.*?' .
                 'forumng_usage_list_tot">1<.*?discussion 2~s', $result);
         $this->assertStringNotContainsString('discussion 3', $result);
         $this->assertStringNotContainsString('discussion 4', $result);
@@ -101,7 +101,7 @@ class forumngfeature_usage_usage_testcase extends forumng_test_lib {
         // Try for group 2.
         $params['group'] = $group2->id;
         $result = forumngfeature_usage_show_mostreaders($params);
-        $this->assertRegExp('~forumng_usage_list_tot">2<.*?discussion 3~s', $result);
+        $this->assertMatchesRegularExpression('~forumng_usage_list_tot">2<.*?discussion 3~s', $result);
         $this->assertStringNotContainsString('discussion 1', $result);
         $this->assertStringNotContainsString('discussion 2', $result);
         $this->assertStringNotContainsString('discussion 4', $result);
