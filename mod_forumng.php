@@ -3132,8 +3132,8 @@ WHERE
             }
         }
 
-        $rows = self::query_forums($specificids, $course, $userid,
-            $unread, $groups, $aagforums, $viewhiddenforums);
+        $rows = self::query_forums($userid, $unread, $groups,
+            $aagforums, $viewhiddenforums, $specificids, $course);
         foreach ($rows as $rec) {
             // Check course-module exists
             if (!array_key_exists($rec->cm_id, $modinfo->cms)) {
@@ -3211,21 +3211,21 @@ WHERE
     /**
      * Internal method. Queries for a number of forums, including additional
      * data about unread posts etc. Returns the database result.
-     * @param array $cmids If specified, array of course-module IDs of desired
-     *   forums
-     * @param object $course If specified, course object
      * @param int $userid User ID, 0 = current user
+     *   forums
      * @param int $unread Type of unread data to obtain (UNREAD_xx constant).
      * @param array $groups Array of group IDs to which the given user belongs
-     *   (may be null if unread data not required)
      * @param array $aagforums Array of forums in which the user has
-     *   'access all groups' (may be null if unread data not required)
      * @param array $viewhiddenforums Array of forums in which the user has
+     *   (may be null if unread data not required)
+     * @param array $cmids If specified, array of course-module IDs of desired
+     *   'access all groups' (may be null if unread data not required)
+     * @param object $course If specified, course object
      *   'view hidden discussions' (may be null if unread data not required)
      * @return array Array of row objects
      */
-    private static function query_forums($cmids=array(), $course=null,
-            $userid, $unread, $groups, $aagforums, $viewhiddenforums) {
+    private static function query_forums($userid, $unread,
+            $groups, $aagforums, $viewhiddenforums, $cmids=array(), $course=null) {
         global $DB, $CFG, $USER;
         if ((!count($cmids) && !$course)) {
             throw new coding_exception("mod_forumng::query_forums requires course id or cmids");
@@ -3297,8 +3297,8 @@ WHERE
                         if (forumngtype::get_new($type)->has_unread_restriction()) {
                             // This one's a problem! Do it individually
                             $problemresults = self::query_forums(
-                                array($info->id), null, $userid, $unread,
-                                $groups, $aagforums, $viewhiddenforums);
+                                $userid, $unread, $groups, $aagforums,
+                                $viewhiddenforums, array($info->id), null);
                             foreach ($problemresults as $problemresult) {
                                 $plusresult[$problemresult->f_id] = $problemresult;
                             }
@@ -5302,8 +5302,8 @@ WHERE
             $viewhiddenforums[] = $DB->get_field(
                     'course_modules', 'instance', array('id' => $cmid));
         }
-        $rows = self::query_forums(array($cmid), null, $userid, $unread,
-                array(), array(), $viewhiddenforums);
+        $rows = self::query_forums($userid, $unread, array(), array(),
+            $viewhiddenforums, array($cmid), null);
         if (count($rows) != 1) {
             throw new coding_exception('Unexpected data extracting base forum');
         }

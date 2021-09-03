@@ -63,16 +63,16 @@ function forumng_exclude_words_filter($result) {
 /**
  * Get search results.
  * @param object $forum
+ * @param int $page
  * @param int $groupid
  * @param string $author
  * @param int $daterangefrom
  * @param int $daterangeto
- * @param int $page
  * @param int $resultsperpage (FORUMNG_SEARCH_RESULTSPERPAGE used as constant)
  * @return object
  */
-function forumng_get_results_for_this_forum($forum, $groupid, $author=null, $daterangefrom=0,
-        $daterangeto=0, $page, $asmoderator = false, $resultsperpage=FORUMNG_SEARCH_RESULTSPERPAGE) {
+function forumng_get_results_for_this_forum($forum, $page, $groupid, $author=null,
+        $daterangefrom=0, $daterangeto=0, $asmoderator = false, $resultsperpage=FORUMNG_SEARCH_RESULTSPERPAGE) {
 
     $before = microtime(true);
 

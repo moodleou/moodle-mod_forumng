@@ -46,24 +46,24 @@ function atom_standard_header($uniqueid, $link, $updated, $title = null, $descri
 
         // Open the channel
         // write channel info.
-        $result .= atom_full_tag('id', 1, false, htmlspecialchars($uniqueid));
-        $result .= atom_full_tag('updated', 1, false, date_format_rfc3339($updated));
-        $result .= atom_full_tag('title', 1, false, htmlspecialchars(html_to_text($title)));
-        $result .= atom_full_tag('link', 1, false, null, array('href'=>$link, 'rel'=>'self'));
+        $result .= atom_full_tag('id', htmlspecialchars($uniqueid), 1, false);
+        $result .= atom_full_tag('updated', date_format_rfc3339($updated), 1, false);
+        $result .= atom_full_tag('title', htmlspecialchars(html_to_text($title)), 1, false);
+        $result .= atom_full_tag('link', null, 1, false, array('href' => $link, 'rel' => 'self'));
         if (!empty($description)) {
-            $result .= atom_full_tag('subtitle', 1, false, $description);
+            $result .= atom_full_tag('subtitle', $description, 1, false);
         }
-        $result .= atom_full_tag('generator', 1, false, 'Moodle');
+        $result .= atom_full_tag('generator', 'Moodle', 1, false);
         $today = getdate();
-        $result .= atom_full_tag('rights', 1, false, '&#169; '. $today['year'] .' '.
-                format_string($site->fullname));
+        $result .= atom_full_tag('rights', '&#169; ' . $today['year'] . ' ' .
+            format_string($site->fullname), 1, false);
 
         // Write image info.
         $out = mod_forumng_utils::get_renderer();
         $atompix = $out->image_url('/i/rsssitelogo');
 
         // Write the info.
-        $result .= atom_full_tag('logo', 1, false, $atompix);
+        $result .= atom_full_tag('logo', $atompix, 1, false);
 
     }
 
@@ -85,21 +85,21 @@ function atom_add_items($items) {
     if (!empty($items)) {
         foreach ($items as $item) {
             $result .= atom_start_tag('entry', 1, true);
-            $result .= atom_full_tag('title', 2, false,
-                    htmlspecialchars(html_to_text($item->title)));
-            $result .= atom_full_tag('link', 2, false, null,
-                    array('href' => $item->link, 'rel'=>'alternate'));
-            $result .= atom_full_tag('updated', 2, false, date_format_rfc3339($item->pubdate));
+            $result .= atom_full_tag('title', htmlspecialchars(html_to_text($item->title)), 2,
+                false);
+            $result .= atom_full_tag('link', null, 2, false,
+                array('href' => $item->link, 'rel' => 'alternate'));
+            $result .= atom_full_tag('updated', date_format_rfc3339($item->pubdate), 2, false);
             // Include the author if exists.
             if (isset($item->author)) {
                 $result .= atom_start_tag('author', 2, true);
-                $result .= atom_full_tag('name', 3, false, $item->author);
+                $result .= atom_full_tag('name', $item->author, 3, false);
                 $result .= atom_end_tag('author', 2, true);
             }
-            $result .= atom_full_tag('content', 2, false,
-                    '<div xmlns="http://www.w3.org/1999/xhtml">'.clean_text($item->description,
-                    FORMAT_HTML).'</div>', $xhtmlattr);
-            $result .= atom_full_tag('id', 2, false, htmlspecialchars($item->link));
+            $result .= atom_full_tag('content', '<div xmlns="http://www.w3.org/1999/xhtml">' . clean_text($item->description,
+                    FORMAT_HTML) . '</div>', 2,
+                false, $xhtmlattr);
+            $result .= atom_full_tag('id', htmlspecialchars($item->link), 2, false);
             if (isset($item->tags)) {
                 $tagdata = array();
                 if (isset($item->tagscheme)) {
@@ -107,7 +107,7 @@ function atom_add_items($items) {
                 }
                 foreach ($item->tags as $tag) {
                     $tagdata['term'] = $tag;
-                    $result .= atom_full_tag('category', 2, true, false, $tagdata);
+                    $result .= atom_full_tag('category', false, 2, true, $tagdata);
                 }
             }
             $result .= atom_end_tag('entry', 1, true);
@@ -164,7 +164,7 @@ function atom_end_tag($tag, $level=0, $endline=true) {
 
 
 // Return the start tag, the contents and the end tag.
-function atom_full_tag($tag, $level=0, $endline=true, $content, $attributes=null) {
+function atom_full_tag($tag, $content, $level=0, $endline=true, $attributes=null) {
     global $CFG;
     $st = atom_start_tag($tag, $level, $endline, $attributes);
     if ($content === false) {
