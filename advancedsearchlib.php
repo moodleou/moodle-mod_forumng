@@ -159,14 +159,14 @@ function forumng_get_results_for_this_forum($forum, $groupid, $page, $author=nul
  * Get search results.
  * @param object $course
  * @param string $author
+ * @param int $page
  * @param int $daterangefrom
  * @param int $daterangeto
- * @param int $page
  * @param int $resultsperpage (FORUMNG_SEARCH_RESULTSPERPAGE used as constant)
  * @return object
  */
-function forumng_get_results_for_all_forums($course, $author=null, $daterangefrom=0,
-        $daterangeto=0, $page, $asmoderator = false, $resultsperpage=FORUMNG_SEARCH_RESULTSPERPAGE) {
+function forumng_get_results_for_all_forums($course, $author=null, $page,
+        $daterangefrom=0, $daterangeto=0, $asmoderator = false, $resultsperpage=FORUMNG_SEARCH_RESULTSPERPAGE) {
 
     $before = microtime(true);
 
