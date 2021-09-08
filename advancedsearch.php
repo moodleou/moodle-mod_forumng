@@ -285,8 +285,8 @@ if ($data) {
 
         // Get result from database query.
         if ($allforums) {
-            $results = forumng_get_results_for_all_forums($course, $author,
-                    $page, $data->datefrom, $data->dateto, !empty($data->asmoderator));
+            $results = forumng_get_results_for_all_forums($course, $page,
+                $author, $data->datefrom, $data->dateto, !empty($data->asmoderator));
         } else {
             $results = forumng_get_results_for_this_forum($forum, $groupid, $page,
                 $author, $data->datefrom, $data->dateto, !empty($data->asmoderator));
