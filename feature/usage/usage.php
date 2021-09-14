@@ -85,7 +85,7 @@ echo html_writer::start_div('forumng_usage_contrib');
 echo html_writer::start_div('forumng_usage_contrib_cont');
 $toplist = array();
 $totaltoshow = $contribcount > count($posts) ? count($posts) : $contribcount;
-$userfields = user_picture::fields();
+$userfields = \core_user\fields::get_picture_fields();
 for ($a = 0; $a < $totaltoshow; $a++) {
     // Create list of most posts.
     if ($mostposts[$postkeys[$a]]->replies > 0) {
