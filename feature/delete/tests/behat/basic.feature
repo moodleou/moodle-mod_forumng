@@ -19,9 +19,9 @@ Feature: Delete discussions
     And I log in as "admin"
     And I am on "Course 1" course homepage
     And I turn editing mode on
-    And I add a "ForumNG" to section "1" and I fill the form with:
-      | Forum name | Test forum name |
-      | Forum introduction | Test forum description |
+    And the following "activities" exist:
+      | activity | name            | intro                  | course | section |
+      | forumng  | Test forum name | Test forum description | C1     | 1       |
     And I log out
 
   Scenario: Delete discussion from forum

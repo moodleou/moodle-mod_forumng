@@ -13,12 +13,15 @@ Feature: Copy discussions from main forum page
       | name    | course | idnumber |
       | Group 1 | C1     | G1       |
       | Group 2 | C1     | G2       |
+    And the following "activity" exists:
+      | activity  | forumng          |
+      | course    | C1               |
+      | name      | Test group forum |
+      | groupmode | 2                |
+      | section   | 1                |
     And I log in as "admin"
     And I am on "Course 1" course homepage
     And I turn editing mode on
-    And I add a "ForumNG" to section "1" and I fill the form with:
-      | Forum name | Test group forum |
-      | groupmode | Visible groups |
     And I follow "Test group forum"
     And I set the field "Visible groups" to "Group 1"
     And I press "Go"

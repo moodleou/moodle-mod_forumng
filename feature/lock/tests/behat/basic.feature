@@ -14,11 +14,12 @@ Feature: Lock multiple discussions
     And the following "course enrolments" exist:
       | user | course | role |
       | student1 | C1 | student |
+    And the following "activities" exist:
+      | activity | name       | course |
+      | forumng  | Test forum | C1     |
     And I log in as "admin"
     And I am on "Course 1" course homepage
     And I turn editing mode on
-    And I add a "ForumNG" to section "1" and I fill the form with:
-      | Forum name | Test forum |
     And I follow "Test forum"
     And I add a discussion with the following data:
       | Subject | D1 |

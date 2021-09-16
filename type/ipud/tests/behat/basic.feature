@@ -16,13 +16,16 @@ Feature: In-page discussions
     And the following "course enrolments" exist:
       | user     | course | role    |
       | student1 | C1     | student |
+    And the following "activity" exists:
+      | activity | forumng    |
+      | course   | C1         |
+      | name     | Test forum |
+      | section  | 1          |
+      | type     | ipud       |
+      | idnumber | TEST12345  |
     And I log in as "admin"
     And I am on "Course 1" course homepage
     And I turn editing mode on
-    And I add a "ForumNG" to section "1" and I fill the form with:
-      | Forum name | Test forum |
-      | Forum type | ipud       |
-      | ID number  | TEST12345  |
     And I create a new discussion:
       | shortname | forum     | group | username | subject                   | message                   | timestart | timeend | location |
       | C1        | TEST12345 |       | admin    | Subject for discussion D1 | Message for discussion D1 |           |         |          |
