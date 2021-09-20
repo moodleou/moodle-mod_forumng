@@ -5837,6 +5837,23 @@ ORDER BY
         return true;
     }
 
+    /**
+     * @param $cmid
+     * @return bool True if this forum is ipud.
+     */
+    public static function is_ipud($cmid) {
+        if (!$cmid) {
+            return false;
+        }
+
+        try {
+            $forum = self::get_from_cmid($cmid, mod_forumng::CLONE_DIRECT);
+        } catch (\Exception $ex) {
+            return false;
+        }
+        return $forum->get_type() instanceof \forumngtype_ipud;
+    }
+
 }
 
 /**

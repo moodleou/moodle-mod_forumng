@@ -539,10 +539,15 @@ function mod_forumng_cm_info_view(cm_info $cm) {
  * @param cm_info $cm
  */
 function mod_forumng_cm_info_dynamic(cm_info $cm) {
+    global $CFG, $OUTPUT;
+    require_once($CFG->dirroot . '/mod/forumng/mod_forumng.php');
     if (!has_capability('mod/forumng:view',
             context_module::instance($cm->id))) {
         $cm->set_user_visible(false);
         $cm->set_available(false);
+    }
+    if (mod_forumng::is_ipud($cm->id)) {
+        $cm->set_icon_url($OUTPUT->image_url('ipud_icon', 'mod_forumng'));
     }
 }
 
