@@ -82,7 +82,7 @@ html[style="font-size: 75.89%;"] .mma-forumng-discussion-list core-format-text[m
 
 .mma-forumng-discussion-list .mma-forumng-drafts ion-row,
 .mma-forumng-discussion-list ion-item.mma-forumng-discussion-item:not(.no-lines) {
-    border-bottom: 0.55px solid #c8c7cc !important;
+    border-bottom: 1px solid #c8c7cc !important;
 }
 
 .mma-forumng-discussion-list .mma-forumng-discussion-show-dates {
@@ -118,8 +118,7 @@ html[style="font-size: 75.89%;"] .mma-forumng-discussion-list core-format-text[m
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    align-items: baseline;
-    margin: 13px 0;
+    margin: 15px 0 11px 0;
 }
 
 .mma-forumng-discussion-list .mma-forumng-discussion .mma-forumng-discussion-icons {
@@ -127,7 +126,7 @@ html[style="font-size: 75.89%;"] .mma-forumng-discussion-list core-format-text[m
 }
 
 .mma-forumng-discussion-list .mma-forumng-discussion .mma-forumng-discussion-subject {
-    margin-bottom: 2px;
+    margin-bottom: 3px;
 }
 
 .mma-forumng-discussion-list .mma-forumng-discussion .mma-forumng-discussion-subject,
@@ -920,7 +919,11 @@ core-attachments.mma-forumng-attachments a.item-button .button-effect {
 }
 
 ion-item.mma-forumng-sort-discussion {
-    border-top: 0.55px solid #c8c7cc !important;
+    border-top: 1px solid #c8c7cc !important;
+}
+
+ion-item.mma-forumng-sort-discussion ion-label {
+    font-size: 1.6rem;
 }
 
 /*
