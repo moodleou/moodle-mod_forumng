@@ -388,23 +388,6 @@ function forumng_supports($feature) {
 }
 
 /**
- * Obtains the automatic completion state for this forum based on any conditions
- * in forum settings.
- *
- * @param object $course Course
- * @param object $cm Course-module
- * @param int $userid User ID
- * @param bool $type Type of comparison (or/and; can be used as return value if no conditions)
- * @return bool True if completed, false if not. (If no conditions, then return
- *   value depends on comparison type)
- */
-function forumng_get_completion_state($course, $cm, $userid, $type) {
-    // Use forum object to handle this request.
-    $forum = mod_forumng::get_from_cmid($cm->id, mod_forumng::CLONE_DIRECT);
-    return $forum->get_completion_state($userid, $type);
-}
-
-/**
  * Used by course/user.php to display this module's user activity outline.
  * @param object $course as this is a standard function this is required but not used here
  * @param object $user Moodle user ob

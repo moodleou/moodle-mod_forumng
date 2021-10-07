@@ -196,7 +196,7 @@ class mod_forumng_mod_form extends moodleform_mod {
         // Grading.
         $mform->addElement('header', '', get_string('grading', 'forumng'));
 
-        $mform->addElement('select', 'grading', get_string('grade'),
+        $mform->addElement('select', 'grading', get_string('gradenoun'),
             mod_forumng::get_grading_options());
         $mform->setDefault('grading', mod_forumng::GRADING_NONE);
         $mform->addHelpButton('grading', 'grading', 'forumng');

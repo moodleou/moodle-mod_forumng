@@ -2238,7 +2238,7 @@ ORDER BY
             // Do query
             $rs = $DB->get_recordset_sql("
 SELECT
-    gm.userid, g.id, g.name, g.picture, g.hidepicture
+    gm.userid, g.id, g.name, g.picture
 FROM
     {groups_members} gm
     INNER JOIN {groups} g ON g.id = gm.groupid
