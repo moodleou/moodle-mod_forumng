@@ -201,7 +201,7 @@ list($esql, $esqlparams) = get_enrolled_sql($context, '', $groupid > 0 ? $groupi
 $params = array_merge($params, $esqlparams);
 
 // TODO Does not support custom user profile fields (MDL-70456).
-$userfieldsapi = \core_user\fields::for_identity(\context_system::instance(), false)->including('username');
+$userfieldsapi = \core_user\fields::for_identity(\context_system::instance(), false)->with_userpic();
 $userfields = $userfieldsapi->get_sql('u', false, '', '', false)->selects;
 if ($newheader == 'Average rating' || $grade == 'Average rating' ) {
     $sqlfunction = 'AVG';
