@@ -74,13 +74,10 @@ Feature: To Create a ForumNG on Learn2
 
   Scenario: Verify "Save as draft"
     Given I log in as "admin"
-    And the following "activity" exists:
-      | activity | forumng |
-      | course   | TEST1   |
-      | name     | F.wc    |
-      | section  | 1       |
     And I am on "Course1" course homepage with editing mode on
-    And I follow "F.wc"
+    And I add a "ForumNG" to section "1"
+    And I set the field "Forum" to "F.wc"
+    And I press "Save and display"
     And I press "Start a new discussion"
     And I set the field "Subject" to "Save as Draft"
     And I set the field "Message" to "Test Save as Draft on Learn2"

@@ -24,9 +24,13 @@ Feature: View deleted discussions and posts
       | user | group |
       | student1 | G1 |
       | student2 | G2 |
-    And the following "activities" exist:
-      | activity | name              | course | section | groupmode |
-      | forumng  | Test group forum  | C1     | 1       | 1         |
+    And I log in as "admin"
+    And I am on "Course 1" course homepage
+    And I turn editing mode on
+    And I add a "ForumNG" to section "1" and I fill the form with:
+      | Forum name | Test group forum |
+      | groupmode | Separate groups |
+    And I log out
 
   @javascript
   Scenario: View deleted discussions

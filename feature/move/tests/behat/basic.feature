@@ -27,16 +27,30 @@ Feature: Move discussions
       | GI2       | g4 |
       | GI3       | g1 |
       | GI3       | g3 |
-    And the following "activities" exist:
-      | activity | name        | intro                | course | section | groupmode | grouping |
-      | forumng  | No groups   | No group forum       | C1     | 1       |           |          |
-      | forumng  | No groups 2 | Empty no group forum | C1     | 1       |           |          |
-      | forumng  | G1 grouping | G1 grouping forum    | C1     | 1       | 1         | GI1      |
-      | forumng  | G2 grouping | G2 grouping forum    | C1     | 1       | 1         | GI2      |
-      | forumng  | G3 grouping | G3 grouping forum    | C1     | 1       | 1         | GI3      |
     And I log in as "admin"
     And I am on "Course 1" course homepage
     And I turn editing mode on
+    And I add a "ForumNG" to section "1" and I fill the form with:
+      | Forum name | No groups |
+      | Forum introduction | No group forum |
+    And I add a "ForumNG" to section "1" and I fill the form with:
+      | Forum name | No groups 2 |
+      | Forum introduction | Empty no group forum |
+    And I add a "ForumNG" to section "1" and I fill the form with:
+      | Forum name | G1 grouping |
+      | Forum introduction | G1 grouping forum |
+      | Group mode | Separate groups |
+      | Grouping | G1 |
+    And I add a "ForumNG" to section "1" and I fill the form with:
+      | Forum name | G2 grouping |
+      | Forum introduction | G2 grouping forum |
+      | Group mode | Separate groups |
+      | Grouping | G2 |
+    And I add a "ForumNG" to section "1" and I fill the form with:
+      | Forum name | G3 grouping |
+      | Forum introduction | G3 grouping forum |
+      | Group mode | Separate groups |
+      | Grouping | G3 |
     And I follow "No groups"
     And I add a discussion with the following data:
       | Subject | Discussion 1 |

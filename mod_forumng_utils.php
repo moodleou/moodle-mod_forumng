@@ -300,7 +300,7 @@ class mod_forumng_utils {
      */
     public static function get_username_fields($includemailfields=false) {
         // Get core user name fields, for use with fullname etc.
-        $namefields = \core_user\fields::get_name_fields();
+        $namefields = get_all_user_name_fields();
         return $includemailfields
             ?  array('id', 'username', 'picture', 'url',
                 'imagealt', 'email', 'maildisplay', 'mailformat', 'maildigest',

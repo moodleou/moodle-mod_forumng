@@ -37,7 +37,6 @@ Feature: Clone forum
       | id_usesharedgroup_originalcmidnumber | TF1 |
     And I log out
 
-  @javascript
   Scenario: Create and view shared forum
     Given I log in as "student2"
     And I am on "Course 2" course homepage

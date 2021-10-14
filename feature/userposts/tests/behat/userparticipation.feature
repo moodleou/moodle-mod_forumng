@@ -38,7 +38,6 @@ Feature: Add forumng activity and test user ratings
     And I follow "C1"
     And I log out
 
-  @javascript
   Scenario: Access forum as a student, create a discussion and reply to a post and then rate as a teacher
 
     Given I log in as "student1"
@@ -140,7 +139,6 @@ Feature: Add forumng activity and test user ratings
     And I should see "3.5" in the "//div/table//tr[@id='mod-forumng-participation_r0']/td[@class='cell c5']/div[text()]" "xpath_element"
     And I log out
 
-  @javascript
   Scenario: Check user identity.
     Given the following "users" exist:
       | username | firstname | lastname | email            |

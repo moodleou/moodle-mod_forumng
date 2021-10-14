@@ -16,14 +16,12 @@ Feature: Study advice discussions
       | user | course | role |
       | student1 | C1 | student |
       | student2 | C1 | student |
-    And the following "activity" exists:
-      | activity | forumng     |
-      | course   | C1          |
-      | name     | Test forum  |
-      | section  | 1           |
-      | type     | studyadvice |
     And I log in as "admin"
     And I am on "Course 1" course homepage
+    And I turn editing mode on
+    And I add a "ForumNG" to section "1" and I fill the form with:
+      | Forum name | Test forum |
+      | Forum type | studyadvice |
     And I follow "Test forum"
     And I add a discussion with the following data:
       | Subject | D1 |
