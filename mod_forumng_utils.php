@@ -848,7 +848,7 @@ WHERE
         $blocktags = ['address', 'article', 'aside', 'audio', 'blockquote', 'canvas', 'dd', 'div', 'dl', 'fieldset', 'figcaption',
                 'figure', 'footer', 'form', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'header', 'hgroup', 'hr', 'noscript', 'ol',
                 'output', 'p', 'pre', 'section', 'table', 'tfoot', 'ul', 'video', 'br', 'li'];
-        $regexptags = implode($blocktags, '|');
+        $regexptags = implode('|', $blocktags);
         $text = preg_replace('/(<(?:\/){0,1}(?:' . $regexptags . ')[^>]*(?:\/)?>)/i', '$1 ', $content);
         $text = strip_tags(
             preg_replace('~<script.*?</script>~s', '', $text), '<img><del>');
