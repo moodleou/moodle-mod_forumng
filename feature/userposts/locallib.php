@@ -134,7 +134,7 @@ function forumngfeature_userposts_display_user_grade($cmid, mod_forumng $forumng
 
         $mform->addElement('header', 'usergrade', get_string('usergrade', 'forumngfeature_userposts'));
 
-        $mform->addElement('select', 'grade', get_string('grade'),  $grademenu);
+        $mform->addElement('select', 'grade', get_string('gradenoun'),  $grademenu);
         $mform->setDefault('grade', $user->grade);
 
         $mform->addElement('submit', 'savechanges', get_string('savechanges'));
