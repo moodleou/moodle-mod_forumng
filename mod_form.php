@@ -560,7 +560,7 @@ class mod_forumng_mod_form extends moodleform_mod {
         }
 
         $targetforumngid = $mform->getElementValue('removeto');
-        $targetforumngid = $targetforumngid[0];
+        $targetforumngid = $targetforumngid[0] ?? null;
         $removeafter = $mform->getElementValue('removeafter');
         $removeafter = $removeafter[0];
         if ($removeafter && $targetforumngid > 0) {
