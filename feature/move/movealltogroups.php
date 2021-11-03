@@ -53,12 +53,11 @@ if (!$targetgroup) {
 }
 
 if (!$targetgroup) {
-    $cm = $forum->get_course_module();
-    $targetgroup = mod_forumng::get_activity_group($cm, false);
+    $targetgroup = mod_forumng::GET_GROUP_AFTER_LOGIN;
 }
 
 // Security check against user and their capabilities.
-$forum->require_view($targetgroup);
+$targetgroup = $forum->require_view($targetgroup);
 check_move_permissions($forum, $targetforum);
 
 // If it is a clone, find the original.
