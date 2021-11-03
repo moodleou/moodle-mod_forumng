@@ -33,13 +33,10 @@ $course = $forum->get_course();
 $cm = $forum->get_course_module();
 $context = $forum->get_context(true);
 
-// Get group id for forum.
-$groupid = mod_forumng::get_activity_group($cm, true);
-
 $fid = $forum->get_id();
 
 // Check access.
-$forum->require_view($groupid);
+$groupid = $forum->require_view(mod_forumng::GET_GROUP_AFTER_LOGIN);
 
 $managesettags = has_capability('forumngfeature/edittags:managesettags', $forum->get_context());
 $editsettags = has_capability('forumngfeature/edittags:editsettags', $forum->get_context());

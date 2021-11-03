@@ -52,9 +52,9 @@ if ($forum->is_clone()) {
 
 // Check that forum can be viewed [Handles all other permissions].
 if (empty($groupid)) {
-    $groupid = mod_forumng::get_activity_group($cm, true);
+    $groupid = mod_forumng::GET_GROUP_AFTER_LOGIN;
 }
-$forum->require_view($groupid, 0, true);
+$groupid = $forum->require_view($groupid, 0, true);
 
 if (!$forum->can_manage_discussions()) {
     print_error('error_cannotmanagediscussion', 'forumng');

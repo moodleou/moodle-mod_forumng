@@ -35,8 +35,7 @@ if ($cloneid) {
 $forum = mod_forumng::get_from_cmid($cmid, $cloneid);
 $cm = $forum->get_course_module();
 $course = $forum->get_course();
-$groupid = mod_forumng::get_activity_group($cm, true);
-$forum->require_view($groupid, 0, true);
+$groupid = $forum->require_view(mod_forumng::GET_GROUP_AFTER_LOGIN, 0, true);
 mod_forumng::search_installed();
 
 // If no search text has been entered, go straight to advanced search.

@@ -108,6 +108,9 @@ class mod_forumng {
     /** Constant referring to posts from all groups. */
     const ALL_GROUPS = null;
 
+    /** @var int Constant indicating that after login, require_view should get the group id */
+    const GET_GROUP_AFTER_LOGIN = -2;
+
     /**
      * Special constant indicating that groups are not used (does not apply
      * to posts).
@@ -387,6 +390,9 @@ class mod_forumng {
     /**
      * Obtains currently selected group for an activity, in the format that
      * forum methods want. (Which is slightly different to standard Moodle.)
+     *
+     * Note: This function should not be called before require_login.
+     *
      * @param object $cm Course-module
      * @param bool $update If true, updates group based on URL parameter
      * @return int Group ID; ALL_GROUPS if all groups; NO_GROUPS if no groups used
@@ -2498,15 +2504,16 @@ WHERE
      * web services, etc.
      *
      * @param int $groupid Group ID user is attempting to view (may also be
-     *   ALL_GROUPS or NO_GROUPS or null)
+     *   ALL_GROUPS or NO_GROUPS or GET_GROUP_AFTER_LOGIN or null)
      * @param int $userid User ID or 0 for current; only specify user ID when
      *   there is no current user and normal login process is not required -
      *   do NOT set this to the current user id, always user 0
      * @param int $autologinasguest whether to get the require_login call to
      *   automatically log user in as guest
+     * @return int|null Group id (will be updated if GET_GROUP_AFTER_LOGIN is specified)
      */
-    public function require_view($groupid, $userid=0, $autologinasguest=false) {
-        global $CFG, $USER, $PAGE;
+    public function require_view(int $groupid, int $userid = 0, bool $autologinasguest = false) {
+        global $USER, $PAGE;
 
         $cm = $this->get_course_module();
         $course = $this->get_course();
@@ -2552,6 +2559,11 @@ WHERE
         }
         require_capability('mod/forumng:view', $context, $userid);
 
+        // Get currently selected group (it is only safe to call this function when logged in).
+        if ($groupid === self::GET_GROUP_AFTER_LOGIN) {
+            $groupid = mod_forumng::get_activity_group($cm, true);
+        }
+
         // Note: There is no other capability just to view the forum front page,
         // so just check group access
         if ($groupid!==self::NO_GROUPS && !$this->can_access_group($groupid, false, $userid)) {
@@ -2559,6 +2571,8 @@ WHERE
             // a logical one to use to give an error message.
             require_capability('moodle/site:accessallgroups', $context, $userid);
         }
+
+        return $groupid;
     }
 
     /**
