@@ -522,7 +522,7 @@ function mod_forumng_cm_info_view(cm_info $cm) {
  * @param cm_info $cm
  */
 function mod_forumng_cm_info_dynamic(cm_info $cm) {
-    global $CFG, $OUTPUT;
+    global $CFG, $OUTPUT, $PAGE;
     require_once($CFG->dirroot . '/mod/forumng/mod_forumng.php');
     if (!has_capability('mod/forumng:view',
             context_module::instance($cm->id))) {
@@ -530,7 +530,15 @@ function mod_forumng_cm_info_dynamic(cm_info $cm) {
         $cm->set_available(false);
     }
     if (mod_forumng::is_ipud($cm->id)) {
-        $cm->set_icon_url($OUTPUT->image_url('ipud_icon', 'mod_forumng'));
+        // If we don't have a page context then we can't call image_url. It's only in certain AJAX
+        // scripts like completion tickbox that this happens (due to MDL-73002) and everything
+        // will probably still work if we don't update the icon within those scripts...
+        $property = new ReflectionProperty('moodle_page', '_context');
+        $property->setAccessible(true);
+        $context = $property->getValue($PAGE);
+        if ($context) {
+            $cm->set_icon_url($OUTPUT->image_url('ipud_icon', 'mod_forumng'));
+        }
     }
 }
 
