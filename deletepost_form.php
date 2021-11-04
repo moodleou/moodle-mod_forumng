@@ -28,7 +28,7 @@ class mod_forumng_deletepost_form extends moodleform {
     public function definition() {
         $mform =& $this->_form;
 
-        $expand = $this->_customdata['expand'];
+        $expand = $this->_customdata['expand'] ?? null;
 
         // Header.
         $mform->addElement('header', 'general', get_string('deleteandemail', 'forumng'));
