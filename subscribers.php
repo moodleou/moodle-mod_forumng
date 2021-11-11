@@ -41,7 +41,8 @@ $forum = mod_forumng::get_from_cmid($cmid, $cloneid);
 $cm = $forum->get_course_module();
 $course = $forum->get_course();
 
-$groupid = $forum->require_view(mod_forumng::GET_GROUP_AFTER_LOGIN);
+$groupid = mod_forumng::get_activity_group($cm, true);
+$forum->require_view($groupid);
 if (!$forum->can_view_subscribers()) {
     print_error('subscribers_nopermission', 'forumng');
 }

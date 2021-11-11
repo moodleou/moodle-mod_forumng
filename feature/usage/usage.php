@@ -38,10 +38,7 @@ $course = $forum->get_course();
 $cm = $forum->get_course_module();
 $context = $forum->get_context();
 
-// Check access.
-$groupid = $forum->require_view(mod_forumng::GET_GROUP_AFTER_LOGIN);
-require_capability('forumngfeature/usage:view', $forum->get_context());
-
+$groupid = mod_forumng::get_activity_group($cm, true);
 if ($groupid != mod_forumng::NO_GROUPS && $groupid != mod_forumng::ALL_GROUPS) {
     $pageparams['group'] = $groupid;
     $groupwhere = 'AND (fd.groupid = ? OR fd.groupid IS NULL)';
@@ -52,6 +49,10 @@ if ($groupid != mod_forumng::NO_GROUPS && $groupid != mod_forumng::ALL_GROUPS) {
 }
 
 $ajaxparams = $pageparams;
+
+// Check access.
+$forum->require_view($groupid);
+require_capability('forumngfeature/usage:view', $forum->get_context());
 
 // Print page header.
 $thisurl = new moodle_url('/mod/forumng/feature/usage/usage.php', $pageparams);

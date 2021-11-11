@@ -51,12 +51,13 @@ if ($forum->is_shared() || $forum->is_clone()) {
 }
 
 // Check forum access (using forum group, if required).
-$groupid = $forum->require_view(mod_forumng::GET_GROUP_AFTER_LOGIN);
+$groupid = mod_forumng::get_activity_group($cm, true);
 if ($groupid != mod_forumng::NO_GROUPS && $groupid != mod_forumng::ALL_GROUPS) {
     $pageparams['group'] = $groupid;
 }
 
 // Check access.
+$forum->require_view($groupid);
 require_capability('forumngfeature/userposts:view', $forum->get_context());
 $viewgrade = has_capability('mod/forumng:grade', $context) && $forum->get_grading() != mod_forumng::GRADING_NONE;
 $cangrade = $forum->can_grade();

@@ -234,7 +234,8 @@ $searchtitle = forumng_get_search_results_title($query, $author,
 if (!$allforums) {
     // Display group selector if required
     groups_print_activity_menu($cm, $url);
-    $groupid = $forum->require_view(mod_forumng::GET_GROUP_AFTER_LOGIN, 0, true);
+    $groupid = mod_forumng::get_activity_group($cm, true);
+    $forum->require_view($groupid, 0, true);
     print '<br/><br/>';
 }
 $editform->display();

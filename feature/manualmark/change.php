@@ -37,7 +37,8 @@ if ($did) {
     $forum = mod_forumng::get_from_cmid($id, $cloneid);
 }
 
-$groupid = $forum->require_view(mod_forumng::GET_GROUP_AFTER_LOGIN);
+$groupid = mod_forumng::get_activity_group($forum->get_course_module(), false);
+$forum->require_view($groupid);
 
 $manualmark = !mod_forumng::mark_read_automatically();
 if ($manualmark) {

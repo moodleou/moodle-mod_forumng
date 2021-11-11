@@ -50,7 +50,8 @@ if ($forum->is_clone()) {
 }
 
 // Check that forum can be viewed [Handles all other permissions]
-$groupid = $forum->require_view(mod_forumng::GET_GROUP_AFTER_LOGIN, 0, true);
+$groupid = mod_forumng::get_activity_group($cm, true);
+$forum->require_view($groupid, 0, true);
 
 // Get update button, if allowed for current user
 $strforum = get_string("modulename", "forum");

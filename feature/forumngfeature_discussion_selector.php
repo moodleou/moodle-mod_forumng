@@ -103,11 +103,12 @@ abstract class forumngfeature_discussion_selector extends forumngfeature_post_se
         }
         $cm = $forum->get_course_module();
         $course = $forum->get_course();
+        $groupid = mod_forumng::get_activity_group($cm, true);
 
         // Page name and permissions.
         $pagename = $selector->get_page_name();
         $buttonname = $selector->get_button_name();
-        $groupid = $forum->require_view(mod_forumng::GET_GROUP_AFTER_LOGIN);
+        $forum->require_view($groupid);
         $selector->require_capability($forum->get_context(), $forum);
 
         if (!($fromselect || $isform || $all)) {
