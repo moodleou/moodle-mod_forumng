@@ -590,11 +590,12 @@ Feature: Add forumng activity and test basic functionality
     And the following config values are set as admin:
       | forumng_removeolddiscussions   | 31104000 |
       | forumng_withremoveddiscussions | -1       |
+    When the following "activity" exist:
+      | activity  | name              | intro                  | course |
+      | forumng   | Test forum name 2 | Test forum description | C1     |
+
     And I am on "Course 1" course homepage
     And I turn editing mode on
-    When I add a "ForumNG" to section "1" and I fill the form with:
-      | Forum name         | Test forum name 2      |
-      | Forum introduction | Test forum description |
     And I follow "Test forum name 2"
     And I navigate to "Edit settings" in current page administration
     Then "//select[contains(@id,'id_removeafter')]/option[contains(@value, '31104000') and contains(@selected, '')]" "xpath_element" should exist
