@@ -546,8 +546,8 @@ class mod_forumng_privacy_provider_testcase extends \core_privacy\tests\provider
         $userids = $userlist->get_userids();
 
         $this->assertCount(2, $userids);
-        $this->assertContains($users[1]->id, $userids);
-        $this->assertContains($users[2]->id, $userids);
+        $this->assertContains((int)$users[1]->id, $userids);
+        $this->assertContains((int)$users[2]->id, $userids);
 
         $cm2 = get_coursemodule_from_instance('forumng', $forums[2]->get_id());
         $dis[2]->create_reply($lastposts[2], 'Welcome/to the Developing as a Researcher seminar', 'reply',
@@ -557,7 +557,7 @@ class mod_forumng_privacy_provider_testcase extends \core_privacy\tests\provider
         $userids2 = $userlist2->get_userids();
 
         $this->assertCount(1, $userids2);
-        $this->assertContains($users[1]->id, $userids);
+        $this->assertContains((int)$users[1]->id, $userids);
     }
 
     /**
@@ -581,9 +581,9 @@ class mod_forumng_privacy_provider_testcase extends \core_privacy\tests\provider
         $userids = $userlist->get_userids();
 
         $this->assertCount(3, $userids);
-        $this->assertContains($users[1]->id, $userids);
-        $this->assertContains($users[2]->id, $userids);
-        $this->assertContains($users[3]->id, $userids);
+        $this->assertContains((int)$users[1]->id, $userids);
+        $this->assertContains((int)$users[2]->id, $userids);
+        $this->assertContains((int)$users[3]->id, $userids);
 
     }
 
@@ -610,9 +610,9 @@ class mod_forumng_privacy_provider_testcase extends \core_privacy\tests\provider
         $userids = $userlist->get_userids();
 
         $this->assertCount(3, $userids);
-        $this->assertContains($users[1]->id, $userids);
-        $this->assertContains($users[2]->id, $userids);
-        $this->assertContains($users[3]->id, $userids);
+        $this->assertContains((int)$users[1]->id, $userids);
+        $this->assertContains((int)$users[2]->id, $userids);
+        $this->assertContains((int)$users[3]->id, $userids);
     }
 
     /**
@@ -634,8 +634,8 @@ class mod_forumng_privacy_provider_testcase extends \core_privacy\tests\provider
         $userids = $userlist->get_userids();
 
         $this->assertCount(2, $userids);
-        $this->assertContains($users[1]->id, $userids);
-        $this->assertContains($users[2]->id, $userids);
+        $this->assertContains((int)$users[1]->id, $userids);
+        $this->assertContains((int)$users[2]->id, $userids);
     }
 
     /**
@@ -659,9 +659,9 @@ class mod_forumng_privacy_provider_testcase extends \core_privacy\tests\provider
         $userids = $userlist->get_userids();
 
         $this->assertCount(3, $userids);
-        $this->assertContains($users[1]->id, $userids);
-        $this->assertContains($users[2]->id, $userids);
-        $this->assertContains($users[3]->id, $userids);
+        $this->assertContains((int)$users[1]->id, $userids);
+        $this->assertContains((int)$users[2]->id, $userids);
+        $this->assertContains((int)$users[3]->id, $userids);
     }
 
     /**
@@ -691,8 +691,8 @@ class mod_forumng_privacy_provider_testcase extends \core_privacy\tests\provider
         $userids = $userlist->get_userids();
 
         $this->assertCount(2, $userids);
-        $this->assertContains($users[1]->id, $userids);
-        $this->assertContains($users[2]->id, $userids);
+        $this->assertContains((int)$users[1]->id, $userids);
+        $this->assertContains((int)$users[2]->id, $userids);
     }
 
     /**
@@ -717,9 +717,9 @@ class mod_forumng_privacy_provider_testcase extends \core_privacy\tests\provider
         $userids = $userlist->get_userids();
 
         $this->assertCount(3, $userids);
-        $this->assertContains($users[1]->id, $userids);
-        $this->assertContains($users[2]->id, $userids);
-        $this->assertContains($users[3]->id, $userids);
+        $this->assertContains((int)$users[1]->id, $userids);
+        $this->assertContains((int)$users[2]->id, $userids);
+        $this->assertContains((int)$users[3]->id, $userids);
     }
 
     /**
