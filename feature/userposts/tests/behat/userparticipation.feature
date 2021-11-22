@@ -35,7 +35,6 @@ Feature: Add forumng activity and test user ratings
     And I reply to post "1" with the following data:
       | Change subject (optional) | Admin2 |
       | Message                   | Test2  |
-    And I follow "C1"
     And I log out
 
   @javascript
@@ -70,10 +69,8 @@ Feature: Add forumng activity and test user ratings
     And I follow "Show all posts by Student 1"
     And I set the following fields to these values:
       | rating | 3 |
-    And I press "Rate"
     And I follow "User participation"
     And I should see "3.0" in the "//div/table//tr[@id='mod-forumng-participation_r0']/td[@class='cell c4']/div[text()]" "xpath_element"
-    And I follow "C1"
     And I log out
 
     And I log in as "student1"
@@ -95,7 +92,6 @@ Feature: Add forumng activity and test user ratings
     And I follow "Disc2"
     And I set the following fields to these values:
       | rating | 4 |
-    And I press "Rate"
     And I am on "Course 1" course homepage
     And I follow "Test forum name"
     And I press "Participation by user"
@@ -126,7 +122,7 @@ Feature: Add forumng activity and test user ratings
     And I log in as "admin"
     And I am on "Course 1" course homepage
     And I follow "Test forum name"
-    And I follow "Edit settings"
+    And I navigate to "Edit settings" in current page administration
     And I set the following fields to these values:
      | Grade | Teacher grades students |
     And I press "Save and display"

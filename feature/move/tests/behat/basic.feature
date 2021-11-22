@@ -28,7 +28,7 @@ Feature: Move discussions
       | GI3       | g1 |
       | GI3       | g3 |
     And the following "activities" exist:
-      | activity | name        | intro                | course | section | groupmode | grouping |
+      | activity | name        | introduction         | course | section | groupmode | grouping |
       | forumng  | No groups   | No group forum       | C1     | 1       |           |          |
       | forumng  | No groups 2 | Empty no group forum | C1     | 1       |           |          |
       | forumng  | G1 grouping | G1 grouping forum    | C1     | 1       | 1         | GI1      |

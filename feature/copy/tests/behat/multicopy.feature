@@ -19,6 +19,11 @@ Feature: Copy discussions from main forum page
       | name      | Test group forum |
       | groupmode | 2                |
       | section   | 1                |
+    And the following "activity" exists:
+      | activity  | forumng           |
+      | course    | C2                |
+      | name      | Test course forum |
+      | section   | 1                 |
     And I log in as "admin"
     And I am on "Course 1" course homepage
     And I turn editing mode on
@@ -38,9 +43,6 @@ Feature: Copy discussions from main forum page
       | Message | message 2 |
     And I reply to post "1" with the following data:
       | Message | re message 2 |
-    And I am on "Course 2" course homepage
-    And I add a "ForumNG" to section "1" and I fill the form with:
-      | Forum name | Test course forum |
     And I log out
 
   Scenario: Copy discussions to another group on same forum
