@@ -104,10 +104,9 @@ class mobile {
         $course = $forumng->get_course();
         $cm = $forumng->get_course_module();
         $context = $forumng->get_context();
-        $groupid = \mod_forumng::get_activity_group($cm, true); // Null if student not in a group, or in two groups.
 
         try {
-            $forumng->require_view($groupid);
+            $groupid = $forumng->require_view(\mod_forumng::GET_GROUP_AFTER_LOGIN);
         } catch (\moodle_exception $e) {
             $error = $e->getMessage();
             $data = [
