@@ -885,6 +885,14 @@ function mod_forumng_output_fragment_postform($args) {
         $mform->set_data($formvalues);
     }
 
+    $context = $forum->get_context(true);
+    $filters = filter_get_active_in_context($context);
+    if (array_key_exists('glossary', $filters)) {
+        filter_set_local_state('glossary', $context->id, TEXTFILTER_OFF);
+        $result = $mform->get_html();
+        filter_set_local_state('glossary', $context->id, TEXTFILTER_ON);
+        return $result;
+    }
     return $mform->get_html();
 }
 
