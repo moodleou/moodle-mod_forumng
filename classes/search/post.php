@@ -86,12 +86,20 @@ class post extends \core_search\base_mod {
                   JOIN {forumng} f ON fd.forumngid = f.id
                   JOIN {forumng_posts} fpd on fpd.id = fd.postid
           $contextjoin
-                 WHERE (fp.modified >= ? OR fd.modified >= ?)
+                 WHERE MODIFYCOND
                    AND fp.deleted = 0
                    AND fd.deleted = 0
-                   AND fp.oldversion = 0
-              ORDER BY modifyorder ASC";
-        return $DB->get_recordset_sql($sql, array_merge($contextparams, [$modifiedfrom, $modifiedfrom]));
+                   AND fp.oldversion = 0";
+
+        // If we do the query with 'fp.modified >= ? OR fd.modified >= ?' then the database doesn't
+        // use the modified index and it runs slowly, because of the OR. Doing it as two queries
+        // with a UNION avoids that problem.
+        $union = str_replace('MODIFYCOND', 'fp.modified >= ?', $sql) . ' UNION ' .
+                str_replace('MODIFYCOND', 'fd.modified >= ?', $sql) . ' ORDER BY modifyorder ASC';
+        $params = array_merge($contextparams, [$modifiedfrom]);
+        $params = array_merge($params, $params);
+
+        return $DB->get_recordset_sql($union, $params);
     }
 
     /**
