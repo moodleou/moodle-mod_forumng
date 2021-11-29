@@ -156,16 +156,17 @@ if (count($subscribers) == 0) {
         $user->link = $forum->display_user_link($user);
     }
 
-    $extrafields = \core_user\fields::get_identity_fields(\context_system::instance());
     // Sort subscribers into name order
     uasort($subscribers, 'my_link_sort');
 
     // Build table of subscribers
     $table = new html_table;
     $table->head = array(get_string('user'));
-    foreach ($extrafields as $field) {
-        $table->head[] = \core_user\fields::get_display_name($field);
-        $table->align[] = 'left';
+    if ($CFG->forumng_showusername) {
+        $table->head[] = get_string('username');
+    }
+    if ($CFG->forumng_showidnumber) {
+        $table->head[] = get_string('idnumber');
     }
     $table->head[] = get_string('subscriptions', 'forumng');
     $table->data = array();
@@ -188,8 +189,11 @@ if (count($subscribers) == 0) {
             $gotsome = true;
         }
         $row[] = $name;
-        foreach ($extrafields as $field) {
-            $row[] = s($user->{$field});
+        if ($CFG->forumng_showusername) {
+            $row[] = htmlspecialchars($user->username);
+        }
+        if ($CFG->forumng_showidnumber) {
+            $row[] = htmlspecialchars($user->idnumber);
         }
         if ($user->wholeforum) {
             $row[] = get_string('subscribeddiscussionall', 'forumng');

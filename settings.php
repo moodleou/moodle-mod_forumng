@@ -109,6 +109,9 @@ $settings->add(new admin_setting_configselect('forumng_permanentdeletion',
 $settings->add(new admin_setting_configcheckbox('forumng_showusername',
     get_string('showusername', 'forumng'),
     get_string('configshowusername', 'forumng'), 0));
+$settings->add(new admin_setting_configcheckbox('forumng_showidnumber',
+    get_string('showidnumber', 'forumng'),
+    get_string('configshowidnumber', 'forumng'), 0));
 
 $settings->add(new admin_setting_configtext('forumng_reportunacceptable',
         get_string('reportunacceptable', 'forumng'),
