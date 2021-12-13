@@ -42,13 +42,6 @@ $key = required_param('key', PARAM_ALPHANUM);
 
 // Get user entry and set hack flag necessary for it to work with the OU's SSO system
 $user = $DB->get_record('user', array('id' => $userid), '*', MUST_EXIST);
-$user->samspretendlogin = true;
-
-// Get Moodle to log them in
-$user = complete_user_login($user);
-if (!$user) {
-    throw new moodle_exception('', 'forumng');
-}
 
 // Feed format
 $format = required_param('format', PARAM_ALPHA);
@@ -57,7 +50,7 @@ $rss = $format == 'rss';
 // Load forum
 if ($d) {
     try {
-        $discussion = mod_forumng_discussion::get_from_id($d, $cloneid);
+        $discussion = mod_forumng_discussion::get_from_id($d, $cloneid, $userid);
     } catch (\dml_exception $ex) {
         redirect(new moodle_url('/local/error/http-error.php', ['test' => '404']));
     }
@@ -182,7 +175,7 @@ if (isset($discussions)) {
 
         // Remaining details straightforward
         $data->description = $post->get_formatted_message();
-        $data->author = $post->get_forum()->display_author_name($post->get_user(), $post->get_asmoderator(), false);
+        $data->author = $post->get_forum()->display_author_name($post->get_user(), $post->get_asmoderator(), false, $userid);
         $data->link = $post->get_url();
         $data->pubdate = $post->get_modified();
 
