@@ -2512,7 +2512,7 @@ WHERE
      *   automatically log user in as guest
      * @return int|null Group id (will be updated if GET_GROUP_AFTER_LOGIN is specified)
      */
-    public function require_view(int $groupid, int $userid = 0, bool $autologinasguest = false) {
+    public function require_view(?int $groupid, int $userid = 0, bool $autologinasguest = false) {
         global $USER, $PAGE;
 
         $cm = $this->get_course_module();
