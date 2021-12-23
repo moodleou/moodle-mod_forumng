@@ -647,3 +647,31 @@ Feature: Add forumng activity and test basic functionality
     And I should see "student3"
     And I should see "student3@asd.com"
     And I should see "student3"
+
+  Scenario: View feed option on all participants.
+    Given the following config values are set as admin:
+      | enablerssfeeds         | 1 |
+      | forumng_feedtype       | 2 |
+      | forumng_enablerssfeeds | 1 |
+    And the following "groups" exist:
+      | name    | course | idnumber |
+      | Group 1 | C1     | G1       |
+      | Group 2 | C1     | G2       |
+    And the following "group members" exist:
+      | user     | group |
+      | student1 | G1    |
+    And the following "activities" exist:
+      | activity | name             | course | section | groupmode |
+      | forumng  | Test group forum | C1     | 1       | 2         |
+    And I log in as "student1"
+    And I am on "Course 1" course homepage
+    And I follow "Test group forum"
+    And I add a discussion with the following data:
+      | Subject | Discussion 1 |
+      | Message | Discussion 1 |
+    And I log out
+    And I log in as "admin"
+    And I am on "Course 1" course homepage
+    And I follow "Test group forum"
+    And I click on "Atom" "link"
+    And I should see "Discussion 1"

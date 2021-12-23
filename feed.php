@@ -65,7 +65,7 @@ if ($d) {
     }
     $url = $forum->get_url(mod_forumng::PARAM_PLAIN);
     if ($groupid == 'unspecified') {
-        $groupid = $forum->get_group_mode() == SEPARATEGROUPS
+        $groupid = ($forum->get_group_mode() == SEPARATEGROUPS || $forum->get_group_mode() == VISIBLEGROUPS)
             ? mod_forumng::ALL_GROUPS : mod_forumng::NO_GROUPS;
     } else {
         $url .= '&group=' . $groupid;
