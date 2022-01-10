@@ -2512,7 +2512,7 @@ WHERE
      *   automatically log user in as guest
      * @return int|null Group id (will be updated if GET_GROUP_AFTER_LOGIN is specified)
      */
-    public function require_view(int $groupid, int $userid = 0, bool $autologinasguest = false) {
+    public function require_view(?int $groupid, int $userid = 0, bool $autologinasguest = false) {
         global $USER, $PAGE;
 
         $cm = $this->get_course_module();
@@ -3853,11 +3853,12 @@ WHERE
      * @param object $user User object
      * @param int $asmoderator values are ASMODERATOR_IDENTIFY or ASMODERATOR_ANON
      * @param bool $linkprofile true: with link to user profile
+     * @param int $userid 0 for current user
      * @return string Display author for list flagged post.
      * @throws coding_exception
      */
-    public function display_author_name($user, $asmoderator, $linkprofile = true) {
-        global $USER;
+    public function display_author_name($user, $asmoderator, $linkprofile = true, $userid = 0) {
+        $userid = mod_forumng_utils::get_real_userid($userid);
         $authorname = $linkprofile ? $this->display_user_link($user) : $this->display_user_name($user);
         $moderator = get_string('moderator', 'forumng');
 
@@ -3866,10 +3867,10 @@ WHERE
                 $postby = $authorname . ' ' . $moderator;
                 break;
             case self::ASMODERATOR_ANON:
-                $postby = $this->can_post_anonymously() ? $authorname . ' ' . $moderator : $moderator;
+                $postby = $this->can_post_anonymously($userid) ? $authorname . ' ' . $moderator : $moderator;
                 break;
             default:
-                $postby = mod_forumng_utils::display_discussion_list_item_author_anonymously($this, $USER->id) ?
+                $postby = mod_forumng_utils::display_discussion_list_item_author_anonymously($this, $userid) ?
                         get_string('identityprotected', 'forumng') : $authorname;
                 break;
         }

@@ -91,3 +91,35 @@ Feature: Mark all discussions as read
     And "Mark post read" "link" should not exist
     And "Mark discussion read" "button" should not exist
     And I log out
+
+  Scenario: Testing the 'Mark as read' option on all participants
+    Given the following "groups" exist:
+      | name    | course | idnumber |
+      | Group 1 | C1     | G1       |
+      | Group 2 | C1     | G2       |
+    And the following "group members" exist:
+      | user | group |
+      | student1 | G1 |
+    And the following "activities" exist:
+      | activity | name              | course | section | groupmode |
+      | forumng  | Test group forum  | C1     | 1       | 1         |
+    And I log in as "student1"
+    And I am on "Course 1" course homepage
+    And I follow "Test group forum"
+    And I add a discussion with the following data:
+      | Subject | Discussion 1 |
+      | Message | Discussion 1 |
+    And I log out
+    And I log in as "admin"
+    And I am on "Course 1" course homepage
+    And I follow "Test group forum"
+    Then "Change" "button" should exist
+    When I click on "Change" "button"
+    Then I should see "Manually mark as read"
+    And ".forumng-discussion-unread" "css_element" should exist
+    When I press "Mark all posts read"
+    Then ".forumng-discussion-unread" "css_element" should not exist
+    When I follow "Discussion 1"
+    Then ".forumng-unread.forumng-p1" "css_element" should not exist
+    And "Mark post read" "link" should not exist
+    And "Mark discussion read" "button" should not exist
