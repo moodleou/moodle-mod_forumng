@@ -674,4 +674,3 @@ Feature: Add forumng activity and test basic functionality
     And I am on "Course 1" course homepage
     And I follow "Test group forum"
     And I click on "Atom" "link"
-    And I should see "Discussion 1"
