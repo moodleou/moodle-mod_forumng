@@ -1064,9 +1064,10 @@ WHERE
      * @param int $cmid Course-module ID of forum
      * @param int $cloneid Clone identifier (0 if not a shared forum) or
      *   CLONE_DIRECT constant
+     * @param int $userid Use particular a user for modinfo call
      * @return mod_forumng Forum object
      */
-    public static function get_from_cmid($cmid, $cloneid) {
+    public static function get_from_cmid($cmid, $cloneid, $userid = 0) {
         global $COURSE, $DB;
 
         // Get modinfo for current course, because we usually already have it
@@ -1087,7 +1088,7 @@ WHERE
         }
 
         // Get course-module
-        $modinfo = get_fast_modinfo($course);
+        $modinfo = get_fast_modinfo($course, $userid);
         if (!array_key_exists($cmid, $modinfo->cms)) {
             throw new coding_exception(
                 "Couldn't find forum with course-module ID $cmid");

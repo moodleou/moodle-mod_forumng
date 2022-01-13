@@ -59,7 +59,7 @@ if ($d) {
     $url = $discussion->get_url(mod_forumng::PARAM_PLAIN);
 } else {
     try {
-        $forum = mod_forumng::get_from_cmid($cmid, $cloneid);
+        $forum = mod_forumng::get_from_cmid($cmid, $cloneid, $userid);
     } catch (\moodle_exception $e) {
         redirect(new moodle_url('/local/error/http-error.php', ['test' => '404']));
     }
