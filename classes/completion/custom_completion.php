@@ -39,7 +39,8 @@ class custom_completion extends activity_custom_completion {
         // Use forum object to handle this request.
         $this->validate_rule($rule);
         $forum = \mod_forumng::get_from_cmid($this->cm->id, \mod_forumng::CLONE_DIRECT);
-        return $forum->get_completion_state($this->userid, $rule);
+        $result = $forum->get_completion_state($this->userid, $rule);
+        return $result ? COMPLETION_COMPLETE : COMPLETION_INCOMPLETE;
     }
     /**
      * Fetch the list of custom completion rules that this module defines.
@@ -47,7 +48,11 @@ class custom_completion extends activity_custom_completion {
      * @return array
      */
     public static function get_defined_custom_rules(): array {
-        return [];
+        return [
+                'completionposts',
+                'completiondiscussions',
+                'completionreplies'
+        ];
     }
 
     /**
@@ -65,6 +70,12 @@ class custom_completion extends activity_custom_completion {
      * @return array
      */
     public function get_sort_order(): array {
-        return [];
+        return [
+                'completionview',
+                'completionposts',
+                'completiondiscussions',
+                'completionreplies',
+                'completionusegrade',
+        ];
     }
 }

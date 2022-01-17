@@ -241,7 +241,8 @@ function forumng_get_coursemodule_info($coursemodule) {
     global $DB;
 
     $forumng = $DB->get_record('forumng',
-            array('id' => $coursemodule->instance), 'id, name, type, intro, introformat');
+            array('id' => $coursemodule->instance), 'id, name, type, intro, introformat,
+             completiondiscussions, completionreplies, completionposts');
     if (!$forumng) {
         return null;
     }
@@ -252,6 +253,12 @@ function forumng_get_coursemodule_info($coursemodule) {
     if ($coursemodule->showdescription) {
         // Convert intro to html. Do not filter cached version, filters run at display time.
         $info->content = format_module_intro('forumng', $forumng, $coursemodule->id, false);
+    }
+    // Populate the custom completion rules as key => value pairs, but only if the completion mode is 'automatic'.
+    if ($coursemodule->completion == COMPLETION_TRACKING_AUTOMATIC) {
+        $info->customdata->customcompletionrules['completiondiscussions'] = $forumng->completiondiscussions;
+        $info->customdata->customcompletionrules['completionreplies'] = $forumng->completionreplies;
+        $info->customdata->customcompletionrules['completionposts'] = $forumng->completionposts;
     }
 
     return $info;
