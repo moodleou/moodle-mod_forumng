@@ -983,9 +983,10 @@ WHERE
      *   just been created so it doesn't have one yet
      * @param object $passcm Optional $cm object. Can be used in cases where
      *   get_fast_modinfo will fail (during course deletion).
+     * @param int $userid Use particular user for modinfo call
      * @return mod_forumng Forum object
      */
-    public static function get_from_id($id, $cloneid, $requirecm=true, $passcm=null) {
+    public static function get_from_id($id, $cloneid, $requirecm=true, $passcm=null, $userid = 0) {
         global $COURSE, $DB;
 
         // Note that I experimented with code that retrieved this information
@@ -1018,7 +1019,7 @@ WHERE
             // Modinfo not available, use supplied object instead
             $cm = $passcm;
         } else if ($requirecm) {
-            $modinfo = get_fast_modinfo($course);
+            $modinfo = get_fast_modinfo($course, $userid);
             foreach ($modinfo->cms as $possiblecm) {
                 if ($possiblecm->instance==$id && $possiblecm->modname==='forumng') {
                     $cm = $possiblecm;

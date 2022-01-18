@@ -772,4 +772,33 @@ class mod_forumng_forumng_testcase extends forumng_test_lib {
         role_change_permission($role->id, $forum->get_context(), 'mod/forumng:showrss', CAP_PREVENT);
         $this->assertEmpty($forum->display_feed_links(0));
     }
+
+    /**
+     * Check the modinfo object is correctly populated.
+     */
+    public function test_forum_user_cminfo() {
+        global $USER;
+        $this->resetAfterTest(true);
+        $this->setAdminUser();
+
+        $course = $this->get_new_course('testcourse');
+        $user1 = $this->get_new_user();
+        $forumrecord = $this->get_new_forumng($course->id);
+
+        $forum = mod_forumng::get_from_id($forumrecord->get_id(), 0, true, null, $user1->id);
+        $forumcm = $forum->get_course_module();
+        $this->assertEquals($user1->id, $forumcm->get_modinfo()->get_user_id());
+
+        $forum = mod_forumng::get_from_cmid($forumcm->id, 0, $user1->id);
+        $forumcm = $forum->get_course_module();
+        $this->assertEquals($user1->id, $forumcm->get_modinfo()->get_user_id());
+
+        $forum = mod_forumng::get_from_id($forumrecord->get_id(), 0);
+        $forumcm = $forum->get_course_module();
+        $this->assertEquals($USER->id, $forumcm->get_modinfo()->get_user_id());
+
+        $forum = mod_forumng::get_from_cmid($forumcm->id, 0);
+        $forumcm = $forum->get_course_module();
+        $this->assertEquals($USER->id, $forumcm->get_modinfo()->get_user_id());
+    }
 }

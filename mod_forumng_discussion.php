@@ -429,6 +429,7 @@ class mod_forumng_discussion {
     }
 
     private static function get_base($where, $whereparams, $userid, $cache, $cloneid) {
+        $forumuserid = $userid == -1 ? 0 : $userid;
         // If user isn't logged in, don't get unread data
         if (!isloggedin()) {
             $userid = -1;
@@ -443,7 +444,7 @@ class mod_forumng_discussion {
         $rs->close();
 
         // Get forum and construct discussion
-        $forum = mod_forumng::get_from_id($discussionfields->forumngid, $cloneid);
+        $forum = mod_forumng::get_from_id($discussionfields->forumngid, $cloneid, true, null, $forumuserid);
         $result = new mod_forumng_discussion($forum, $discussionfields, true,
             mod_forumng_utils::get_real_userid($userid));
         if ($cache) {

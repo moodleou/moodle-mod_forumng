@@ -524,8 +524,10 @@ function mod_forumng_cm_info_view(cm_info $cm) {
 function mod_forumng_cm_info_dynamic(cm_info $cm) {
     global $CFG, $OUTPUT, $PAGE;
     require_once($CFG->dirroot . '/mod/forumng/mod_forumng.php');
+    // Ensure we check permissions of user that is referred to in modinfo.
+    $userid = $cm->get_modinfo()->get_user_id() === 0 ? null : $cm->get_modinfo()->get_user_id();
     if (!has_capability('mod/forumng:view',
-            context_module::instance($cm->id))) {
+            context_module::instance($cm->id), $userid)) {
         $cm->set_user_visible(false);
         $cm->set_available(false);
     }

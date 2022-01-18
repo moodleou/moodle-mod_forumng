@@ -1127,4 +1127,46 @@ class mod_forumng_discussion_testcase  extends forumng_test_lib {
         $this->setAdminUser();
         $this->assertTrue($discuss->can_delete($whynot));
     }
+
+    /**
+     * Check the modinfo object is correctly populated.
+     */
+    public function test_discussion_user_passed_to_forum() {
+        global $USER;
+        $this->resetAfterTest(true);
+        $this->setAdminUser();
+        $generator = self::getDataGenerator()->get_plugin_generator('mod_forumng');
+
+        // Create course.
+        $course = $this->get_new_course('testcourse');
+        $user1 = $this->get_new_user();
+
+        $forumrecord = $this->get_new_forumng($course->id);
+        $discussionrecord = new stdClass();
+        $discussionrecord->course = $course->id;
+        $discussionrecord->userid = $user1->id;
+        $discussionrecord->forum = $forumrecord->get_id();
+
+        $newdiscussion = $generator->create_discussion($discussionrecord);
+        $discussionuser1 = mod_forumng_discussion::get_from_id($newdiscussion[0], 0, $user1->id);
+        $forumcm = $discussionuser1->get_forum()->get_course_module();
+        $this->assertEquals($user1->id, $forumcm->get_modinfo()->get_user_id());
+        $discussionuser1 = mod_forumng_discussion::get_from_id($newdiscussion[0], 0, $user1->id, true);
+        $forumcm = $discussionuser1->get_forum()->get_course_module();
+        $this->assertEquals($user1->id, $forumcm->get_modinfo()->get_user_id());
+
+        $discussionadmin = mod_forumng_discussion::get_from_id($newdiscussion[0], 0);
+        $forumcm = $discussionadmin->get_forum()->get_course_module();
+        $this->assertEquals($USER->id, $forumcm->get_modinfo()->get_user_id());
+        $discussionadmin = mod_forumng_discussion::get_from_id($newdiscussion[0], 0, 0, true);
+        $forumcm = $discussionadmin->get_forum()->get_course_module();
+        $this->assertEquals($USER->id, $forumcm->get_modinfo()->get_user_id());
+
+        $discussionnoread = mod_forumng_discussion::get_from_id($newdiscussion[0], 0, -1);
+        $forumcm = $discussionnoread->get_forum()->get_course_module();
+        $this->assertEquals($USER->id, $forumcm->get_modinfo()->get_user_id());
+        $discussionnoread = mod_forumng_discussion::get_from_id($newdiscussion[0], 0, -1, true);
+        $forumcm = $discussionnoread->get_forum()->get_course_module();
+        $this->assertEquals($USER->id, $forumcm->get_modinfo()->get_user_id());
+    }
 }
