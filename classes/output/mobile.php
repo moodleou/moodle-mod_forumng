@@ -43,6 +43,11 @@ require_once($CFG->libdir . '/externallib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class mobile {
+    /** @var string  Folder of ionic5 app version */
+    const IONIC5_FOLDER = 'ionic5/';
+
+    /** @var string  Folder of ionic3 app version */
+    const IONIC3_FOLDER = 'ionic3/';
 
     /**
      * @var int SHORTENED_LENGTH Shortened post message length.
@@ -65,9 +70,11 @@ class mobile {
      */
     public static function mobile_forumng_init(array $args) : array {
         global $CFG;
+        $args = (object) $args;
+        $foldername = self::mobile_get_folder_name($args);
         return [
                 'templates' => [],
-                'javascript' => file_get_contents($CFG->dirroot . '/mod/forumng/appjs/mobile_init.js'),
+                'javascript' => file_get_contents($CFG->dirroot . '/mod/forumng/appjs/' . $foldername . 'mobile_init.js'),
                 'otherdata' => '',
                 'files' => []
         ];
@@ -90,6 +97,7 @@ class mobile {
         $isupdate = empty($args->isupdate) ? 0 : 1;
         $cmid = $args->cmid;
         $sortid = empty($args->sortid) ? 0 : $args->sortid;
+        $foldername = self::mobile_get_folder_name($args);
 
         // This is based on view.php and forumngtype_general.php.
         $forumng = \mod_forumng::get_from_cmid($cmid, \mod_forumng::CLONE_DIRECT);
@@ -113,7 +121,7 @@ class mobile {
                 'error' => $error,
             ];
 
-            $html = $OUTPUT->render_from_template('mod_forumng/mobile_discussions_page', $data);
+            $html = $OUTPUT->render_from_template('mod_forumng/' . $foldername .'mobile_discussions_page', $data);
             return [
                 'templates' => [
                     [
@@ -326,7 +334,7 @@ class mobile {
             'displaytext' => $displaytext,
             'postanonmessage' => $postanonmessage,
         ];
-        $html = $OUTPUT->render_from_template('mod_forumng/mobile_discussions_page', $data);
+        $html = $OUTPUT->render_from_template('mod_forumng/' . $foldername . 'mobile_discussions_page', $data);
 
         return [
             'templates' => [
@@ -460,6 +468,7 @@ class mobile {
         global $OUTPUT;
 
         $args = (object) $args;
+        $foldername = self::mobile_get_folder_name($args);
         // Check is draft.
         $draftid = empty($args->draft) ? 0 : $args->draft;
         $replytoid = empty($args->replytoid) ? 0 : $args->replytoid;
@@ -478,7 +487,7 @@ class mobile {
                         'error' => $error,
                 ];
 
-                $html = $OUTPUT->render_from_template('mod_forumng/mobile_posts_page', $data);
+                $html = $OUTPUT->render_from_template('mod_forumng/' . $foldername . 'mobile_posts_page', $data);
                 return [
                         'templates' => [
                                 [
@@ -503,7 +512,7 @@ class mobile {
                             $forumng->get_url(mod_forumng::PARAM_HTML));
                     $data = new \stdClass();
                     $data->error = $drafterror;
-                    $html = $OUTPUT->render_from_template('mod_forumng/mobile_posts_page', $data);
+                    $html = $OUTPUT->render_from_template('mod_forumng/' . $foldername . 'mobile_posts_page', $data);
                     return [
                             'templates' => [
                                     [
@@ -539,7 +548,7 @@ class mobile {
                     'error' => $error,
             ];
 
-            $html = $OUTPUT->render_from_template('mod_forumng/mobile_posts_page', $data);
+            $html = $OUTPUT->render_from_template('mod_forumng/' . $foldername . 'mobile_posts_page', $data);
             return [
                     'templates' => [
                             [
@@ -631,7 +640,7 @@ class mobile {
             'templates' => [
                 [
                     'id' => 'main',
-                    'html' => $OUTPUT->render_from_template('mod_forumng/mobile_posts_page', $rootpost),
+                    'html' => $OUTPUT->render_from_template('mod_forumng/' . $foldername . 'mobile_posts_page', $rootpost),
                 ],
             ],
             'javascript' => 'window.forumngPostsPageInit(this);',
@@ -1024,6 +1033,7 @@ class mobile {
         global $OUTPUT;
 
         $args = (object) $args;
+        $foldername = self::mobile_get_folder_name($args);
         $cmid = $args->cmid;
         $discussionid = $args->discussionid;
         $groupid = (int)$args->groupid;
@@ -1046,7 +1056,7 @@ class mobile {
                     'error' => $error,
             ];
 
-            $html = $OUTPUT->render_from_template('mod_forumng/mobile_posts_page', $data);
+            $html = $OUTPUT->render_from_template('mod_forumng/' . $foldername . 'mobile_posts_page', $data);
             return [
                     'templates' => [
                             [
@@ -1081,7 +1091,7 @@ class mobile {
                         'error' => $error,
                 ];
 
-                $html = $OUTPUT->render_from_template('mod_forumng/mobile_posts_page', $data);
+                $html = $OUTPUT->render_from_template('mod_forumng/' . $foldername . 'mobile_posts_page', $data);
                 return [
                         'templates' => [
                                 [
@@ -1132,7 +1142,7 @@ class mobile {
             'displayperiod' => $displayperiod,
             'submitdraftlabel' => get_string('savedraft', 'mod_forumng'),
         ];
-        $html = $OUTPUT->render_from_template('mod_forumng/mobile_add_discussion', $data);
+        $html = $OUTPUT->render_from_template('mod_forumng/' . $foldername . 'mobile_add_discussion', $data);
 
         return [
             'templates' => [
@@ -1173,6 +1183,7 @@ class mobile {
 
         $args = (object) $args;
         $draftid = (int)$args->draftid;
+        $foldername = self::mobile_get_folder_name($args);
         try {
             $draft = \mod_forumng_draft::get_from_id($draftid);
         } catch (\moodle_exception $e) {
@@ -1181,7 +1192,7 @@ class mobile {
                     'error' => $error,
             ];
 
-            $html = $OUTPUT->render_from_template('mod_forumng/mobile_posts_page', $data);
+            $html = $OUTPUT->render_from_template('mod_forumng/' . $foldername . 'mobile_posts_page', $data);
             return [
                     'templates' => [
                             [
@@ -1203,7 +1214,7 @@ class mobile {
             $data->message = $draft->get_formatted_message($forumng);
             $data->deletemessage = get_string('confirmdeletedraft', 'forumng');
         }
-        $html = $OUTPUT->render_from_template('mod_forumng/mobile_delete_draft', $data);
+        $html = $OUTPUT->render_from_template('mod_forumng/' . $foldername . 'mobile_delete_draft', $data);
         return [
                 'templates' => [
                         [
@@ -1432,5 +1443,15 @@ class mobile {
      */
     private static function change_web_service_url($url) {
         return str_replace('pluginfile.php', 'webservice/pluginfile.php', $url);
+    }
+
+    /**
+     * Get the latest folder name has the new files used for the newest app version.
+     *
+     * @param object $args Standard mobile web service arguments
+     * @return string Folder name
+     */
+    public static function mobile_get_folder_name($args): string {
+        return isset($args->appversioncode) && $args->appversioncode >= 3950 ? self::IONIC5_FOLDER : self::IONIC3_FOLDER;
     }
 }

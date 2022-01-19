@@ -1492,6 +1492,7 @@
                     t.originalEdit = outerThis.resetData(t.originalEdit);
                     outerThis.PostControl.setValue('');
                     outerThis.CONTENT_OTHERDATA.files = [];
+                    outerThis.CONTENT_OTHERDATA.isEdit = 0;
                     t.isEdit = 0;
                     outerThis.CONTENT_OTHERDATA.currentReplyToId = 0;
                     outerThis.CONTENT_OTHERDATA.currentEditedPostId = 0;
@@ -1540,6 +1541,7 @@
                 outerThis.CONTENT_OTHERDATA.lock = 0;
                 outerThis.CONTENT_OTHERDATA.currentReplyToId = 0;
                 outerThis.CONTENT_OTHERDATA.currentEditedPostId = 0;
+                outerThis.CONTENT_OTHERDATA.isEdit = 0;
                 t.originalEdit = outerThis.resetData(t.originalEdit);
                 t.currentReply = outerThis.resetData(t.currentReply);
                 t.editDraft = outerThis.resetData(t.editDraft);
