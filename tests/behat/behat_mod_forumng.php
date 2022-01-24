@@ -278,7 +278,7 @@ class behat_mod_forumng extends behat_base {
     /**
      * Scrolls to bottom of the app.
      *
-     * @When /^I scroll to bottom of the app$/
+     * @When /^I scroll to bottom of the app in ForumNG$/
      */
     public function i_scroll_to_bottom_in_the_app() {
         $this->getSession()->executeScript("
@@ -291,7 +291,7 @@ class behat_mod_forumng extends behat_base {
     /**
      * Scrolls to element  of the app.
      *
-     * @When /^I scroll to element "([^"]*)" of the app$/
+     * @When /^I scroll to element "([^"]*)" of the app in ForumNG$/
      */
     public function i_scroll_to_element_in_the_app($selector) {
         $this->getSession()->executeScript("
@@ -306,7 +306,7 @@ class behat_mod_forumng extends behat_base {
     /**
      * Scrolls to top of the app.
      *
-     * @When /^I scroll to top of the app$/
+     * @When /^I scroll to top of the app in ForumNG$/
      */
     public function i_scroll_to_top_in_the_app() {
         $this->getSession()->executeScript("

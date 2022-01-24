@@ -231,7 +231,7 @@ Feature:  Add draft in forumng and test app can view discussion listing page
     And I should find "Standard Post" in the app
     And I set the field "Subject" to "Test draft 1" in the app
     And I set the field "Message" to "Test message" in the app
-    And I scroll to bottom of the app
+    And I scroll to bottom of the app in ForumNG
     And I click on "#mma-forumng-show-sticky" "css_element"
     And I click on "ion-datetime" "css_element"
     And I press "Done"
@@ -256,7 +256,7 @@ Feature:  Add draft in forumng and test app can view discussion listing page
     And I should find "Post as?" in the app
     And I set the field "Subject" to "Test draft reply" in the app
     And I set the field "Message" to "Test draft reply message" in the app
-    And I scroll to bottom of the app
+    And I scroll to bottom of the app in ForumNG
     And I click on "#mma-forumng-show-important" "css_element"
     And I press "Save as draft" in the app
     And I press the back button in the app
@@ -291,7 +291,7 @@ Feature:  Add draft in forumng and test app can view discussion listing page
     And I should not find "Standard Post" in the app
     And I set the field "Subject" to "Test draft 1" in the app
     And I set the field "Message" to "Test message" in the app
-    And I scroll to bottom of the app
+    And I scroll to bottom of the app in ForumNG
     When I press "Save as draft" in the app
     And I press "Cancel" in the app
     And "Test draft 1 Test message" "text" should exist in the ".mma-forumng-drafts ion-row .cell.c0" "css_element"
@@ -313,7 +313,7 @@ Feature:  Add draft in forumng and test app can view discussion listing page
     And I should not see "Post as?"
     And I set the field "Subject" to "Test draft reply" in the app
     And I set the field "Message" to "Test draft reply message" in the app
-    And I scroll to bottom of the app
+    And I scroll to bottom of the app in ForumNG
     And I press "Save as draft" in the app
     And I press the back button in the app
     And "Test draft reply Test draft reply..." "text" should exist in the ".mma-forumng-drafts ion-row .cell.c0" "css_element"
@@ -347,7 +347,7 @@ Feature:  Add draft in forumng and test app can view discussion listing page
     And I should not find "Standard Post" in the app
     And I set the field "Subject" to "Test draft 1" in the app
     And I set the field "Message" to "Test message" in the app
-    And I scroll to bottom of the app
+    And I scroll to bottom of the app in ForumNG
     When I press "Save as draft" in the app
     And I press "Cancel" in the app
     And "Test draft 1 Test message" "text" should exist in the ".mma-forumng-drafts ion-row .cell.c0" "css_element"
@@ -369,7 +369,7 @@ Feature:  Add draft in forumng and test app can view discussion listing page
     And I should not find "Post as?" in the app
     And I set the field "Subject" to "Test draft reply" in the app
     And I set the field "Message" to "Test draft reply message" in the app
-    And I scroll to bottom of the app
+    And I scroll to bottom of the app in ForumNG
     And I press "Save as draft" in the app
     And I press the back button in the app
     And "Test draft reply Test draft reply..." "text" should exist in the ".mma-forumng-drafts ion-row .cell.c0" "css_element"
@@ -401,7 +401,7 @@ Feature:  Add draft in forumng and test app can view discussion listing page
     And I press "Reply" in the app
     And I set the field "Subject" to "Test draft reply" in the app
     And I set the field "Message" to "Test draft reply message" in the app
-    And I scroll to bottom of the app
+    And I scroll to bottom of the app in ForumNG
     And I press "Save as draft" in the app
     And I press the back button in the app
     And I should find "reply to Identity protected" in the app

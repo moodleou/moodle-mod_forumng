@@ -499,7 +499,7 @@ Feature:  Add discussion in forumng and test app can view discussion listing pag
     And I press "Test forum discussion" in the app
     And I click on "//ion-list[contains(@class,'mma-forumng-discussion-list')]/ion-item[contains(@class, 'mma-forumng-discussion-short')][1]" "xpath_element"
     # Before click Expand all, I should see short message with (...) .
-    And I scroll to top of the app
+    And I scroll to top of the app in ForumNG
     And I should find "..." in the app
     And I should find "EXPAND ALL POSTS" in the app
     And I press "EXPAND ALL POSTS" in the app

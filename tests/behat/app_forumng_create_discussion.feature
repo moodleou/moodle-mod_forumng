@@ -190,7 +190,7 @@ Feature:  Add discussion in forumng and test app can view discussion listing pag
     And I click on "ion-datetime" "css_element"
     And I press "Done"
     And I should not find "Date" in the app
-    And I scroll to bottom of the app
+    And I scroll to bottom of the app in ForumNG
     When I click on "#mma-forumng-add-discussion-button" "css_element"
     And I should find "Test discussion 1" in the app
     And I am on homepage
@@ -277,7 +277,7 @@ Feature:  Add discussion in forumng and test app can view discussion listing pag
     When I click on "#mod_forumg_add_discussion" "css_element"
     And I set the field "Subject" to "Test discussion anon" in the app
     And I set the field "Message" to "Test message anon" in the app
-    And I scroll to bottom of the app
+    And I scroll to bottom of the app in ForumNG
     And I click on "//core-site-plugins-plugin-content//ion-select" "xpath_element"
     And I press "Identify self as moderator (name hidden from students)" in the app
     When I click on "#mma-forumng-add-discussion-button" "css_element"
@@ -286,7 +286,7 @@ Feature:  Add discussion in forumng and test app can view discussion listing pag
     And I press "Reply" in the app
     And I set the field "Subject" to "Test reply" in the app
     And I set the field "Message" to "Test reply message" in the app
-    And I scroll to bottom of the app
+    And I scroll to bottom of the app in ForumNG
     And I click on "//*[@id='mma-forumng-form']//ion-select" "xpath_element"
     And I press "Identify self as moderator (name hidden from students)" in the app
     And I press "Post reply" in the app
