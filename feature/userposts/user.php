@@ -91,7 +91,6 @@ if ($student) {
 
 $user = $DB->get_record('user', array('id' => $userid), '*', MUST_EXIST);
 $pagename = fullname($user, has_capability('moodle/site:viewfullnames', $context));
-$pagename .= $CFG->forumng_showusername ? ' (' . $user->username . ')' : '';
 $start = null;
 $end = null;
 $ratedstart = null;
