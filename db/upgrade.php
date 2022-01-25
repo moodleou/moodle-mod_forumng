@@ -481,5 +481,13 @@ function xmldb_forumng_upgrade($oldversion=0) {
         upgrade_mod_savepoint(true, 2018011800, 'forumng');
     }
 
+    if ($oldversion < 2022012500) {
+
+        // Delete unused config variable.
+        unset_config('forumng_showusername');
+
+        upgrade_mod_savepoint(true, 2022012500, 'forumng');
+    }
+
     return true;
 }
