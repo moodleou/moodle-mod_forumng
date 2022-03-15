@@ -357,7 +357,9 @@ M.mod_forumng = {
 
         // Set up flags
         this.init_flags(node);
-        load_client_math();
+        if (typeof load_client_math !== 'undefined') {
+            load_client_math();
+        }
     },
 
     /**
