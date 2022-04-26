@@ -70,20 +70,6 @@
     }
     t.CoreContentLinksDelegate.registerHandler(new AddonModForumNGModuleDiscussionLinkToPageHandler);
 
-
-
-    /* Prefetch handler (download). */
-    class AddonModForumngModulePrefetchHandler extends t.CoreCourseActivityPrefetchHandlerBase {
-        constructor() {
-            super();
-            this.name = "AddonModForumngModulePrefetchHandler";
-            this.modName = "forumng";
-            this.component = "mod_forumng";
-            this.updatesNames = /^configuration$|^.*files$/;
-        }
-    }
-    t.CoreCourseModulePrefetchDelegate.registerHandler(new AddonModForumngModulePrefetchHandler);
-
     t.newDiscussion = {
         subject: '',
         message: '',

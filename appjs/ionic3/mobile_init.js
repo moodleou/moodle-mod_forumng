@@ -66,21 +66,6 @@
     };
     t.CoreContentLinksDelegate.registerHandler(new AddonModForumNGModuleDiscussionLinkToPageHandler());
 
-/* Prefetch handler (download). */
-    function AddonModForumngModulePrefetchHandler() {
-        t.CoreCourseActivityPrefetchHandlerBase.call(this, t.TranslateService, t.CoreAppProvider, t.CoreUtilsProvider,
-            t.CoreCourseProvider, t.CoreFilepoolProvider, t.CoreSitesProvider, t.CoreDomUtilsProvider,
-            t.CoreFilterHelperProvider, t.CorePluginFileDelegate, t.CoreUrlUtilsProvider, t.CoreFileProvider, t.CoreConfigConstants);
-        this.name = "AddonModForumngModulePrefetchHandler";
-        this.modName = "forumng";
-        this.component = "mod_forumng";
-        this.updatesNames = /^configuration$|^.*files$/;
-    }
-
-    AddonModForumngModulePrefetchHandler.prototype = Object.create(t.CoreCourseActivityPrefetchHandlerBase.prototype);
-    AddonModForumngModulePrefetchHandler.prototype.constructor = AddonModForumngModulePrefetchHandler;
-    t.CoreCourseModulePrefetchDelegate.registerHandler(new AddonModForumngModulePrefetchHandler());
-
    t.newDiscussion = {
        subject: '',
        message: '',
