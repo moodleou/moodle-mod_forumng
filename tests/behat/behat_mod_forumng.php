@@ -126,7 +126,7 @@ class behat_mod_forumng extends behat_base {
      * @param TableNode $data
      */
     public function i_reply_to_post_with_the_following_data($post, TableNode $data) {
-        $this->interact_with_post('reply', $post, $data);
+        $this->interact_with_post($post, $data, 'reply');
     }
 
     /**
@@ -139,7 +139,7 @@ class behat_mod_forumng extends behat_base {
      * @param TableNode $data
      */
     public function i_edit_post_with_the_following_data($post, TableNode $data) {
-        $this->interact_with_post('edit', $post, $data);
+        $this->interact_with_post($post, $data, 'edit');
     }
 
     /**
@@ -152,18 +152,18 @@ class behat_mod_forumng extends behat_base {
      * @param TableNode $data
      */
     public function i_reply_to_post_as_draft_with_the_following_data($post, TableNode $data) {
-        $this->interact_with_post('draft', $post, $data);
+        $this->interact_with_post($post, $data, 'draft');
     }
 
     /**
      * This function is the one that does the post steps and adds to form
      * The type used reflects the different types of interaction with post
-     * @param string $type 'reply'(default) or 'edit' or 'draft'
      * @param int $post
      * @param TableNode $data
+     * @param string $type 'reply'(default) or 'edit' or 'draft'
      * @return multitype:\Behat\Behat\Context\Step\Given \Behat\Behat\Context\Step\Then
      */
-    private function interact_with_post($type = 'reply', $post, TableNode $data) {
+    private function interact_with_post($post, TableNode $data, $type = 'reply') {
         $link = 'forumng-replylink';
         $savebutton = get_string('postreply', 'forumng');
         if ($type == 'edit') {
