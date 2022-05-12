@@ -158,12 +158,12 @@ class behat_mod_forumng extends behat_base {
     /**
      * This function is the one that does the post steps and adds to form
      * The type used reflects the different types of interaction with post
-     * @param string $type 'reply'(default) or 'edit' or 'draft'
+     * @param string $type 'reply' or 'edit' or 'draft'
      * @param int $post
      * @param TableNode $data
      * @return multitype:\Behat\Behat\Context\Step\Given \Behat\Behat\Context\Step\Then
      */
-    private function interact_with_post($type = 'reply', $post, TableNode $data) {
+    private function interact_with_post($type, $post, TableNode $data) {
         $link = 'forumng-replylink';
         $savebutton = get_string('postreply', 'forumng');
         if ($type == 'edit') {

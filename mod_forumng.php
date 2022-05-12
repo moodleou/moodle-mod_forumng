@@ -3253,7 +3253,7 @@ WHERE
      *   'view hidden discussions' (may be null if unread data not required)
      * @return array Array of row objects
      */
-    private static function query_forums($cmids=array(), $course=null,
+    private static function query_forums($cmids, $course,
             $userid, $unread, $groups, $aagforums, $viewhiddenforums) {
         global $DB, $CFG, $USER;
         if ((!count($cmids) && !$course)) {
