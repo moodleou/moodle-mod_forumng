@@ -327,8 +327,12 @@ div.forumng-flagpost a img {
     width: 355px;
 }
 
-.forumng-moderator,
-#page-mod-forumng-discuss .forumng-jumpto .forumng-parent {
+#page-mod-forumng-discuss .forumng-jumpto {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.forumng-moderator {
     display: block;
 }
 .forumng-moderator-flag {
