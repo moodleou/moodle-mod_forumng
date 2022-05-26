@@ -701,3 +701,22 @@ Feature: Add forumng activity and test basic functionality
       | Message | Discussion 1 |
     When I am on "Course 2" course homepage
     Then I should see "100%"
+
+  Scenario: Check history of post edits
+    Given I log in as "admin"
+    And I am on "Course 1" course homepage
+    And I follow "Test forum name"
+    And I add a discussion with the following data:
+      | Subject | Discussion 1 |
+      | Message | abc |
+    And I reply to post "1" with the following data:
+      | Message | REPLY1 |
+    And I reply to post "1" with the following data:
+      | Message | REPLY2 |
+    When I edit post "3" with the following data:
+      | Message | Change reply2 EDIT |
+    Then I should see "Change reply2 EDIT"
+    And "History" "link" should exist
+    Given I follow "History"
+    Then I should see "REPLY2"
+    And I should see "Change reply2 EDIT"

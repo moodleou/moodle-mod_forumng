@@ -58,7 +58,7 @@ print $out->header();
 // Print current post
 print '<h2>'. get_string('currentpost', 'forumng') . '</h2>';
 print $post->display(true, array(mod_forumng_post::OPTION_NO_COMMANDS=>true,
-        mod_forumng_post::OPTION_EXPANDED=>true));
+        mod_forumng_post::OPTION_EXPANDED => true, mod_forumng_post::OPTION_DONT_DISPLAY_COLLAPSED => true));
 
 print '<h2>'. get_string('olderversions', 'forumng') . '</h2>';
 $oldversions = $post->get_old_versions();
@@ -66,7 +66,8 @@ foreach ($oldversions as $oldpost) {
     print $oldpost->display(true,
         array(mod_forumng_post::OPTION_NO_COMMANDS=>true,
             mod_forumng_post::OPTION_EXPANDED=>true,
-            mod_forumng_post::OPTION_FIRST_UNREAD=>true));
+            mod_forumng_post::OPTION_FIRST_UNREAD=>true,
+            mod_forumng_post::OPTION_DONT_DISPLAY_COLLAPSED => true));
 }
 
 // Display footer
