@@ -352,8 +352,6 @@ class mod_forumng_renderer extends plugin_renderer_base {
                         'class="iconsmall" alt="' .
                         get_string('markdiscussionread', 'forumng') .
                         '" /></div></form>';
-            } else {
-                $result .= $unreadposts;
             }
 
             $result .= '</td>';

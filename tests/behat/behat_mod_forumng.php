@@ -274,4 +274,45 @@ class behat_mod_forumng extends behat_base {
                 false, $record['userid'], true, mod_forumng::ASMODERATOR_NO, null, $record['location']);
         }
     }
+
+    /**
+     * Scrolls to bottom of the app.
+     *
+     * @When /^I scroll to bottom of the app in ForumNG$/
+     */
+    public function i_scroll_to_bottom_in_the_app() {
+        $this->getSession()->executeScript("
+        var currentpage = document.querySelector('page-core-site-plugins-plugin:not(.ion-page-hidden)');
+        var content = currentpage.querySelector('ion-content');
+        window.mod_forumng_init.CoreDomUtilsProvider.scrollToBottom(content);
+        ");
+    }
+
+    /**
+     * Scrolls to element  of the app.
+     *
+     * @When /^I scroll to element "([^"]*)" of the app in ForumNG$/
+     */
+    public function i_scroll_to_element_in_the_app($selector) {
+        $this->getSession()->executeScript("
+        var currentpage = document.querySelector('page-core-site-plugins-plugin:not(.ion-page-hidden)')
+         || document.querySelector('page-core-site-plugins-module-index:not(.ion-page-hidden)');
+        var content = currentpage.querySelector('ion-content');
+        var element = currentpage.querySelector(\"" . $selector . "\");
+        window.mod_forumng_init.CoreDomUtilsProvider.scrollToElement(content, element);
+        ");
+    }
+
+    /**
+     * Scrolls to top of the app.
+     *
+     * @When /^I scroll to top of the app in ForumNG$/
+     */
+    public function i_scroll_to_top_in_the_app() {
+        $this->getSession()->executeScript("
+        var currentpage = document.querySelector('page-core-site-plugins-plugin:not(.ion-page-hidden)');
+        var content = currentpage.querySelector('ion-content');
+        window.mod_forumng_init.CoreDomUtilsProvider.scrollToTop(content);
+        ");
+    }
 }

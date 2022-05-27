@@ -79,3 +79,62 @@ Feature: Add forumng activity and test delete discussion.
     Then I press "Undelete discussion" in the app
     And I press "Undelete" in the app
     Then ".deleted-discussion" "css_element" should not exist
+
+  @javascript @app_from3.9.5
+  Scenario: Add discussions and test delete discussion new version
+    And I log in as "student1"
+    And I am on "Course 1" course homepage
+    And I follow "Test forum name"
+    And I add a discussion with the following data:
+      | Subject | discussion1 |
+      | Message | abc         |
+    And I log out
+    And I log in as "student2"
+    And I am on "Course 1" course homepage
+    And I follow "Test forum name"
+    And I add a discussion with the following data:
+      | Subject | discussion2 |
+      | Message | abc         |
+
+    And I enter the app
+    And I log in as "student1"
+    And I should find "Course 1" in the app
+    And I press "Course 1" in the app
+    And I press "Test forum name" in the app
+    Then I should find "discussion1" in the app
+    Then I should find "discussion2" in the app
+    And I press "discussion2" in the app
+    And I should not find "Delete discussion" in the app
+    When I click on "page-core-site-plugins-plugin core-context-menu ion-button" "css_element"
+    Then I should not find "Delete discussion" in the app
+
+    And I am on homepage
+    And I enter the app
+    And I log in as "student2"
+    And I should find "Course 1" in the app
+    And I press "Course 1" in the app
+    And I press "Test forum name" in the app
+    And I press "discussion2" in the app
+    And I should not find "Delete discussion" in the app
+    When I click on "page-core-site-plugins-plugin core-context-menu ion-button" "css_element"
+    Then I should find "Delete discussion" in the app
+    Then I press "Delete discussion" in the app
+    And I press "Delete" in the app
+    Then I should not find "discussion2" in the app
+    And I should find "discussion1" in the app
+
+    And I am on homepage
+    And I enter the app
+    And I log in as "admin"
+    And I should find "Course 1" in the app
+    And I press "Course 1" in the app
+    And I press "Test forum name" in the app
+    Then I should find "discussion2" in the app
+    And I press "discussion2" in the app
+    And ".deleted-discussion" "css_element" should exist
+    And I should not find "Undelete discussion" in the app
+    When I click on "page-core-site-plugins-plugin core-context-menu ion-button" "css_element"
+    Then I should find "Undelete discussion" in the app
+    Then I press "Undelete discussion" in the app
+    And I press "Undelete" in the app
+    Then ".deleted-discussion" "css_element" should not exist

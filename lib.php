@@ -241,7 +241,8 @@ function forumng_get_coursemodule_info($coursemodule) {
     global $DB;
 
     $forumng = $DB->get_record('forumng',
-            array('id' => $coursemodule->instance), 'id, name, type, intro, introformat');
+            array('id' => $coursemodule->instance), 'id, name, type, intro, introformat,
+             completiondiscussions, completionreplies, completionposts');
     if (!$forumng) {
         return null;
     }
@@ -252,6 +253,12 @@ function forumng_get_coursemodule_info($coursemodule) {
     if ($coursemodule->showdescription) {
         // Convert intro to html. Do not filter cached version, filters run at display time.
         $info->content = format_module_intro('forumng', $forumng, $coursemodule->id, false);
+    }
+    // Populate the custom completion rules as key => value pairs, but only if the completion mode is 'automatic'.
+    if ($coursemodule->completion == COMPLETION_TRACKING_AUTOMATIC) {
+        $info->customdata->customcompletionrules['completiondiscussions'] = $forumng->completiondiscussions;
+        $info->customdata->customcompletionrules['completionreplies'] = $forumng->completionreplies;
+        $info->customdata->customcompletionrules['completionposts'] = $forumng->completionposts;
     }
 
     return $info;
@@ -524,8 +531,10 @@ function mod_forumng_cm_info_view(cm_info $cm) {
 function mod_forumng_cm_info_dynamic(cm_info $cm) {
     global $CFG, $OUTPUT, $PAGE;
     require_once($CFG->dirroot . '/mod/forumng/mod_forumng.php');
+    // Ensure we check permissions of user that is referred to in modinfo.
+    $userid = $cm->get_modinfo()->get_user_id() === 0 ? null : $cm->get_modinfo()->get_user_id();
     if (!has_capability('mod/forumng:view',
-            context_module::instance($cm->id))) {
+            context_module::instance($cm->id), $userid)) {
         $cm->set_user_visible(false);
         $cm->set_available(false);
     }
@@ -883,6 +892,14 @@ function mod_forumng_output_fragment_postform($args) {
         $mform->set_data($formvalues);
     }
 
+    $context = $forum->get_context(true);
+    $filters = filter_get_active_in_context($context);
+    if (array_key_exists('glossary', $filters)) {
+        filter_set_local_state('glossary', $context->id, TEXTFILTER_OFF);
+        $result = $mform->get_html();
+        filter_set_local_state('glossary', $context->id, TEXTFILTER_ON);
+        return $result;
+    }
     return $mform->get_html();
 }
 

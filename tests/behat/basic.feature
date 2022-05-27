@@ -674,4 +674,49 @@ Feature: Add forumng activity and test basic functionality
     And I am on "Course 1" course homepage
     And I follow "Test group forum"
     And I click on "Atom" "link"
-    And I should see "Discussion 1"
+
+  @javascript
+  Scenario: Check forum completion feature in web.
+    Given the following "courses" exist:
+      | fullname | shortname | format      | enablecompletion |
+      | Course 2 | C2        | oustudyplan | 1                |
+    And the following "course enrolments" exist:
+      | user | course | role |
+      | student1 | C2 | student |
+    And the following "activities" exist:
+      | activity | name                  | introduction           | course | idnumber | completion | completionview | completiondiscussionsenabled | completiondiscussions |
+      | forumng  | Test forum completion | Test forum description | C2     | forumng2 | 2          | 1              | 1                            | 1                     |
+    And I log in as "student1"
+    And I am on "Course 2" course homepage
+    Then I should see "0%"
+    And I should not see "100%"
+    And I follow "Test forum completion"
+    And I am on "Course 2" course homepage
+    # Check activity is not completed because we haven't see the second session.
+    Then I should see "0%"
+    And I should not see "100%"
+    And I follow "Test forum completion"
+    And I add a discussion with the following data:
+      | Subject | Discussion 1 |
+      | Message | Discussion 1 |
+    When I am on "Course 2" course homepage
+    Then I should see "100%"
+
+  Scenario: Check history of post edits
+    Given I log in as "admin"
+    And I am on "Course 1" course homepage
+    And I follow "Test forum name"
+    And I add a discussion with the following data:
+      | Subject | Discussion 1 |
+      | Message | abc |
+    And I reply to post "1" with the following data:
+      | Message | REPLY1 |
+    And I reply to post "1" with the following data:
+      | Message | REPLY2 |
+    When I edit post "3" with the following data:
+      | Message | Change reply2 EDIT |
+    Then I should see "Change reply2 EDIT"
+    And "History" "link" should exist
+    Given I follow "History"
+    Then I should see "REPLY2"
+    And I should see "Change reply2 EDIT"

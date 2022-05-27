@@ -106,10 +106,6 @@ $settings->add(new admin_setting_configselect('forumng_permanentdeletion',
     get_string('configpermanentdeletion', 'forumng'), 30*60*60*24, $options));
 
 // Option about read tracking
-$settings->add(new admin_setting_configcheckbox('forumng_showusername',
-    get_string('showusername', 'forumng'),
-    get_string('configshowusername', 'forumng'), 0));
-
 $settings->add(new admin_setting_configtext('forumng_reportunacceptable',
         get_string('reportunacceptable', 'forumng'),
         get_string('configreportunacceptable', 'forumng'), '', PARAM_NOTAGS));

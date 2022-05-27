@@ -213,3 +213,200 @@ Feature:  Add draft in forumng and test app can view discussion listing page
     And I am on "Course 1" course homepage
     And I follow "Test forum anon 2"
     And I should see "reply to Identity protected"
+
+  @app_from3.9.5
+  Scenario: Add draft and edit draft and check options in the app new version
+    And I enter the app
+    And I log in as "teacher1"
+    And I press "Course 1" in the app
+    And I press "Test forum discussion" in the app
+    When I click on "#mod_forumg_add_discussion" "css_element"
+    And I should find "Subject" in the app
+    And I should find "Message" in the app
+    And I should find "Attachments" in the app
+    And I should find "(Show as sticky)" in the app
+    And I should find "Only show from" in the app
+    And I should find "Post as:" in the app
+    And I should find "Date" in the app
+    And I should find "Standard Post" in the app
+    And I set the field "Subject" to "Test draft 1" in the app
+    And I set the field "Message" to "Test message" in the app
+    And I scroll to bottom of the app in ForumNG
+    And I click on "#mma-forumng-show-sticky" "css_element"
+    And I click on "ion-datetime" "css_element"
+    And I press "Done"
+    When I press "Save as draft" in the app
+    And I press "Cancel" in the app
+    And "Test draft 1 Test message" "text" should exist in the ".mma-forumng-drafts ion-row .cell.c0" "css_element"
+    And "(new discussion)" "text" should exist in the ".mma-forumng-drafts ion-row .cell.c1" "css_element"
+    And I click on "Test draft 1 Test message" "text" in the ".mma-forumng-drafts ion-row .cell.c0" "css_element"
+    And I set the field "Message" to "Test update message" in the app
+    When I press "Save as draft" in the app
+    And I press "Cancel" in the app
+    And "Test draft 1 Test update message" "text" should exist in the ".mma-forumng-drafts ion-row .cell.c0" "css_element"
+    And I click on "Test draft 1 Test update message" "text" in the ".mma-forumng-drafts ion-row .cell.c0" "css_element"
+    When I press "Post discussion" in the app
+    And I should not find "Test draft 1 Test update message" in the app
+    And I press "Test draft 1" in the app
+    And I press "Reply" in the app
+    And I should find "Subject" in the app
+    And I should find "Message" in the app
+    And I should find "Attachments" in the app
+    And I should find "Mark posts as important" in the app
+    And I should find "Post as?" in the app
+    And I set the field "Subject" to "Test draft reply" in the app
+    And I set the field "Message" to "Test draft reply message" in the app
+    And I scroll to bottom of the app in ForumNG
+    And I click on "#mma-forumng-show-important" "css_element"
+    And I press "Save as draft" in the app
+    And I press the back button in the app
+    And "Test draft reply Test draft reply..." "text" should exist in the ".mma-forumng-drafts ion-row .cell.c0" "css_element"
+    And "Test draft 1 (reply to Teacher 1)" "text" should exist in the ".mma-forumng-drafts ion-row .cell.c1" "css_element"
+    And I click on "Test draft reply Test draft reply..." "text" in the ".mma-forumng-drafts ion-row .cell.c0" "css_element"
+    And I set the field "Message" to "Reply message 2" in the app
+    And I press "Save as draft" in the app
+    And I press the back button in the app
+    And "Test draft reply Reply message 2" "text" should exist in the ".mma-forumng-drafts ion-row .cell.c0" "css_element"
+    And I click on "Test draft reply Reply message 2" "text" in the ".mma-forumng-drafts ion-row .cell.c0" "css_element"
+    And I press "Post reply" in the app
+    And I should find "Test draft reply" in the app
+    And I should find "Reply message 2" in the app
+    And I press the back button in the app
+    Then I should not find "Test draft reply Reply message 2" in the app
+
+  @app_from3.9.5
+  Scenario: Add draft and edit draft and check options in the app for student new version.
+    And I enter the app
+    And I log in as "student1"
+    And I press "Course 1" in the app
+    And I press "Test forum discussion" in the app
+    When I click on "#mod_forumg_add_discussion" "css_element"
+    And I should find "Subject" in the app
+    And I should find "Message" in the app
+    And I should find "Attachments" in the app
+    And I should not find "(Show as sticky)" in the app
+    And I should not find "Only show from" in the app
+    And I should not find "Post as:" in the app
+    And I should not find "Date" in the app
+    And I should not find "Standard Post" in the app
+    And I set the field "Subject" to "Test draft 1" in the app
+    And I set the field "Message" to "Test message" in the app
+    And I scroll to bottom of the app in ForumNG
+    When I press "Save as draft" in the app
+    And I press "Cancel" in the app
+    And "Test draft 1 Test message" "text" should exist in the ".mma-forumng-drafts ion-row .cell.c0" "css_element"
+    And "(new discussion)" "text" should exist in the ".mma-forumng-drafts ion-row .cell.c1" "css_element"
+    And I click on "Test draft 1 Test message" "text" in the ".mma-forumng-drafts ion-row .cell.c0" "css_element"
+    And I set the field "Message" to "Test update message" in the app
+    When I press "Save as draft" in the app
+    And I press "Cancel" in the app
+    And "Test draft 1 Test update message" "text" should exist in the ".mma-forumng-drafts ion-row .cell.c0" "css_element"
+    And I click on "Test draft 1 Test update message" "text" in the ".mma-forumng-drafts ion-row .cell.c0" "css_element"
+    When I press "Post discussion" in the app
+    And I should not see "Test draft 1 Test update message"
+    And I press "Test draft 1" in the app
+    And I press "Reply" in the app
+    And I should find "Subject" in the app
+    And I should find "Message" in the app
+    And I should find "Attachments" in the app
+    And I should not see "Mark posts as important"
+    And I should not see "Post as?"
+    And I set the field "Subject" to "Test draft reply" in the app
+    And I set the field "Message" to "Test draft reply message" in the app
+    And I scroll to bottom of the app in ForumNG
+    And I press "Save as draft" in the app
+    And I press the back button in the app
+    And "Test draft reply Test draft reply..." "text" should exist in the ".mma-forumng-drafts ion-row .cell.c0" "css_element"
+    And "Test draft 1 (reply to Student 1)" "text" should exist in the ".mma-forumng-drafts ion-row .cell.c1" "css_element"
+    And I click on "Test draft reply Test draft reply..." "text" in the ".mma-forumng-drafts ion-row .cell.c0" "css_element"
+    And I set the field "Message" to "Reply message 2" in the app
+    And I press "Save as draft" in the app
+    And I press the back button in the app
+    And "Test draft reply Reply message 2" "text" should exist in the ".mma-forumng-drafts ion-row .cell.c0" "css_element"
+    And I click on "Test draft reply Reply message 2" "text" in the ".mma-forumng-drafts ion-row .cell.c0" "css_element"
+    And I press "Post reply" in the app
+    And I should find "Test draft reply" in the app
+    And I should find "Reply message 2" in the app
+    And I press the back button in the app
+    Then I should not find "Test draft reply Reply message 2" in the app
+
+  @app_from3.9.5
+  Scenario: Test delete draft new version.
+    And I enter the app
+    And I log in as "student1"
+    And I press "Course 1" in the app
+    And I press "Test forum discussion" in the app
+    When I click on "#mod_forumg_add_discussion" "css_element"
+    And I should find "Subject" in the app
+    And I should find "Message" in the app
+    And I should find "Attachments" in the app
+    And I should not find "(Show as sticky)" in the app
+    And I should not find "Only show from" in the app
+    And I should not find "Post as:" in the app
+    And I should not find "Date" in the app
+    And I should not find "Standard Post" in the app
+    And I set the field "Subject" to "Test draft 1" in the app
+    And I set the field "Message" to "Test message" in the app
+    And I scroll to bottom of the app in ForumNG
+    When I press "Save as draft" in the app
+    And I press "Cancel" in the app
+    And "Test draft 1 Test message" "text" should exist in the ".mma-forumng-drafts ion-row .cell.c0" "css_element"
+    And "(new discussion)" "text" should exist in the ".mma-forumng-drafts ion-row .cell.c1" "css_element"
+    And I click on "Test draft 1 Test message" "text" in the ".mma-forumng-drafts ion-row .cell.c0" "css_element"
+    And I set the field "Message" to "Test update message" in the app
+    When I press "Save as draft" in the app
+    And I press "Cancel" in the app
+    And "Test draft 1 Test update message" "text" should exist in the ".mma-forumng-drafts ion-row .cell.c0" "css_element"
+    And I click on "Test draft 1 Test update message" "text" in the ".mma-forumng-drafts ion-row .cell.c0" "css_element"
+    When I press "Post discussion" in the app
+    And I should not find "Test draft 1 Test update message" in the app
+    And I press "Test draft 1" in the app
+    And I press "Reply" in the app
+    And I should find "Subject" in the app
+    And I should find "Message" in the app
+    And I should find "Attachments" in the app
+    And I should not find "Mark posts as important" in the app
+    And I should not find "Post as?" in the app
+    And I set the field "Subject" to "Test draft reply" in the app
+    And I set the field "Message" to "Test draft reply message" in the app
+    And I scroll to bottom of the app in ForumNG
+    And I press "Save as draft" in the app
+    And I press the back button in the app
+    And "Test draft reply Test draft reply..." "text" should exist in the ".mma-forumng-drafts ion-row .cell.c0" "css_element"
+    And "Test draft 1 (reply to Student 1)" "text" should exist in the ".mma-forumng-drafts ion-row .cell.c1" "css_element"
+    And ".mma-forumng-delete-draft" "css_element" should exist
+    And I click on ".mma-forumng-delete-draft" "css_element"
+    And I should find "Are you sure you want to delete this draft post" in the app
+    And I press "Delete" in the app
+    And I should not find "Test draft reply" in the app
+
+  @app_from3.9.5
+  Scenario: Test draft reply anon new version.
+    And I enter the app
+    And I log in as "teacher1"
+    And I press "Course 1" in the app
+    And I press "Test forum anon 2" in the app
+    When I click on "#mod_forumg_add_discussion" "css_element"
+    And I set the field "Subject" to "Test discussion draft 1" in the app
+    And I set the field "Message" to "Test message" in the app
+    And I click on "#mma-forumng-show-sticky" "css_element"
+    And I click on "ion-datetime" "css_element"
+    And I press "Done"
+    When I press "Post discussion" in the app
+    And I enter the app
+    And I log in as "student1"
+    And I press "Course 1" in the app
+    And I press "Test forum anon 2" in the app
+    And I press "Test discussion draft 1" in the app
+    And I press "Reply" in the app
+    And I set the field "Subject" to "Test draft reply" in the app
+    And I set the field "Message" to "Test draft reply message" in the app
+    And I scroll to bottom of the app in ForumNG
+    And I press "Save as draft" in the app
+    And I press the back button in the app
+    And I should find "reply to Identity protected" in the app
+    And I am on homepage
+    And I log in as "student1"
+    And I am on "Course 1" course homepage
+    And I follow "Test forum anon 2"
+    And I should see "reply to Identity protected"

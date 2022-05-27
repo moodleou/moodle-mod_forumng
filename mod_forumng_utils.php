@@ -702,21 +702,23 @@ WHERE
             $linkprefix = $CFG->wwwroot . '/mod/forumng/';
 
             $itemurl = $discussion->get_location();
-            if ($forum->oualerts_enabled()) {
-                $context = $post->get_forum()->get_context(false);
-                $reportabuselink = oualerts_generate_alert_form_url(
-                    'forumng', $context->id,
-                    'post', $post->get_id(), $itemurl, $itemurl,
-                    $USER->id, false, true);
-            } else {
-                $reportabuselink = $linkprefix . 'alert.php?' .
-                    $post->get_link_params(mod_forumng::PARAM_HTML);
-                $reportabuselink = (new moodle_url($reportabuselink, array(
-                    'rurl' => $itemurl
-                )))->out();
-            }
+            if ($itemurl) {
+                if ($forum->oualerts_enabled()) {
+                    $context = $post->get_forum()->get_context(false);
+                    $reportabuselink = oualerts_generate_alert_form_url(
+                            'forumng', $context->id,
+                            'post', $post->get_id(), $itemurl, $itemurl,
+                            $USER->id, false, true);
+                } else {
+                    $reportabuselink = $linkprefix . 'alert.php?' .
+                            $post->get_link_params(mod_forumng::PARAM_HTML);
+                    $reportabuselink = (new moodle_url($reportabuselink, array(
+                            'rurl' => $itemurl
+                    )))->out();
+                }
 
-            $postobject->reportlink = $reportabuselink;
+                $postobject->reportlink = $reportabuselink;
+            }
         }
 
         $postobject->numberofreply = $post->get_total_reply(false);
