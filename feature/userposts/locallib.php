@@ -180,6 +180,18 @@ class forumng_participation_table_form extends moodleform {
             $mform->setDefault('ratedposts', 0);
         }
 
+        if (!empty($cdata['excludeusers'])) {
+            // User limits.
+            $excludegroup = [];
+            $excludegroup[] = $mform->createElement('static', 'excludeinactiveusers', '',
+                    html_writer::span(get_string('excludeinactiveusers', 'forumngfeature_userposts'), 'mod-forumng-exclude-users'));
+            $excludegroup[] = $mform->createElement(
+                    'checkbox', 'enableexcludeusers', get_string('enable', 'forumngfeature_userposts'));
+
+            $mform->addGroup($excludegroup, 'excludegroup', '');
+            $mform->setDefault('enableexcludeusers', 0);
+        }
+
         if (isset($cdata['type'])) {
             $mform->addElement('hidden', 'type', $cdata['type']);
             $mform->setType('type', PARAM_ALPHA);

@@ -88,9 +88,12 @@ $customdata = array(
         'startyear' => $timeparts['year'],
         'params' => array()
 );
+// Add an Exclude inactive users option in forum user reports.
+$customdata['excludeusers'] = true;
 $timefilter = new forumng_participation_table_form(null, $customdata);
 
 $start = $end = 0;
+$excludeusers = false;
 // If data has been received from this form.
 if ($submitted = $timefilter->get_data()) {
     if ($submitted->start) {
@@ -99,6 +102,7 @@ if ($submitted = $timefilter->get_data()) {
     if ($submitted->end) {
         $end = strtotime('23:59:59', $submitted->end);
     }
+    $excludeusers = isset($submitted->excludegroup['enableexcludeusers']);
 } else if (!$timefilter->is_submitted()) {
     // Recieved via post back.
     if ($start = optional_param('start', null, PARAM_INT)) {
@@ -107,11 +111,13 @@ if ($submitted = $timefilter->get_data()) {
     if ($end = optional_param('end', null, PARAM_INT)) {
         $end = strtotime('23:59:59', $end);
     }
+    $excludeusers = optional_param('excludeusers', false, PARAM_BOOL);
 }
 
 // Add collected start and end UNIX formated dates to moodle url.
 $thisurl->param('start', $start);
 $thisurl->param('end', $end);
+$thisurl->param('excludeusers', $excludeusers);
 
 $sort = '';
 $ptable = new flexible_table('mod-forumng-participation');
@@ -247,6 +253,11 @@ $sql = "SELECT $userfields, COALESCE(ta.numposts, 0) AS numposts, COALESCE(td.nu
 
           WHERE u.id IN ($esql)";
 
+// Exclude non-respondents from participation report.
+if ($excludeusers) {
+    $sql = "$sql AND (ta.numposts <> 0 OR td.numdiscussions <> 0)";
+}
+
 if (!$orderbyuser) {
     $sql = "$sql ORDER BY $sort";
 } else {
@@ -274,11 +285,15 @@ if ($viewgrade) {
 
 if (!$ptable->is_downloading()) {
     // We may have more users as limited to $perpage, so work out how many.
-    list($esql, $params) = get_enrolled_sql($context, '', $groupid > 0 ? $groupid : 0);
-    $sql = "SELECT count(1) as count
+    if ($excludeusers) {
+        $sql = 'SELECT count(total.id) FROM (' . $sql . ') total';
+    } else {
+        list($esql, $params) = get_enrolled_sql($context, '', $groupid > 0 ? $groupid : 0);
+        $sql = "SELECT count(1) as count
               FROM {user} u
               JOIN ($esql) je ON je.id = u.id
              WHERE u.deleted = 0";
+    }
     $total = $DB->count_records_sql($sql, $params);
     $ptable->pagesize($perpage, $total);
 }
@@ -458,6 +473,11 @@ if (empty($download)) {
 
     if ($start || $end) {
         $timefilter->set_data(array('start' => $start, 'end' => $end));
+    }
+    if ($excludeusers) {
+        $formdata = new stdClass();
+        $formdata->excludegroup['enableexcludeusers'] = $excludeusers;
+        $timefilter->set_data($formdata);
     }
     // Display time filter options form.
     $timefilter->display();

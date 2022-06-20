@@ -118,6 +118,24 @@ Feature: Add forumng activity and test user ratings
     And I should see "4.0" in the "//div/table//tr[@id='mod-forumng-participation_r0']/td[@class='cell c4']/div[text()]" "xpath_element"
     And I log out
 
+    # Exclude non-respondents from participation report.
+    And I log in as "admin"
+    And I am on "Course 1" course homepage
+    And I follow "Test forum name"
+    And I press "Participation by user"
+    And I should see "1" in the "//div/table//tr[@id='mod-forumng-participation_r0']/td[@class='cell c1']/div[text()]" "xpath_element"
+    And I should see "3" in the "//div/table//tr[@id='mod-forumng-participation_r0']/td[@class='cell c2']/div[text()]" "xpath_element"
+    And I should see "0" in the "//div/table//tr[@id='mod-forumng-participation_r1']/td[@class='cell c1'][text()]" "xpath_element"
+    And I should see "0" in the "//div/table//tr[@id='mod-forumng-participation_r1']/td[@class='cell c2'][text()]" "xpath_element"
+    And I set the following fields to these values:
+      | excludegroup[enableexcludeusers] | 1 |
+    And I press "Update"
+    And I should see "1" in the "//div/table//tr[@id='mod-forumng-participation_r0']/td[@class='cell c1']/div[text()]" "xpath_element"
+    And I should see "3" in the "//div/table//tr[@id='mod-forumng-participation_r0']/td[@class='cell c2']/div[text()]" "xpath_element"
+    And "//div/table//tr[@id='mod-forumng-participation_r1'and @class='emptyrow']" "xpath_element" should exist
+    And "//div/table//tr[@id='mod-forumng-participation_r1'and @class='emptyrow']" "xpath_element" should exist
+    And I log out
+
     # View with different grade setting
     And I log in as "admin"
     And I am on "Course 1" course homepage
