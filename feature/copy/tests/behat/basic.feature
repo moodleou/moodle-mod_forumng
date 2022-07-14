@@ -84,3 +84,34 @@ Feature: Copy discussions to another forum
     Then I should see "abc"
     And I should see "def"
     And I should see "Test course forum"
+
+  @javascript
+  Scenario: Copy discussion to clone course forum
+    Given the following config values are set as admin:
+      | forumng_enableadvanced | 1 |
+    And the following "activities" exist:
+      | activity | name              | course | section | groupmode | idnumber | shared |
+      | forumng  | Test shared forum | C1     | 1       |           | SHARED   | 1      |
+    Given I log in as "admin"
+    And I am on "Course 1" course homepage
+    And I turn editing mode on
+    And I add a "ForumNG" to section "2" and I fill the form with:
+      | name | Will change |
+      | usesharedgroup[useshared] | 1 |
+      | usesharedgroup[originalcmidnumber] | SHARED |
+    And I am on "Course 1" course homepage
+    And I follow "Test group forum"
+    And I set the field "Visible groups" to "Group 1"
+    And I add a discussion with the following data:
+      | Subject | To be copied |
+      | Message | abc |
+    And I reply to post "1" with the following data:
+      | Message | def |
+    When I press "Copy"
+    Then I should see "Copy discussion"
+    When I press "Begin copy"
+    And I am on "Course 1" course homepage
+    And I click on "Test shared forum" "link" in the "Topic 2" "section"
+    And I press "Paste discussion"
+    Then I should see "To be copied"
+    And I should see "Topic 2"

@@ -1419,7 +1419,7 @@ WHERE
         }
         // Update the search data after the copy
         $newdiscussion = self::get_from_id($newdiscussionid,
-                $this->get_forum()->get_course_module_id(), -1);
+                $targetforum->get_course_module_id(true), -1);
         $root = $newdiscussion->get_root_post();
         $root->search_update();
         $root->search_update_children();
