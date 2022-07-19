@@ -50,8 +50,7 @@ Feature: Export discussions using portfolio
     And I set the field with xpath "//form[@id='applytodownload']/select" to "Enabled and visible"
     And I click on "form#applytodownload input[type='submit']" "css_element"
     And I press "Save"
-    And I am on "Course 1" course homepage
-    And I navigate to "Users > Permissions" in current page administration
+    And I am on the "Course 1" "permissions" page
     And I override the system permissions of "Student" role with:
       | mod/forumng:viewdiscussion | Prevent |
     And I log out

@@ -146,7 +146,7 @@ Feature: Add forumng activity and test basic tagging functionality
     When I click on "Show all" "link"
 
     # Test forum wide 'set' tags
-    Then I navigate to "Edit settings" in current page administration
+    Then I navigate to "Settings" in current page administration
     When I click on "Edit settings" "link"
     Then the "Enable discussion tagging" "checkbox" should be enabled
     Given I set the field "Set tags for forum" to "setA, setB, setC"
@@ -272,8 +272,7 @@ Feature: Add forumng activity and test basic tagging functionality
       | Message | def |
 
     # Enrol users into groups
-    Given I am on "Course 1" course homepage
-    And I navigate to "Users > Groups" in current page administration
+    Given I am on the "Course 1" "groups" page
     Then "Groups" "select" should exist
 
     Given I set the field "Groups" to "Group 1 (0)"
@@ -294,9 +293,7 @@ Feature: Add forumng activity and test basic tagging functionality
     And I should not see "Set tags for forum"
     And I log out
 
-    Given I log in as "admin"
-    And I am on "Course 1" course homepage
-    And I navigate to "Users > Permissions" in current page administration
+    Given I am on the "Course 1" "permissions" page logged in as "admin"
     Given I override the system permissions of "Teacher" role with:
       | forumngfeature/edittags:editsettags | Prevent |
     And I click on "Back to Course: Course 1" "link"
@@ -408,7 +405,7 @@ Feature: Add forumng activity and test basic tagging functionality
     And "f1" "link" in the "tr.forumng-discussion-short.r1.lastrow" "css_element" should be visible
 
     # Set up groups for the forum
-    Then I navigate to "Edit settings" in current page administration
+    Then I navigate to "Settings" in current page administration
     And I expand all fieldsets
     Then I should see "Visible"
     And the "Group mode" select box should contain "Separate groups"

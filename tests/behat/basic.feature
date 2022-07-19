@@ -438,7 +438,7 @@ Feature: Add forumng activity and test basic functionality
     Given I log in as "admin"
     And I am on "Course 1" course homepage
     And I follow "Test forum name"
-    And I navigate to "Edit settings" in current page administration
+    And I navigate to "Settings" in current page administration
     And I click on "#id_postinguntil_enabled" "css_element"
     And I click on "#id_postingfrom_enabled" "css_element"
     And I set the field "id_postinguntil_year" to "2011"
@@ -455,7 +455,7 @@ Feature: Add forumng activity and test basic functionality
     Given I log in as "admin"
     And I am on "Course 1" course homepage
     And I follow "Test forum name"
-    And I navigate to "Edit settings" in current page administration
+    And I navigate to "Settings" in current page administration
     And I set the field "id_canpostanon" to "2"
     And I set the field "id_enableratings" to "1"
     And I set the field "id_ratingthreshold" to "1"
@@ -476,7 +476,7 @@ Feature: Add forumng activity and test basic functionality
     Given I log in as "admin"
     And I am on "Course 1" course homepage
     And I follow "Test forum name"
-    And I navigate to "Edit settings" in current page administration
+    And I navigate to "Settings" in current page administration
     And I set the field "id_canpostanon" to "1"
     When I press "Save and display"
     Then I should not see "Posts to this forum will be identity protected - individuals' names will not be displayed."
@@ -583,7 +583,7 @@ Feature: Add forumng activity and test basic functionality
     And I should see "Default: Delete permanently"
     Then I am on "Course 1" course homepage
     And I follow "Test forum name"
-    And I navigate to "Edit settings" in current page administration
+    And I navigate to "Settings" in current page administration
     Then "//select[contains(@id,'id_removeafter')]/option[contains(@value, '62208000') and contains(@selected, '')]" "xpath_element" should exist
     And "//select[contains(@id,'id_removeto')]/option[contains(@value, '0') and contains(@selected, '')]" "xpath_element" should exist
     And I press "Cancel"
@@ -597,12 +597,12 @@ Feature: Add forumng activity and test basic functionality
     And I am on "Course 1" course homepage
     And I turn editing mode on
     And I follow "Test forum name 2"
-    And I navigate to "Edit settings" in current page administration
+    And I navigate to "Settings" in current page administration
     Then "//select[contains(@id,'id_removeafter')]/option[contains(@value, '31104000') and contains(@selected, '')]" "xpath_element" should exist
     And "//select[contains(@id,'id_removeto')]/option[contains(@value, '-1') and contains(@selected, '')]" "xpath_element" should exist
     And I am on "Course 1" course homepage
     And I follow "Test forum name"
-    And I navigate to "Edit settings" in current page administration
+    And I navigate to "Settings" in current page administration
     Then "//select[contains(@id,'id_removeafter')]/option[contains(@value, '62208000') and contains(@selected, '')]" "xpath_element" should exist
     And "//select[contains(@id,'id_removeto')]/option[contains(@value, '0') and contains(@selected, '')]" "xpath_element" should exist
 

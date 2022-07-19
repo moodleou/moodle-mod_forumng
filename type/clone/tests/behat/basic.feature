@@ -58,7 +58,7 @@ Feature: Clone forum
     And I follow "Test forum"
     Then I should see "This is a shared forum"
     And I should see "C1" in the ".forumng-shareinfo" "css_element"
-    Given I navigate to "Edit settings" in current page administration
+    Given I navigate to "Settings" in current page administration
     Then I should not see "Forum introduction"
     And I should see "This is a shared forum"
     When I press "Save and display"
