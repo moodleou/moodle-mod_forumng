@@ -61,7 +61,15 @@ class custom_completion extends activity_custom_completion {
      * @return array
      */
     public function get_custom_rule_descriptions(): array {
-        return [];
+        $completionposts = $this->cm->customdata->customcompletionrules['completionposts'] ?? 0;
+        $completiondiscussions = $this->cm->customdata->customcompletionrules['completiondiscussions'] ?? 0;
+        $completionreplies = $this->cm->customdata->customcompletionrules['completionreplies'] ?? 0;
+
+        return [
+            'completionposts' => get_string('completiondetail:posts', 'forumng', $completionposts),
+            'completiondiscussions' => get_string('completiondetail:discussions', 'forumng', $completiondiscussions),
+            'completionreplies' => get_string('completiondetail:replies', 'forumng', $completionreplies),
+        ];
     }
 
     /**
