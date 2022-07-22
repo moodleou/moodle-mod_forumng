@@ -372,7 +372,7 @@ Feature: Add forumng activity and test basic functionality
     And I log in as "admin"
     And I am on "Course 1" course homepage
     And I follow "Test forum name"
-    And I follow "Edit settings"
+    And I follow "Settings"
     And I set the field "subscription" to "3"
     And I press "Save and display"
     When I log out
