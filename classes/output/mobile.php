@@ -104,10 +104,6 @@ class mobile {
         $isipud = $forumng->get_type() instanceof \forumngtype_ipud;
         if ($forumng->is_clone()) {
             $forumng = $forumng->get_real_forum();
-            $a = new \stdClass();
-            $a->url = new \moodle_url('/mod/forumng/view.php', ['id' => $forumng->get_id()]);
-            $a->shortname = $forumng->get_course()->shortname;
-            throw new \moodle_exception('sharedviewinfoclone', 'forumng', '', $a);
         }
         $course = $forumng->get_course();
         $cm = $forumng->get_course_module();
@@ -354,6 +350,7 @@ class mobile {
                 'selectedsort' => $selectedsort,
                 'sortoption' => json_encode($sortoption),
                 'manualmark' => $manualmark,
+                'basecmid' => $forumng->get_course_module_id(true),
             ],
             'files' => []
         ];
@@ -475,7 +472,8 @@ class mobile {
         $draftexists = '';
         $setimportant = false;
         $attachmentforform = [];
-        $discussion = \mod_forumng_discussion::get_from_id($args->discussionid, \mod_forumng::CLONE_DIRECT);
+        $cloneid = empty($args->cmid) ? mod_forumng::CLONE_DIRECT : $args->cmid;
+        $discussion = \mod_forumng_discussion::get_from_id($args->discussionid, $cloneid);
         $forumng = $discussion->get_forum();
         $setpostas = 0;
         if ($draftid) {
@@ -503,7 +501,7 @@ class mobile {
             }
             if ($draft) {
                 $postid = $draft->get_parent_post_id();
-                $postwithdraft = \mod_forumng_post::get_from_id($postid, \mod_forumng::CLONE_DIRECT,
+                $postwithdraft = \mod_forumng_post::get_from_id($postid, $cloneid,
                         false, false, 0, true);
                 $whynot = '';
                 $canreply = $postwithdraft->can_reply($whynot);
@@ -526,7 +524,7 @@ class mobile {
                             'files' => []
                     ];
                 }
-                $forumng = \mod_forumng::get_from_id($draft->get_forumng_id(), 0);
+                $forumng = \mod_forumng::get_from_id($draft->get_forumng_id(), $cloneid);
                 $draftexists = get_string('draftexists', 'forumng', \mod_forumng_utils::display_date($draft->get_saved()));
                 if ($draftoptions = $draft->get_options()) {
                     if ($draftoptions->setimportant) {
@@ -536,7 +534,7 @@ class mobile {
                         $setpostas = $draftoptions->asmoderator;
                     }
                 }
-                $attachmentforform = self::get_attachment_draft_post($draftid);
+                $attachmentforform = self::get_attachment_draft_post($draftid, $cloneid);
             }
         }
 
@@ -1038,7 +1036,9 @@ class mobile {
         $discussionid = $args->discussionid;
         $groupid = (int)$args->groupid;
         $forumng = \mod_forumng::get_from_cmid($cmid, \mod_forumng::CLONE_DIRECT);
-        $cm = $forumng->get_course_module();
+        if ($forumng->is_clone()) {
+            $forumng = $forumng->get_real_forum();
+        }
         // Only add moderator element to post edit form if op1 or op2 available.
         $options = null;
         $hasoption = false;
@@ -1106,7 +1106,7 @@ class mobile {
                 ];
             }
             if ($draft) {
-                $forumng = \mod_forumng::get_from_id($draft->get_forumng_id(), 0);
+                $forumng = \mod_forumng::get_from_id($draft->get_forumng_id(), $cmid);
                 $draftexists = get_string('draftexists', 'forumng', \mod_forumng_utils::display_date($draft->get_saved()));
                 if ($draftoptions = $draft->get_options()) {
                     if ($draftoptions->timestart) {
@@ -1122,7 +1122,7 @@ class mobile {
                         $postasoption = $draftoptions->asmoderator;
                     }
                 }
-                $attachmentforform = self::get_attachment_draft_post($draftid);
+                $attachmentforform = self::get_attachment_draft_post($draftid, $cmid);
             }
         }
 
@@ -1154,13 +1154,13 @@ class mobile {
             'javascript' => 'window.forumngAddDiscussionInit(this);',
             'otherdata' => [
                 'files' => json_encode([]),
-                'forumng' => $forumng->get_id(),
+                'forumng' => $forumng->get_real_forum()->get_id(),
                 'discussion' => $discussionid,
                 'group' => $groupid,
                 'showsticky' => $showsticky,
                 'showfrom' => $showfrom,
                 'postas' => $postasoption,
-                'cmid' => $forumng->get_course_module_id(),
+                'cmid' => $cmid,
                 'maxyear' => date('Y', strtotime('+30 years')),
                 'draftid' => $draftid,
                 'draftsubject' => $draftid ? $draft->get_subject() : '',
@@ -1388,11 +1388,12 @@ class mobile {
      * Gets the names and url of all attachments for draft post.
      *
      * @param int $draftid Draft ID
+     * @param int $cloneid Clone ID
      * @return array
      */
-    private static function get_attachment_draft_post(int $draftid): array {
+    private static function get_attachment_draft_post(int $draftid, int $cloneid): array {
         $draft = \mod_forumng_draft::get_from_id($draftid);
-        $forumng = \mod_forumng::get_from_id($draft->get_forumng_id(), 0);
+        $forumng = \mod_forumng::get_from_id($draft->get_forumng_id(), $cloneid);
         $filecontext = $forumng->get_context(true);
         $fs = get_file_storage();
         $attachments = [];

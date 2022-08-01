@@ -24,6 +24,8 @@
 
 namespace tests\mod_forumng;
 
+use forumng_test_lib;
+use mod_forumng;
 use mod_forumng\local\external\delete_discussion;
 use \mod_forumng\output\mobile;
 use \mod_forumng\local\external\more_discussions;
@@ -40,10 +42,40 @@ use \mod_forumng\local\external\get_discussion;
 
 defined('MOODLE_INTERNAL') || die();
 
+global $CFG;
+require_once($CFG->dirroot . '/mod/forumng/tests/forumng_test_lib.php');
+
 /**
  * Mobile web service function tests.
  */
-class mobile_testcase extends \advanced_testcase {
+class mobile_testcase extends forumng_test_lib {
+
+    /**
+     * Prepare a forum and its clone forum.
+     *
+     * @param \stdClass $course
+     * @return mod_forumng[]
+     */
+    private function prepare_clone_forum($course): array {
+        $baseforum = $this->get_new_forumng($course->id, [
+                'name' => 'Base Forum',
+                'intro' => 'abc123',
+                'shared' => true,
+                'cmidnumber' => 'SF1',
+        ]);
+
+        $createcloneforum = $this->get_new_forumng($course->id, [
+                'name' => 'Clone Forum',
+                'usesharedgroup' => [
+                        'useshared' => true,
+                        'originalcmidnumber' => 'SF1',
+                ],
+        ]);
+
+        $cloneforum = mod_forumng::get_from_cmid($createcloneforum->get_course_module_id(), mod_forumng::CLONE_DIRECT);
+
+        return [$baseforum, $cloneforum];
+    }
 
     /**
      * Test the basic functionality of the forum view page.
@@ -152,7 +184,7 @@ class mobile_testcase extends \advanced_testcase {
 
         // Add a new discussion via the WS.
         $result = add_discussion::add_discussion($forum->id, $discussion, $group,
-                $subject, $message, $draftarea, 0, 0, 0);
+                $subject, $message, $draftarea, 0, 0, 0, mod_forumng::CLONE_DIRECT);
         $this->assertTrue($result['success']);
         $this->assertEmpty($result['errormsg']);
         $discussionid = $result['discussion'];
@@ -164,11 +196,64 @@ class mobile_testcase extends \advanced_testcase {
         $this->assertEquals('basepic.jpg', $attachmentnames[0]);
         $showfrom = time();
         $result = add_discussion::add_discussion($forum->id, 0, $group,
-                $subject, $message, 0, 1, $showfrom, 1);
+                $subject, $message, 0, 1, $showfrom, 1, mod_forumng::CLONE_DIRECT);
         $this->assertTrue($result['success']);
         $this->assertEmpty($result['errormsg']);
         $discussionid = $result['discussion'];
         $discussion = \mod_forumng_discussion::get_from_id($discussionid, 0);
+        $this->assertEquals($subject, $discussion->get_subject());
+        $this->assertEquals($showfrom, $discussion->get_time_start());
+        $this->assertEquals($showfrom, $discussion->is_sticky());
+        $rootpost = $discussion->get_root_post();
+        $this->assertEquals(0, $rootpost->get_asmoderator());
+    }
+
+    /**
+     * Using API to create discussion through clone forum.
+     *
+     * @depends test_mobile_forumng_add_discussion
+     * @return void
+     */
+    public function test_mobile_forumng_add_discussion_clone_forum(): void {
+
+        $this->resetAfterTest();
+
+        $generator = $this->getDataGenerator();
+        $course = $generator->create_course();
+        $student = $generator->create_user();
+        $generator->enrol_user($student->id, $course->id, 'student');
+        $this->setUser($student);
+
+        [, $forum] = $this->prepare_clone_forum($course);
+
+        $discussion = 0;
+        $group = -1;
+        $subject = 'Test subject';
+        $message = 'Test message';
+        $filerecord = ['filename' => 'basepic.jpg'];
+        $file = self::create_draft_file($filerecord);
+        $draftarea = $file->get_itemid();
+        $cloneid = $forum->get_course_module_id();
+
+        // Add a new discussion via the WS.
+        $result = add_discussion::add_discussion($forum->get_real_forum()->get_id(), $discussion, $group,
+                $subject, $message, $draftarea, 0, 0, 0, $cloneid);
+        $this->assertTrue($result['success']);
+        $this->assertEmpty($result['errormsg']);
+        $discussionid = $result['discussion'];
+        // Check the new discussion exists.
+        $discussion = \mod_forumng_discussion::get_from_id($discussionid, $cloneid);
+        $this->assertEquals($subject, $discussion->get_subject());
+        // Check the attachment.
+        $attachmentnames = $discussion->get_root_post()->get_attachment_names();
+        $this->assertEquals('basepic.jpg', $attachmentnames[0]);
+        $showfrom = time();
+        $result = add_discussion::add_discussion($forum->get_real_forum()->get_id(), 0, $group,
+                $subject, $message, 0, 1, $showfrom, 1, $cloneid);
+        $this->assertTrue($result['success']);
+        $this->assertEmpty($result['errormsg']);
+        $discussionid = $result['discussion'];
+        $discussion = \mod_forumng_discussion::get_from_id($discussionid, $cloneid);
         $this->assertEquals($subject, $discussion->get_subject());
         $this->assertEquals($showfrom, $discussion->get_time_start());
         $this->assertEquals($showfrom, $discussion->is_sticky());
@@ -206,7 +291,7 @@ class mobile_testcase extends \advanced_testcase {
         $editing = false;
 
         // Add a reply via the WS.
-        $result = reply::reply($replyto, $subject, $message, $draftarea, $editing, 0, 0, 0, 0, 0);
+        $result = reply::reply($replyto, $subject, $message, $draftarea, $editing, 0, 0, 0, 0, 0, mod_forumng::CLONE_DIRECT);
         $this->assertTrue($result['success']);
         $this->assertEmpty($result['errormsg']);
         $newpostid = $result['post'];
@@ -227,7 +312,7 @@ class mobile_testcase extends \advanced_testcase {
         $file = self::create_draft_file($filerecord);
         $draftarea = $file->get_itemid();
         $editing = false;
-        $result = reply::reply($replyto, $subject, $message, $draftarea, $editing, 1, 1, 0, 0, 0);
+        $result = reply::reply($replyto, $subject, $message, $draftarea, $editing, 1, 1, 0, 0, 0, mod_forumng::CLONE_DIRECT);
         $this->assertTrue($result['success']);
         $this->assertEmpty($result['errormsg']);
         $newpostid = $result['post'];
@@ -246,7 +331,7 @@ class mobile_testcase extends \advanced_testcase {
         $file = self::create_draft_file($filerecord);
         $draftarea = $file->get_itemid();
         $result = reply::reply($replyto, $subject, $message, $draftarea, $editing, 1,
-                1, 0, 0, 0);
+                1, 0, 0, 0, mod_forumng::CLONE_DIRECT);
         $this->assertTrue($result['success']);
         $this->assertEmpty($result['errormsg']);
         $newpostid = $result['post'];
@@ -261,7 +346,7 @@ class mobile_testcase extends \advanced_testcase {
         $editedsubject = 'Edited subject';
         $editedmsg = 'Edited message';
         $result = reply::reply($newpostid, $editedsubject, $editedmsg, $draftarea, 1, 1,
-                0, 0, 0, 0);
+                0, 0, 0, 0, mod_forumng::CLONE_DIRECT);
         $post = \mod_forumng_post::get_from_id($newpostid, 0);
         $this->assertEquals($editedsubject, $post->get_subject());
         $this->assertEquals($editedmsg, $post->get_formatted_message());
@@ -272,7 +357,7 @@ class mobile_testcase extends \advanced_testcase {
         $rootpost = $discussion->get_root_post();
         $time = time();
         $result = reply::reply($rootpost->get_id(), 'Rootpost subject',
-                'Rootpost message', 0, 1, 0, 0, 1, 1, $time);
+                'Rootpost message', 0, 1, 0, 0, 1, 1, $time, mod_forumng::CLONE_DIRECT);
         $post = \mod_forumng_post::get_from_id($rootpost->get_id(), 0);
         $this->assertEquals('Rootpost subject', $post->get_effective_subject());
         $this->assertEquals('Rootpost message', $post->get_formatted_message());
@@ -281,6 +366,118 @@ class mobile_testcase extends \advanced_testcase {
         $this->assertEquals($time, $post->get_discussion()->get_time_start());
         $this->assertEquals(1, $post->get_discussion()->is_sticky());
 
+    }
+
+    /**
+     * Test the reply webservice functionality on clone forum.
+     *
+     * @depends test_mobile_forumng_reply
+     * @return void
+     */
+    public function test_mobile_forumng_reply_clone_forum(): void {
+        $this->resetAfterTest();
+
+        $generator = $this->getDataGenerator();
+        $course = $generator->create_course();
+        $student = $generator->create_user();
+        $teacher = $generator->create_user();
+        $generator->enrol_user($student->id, $course->id, 'student');
+        $generator->enrol_user($teacher->id, $course->id, 'teacher');
+
+        $this->setUser($student);
+        $forumnggenerator = $generator->get_plugin_generator('mod_forumng');
+
+        [$baseforum, $forum] = $this->prepare_clone_forum($course);
+        $cloneid = $forum->get_course_module_id();
+
+        $record = [];
+        $record['course'] = $course->id;
+        $record['forum'] = $baseforum->get_id();
+        $record['userid'] = $student->id;
+        [, $replyto] = $forumnggenerator->create_discussion($record);
+
+        $subject = ''; // A change of subject is not required for a reply.
+        $message = 'Test reply message';
+        $filerecord = ['filename' => 'basepic.jpg'];
+        $file = self::create_draft_file($filerecord);
+        $draftarea = $file->get_itemid();
+        $editing = false;
+
+        // Add a reply via the WS.
+        $result = reply::reply($replyto, $subject, $message, $draftarea, $editing, 0, 0, 0, 0, 0, $cloneid);
+        $this->assertTrue($result['success']);
+        $this->assertEmpty($result['errormsg']);
+        $newpostid = $result['post'];
+        // Check the new post exists.
+        $post = \mod_forumng_post::get_from_id($newpostid, $cloneid);
+        $this->assertEquals($subject, $post->get_subject());
+        $this->assertEquals($message, $post->get_formatted_message());
+        $this->assertEquals(0, $post->is_important());
+        $this->assertEquals(0, $post->get_asmoderator());
+        // Check the attachment.
+        $attachmentnames = $post->get_attachment_names();
+        $this->assertEquals('basepic.jpg', $attachmentnames[0]);
+
+        // Add a reply via the WS.
+        $subject = 'Test subject 2'; // A change of subject is not required for a reply.
+        $message = 'Test reply message 2';
+        $filerecord = ['filename' => 'basepic2.jpg'];
+        $file = self::create_draft_file($filerecord);
+        $draftarea = $file->get_itemid();
+        $editing = false;
+        $result = reply::reply($replyto, $subject, $message, $draftarea, $editing, 1, 1, 0, 0, 0, $cloneid);
+        $this->assertTrue($result['success']);
+        $this->assertEmpty($result['errormsg']);
+        $newpostid = $result['post'];
+        // Check the new post exists.
+        $post = \mod_forumng_post::get_from_id($newpostid, $cloneid);
+        $this->assertEquals($subject, $post->get_subject());
+        $this->assertEquals($message, $post->get_formatted_message());
+        $this->assertEquals(0, $post->is_important());
+        $this->assertEquals(0, $post->get_asmoderator());
+        $attachmentnames = $post->get_attachment_names();
+        $this->assertEquals('basepic2.jpg', $attachmentnames[0]);
+
+        // Teacher
+        $this->setUser($teacher);
+        $filerecord = ['filename' => 'basepic2.jpg'];
+        $file = self::create_draft_file($filerecord);
+        $draftarea = $file->get_itemid();
+        $result = reply::reply($replyto, $subject, $message, $draftarea, $editing, 1,
+                1, 0, 0, 0, $cloneid);
+        $this->assertTrue($result['success']);
+        $this->assertEmpty($result['errormsg']);
+        $newpostid = $result['post'];
+        // Check the new post exists.
+        $post = \mod_forumng_post::get_from_id($newpostid, $cloneid);
+        $this->assertEquals($subject, $post->get_subject());
+        $this->assertEquals($message, $post->get_formatted_message());
+        $this->assertEquals(1, $post->is_important());
+        $this->assertEquals(1, $post->get_asmoderator());
+        $attachmentnames = $post->get_attachment_names();
+        $this->assertEquals('basepic2.jpg', $attachmentnames[0]);
+        $editedsubject = 'Edited subject';
+        $editedmsg = 'Edited message';
+        reply::reply($newpostid, $editedsubject, $editedmsg, $draftarea, 1, 1,
+                0, 0, 0, 0, $cloneid);
+        $post = \mod_forumng_post::get_from_id($newpostid, $cloneid);
+        $this->assertEquals($editedsubject, $post->get_subject());
+        $this->assertEquals($editedmsg, $post->get_formatted_message());
+        $this->assertEquals(false, $post->is_important());
+        $this->assertEquals(1, $post->get_asmoderator());
+
+        $discussion = $post->get_discussion();
+        $rootpost = $discussion->get_root_post();
+        $time = time();
+        reply::reply($rootpost->get_id(), 'Rootpost subject',
+                'Rootpost message', 0, 1, 0, 0, 1, 1, $time, $cloneid);
+        $post = \mod_forumng_post::get_from_id($rootpost->get_id(), $cloneid);
+        $this->assertEquals('Rootpost subject', $post->get_effective_subject());
+        $this->assertEquals('Rootpost message', $post->get_formatted_message());
+        $this->assertEquals(false, $post->is_important());
+        $this->assertEquals(0, $post->get_asmoderator());
+        $this->assertEquals($time, $post->get_discussion()->get_time_start());
+        $this->assertEquals(1, $post->get_discussion()->is_sticky());
     }
 
     /**
@@ -338,6 +535,64 @@ class mobile_testcase extends \advanced_testcase {
     }
 
     /**
+     * Test the lock  webservice functionality for clone forum.
+     *
+     * @depends test_mobile_forumng_lock_discussion
+     */
+    public function test_mobile_forumng_lock_discussion_clone_forum(): void {
+        $this->resetAfterTest();
+
+        $generator = $this->getDataGenerator();
+        $course = $generator->create_course();
+        $student = $generator->create_user();
+        $teacher = $generator->create_user();
+        $generator->enrol_user($student->id, $course->id, 'student');
+        $generator->enrol_user($teacher->id, $course->id, 'teacher');
+        $this->setUser($teacher);
+        $forumnggenerator = $generator->get_plugin_generator('mod_forumng');
+        [, $forum] = $this->prepare_clone_forum($course);
+        $record = [];
+        $record['course'] = $course->id;
+        $record['forum'] = $forum->get_id();
+        $record['userid'] = $teacher->id;
+        [$discussionid] = $forumnggenerator->create_discussion($record);
+
+        $cloneid = $forum->get_course_module_id();
+        $subject = 'The discussion is now closed'; // A change of subject is not required for a reply.
+        $message = 'Test lock';
+        $filerecord = ['filename' => 'basepic.jpg'];
+        $file = self::create_draft_file($filerecord);
+        $draftarea = $file->get_itemid();
+        $postas = 0;
+
+        $result = lock_discussion::lock_discussion($discussionid, $cloneid, $subject, $message, $draftarea, $postas);
+        $this->assertTrue($result['success']);
+        $this->assertEmpty($result['errormsg']);
+        //Check discussion is locked.
+        $discussion = \mod_forumng_discussion::get_from_id($discussionid, $cloneid);
+        $this->assertTrue($discussion->is_locked());
+        // Check base discussion is locked.
+        $basediscussion = \mod_forumng_discussion::get_from_id($discussionid, mod_forumng::CLONE_DIRECT);
+        $this->assertTrue($basediscussion->is_locked());
+        // Check the attachment.
+        $newpostid = $result['post'];
+        $post = \mod_forumng_post::get_from_id($newpostid, $cloneid);
+        $attachmentnames = $post->get_attachment_names();
+        $this->assertEquals('basepic.jpg', $attachmentnames[0]);
+
+        // Check permission
+        $this->setUser($student);
+        $record = [];
+        $record['course'] = $course->id;
+        $record['forum'] = $forum->get_id();
+        $record['userid'] = $student->id;
+        [$discussionid] = $forumnggenerator->create_discussion($record);
+        $result = lock_discussion::lock_discussion($discussionid, $cloneid, $subject, $message, $draftarea, $postas);
+        $this->assertFalse($result['success']);
+        $this->assertEquals('You do not have permission to manage this discussion.', $result['errormsg']);
+    }
+
+    /**
      * Test delete and undelete ws.
      */
     public function test_mobile_forumng_delete_undelete() {
@@ -368,23 +623,82 @@ class mobile_testcase extends \advanced_testcase {
 
         // Add a reply via the WS.
         $result = reply::reply($replyto, $subject, $message, $draftarea, $editing, 0,
-                0, 0, 0, 0);
+                0, 0, 0, 0, mod_forumng::CLONE_DIRECT);
         $this->assertTrue($result['success']);
         $this->assertEmpty($result['errormsg']);
         $newpostid = $result['post'];
         // Check the new post exists.
-        $result = delete_post::delete_post($newpostid);
+        $result = delete_post::delete_post($newpostid, mod_forumng::CLONE_DIRECT);
         $post = \mod_forumng_post::get_from_id($newpostid, 0);
         $this->assertTrue($result->success);
         $this->assertEmpty($result->message);
         $this->assertNotEmpty($result->postinfo->deletedtime);
         $this->assertEquals($result->postinfo->deletedtime, userdate($post->get_deleted()));
 
-        $result = undelete_post::undelete_post($newpostid);
+        $result = undelete_post::undelete_post($newpostid, mod_forumng::CLONE_DIRECT);
         $this->assertFalse($result->success);
         $this->assertEquals("You don't have permission to edit this kind of post.", $result->message);
         $this->setUser($teacher);
-        $result = undelete_post::undelete_post($newpostid);
+        $result = undelete_post::undelete_post($newpostid, mod_forumng::CLONE_DIRECT);
+        $this->assertTrue($result->success);
+        $this->assertEmpty($result->message);
+        $this->assertEquals(0, $result->postinfo->deletedtime);
+    }
+
+    /**
+     * Test delete and undelete ws for clone forum.
+     *
+     * @depends test_mobile_forumng_delete_undelete
+     */
+    public function test_mobile_forumng_delete_undelete_clone_forum(): void {
+        $this->resetAfterTest();
+
+        $generator = $this->getDataGenerator();
+        $course = $generator->create_course();
+        $student = $generator->create_user();
+        $teacher = $generator->create_user();
+        $generator->enrol_user($student->id, $course->id, 'student');
+        $generator->enrol_user($teacher->id, $course->id, 'teacher');
+
+        $this->setUser($student);
+        $forumnggenerator = $generator->get_plugin_generator('mod_forumng');
+        [$forum, $cloneforum] = $this->prepare_clone_forum($course);
+        $cloneid = $forum->get_course_module_id();
+        $record = [];
+        $record['course'] = $course->id;
+        $record['forum'] = $forum->get_id();
+        $record['userid'] = $student->id;
+        [, $replyto] = $forumnggenerator->create_discussion($record);
+
+        $subject = ''; // A change of subject is not required for a reply.
+        $message = 'Test reply message';
+        $filerecord = ['filename' => 'basepic.jpg'];
+        $file = self::create_draft_file($filerecord);
+        $draftarea = $file->get_itemid();
+        $editing = false;
+
+        // Add a reply via the WS clone forum.
+        $result = reply::reply($replyto, $subject, $message, $draftarea, $editing, 0,
+                0, 0, 0, 0, $cloneid);
+        $this->assertTrue($result['success']);
+        $this->assertEmpty($result['errormsg']);
+        $newpostid = $result['post'];
+        // Check the new post exists.
+        $result = delete_post::delete_post($newpostid, $cloneid);
+        $post = \mod_forumng_post::get_from_id($newpostid, $cloneid);
+        $this->assertTrue($result->success);
+        $this->assertEmpty($result->message);
+        $this->assertNotEmpty($result->postinfo->deletedtime);
+        $this->assertEquals($result->postinfo->deletedtime, userdate($post->get_deleted()));
+        // Check this post on clone forum.
+        $postfromclone = \mod_forumng_post::get_from_id($newpostid, $cloneforum->get_course_module_id());
+        $this->assertEquals($result->postinfo->deletedtime, userdate($postfromclone->get_deleted()));
+
+        $result = undelete_post::undelete_post($newpostid, $cloneid);
+        $this->assertFalse($result->success);
+        $this->assertEquals("You don't have permission to edit this kind of post.", $result->message);
+        $this->setUser($teacher);
+        $result = undelete_post::undelete_post($newpostid, $cloneid);
         $this->assertTrue($result->success);
         $this->assertEmpty($result->message);
         $this->assertEquals(0, $result->postinfo->deletedtime);
@@ -442,22 +756,81 @@ class mobile_testcase extends \advanced_testcase {
         list($discussion1id, $post1id) = $forumnggenerator->create_discussion(['forum' => $forum->id, 'userid' => $student1->id]);
         list($discussion3id, $post3id) = $forumnggenerator->create_discussion(['forum' => $forum->id, 'userid' => $student1->id]);
         list($discussion2id, $post2id) = $forumnggenerator->create_discussion(['forum' => $forum->id, 'userid' => $student2->id]);
+        [$discussion4id, $post4id] = $forumnggenerator->create_discussion(['forum' => $forum->id, 'userid' => $student1->id]);
 
         set_user_preference('forumng_manualmark', 1, $student1->id);
         set_user_preference('forumng_manualmark', 1, $student2->id);
         $this->setUser($student1);
         // Check there is unread post.
-        $post2 = \mod_forumng_post::get_from_id($post2id, 0);
-        $this->assertTrue($post2->is_unread());
+        $this->assertTrue(\mod_forumng_post::get_from_id($post2id, mod_forumng::CLONE_DIRECT)->is_unread());
 
         $this->setUser($student2);
         // Check there is unread post.
-        $post1 = \mod_forumng_post::get_from_id($post1id, 0);
-        $this->assertTrue($post1->is_unread());
-        $post3 = \mod_forumng_post::get_from_id($post3id, 0);
-        $this->assertTrue($post1->is_unread());
+        $this->assertTrue(\mod_forumng_post::get_from_id($post1id, mod_forumng::CLONE_DIRECT)->is_unread());
+        $this->assertTrue(\mod_forumng_post::get_from_id($post3id, mod_forumng::CLONE_DIRECT)->is_unread());
+        $this->assertTrue(\mod_forumng_post::get_from_id($post4id, mod_forumng::CLONE_DIRECT)->is_unread());
+
+        // Mark unread discussion id.
+        mark_all_post_read::mark_all_post_read($forum->cmid, mod_forumng::CLONE_DIRECT, -1, $discussion4id);
+        $this->assertTrue(\mod_forumng_post::get_from_id($post1id, mod_forumng::CLONE_DIRECT)->is_unread());
+        $this->assertTrue(\mod_forumng_post::get_from_id($post3id, mod_forumng::CLONE_DIRECT)->is_unread());
+        $this->assertFalse(\mod_forumng_post::get_from_id($post4id, mod_forumng::CLONE_DIRECT)->is_unread());
+
         // Mark all post read for User 2.
-        mark_all_post_read::mark_all_post_read($forum->cmid, 0, -1);
+        mark_all_post_read::mark_all_post_read($forum->cmid, mod_forumng::CLONE_DIRECT, -1);
+        // Check read post.
+        $this->assertFalse(\mod_forumng_post::get_from_id($post1id, mod_forumng::CLONE_DIRECT)->is_unread());
+        $this->assertFalse(\mod_forumng_post::get_from_id($post2id, mod_forumng::CLONE_DIRECT)->is_unread());
+        $this->assertFalse(\mod_forumng_post::get_from_id($post3id, mod_forumng::CLONE_DIRECT)->is_unread());
+    }
+
+    /**
+     * Test mark all posts read webservice for clone forum.
+     *
+     * @depends test_mobile_mark_all_posts_read
+     */
+    public function test_mobile_mark_all_posts_read_clone_forum(): void {
+        $this->resetAfterTest();
+
+        $generator = $this->getDataGenerator();
+        $course = $generator->create_course();
+        $student1 = $generator->create_user();
+        $student2 = $generator->create_user();
+        $generator->enrol_user($student1->id, $course->id, 'student');
+        $generator->enrol_user($student2->id, $course->id, 'student');
+        $forumnggenerator = $generator->get_plugin_generator('mod_forumng');
+        [$forum, $cloneforum] = $this->prepare_clone_forum($course);
+        $cloneid = $cloneforum->get_course_module_id();
+        [, $post1id] = $forumnggenerator->create_discussion(['forum' => $forum->get_id(), 'userid' => $student1->id]);
+        [, $post3id] = $forumnggenerator->create_discussion(['forum' => $forum->get_id(), 'userid' => $student1->id]);
+        [, $post2id] = $forumnggenerator->create_discussion(['forum' => $forum->get_id(), 'userid' => $student2->id]);
+        [$discussion4id, $post4id] = $forumnggenerator->create_discussion(['forum' => $forum->get_id(), 'userid' => $student1->id]);
+
+        set_user_preference('forumng_manualmark', 1, $student1->id);
+        set_user_preference('forumng_manualmark', 1, $student2->id);
+        $this->setUser($student1);
+        // Check there is unread post.
+        $this->assertTrue(\mod_forumng_post::get_from_id($post2id, $cloneid)->is_unread());
+
+        $this->setUser($student2);
+        // Check there is unread post.
+        $this->assertTrue(\mod_forumng_post::get_from_id($post1id, $cloneid)->is_unread());
+        $this->assertTrue(\mod_forumng_post::get_from_id($post3id, $cloneid)->is_unread());
+        $this->assertTrue(\mod_forumng_post::get_from_id($post4id, $cloneid)->is_unread());
+
+        // Mark unread discussion id.
+        mark_all_post_read::mark_all_post_read($cloneid, $cloneid, -1, $discussion4id);
+        $this->assertTrue(\mod_forumng_post::get_from_id($post1id, $cloneid)->is_unread());
+        $this->assertTrue(\mod_forumng_post::get_from_id($post3id, $cloneid)->is_unread());
+        $this->assertFalse(\mod_forumng_post::get_from_id($post4id, $cloneid)->is_unread());
+
+        // Mark all post read for User 2.
+        // Note: on mobile we won't change cmid to real forum.
+        mark_all_post_read::mark_all_post_read($cloneid, $cloneid, -1);
+        // Check read post.
+        $this->assertFalse(\mod_forumng_post::get_from_id($post1id, $cloneid)->is_unread());
+        $this->assertFalse(\mod_forumng_post::get_from_id($post2id, $cloneid)->is_unread());
+        $this->assertFalse(\mod_forumng_post::get_from_id($post3id, $cloneid)->is_unread());
     }
 
     /**
@@ -482,7 +855,7 @@ class mobile_testcase extends \advanced_testcase {
 
         // Add a new draft via the WS.
         $result = add_draft::add_draft($forum->id, 0, $group, 0,
-            $subject, $message, $draftarea, 0, 0, 0, false,false);
+            $subject, $message, $draftarea, 0, 0, 0, false,false, mod_forumng::CLONE_DIRECT);
         $this->assertTrue($result['success']);
         $this->assertEmpty($result['errormsg']);
         $this->assertStringContainsString(\mod_forumng_utils::display_date(time()), $result['successmsg']);
@@ -493,7 +866,7 @@ class mobile_testcase extends \advanced_testcase {
         // Edit draft vis the WS.
         $newsubject = 'Test new subject';
         $newresult = add_draft::add_draft($forum->id, $drafid, $group, 0,
-            $newsubject, $message, $draftarea, 0, true, 0, false,false);
+            $newsubject, $message, $draftarea, 0, true, 0, false,false, mod_forumng::CLONE_DIRECT);
         $draft = \mod_forumng_draft::get_from_id($newresult['draft'], 0);
         $this->assertEquals($newsubject, $draft->get_subject());
         $this->assertEquals($newresult['draft'], $result['draft']);
@@ -509,7 +882,7 @@ class mobile_testcase extends \advanced_testcase {
         }
         $this->assertEquals('basepic.jpg', $attachments[0]);
         // Delete draft via the WS
-        $deletedraft = delete_draft::delete_draft($newresult['draft']);
+        $deletedraft = delete_draft::delete_draft($newresult['draft'], mod_forumng::CLONE_DIRECT);
         $this->assertTrue($deletedraft['success']);
         $this->assertEmpty($deletedraft['errormsg']);
         // Add draft reply via the WS
@@ -518,7 +891,7 @@ class mobile_testcase extends \advanced_testcase {
         $discussion = $forumnggenerator->create_discussion(['course' => $course, 'forum' => $forum->id, 'userid' => $student->id]);
         $post = $forumnggenerator->create_post(array('discussionid' => $discussion[0], 'parentpostid' => $discussion[1], 'userid' => $student->id));
         $result = add_draft::add_draft($forum->id, 0, $group, $post->parentpostid,
-            $subject, $message, $draftarea, 0, true, 0, false,false);
+            $subject, $message, $draftarea, 0, true, 0, false,false, mod_forumng::CLONE_DIRECT);
         $this->assertTrue($result['success']);
         $this->assertEmpty($result['errormsg']);
         $this->assertStringContainsString(\mod_forumng_utils::display_date(time()), $result['successmsg']);
@@ -526,13 +899,97 @@ class mobile_testcase extends \advanced_testcase {
         $drafid = $result['draft'];
         $newsubject = 'Test new subject reply';
         $newresult = add_draft::add_draft($forum->id, $drafid, $group, $post->parentpostid,
-            $newsubject, $message, $draftarea, 0, 0, 0, false,true);
+            $newsubject, $message, $draftarea, 0, 0, 0, false,true, mod_forumng::CLONE_DIRECT);
         $draft = \mod_forumng_draft::get_from_id($newresult['draft'], 0);
         $this->assertEquals($newsubject, $draft->get_subject());
         $this->assertEquals($newresult['draft'], $result['draft']);
         $this->assertEquals(true, $draft->get_options()->setimportant);
         // Delete draft via the WS
-        $deletedraft = delete_draft::delete_draft($newresult['draft']);
+        $deletedraft = delete_draft::delete_draft($newresult['draft'], mod_forumng::CLONE_DIRECT);
+        $this->assertTrue($deletedraft['success']);
+        $this->assertEmpty($deletedraft['errormsg']);
+    }
+
+    /**
+     * Test the draft webservice functionality clone forum.
+     *
+     * @depends test_mobile_forumng_add_draft
+     */
+    public function test_mobile_forumng_add_draft_clone_forum(): void {
+        $this->resetAfterTest();
+
+        $generator = $this->getDataGenerator();
+        $course = $generator->create_course();
+        $student = $generator->create_user();
+        $generator->enrol_user($student->id, $course->id, 'student');
+        $this->setUser($student);
+        $forumnggenerator = $generator->get_plugin_generator('mod_forumng');
+        [$forum, $cloneforum] = $this->prepare_clone_forum($course);
+        $cloneid = $cloneforum->get_course_module_id();
+        $group = -1;
+        $subject = 'Test subject';
+        $message = 'Test message';
+        $filerecord = ['filename' => 'basepic.jpg'];
+        $file = self::create_draft_file($filerecord);
+        $draftarea = $file->get_itemid();
+
+        // Add a new draft via the WS.
+        $result = add_draft::add_draft($forum->get_id(), 0, $group, 0,
+                $subject, $message, $draftarea, 0, 0, 0, false,false, $cloneid);
+        $this->assertTrue($result['success']);
+        $this->assertEmpty($result['errormsg']);
+        $this->assertStringContainsString(\mod_forumng_utils::display_date(time()), $result['successmsg']);
+        $drafid = $result['draft'];
+        // Check the new draft exists.
+        $draft = \mod_forumng_draft::get_from_id($drafid, 0);
+        $this->assertEquals($subject, $draft->get_subject());
+        // Edit draft vis the WS.
+        $newsubject = 'Test new subject';
+        $newresult = add_draft::add_draft($forum->get_id(), $drafid, $group, 0,
+                $newsubject, $message, $draftarea, 0, true, 0, false,false, $cloneid);
+        $draft = \mod_forumng_draft::get_from_id($newresult['draft']);
+        $this->assertEquals($newsubject, $draft->get_subject());
+        $this->assertEquals($newresult['draft'], $result['draft']);
+        $this->assertEquals(true, $draft->get_options()->sticky);
+        //Check the attachment.
+        $forumng = \mod_forumng::get_from_id($draft->get_forumng_id(), $cloneid);
+        $filecontext = $forumng->get_context(true);
+        $fs = get_file_storage();
+        foreach ($fs->get_area_files($filecontext->id, 'mod_forumng', 'draft',
+                $draft->get_id(), 'filename', false) as $file) {
+
+            $attachments[] = $file->get_filename();
+        }
+        $this->assertEquals('basepic.jpg', $attachments[0]);
+        // Delete draft via the WS
+        $deletedraft = delete_draft::delete_draft($newresult['draft'], $cloneid);
+        $this->assertTrue($deletedraft['success']);
+        $this->assertEmpty($deletedraft['errormsg']);
+        // Add draft reply via the WS
+        $subject = 'Test subject reply';
+        $message = 'Tes message reply';
+        $discussion = $forumnggenerator->create_discussion(['course' => $course, 'forum' => $forum->get_id(), 'userid' => $student->id]);
+        $post = $forumnggenerator->create_post([
+                'discussionid' => $discussion[0],
+                'parentpostid' => $discussion[1],
+                'userid' => $student->id,
+        ]);
+        $result = add_draft::add_draft($forum->get_id(), 0, $group, $post->parentpostid,
+                $subject, $message, $draftarea, 0, true, 0, false,false, $cloneid);
+        $this->assertTrue($result['success']);
+        $this->assertEmpty($result['errormsg']);
+        $this->assertStringContainsString(\mod_forumng_utils::display_date(time()), $result['successmsg']);
+        // Edit draft reply vis the WS.
+        $drafid = $result['draft'];
+        $newsubject = 'Test new subject reply';
+        $newresult = add_draft::add_draft($forum->get_id(), $drafid, $group, $post->parentpostid,
+                $newsubject, $message, $draftarea, 0, 0, 0, false,true, $cloneid);
+        $draft = \mod_forumng_draft::get_from_id($newresult['draft']);
+        $this->assertEquals($newsubject, $draft->get_subject());
+        $this->assertEquals($newresult['draft'], $result['draft']);
+        $this->assertEquals(true, $draft->get_options()->setimportant);
+        // Delete draft via the WS
+        $deletedraft = delete_draft::delete_draft($newresult['draft'], $cloneid);
         $this->assertTrue($deletedraft['success']);
         $this->assertEmpty($deletedraft['errormsg']);
     }
@@ -629,6 +1086,42 @@ class mobile_testcase extends \advanced_testcase {
 
         $this->setUser($student2);
         $result = delete_discussion::delete_discussion($discussion1id, 0, $discussion1->is_deleted());
+        $this->assertFalse($result->result);
+        $this->assertNotEmpty($result->errormsg);
+    }
+
+    /**
+     * Test delete discussion mobile service.
+     *
+     * @depends test_mobile_delete_discussion
+     */
+    public function test_mobile_delete_discussion_clone_forum(): void {
+        $this->resetAfterTest();
+
+        $generator = $this->getDataGenerator();
+        $course = $generator->create_course();
+        $student1 = $generator->create_user();
+        $student2 = $generator->create_user();
+        $generator->enrol_user($student1->id, $course->id, 'student');
+        $generator->enrol_user($student2->id, $course->id, 'student');
+        $forumnggenerator = $generator->get_plugin_generator('mod_forumng');
+        [$forum, $cloneforum] = $this->prepare_clone_forum($course);
+        $cloneid = $cloneforum->get_course_module_id();
+        [$discussion1id,] = $forumnggenerator->create_discussion(['forum' => $forum->get_id(), 'userid' => $student1->id]);
+        $discussion1 = \mod_forumng_discussion::get_from_id($discussion1id, $cloneid);
+        $this->setUser($student1);
+
+        $result = delete_discussion::delete_discussion($discussion1id, $cloneid, false);
+        $this->assertTrue($result->result);
+        $this->assertEmpty($result->errormsg);
+
+        // Student can't undelete.
+        $result2 = delete_discussion::delete_discussion($discussion1id, $cloneid, true);
+        $this->assertFalse($result2->result);
+        $this->assertNotEmpty($result2->errormsg);
+
+        $this->setUser($student2);
+        $result = delete_discussion::delete_discussion($discussion1id, $cloneid, $discussion1->is_deleted());
         $this->assertFalse($result->result);
         $this->assertNotEmpty($result->errormsg);
     }

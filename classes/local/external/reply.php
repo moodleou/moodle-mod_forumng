@@ -20,6 +20,7 @@ use external_api;
 use external_function_parameters;
 use external_single_structure;
 use external_value;
+use mod_forumng;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -52,6 +53,7 @@ class reply extends external_api {
             'isrootpost' => new external_value(PARAM_INT, 'Is rootpost', VALUE_DEFAULT, 0),
             'sticky' => new external_value(PARAM_INT, 'Discussion sticky value', VALUE_DEFAULT, 0),
             'showfrom' => new external_value(PARAM_INT, 'Discussion showfrom value', VALUE_DEFAULT, 0),
+            'clone' => new external_value(PARAM_INT, 'Clone ID', VALUE_DEFAULT, mod_forumng::CLONE_DIRECT),
         ]);
     }
 
@@ -83,11 +85,12 @@ class reply extends external_api {
      * @param int $isrootpost
      * @param int $sticky
      * @param int $showfrom
+     * @param int $cloneid
      * @return array See returns above.
      * @throws \moodle_exception
      */
     public static function reply($replyto, $subject, $message, $draftarea, $editing, $postas, $important,
-            $isrootpost, $sticky, $showfrom) {
+            $isrootpost, $sticky, $showfrom, $cloneid) {
         global $PAGE, $DB;
 
         // Notes - only creating a new reply is supported at present
@@ -112,7 +115,7 @@ class reply extends external_api {
         try {
             $data = (object) self::validate_parameters(self::reply_parameters(), $data);
 
-            $replypost = \mod_forumng_post::get_from_id($data->replyto, 0);
+            $replypost = \mod_forumng_post::get_from_id($data->replyto, $cloneid);
             if ($data->editing) {
                 // Validation for server side.
                 if ($replypost->is_root_post() && (empty($data->subject) || empty($data->message))) {

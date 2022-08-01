@@ -70,18 +70,20 @@ class mod_forumng_forumng_testcase extends forumng_test_lib {
         // Check get_from_cmid also works.
         $forum = mod_forumng::get_from_cmid($cm->id, mod_forumng::CLONE_DIRECT);
         $this->check_forum_settings($forum, $course, $cm);
+        $this->assertEquals($cm->id, $forum->get_course_module_id());
 
         // Check clone.
         $forum1 = $this->get_new_forumng($course->id, array('name' => 'TEST', 'intro' => 'abc123',
                 'shared' => true, 'cmidnumber' => 'SF1'));
         $this->assertEmpty($forum1->get_clone_details());
         $this->assertTrue($forum1->is_shared());
+        $this->assertFalse($forum1->is_clone());
 
         $course2 = $this->get_new_course();
         $forum2 = $this->get_new_forumng($course2->id, array('name' => 'TEST',
                 'usesharedgroup' => array('useshared' => true, 'originalcmidnumber' => 'SF1')));
-
         $this->assertTrue($forum2->is_shared());
+        $this->assertFalse($forum2->is_clone());
 
         $this->assertEquals($forum1->get_course_module_id(), $forum2->get_course_module_id(true));
         $this->assertEquals($forum1->get_context()->id, $forum2->get_context(true)->id);

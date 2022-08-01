@@ -920,8 +920,9 @@ function mod_forumng_output_fragment_formatmessage($args) {
 
     $postid = $args['postid'];
     $rawmessage = $args['rawmessage'];
+    $cloneid = array_key_exists('clone', $args) ? $args['clone'] : mod_forumng::CLONE_DIRECT;
 
-    $post = mod_forumng_post::get_from_id($postid, 0);
+    $post = mod_forumng_post::get_from_id($postid, $cloneid);
 
     if (!$post->get_discussion()->can_view()) {
         throw new moodle_exception('error_cannotviewdiscussion', 'mod_forumng');

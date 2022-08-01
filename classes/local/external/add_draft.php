@@ -20,6 +20,7 @@ use external_api;
 use external_function_parameters;
 use external_single_structure;
 use external_value;
+use mod_forumng;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -54,6 +55,7 @@ class add_draft extends external_api {
             'postas' => new external_value(PARAM_INT, 'Post as', VALUE_DEFAULT, 0),
             'mailnow' => new external_value(PARAM_BOOL, 'Mail now?', VALUE_DEFAULT, false),
             'setimportant' => new external_value(PARAM_BOOL, 'The flag for important', VALUE_DEFAULT, false),
+            'clone' => new external_value(PARAM_INT, 'Clone ID', VALUE_DEFAULT, mod_forumng::CLONE_DIRECT),
         ]);
     }
 
@@ -88,11 +90,12 @@ class add_draft extends external_api {
      * @param $postas int Post as.
      * @param $mailnow bool Is mailnow.
      * @param $setimportant bool Is important post.
+     * @param $cloneid int Clone Id.
      * @return array See returns above.
      * @throws \moodle_exception
      */
     public static function add_draft($forum, $draft, $group, $replyto, $subject, $message, $draftarea,
-                                     $showfrom, $showsticky, $postas, $mailnow, $setimportant) {
+                                     $showfrom, $showsticky, $postas, $mailnow, $setimportant, $cloneid) {
         global $PAGE, $DB;
 
         $data = [
@@ -107,7 +110,8 @@ class add_draft extends external_api {
             'showsticky' => $showsticky,
             'postas' => $postas,
             'mailnow' => $mailnow,
-            'setimportant' => $setimportant
+            'setimportant' => $setimportant,
+            'clone' => $cloneid,
         ];
 
         try {
@@ -115,11 +119,11 @@ class add_draft extends external_api {
 
             if ($data->draft == 0) {
                 // Create a new draft.
-                $forum = \mod_forumng::get_from_id($data->forum, 0);
+                $forum = \mod_forumng::get_from_id($data->forum, $cloneid);
             } else {
                 // Editing existing draft.
                 $draft =  \mod_forumng_draft::get_from_id($data->draft);
-                $forum = \mod_forumng::get_from_id($draft->get_forumng_id(), 0);
+                $forum = \mod_forumng::get_from_id($draft->get_forumng_id(), $cloneid);
             }
             if (strlen($data->subject) > 255) {
                 return ['success' => false, 'draft' => 0, 'successmsg' => '',
