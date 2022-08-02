@@ -1240,10 +1240,12 @@
                         if (outerThis.CONTENT_OTHERDATA.limittime) {
                             var countdown = outerThis.CONTENT_OTHERDATA.limittime - get_unix_time();
                             var eletimelimit = document.querySelector('.time-limit');
+                            t.isrunningInterval = 1;
                             if (countdown <= 0) {
                                 outerThis.CONTENT_OTHERDATA.disable = 1;
                                 outerThis.CONTENT_OTHERDATA.edittimeout = 0;
                                 t.editTimeout = 0;
+                                t.isrunningInterval = 0;
                                 clearInterval(interval);
                             } else if(countdown <= 30) {
                                 outerThis.CONTENT_OTHERDATA.edittimeout = 1;
@@ -1259,7 +1261,6 @@
                             }
                         }
                     }
-                    t.isrunningInterval = 1;
                 }, 1000);
             }
 
