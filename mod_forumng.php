@@ -711,7 +711,7 @@ WHERE
         }
         if (!empty($CFG->forumng_reportunacceptable)) {
             // Check to see whether global forum report e-mail is already in recipients.
-            if (!in_array($recipients, $CFG->forumng_reportunacceptable)) {
+            if (!in_array($CFG->forumng_reportunacceptable, $recipients)) {
                 // Add global recipient address to recipents array.
                 $recipients[] = $CFG->forumng_reportunacceptable;
             }
