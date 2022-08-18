@@ -357,9 +357,11 @@ M.mod_forumng = {
 
         // Set up flags
         this.init_flags(node);
-        if (typeof load_client_math !== 'undefined') {
-            load_client_math();
-        }
+
+        // Notify the filters about the modified nodes.
+        require(['core/event'], function(event) {
+            event.notifyFilterContentUpdated(node.getDOMNode());
+        });
     },
 
     /**

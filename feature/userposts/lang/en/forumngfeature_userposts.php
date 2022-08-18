@@ -43,7 +43,9 @@ $string['avgrating'] = 'Average rating';
 $string['totrating'] = 'Total ratings';
 
 $string['start'] = 'From';
+$string['enable'] = 'Enable';
 $string['end'] = 'To';
+$string['excludeinactiveusers'] = 'Exclude inactive users ';
 $string['displayperiod'] = 'Contribution selector From date - To date.';
 $string['displayperiod_help'] = '<p>The default selects all entries.</p>
 <p>You can select \'From\' a date until today\'s entries.</p>

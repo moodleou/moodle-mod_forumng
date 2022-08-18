@@ -257,6 +257,7 @@
                         showsticky: showsticky,
                         showfrom: showfrom,
                         postas: postas,
+                        clone: cmid,
                     };
                     return site.write('mod_forumng_add_discussion', params).then(function(response) {
                         // Other errors ocurring.
@@ -465,11 +466,12 @@
 
     t.mod_forumng.deleteDiscussion = async function (outerThis, site) {
         var discussionid = outerThis.CONTENT_OTHERDATA.discussionid;
+        var cmid = outerThis.CONTENT_OTHERDATA.cmid;
 
         if (outerThis.isOnline()) {
             var args = {
                 'discussionid': discussionid,
-                'cloneid': 0,
+                'cloneid': cmid,
                 'isdeleted': outerThis.CONTENT_OTHERDATA.isdeleteddiscussion,
             };
             site.write('mod_forumng_delete_discussion', args).then(async function(result) {
@@ -514,7 +516,8 @@
      */
     t.mod_forumng.deleteDraft = function(that, draftid, refresh) {
         var site = that.CoreSitesProvider.getCurrentSite();
-        site.write('mod_forumng_delete_draft', {'draftid': draftid}).then(async function(result) {
+        var cmid = that.CONTENT_OTHERDATA.cmid;
+        site.write('mod_forumng_delete_draft', {'draftid': draftid, 'clone': cmid}).then(async function(result) {
             if (!result.errormsg) {
                 if (refresh) {
                     t.mod_forumng.forumngDraftRefreshContent()
@@ -569,6 +572,7 @@
         var postas = that.CONTENT_OTHERDATA.postas;
         var discussionid = that.CONTENT_OTHERDATA.discussionid;
         var forumngId = that.CONTENT_OTHERDATA.forumngid;
+        var cmid = that.CONTENT_OTHERDATA.cmid;
         var saveOffline = false;
         var modal;
         var promise;
@@ -616,7 +620,7 @@
                     var site = that.CoreSitesProvider.getCurrentSite();
                     var params = {
                         discussionid: discussionid,
-                        cloneid: 0,
+                        cloneid: cmid,
                         subject: subject,
                         message: message,
                         draftarea: draftAreaId,
@@ -780,7 +784,7 @@
     t.mod_forumng.toMarkAllPostsRead = async function(outerThis, site, cmid, courseid, userid, PopoverTransition, forumView) {
         if (outerThis.isOnline()) {
             if (forumView) {
-                site.write('mod_forumng_mark_all_post_read', {'cmid': cmid, 'cloneid' : 0, 'groupid' : outerThis.CONTENT_OTHERDATA.defaultgroup}).then(async function(result) {
+                site.write('mod_forumng_mark_all_post_read', {'cmid': cmid, 'cloneid' : cmid, 'groupid' : outerThis.CONTENT_OTHERDATA.defaultgroup}).then(async function(result) {
                     if (!result.errormsg) {
                         // We need to update the newest content because the cached page.
                         var args = {'cmid' : cmid, 'courseid': courseid, group: outerThis.CONTENT_OTHERDATA.defaultgroup,
@@ -806,7 +810,7 @@
                 });
             } else {
                 // We should use default -1 not 0 for discussion.
-                site.write('mod_forumng_mark_all_post_read', {'cmid': cmid, 'cloneid' : 0, 'groupid' : -1, 'discussionid' : outerThis.CONTENT_OTHERDATA.discussionid}).then(async function(result) {
+                site.write('mod_forumng_mark_all_post_read', {'cmid': cmid, 'cloneid' : cmid, 'groupid' : -1, 'discussionid' : outerThis.CONTENT_OTHERDATA.discussionid}).then(async function(result) {
                     if (!result.errormsg) {
                         outerThis.refreshContent();
                     } else {
@@ -1137,8 +1141,10 @@
 
         outerThis.delete = function(postid) {
             var site = outerThis.CoreSitesProvider.getCurrentSite();
+            var cmid = outerThis.CONTENT_OTHERDATA.cmid;
             var params = {
                 postid: postid,
+                clone: cmid,
             };
 
 
@@ -1163,8 +1169,10 @@
 
         outerThis.undelete = function(postid) {
             var site = outerThis.CoreSitesProvider.getCurrentSite();
+            var cmid = outerThis.CONTENT_OTHERDATA.cmid;
             var params = {
                 postid: postid,
+                clone: cmid,
             };
             var modal = outerThis.CoreDomUtilsProvider.showModalLoading('core.sending', true);
 
@@ -1232,10 +1240,12 @@
                         if (outerThis.CONTENT_OTHERDATA.limittime) {
                             var countdown = outerThis.CONTENT_OTHERDATA.limittime - get_unix_time();
                             var eletimelimit = document.querySelector('.time-limit');
+                            t.isrunningInterval = 1;
                             if (countdown <= 0) {
                                 outerThis.CONTENT_OTHERDATA.disable = 1;
                                 outerThis.CONTENT_OTHERDATA.edittimeout = 0;
                                 t.editTimeout = 0;
+                                t.isrunningInterval = 0;
                                 clearInterval(interval);
                             } else if(countdown <= 30) {
                                 outerThis.CONTENT_OTHERDATA.edittimeout = 1;
@@ -1251,7 +1261,6 @@
                             }
                         }
                     }
-                    t.isrunningInterval = 1;
                 }, 1000);
             }
 
@@ -1330,6 +1339,7 @@
                 var showfrom =  parseInt(outerThis.CONTENT_OTHERDATA.showfrom) > 0 ? Math.round(Date.parse(outerThis.CONTENT_OTHERDATA.showfrom) / 1000) : 0;
                 var isrootpost = parseInt(replyto) === parseInt(outerThis.CONTENT_OTHERDATA.rootpostid) ? true : false;
                 var draftid = outerThis.CONTENT_OTHERDATA.draftid ? outerThis.CONTENT_OTHERDATA.draftid : 0;
+                var cmid = outerThis.CONTENT_OTHERDATA.cmid;
                 //var discTimecreated = Date.now(); //TODO part of offline - that.timeCreated || Date.now();
                 var saveOffline = false;
                 var modal;
@@ -1380,6 +1390,7 @@
                                 isrootpost : isrootpost,
                                 sticky: sticky,
                                 showfrom: showfrom,
+                                clone: cmid,
                             };
                             if (!(subject === undefined || subject === '')) {
                                 params.subject = subject;

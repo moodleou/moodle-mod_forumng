@@ -711,7 +711,7 @@ WHERE
         }
         if (!empty($CFG->forumng_reportunacceptable)) {
             // Check to see whether global forum report e-mail is already in recipients.
-            if (!in_array($recipients, $CFG->forumng_reportunacceptable)) {
+            if (!in_array($CFG->forumng_reportunacceptable, $recipients)) {
                 // Add global recipient address to recipents array.
                 $recipients[] = $CFG->forumng_reportunacceptable;
             }
@@ -3253,7 +3253,7 @@ WHERE
      *   'view hidden discussions' (may be null if unread data not required)
      * @return array Array of row objects
      */
-    private static function query_forums($cmids=array(), $course=null,
+    private static function query_forums($cmids, $course,
             $userid, $unread, $groups, $aagforums, $viewhiddenforums) {
         global $DB, $CFG, $USER;
         if ((!count($cmids) && !$course)) {

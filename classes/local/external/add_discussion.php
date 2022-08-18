@@ -20,6 +20,7 @@ use external_api;
 use external_function_parameters;
 use external_single_structure;
 use external_value;
+use mod_forumng;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -51,6 +52,7 @@ class add_discussion extends external_api {
             'showsticky' => new external_value(PARAM_INT, 'True/False value for sticky discussion', VALUE_DEFAULT, 0),
             'showfrom' => new external_value(PARAM_INT, 'Show from date', VALUE_DEFAULT, 0),
             'postas' => new external_value(PARAM_INT, 'Post as', VALUE_DEFAULT, 0),
+            'clone' => new external_value(PARAM_INT, 'Clone ID', VALUE_DEFAULT, mod_forumng::CLONE_DIRECT),
         ]);
     }
 
@@ -81,11 +83,12 @@ class add_discussion extends external_api {
      * @param $showsticky int Add discussion as sticky.
      * @param $showfrom int Start date.
      * @param $postas int Post as.
+     * @param $cloneid int Clone ID.
      * @return array See returns above.
      * @throws \moodle_exception
      */
     public static function add_discussion($forum, $discussion, $group, $subject, $message,
-            $draftarea, $showsticky, $showfrom, $postas) {
+            $draftarea, $showsticky, $showfrom, $postas, $cloneid) {
         global $PAGE, $DB;
 
         // Notes - only creating a new discussion is supported at present
@@ -114,10 +117,10 @@ class add_discussion extends external_api {
 
             if ($data->discussion == 0) {
                 // Create a new discussion.
-                $forum = \mod_forumng::get_from_id($data->forum, 0);
+                $forum = \mod_forumng::get_from_id($data->forum, $cloneid);
             } else {
                 // Editing existing discussion.
-                $discussion = \mod_forumng_discussion::get_from_id($data->discussion, 0);
+                $discussion = \mod_forumng_discussion::get_from_id($data->discussion, $cloneid);
                 $forum = $discussion->get_forum();
             }
             if (strlen($data->subject) > 255) {

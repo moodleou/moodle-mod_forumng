@@ -20,6 +20,7 @@ use external_api;
 use external_function_parameters;
 use external_single_structure;
 use external_value;
+use mod_forumng;
 use mod_forumng_post;
 
 defined('MOODLE_INTERNAL') || die();
@@ -44,7 +45,8 @@ class delete_post extends external_api {
      */
     public static function delete_post_parameters() {
         return new external_function_parameters(array(
-            'postid' => new external_value(PARAM_INT, 'Post ID')
+            'postid' => new external_value(PARAM_INT, 'Post ID'),
+            'clone' => new external_value(PARAM_INT, 'Clone ID', VALUE_DEFAULT, mod_forumng::CLONE_DIRECT),
         ));
     }
 
@@ -67,18 +69,20 @@ class delete_post extends external_api {
      * Check permission and update post.
      *
      * @param $postid integer Post ID which will be edited.
+     * @param $cloneid integer Clone ID.
      * @return \stdClass
      */
-    public static function delete_post($postid) {
+    public static function delete_post($postid, $cloneid) {
         global $PAGE;
 
         // Validate web service's parammeters.
         self::validate_parameters(self::delete_post_parameters(), array(
             'postid' => $postid,
+            'clone' => $cloneid,
         ));
 
         // Get info of post being deleted.
-        $deletepost = mod_forumng_post::get_from_id($postid, 0, true);
+        $deletepost = mod_forumng_post::get_from_id($postid, $cloneid, true);
 
         // Check if current user can delete the post.
         $whynot = '';
@@ -91,7 +95,7 @@ class delete_post extends external_api {
             $PAGE->set_context($deletepost->get_forum()->get_context());
 
             // Get new post from DB to have correct info.
-            $deletepost = mod_forumng_post::get_from_id($deletepost->get_id(), 0, true);
+            $deletepost = mod_forumng_post::get_from_id($deletepost->get_id(), $cloneid, true);
 
             $response->success = true;
             $response->message = '';
@@ -99,7 +103,8 @@ class delete_post extends external_api {
                 $deletepost->get_parent()->get_id());
             $response->postinfo->content = mod_forumng_output_fragment_formatmessage(array(
                 'postid' => $response->postinfo->postid,
-                'rawmessage' => $response->postinfo->content
+                'rawmessage' => $response->postinfo->content,
+                'clone' => $cloneid,
             ));
             $response->postinfo->shortcontent = \mod_forumng_renderer::nice_shorten_text(
                 strip_tags($response->postinfo->content, '<img><del>'), \mod_forumng::IPUD_SHORTEN_LENGTH

@@ -260,6 +260,9 @@ $string['completionrepliesgroup'] = 'Require replies';
 $string['completionrepliesgroup_help'] = 'If ticked, the forum will be marked complete for a
 student once they have made the required number of replies to existing discussions (and met any
 other conditions).';
+$string['completiondetail:discussions'] = 'Make discussions: {$a}';
+$string['completiondetail:posts'] = 'Make posts: {$a}';
+$string['completiondetail:replies'] = 'Make replies: {$a}';
 $string['ratingfrom'] = 'Rate only posts from';
 $string['ratinguntil'] = 'Rate only posts until';
 $string['postingfrom'] = 'Posting only allowed from';

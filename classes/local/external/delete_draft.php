@@ -20,6 +20,7 @@ use external_api;
 use external_function_parameters;
 use external_single_structure;
 use external_value;
+use mod_forumng;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -42,7 +43,8 @@ class delete_draft extends external_api {
      */
     public static function delete_draft_parameters() {
         return new external_function_parameters([
-            'draftid' => new external_value(PARAM_INT, 'Draft ID')
+            'draftid' => new external_value(PARAM_INT, 'Draft ID'),
+            'clone' => new external_value(PARAM_INT, 'Clone ID', VALUE_DEFAULT, mod_forumng::CLONE_DIRECT),
         ]);
     }
 
@@ -62,16 +64,20 @@ class delete_draft extends external_api {
      * Check permission and delete draft.
      *
      * @param $draftid integer Draft ID which will be deleted.
+     * @param $cloneid integer Clone ID.
      * @return array See returns above.
      * @throws \moodle_exception
      */
-    public static function delete_draft($draftid) {
+    public static function delete_draft($draftid, int $cloneid) {
         global $USER;
         // Validate web service's parammeters.
-        self::validate_parameters(self::delete_draft_parameters(), ['draftid' => $draftid]);
+        self::validate_parameters(self::delete_draft_parameters(), [
+                'draftid' => $draftid,
+                'clone' => $cloneid,
+        ]);
         try {
             $draft = \mod_forumng_draft::get_from_id($draftid);
-            $forum = \mod_forumng::get_from_id($draft->get_forumng_id(), 0);
+            $forum = \mod_forumng::get_from_id($draft->get_forumng_id(), $cloneid);
             // Check it belongs to current user
             if ($USER->id != $draft->get_user_id()) {
                 return ['success' => false, 'errormsg' => get_string('draft_mismatch', 'mod_forumng')];
