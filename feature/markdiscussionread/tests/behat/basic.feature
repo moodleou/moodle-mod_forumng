@@ -25,15 +25,15 @@ Feature: Mark discussions read automatically
     And I am on "Course 1" course homepage
     And I turn editing mode on
     And I am on "Course 1" course homepage
-    And I follow "Test forum name marking"
+    And I am on the "Test forum name marking" "forumng activity" page
     And I add a discussion with the following data:
       | Subject | Discussion 1 |
       | Message | Discussion 1 |
-    And I follow "Test forum name marking"
+    And I am on the "Test forum name marking" "forumng activity" page
     And I add a discussion with the following data:
       | Subject | Discussion 2 |
       | Message | Discussion 2 |
-    And I follow "Test forum name marking"
+    And I am on the "Test forum name marking" "forumng activity" page
     And I log out
 
   # JS required for 'Discussion' links

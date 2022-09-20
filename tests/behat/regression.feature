@@ -45,7 +45,7 @@ Feature: To Create a ForumNG on Learn2
     And following "Reply.txt" should download between "372" and "375" bytes
     And I follow "F.wc"
     And I follow "Split"
-    And I should not see "r1"
+    And I should not see "r1" in the ".main-inner" "css_element"
 
   @javascript
   Scenario: Verify "Jump to Parent"

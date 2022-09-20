@@ -119,7 +119,7 @@ Feature: Test post anonymously functionality
     Then I should see "Student 1" in the ".forumng-replies .forumng-post .forumng-info .forumng-author" "css_element"
     When I follow "ForumNG 2"
     Then I should see "Student 1" in the ".forumng-discussionlist tr.r0 td.forumng-lastpost" "css_element"
-    When I follow "ForumNG 2"
+    When I am on the "ForumNG 2" "forumng activity" page
     And I follow "Discussion 2"
     Then I should see "Teacher 1" in the ".forumng-post .forumng-info .forumng-author" "css_element"
     And I should see "Moderator" in the ".forumng-post .forumng-info .forumng-author .forumng-moderator-flag" "css_element"

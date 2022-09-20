@@ -274,8 +274,7 @@ Feature: Add forumng activity and test userposts filtering
 
     # View posts for student2
     And I am on "Course 1" course homepage
-    And I follow "Test forum name"
-    And I follow "ForumNG"
+    And I am on the "Test forum name" "ForumNG activity" page
     And I press "My participation"
     And I should see "This is reply text by student2 (Discussion 1)"
     And I should see "This is reply text by student2 (Discussion 2)"

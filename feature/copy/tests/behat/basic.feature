@@ -21,7 +21,7 @@ Feature: Copy discussions to another forum
   Scenario: Copy discussion to another group on same forum
     Given I log in as "admin"
     And I am on "Course 1" course homepage
-    And I follow "Test group forum"
+    And I am on the "Test group forum" "forumng activity" page
     And I set the field "Visible groups" to "Group 1"
     And I press "Go"
     And I add a discussion with the following data:
@@ -56,7 +56,7 @@ Feature: Copy discussions to another forum
       | Subject | To be copied again |
     Given I press "Copy"
     And I press "Begin copy"
-    And I follow "Test group forum"
+    And I am on the "Test group forum" "forumng activity" page
     And I set the field "Visible groups" to "Group 1"
     And I press "Go"
     When I press "Paste discussion"
@@ -100,7 +100,7 @@ Feature: Copy discussions to another forum
       | usesharedgroup[useshared] | 1 |
       | usesharedgroup[originalcmidnumber] | SHARED |
     And I am on "Course 1" course homepage
-    And I follow "Test group forum"
+    And I am on the "Test group forum" "forumng activity" page
     And I set the field "Visible groups" to "Group 1"
     And I add a discussion with the following data:
       | Subject | To be copied |
@@ -114,4 +114,5 @@ Feature: Copy discussions to another forum
     And I click on "Test shared forum" "link" in the "Topic 2" "section"
     And I press "Paste discussion"
     Then I should see "To be copied"
-    And I should see "Topic 2"
+    And I press "Open course index"
+    Then I should see "Topic 2"

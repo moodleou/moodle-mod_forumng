@@ -20,40 +20,41 @@ Feature: Lock multiple discussions
     And I log in as "admin"
     And I am on "Course 1" course homepage
     And I turn editing mode on
-    And I follow "Test forum"
+    And I am on the "Test forum" "forumng activity" page
     And I add a discussion with the following data:
       | Subject | D1 |
       | Message | abc |
-    And I follow "Test forum"
+    And I am on the "Test forum" "forumng activity" page
     And I add a discussion with the following data:
       | Subject | D2 |
       | Message | 123 |
     And I press "Delete"
     And I press "Delete"
-    And I follow "Test forum"
+    And I am on the "Test forum" "forumng activity" page
     And I add a discussion with the following data:
       | Subject | D3 |
       | Message | def |
     And I log out
     Given I log in as "student1"
     And I am on "Course 1" course homepage
-    And I follow "Test forum"
+    And I am on the "Test forum" "forumng activity" page
     Then "Lock discussions" "button" should not exist
     Given I add a discussion with the following data:
       | Subject | D4 |
       | Message | 456 |
     And I log out
 
+  @javascript
   Scenario: Lock discussions
     Given I log in as "admin"
     And I am on "Course 1" course homepage
-    And I follow "Test forum"
+    And I am on the "Test forum" "forumng activity" page
     When I press "Lock discussions"
-    And I press "Cancel"
+    And I click on "Cancel" "button" in the ".forumng-confirmdialog" "css_element"
     Then "Lock discussions" "button" should exist
     Given I press "Lock discussions"
-    And I press "Selected discussions"
-    And I set the field "Select discussion" to "1"
+    And I click on "Selected discussions" "button" in the ".forumng-confirmdialog" "css_element"
+    And I click on "table.generaltable tbody tr:nth-child(1) > td:nth-child(1) input" "css_element"
     When I press "Confirm selection"
     Then "Lock discussion" "button" should exist
     Given I set the field "Message" to "now locked"

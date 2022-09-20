@@ -77,7 +77,7 @@ Feature: Delete discussions
     And I set the field "Maximum time to edit posts" to "1 minutes"
     And I press "Save changes"
     And I am on "Course 1" course homepage
-    And I follow "Test forum name"
+    And I am on the "Test forum name" "forumng activity" page
     When I add a discussion with the following data:
       | Subject | Discussion 1 |
       | Message | abc |
@@ -97,7 +97,7 @@ Feature: Delete discussions
     Given I log out
     And I log in as "admin"
     And I am on "Course 1" course homepage
-    Given I follow "Test forum name"
+    Given I am on the "Test forum name" "forumng activity" page
     And I follow "Discussion 2"
     Given I change window size to "large"
     When I press "Delete"
@@ -108,7 +108,7 @@ Feature: Delete discussions
     When I press "Delete"
     And I click on "Cancel" "button" in the ".forumng-confirmdialog .forumng-buttons" "css_element"
     Then ".forumng-confirmdialog" "css_element" should not exist
-    Given I follow "Test forum name"
+    Given I am on the "Test forum name" "forumng activity" page
     And I follow "Discussion 1"
     When I click on "Delete" "button" in the "#forumng-features" "css_element"
     Then "Delete" "button" should exist in the ".forumng-confirmdialog .forumng-buttons" "css_element"

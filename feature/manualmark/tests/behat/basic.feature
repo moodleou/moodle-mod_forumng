@@ -25,15 +25,15 @@ Feature: Manually mark discussions read
     And I am on "Course 1" course homepage
     And I turn editing mode on
     And I am on "Course 1" course homepage
-    And I follow "Test forum name marking"
+    And I am on the "Test forum name marking" "forumng activity" page
     And I add a discussion with the following data:
       | Subject | Discussion 1 |
       | Message | Discussion 1 |
-    And I follow "Test forum name marking"
+    And I am on the "Test forum name marking" "forumng activity" page
     And I add a discussion with the following data:
       | Subject | Discussion 2 |
       | Message | Discussion 2 |
-    And I follow "Test forum name marking"
+    And I am on the "Test forum name marking" "forumng activity" page
     And I log out
 
   Scenario: Testing the 'Mark as read' options
@@ -61,7 +61,7 @@ Feature: Manually mark discussions read
     Then "Mark discussion read" "button" should exist
     And "Mark discussions not read" "button" should not exist
     When I press "Mark discussion read"
-    And I follow "Test forum name marking"
+    And I am on the "Test forum name marking" "forumng activity" page
     # Check discussions read state
     Then ".forumng-discussion-unread .forumng-unreadcount .iconsmall" "css_element" should not exist in the "Discussion 2" "table_row"
     And ".forumng-discussion-unread .forumng-unreadcount .iconsmall" "css_element" should exist in the "Discussion 1" "table_row"

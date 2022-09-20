@@ -26,7 +26,7 @@ Feature: Clone forum
       | Forum name | Test forum |
       | cmidnumber | TF1 |
       | id_shared | 1 |
-    And I follow "Test forum"
+    And I am on the "Test forum" "forumng activity" page
     And I add a discussion with the following data:
       | Subject | D1 |
       | Message | abc |
@@ -49,7 +49,7 @@ Feature: Clone forum
     And I log out
     Given I log in as "admin"
     And I am on "Course 1" course homepage
-    And I follow "Test forum"
+    And I am on the "Test forum" "forumng activity" page
     Then I should see "D1"
     And I should see "D2"
     And I should see "TF1" in the ".forumng-shareinfo" "css_element"

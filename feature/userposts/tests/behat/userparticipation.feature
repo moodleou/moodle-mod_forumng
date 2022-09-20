@@ -28,7 +28,7 @@ Feature: Add forumng activity and test user ratings
       | ratingscale[modgrade_type]  | Point                  |
       | ratingscale[modgrade_point] | 10                     |
       | Grade                       | No grade               |
-    And I follow "Test forum name"
+    And I am on the "Test forum name" "forumng activity" page
     And I add a discussion with the following data:
       | Subject | Admin1 |
       | Message | Test   |
@@ -121,7 +121,7 @@ Feature: Add forumng activity and test user ratings
     # Exclude non-respondents from participation report.
     And I log in as "admin"
     And I am on "Course 1" course homepage
-    And I follow "Test forum name"
+    And I am on the "Test forum name" "forumng activity" page
     And I press "Participation by user"
     And I should see "1" in the "//div/table//tr[@id='mod-forumng-participation_r0']/td[@class='cell c1']/div[text()]" "xpath_element"
     And I should see "3" in the "//div/table//tr[@id='mod-forumng-participation_r0']/td[@class='cell c2']/div[text()]" "xpath_element"
@@ -139,7 +139,7 @@ Feature: Add forumng activity and test user ratings
     # View with different grade setting
     And I log in as "admin"
     And I am on "Course 1" course homepage
-    And I follow "Test forum name"
+    And I am on the "Test forum name" "forumng activity" page
     And I navigate to "Settings" in current page administration
     And I set the following fields to these values:
      | Grade | Teacher grades students |
@@ -184,6 +184,6 @@ Feature: Add forumng activity and test user ratings
     Then I log out
     And I log in as "admin"
     And I am on "Course 1" course homepage
-    And I follow "Test forum name"
+    And I am on the "Test forum name" "forumng activity" page
     And I press "Participation by user"
     And I should see "Show all posts by Student 4 (student4@asd.com)"

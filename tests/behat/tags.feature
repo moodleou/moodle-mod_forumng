@@ -459,7 +459,7 @@ Feature: Add forumng activity and test basic tagging functionality
     And I am on "Course 1" course homepage with editing mode on
     And I duplicate "Test forum name" activity editing the new copy with:
       | Forum name | Duplicated Test forum name |
-    And I follow "Duplicated Test forum name"
+    And I am on the "Duplicated Test forum name" "forumng activity" page
     Given I press "Edit Set tags"
     Then I should see "Set tags for forum"
     And I should see "Set tags for Group 1"

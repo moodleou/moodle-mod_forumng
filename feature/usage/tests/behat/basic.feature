@@ -27,19 +27,19 @@ Feature: Show usage statistics for ForumNG
     And I am on "Course 1" course homepage
     And I turn editing mode on
     And I am on "Course 1" course homepage
-    And I follow "Test forum name marking"
+    And I am on the "Test forum name marking" "forumng activity" page
     And I add a discussion with the following data:
       | Subject | Discussion 1 |
       | Message | Discussion 1 |
-    And I follow "Test forum name marking"
+    And I am on the "Test forum name marking" "forumng activity" page
     And I add a discussion with the following data:
       | Subject | Discussion 2 |
       | Message | Discussion 2 |
-    And I follow "Test forum name marking"
+    And I am on the "Test forum name marking" "forumng activity" page
     And I add a discussion with the following data:
       | Subject | Discussion 3 |
       | Message | Discussion 3 |
-    And I follow "Test forum name marking"
+    And I am on the "Test forum name marking" "forumng activity" page
     And I log out
 
   # JS required or fails to find forumng_usage_list elements on the page
@@ -125,7 +125,7 @@ Feature: Show usage statistics for ForumNG
 
     Given I log in as "admin"
     And I am on "Course 1" course homepage
-    Given I follow "Test forum name marking"
+    Given I am on the "Test forum name marking" "forumng activity" page
 
     # Check the Show usage page
     And "Show usage" "button" should exist
@@ -160,7 +160,7 @@ Feature: Show usage statistics for ForumNG
     And I should see "Subscriber type"
     And I should see "Number"
     And I should see "Total subscribers"
-    And I should see "2" in the "table.generaltable:nth-child(2) > tbody:nth-child(2) > tr:nth-child(1) > td:nth-child(2)" "css_element"
+    And I should see "2" in the "div.forumng_usage_subscribers table.generaltable:nth-child(1) > tbody:nth-child(2) > tr:nth-child(1) > td:nth-child(2)" "css_element"
 
     And I should see "Whole forum subscribers"
     And I should see "Group forum subscribers"

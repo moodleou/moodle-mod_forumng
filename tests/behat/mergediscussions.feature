@@ -99,7 +99,7 @@ Feature: Test merge discussions functionality
     And I add a discussion with the following data:
       | Subject     | Discussion 1  |
       | Message     | Message 1     |
-    And I follow "ForumNG 2"
+    And I am on the "ForumNG 2" "forumng activity" page
     And I add a discussion with the following data:
       | Subject     | Discussion 2  |
       | Message     | Message 2     |
@@ -108,7 +108,7 @@ Feature: Test merge discussions functionality
     When I follow "Discussion 2"
     And I press "Merge"
     And I press "Begin merge"
-    And I follow "ForumNG 1"
+    And I am on the "ForumNG 1" "forumng activity" page
     And I follow "Discussion 1"
     Then "Cancel merge" "button" should exist
     And I should see "(Cannot merge here.)" in the ".forumngfeature-merge-extrahtml" "css_element"

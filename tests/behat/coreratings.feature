@@ -23,7 +23,7 @@ Feature: Add forumng activity and test basic ratings functionality
       | Allow posts to be rated | 2 |
       | ratingscale[modgrade_type] | Point |
       | ratingscale[modgrade_point] | 5 |
-    And I follow "Test forum name"
+    And I am on the "Test forum name" "forumng activity" page
     And I add a discussion with the following data:
       | Subject | Admin1 |
       | Message | Test |
@@ -71,7 +71,7 @@ Feature: Add forumng activity and test basic ratings functionality
     And I wait until the page is ready
     And I log in as "admin"
     And I am on "Course 1" course homepage
-    And I follow "Test forum name"
+    And I am on the "Test forum name" "forumng activity" page
     And I navigate to "Settings" in current page administration
     And I set the field "Grade" to "Count of ratings"
     And I press "Save and display"
@@ -79,7 +79,7 @@ Feature: Add forumng activity and test basic ratings functionality
     Then I should see "Count of ratings:"
     And "(1)" "link" should exist
     # Switch on rating time limit to.
-    Given I follow "Test forum name"
+    Given I am on the "Test forum name" "forumng activity" page
     And I navigate to "Settings" in current page administration
     And I set the field "id_ratingfrom_enabled" to "1"
     And I set the field "id_ratinguntil_enabled" to "1"

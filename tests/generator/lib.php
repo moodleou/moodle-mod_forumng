@@ -65,6 +65,10 @@ class mod_forumng_generator extends testing_module_generator {
             throw new coding_exception('module generator requires $record->course');
         }
 
+        if(empty($record->ratingthreshold)) {
+            $record->ratingthreshold = 1;
+        }
+
         // Fill in optional values if not specified.
         if (!isset($record->name)) {
             $record->name = get_string('pluginname', 'forumng') . ' ' . $i;
