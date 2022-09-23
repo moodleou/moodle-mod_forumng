@@ -24,8 +24,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2022012500;
-$plugin->requires = 2016052300;
+$plugin->version = 2022092300;
+$plugin->requires = 2022041900;
 $plugin->component = 'mod_forumng';
 $plugin->maturity = MATURITY_STABLE;
-$plugin->release = '3.7 r2';
+$plugin->release = '4.0 r1';
