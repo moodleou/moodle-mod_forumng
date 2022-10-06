@@ -31,7 +31,7 @@ $addons = [
                 'delegate' => 'CoreCourseModuleDelegate',
                 'method' => 'forumng_view',
                 'displaydata' => [
-                    'icon' => $CFG->wwwroot . '/theme/osep/pix_plugins/mod/forumng/icon.svg',
+                    'icon' => $CFG->wwwroot . '/theme/osep/pix_plugins/mod/forumng/monologo.svg',
                     'class' => 'core-course-module-forumng-handler'
                 ],
                 'offlinefunctions' => [],
