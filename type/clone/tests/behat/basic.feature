@@ -19,8 +19,7 @@ Feature: Clone forum
       | student2 | C2 | student |
     Given the following config values are set as admin:
       | forumng_enableadvanced | 1 |
-    And I log in as "admin"
-    And I am on "Course 1" course homepage
+    And I am on the "C1" "Course" page logged in as admin
     And I turn editing mode on
     And I add a "ForumNG" to section "1" and I fill the form with:
       | Forum name | Test forum |
@@ -30,7 +29,7 @@ Feature: Clone forum
     And I add a discussion with the following data:
       | Subject | D1 |
       | Message | abc |
-    And I am on "Course 2" course homepage
+    And I am on the "C2" "Course" page
     And I add a "ForumNG" to section "1" and I fill the form with:
       | Forum name | Test clone forum |
       | id_usesharedgroup_useshared | 1 |
@@ -39,22 +38,21 @@ Feature: Clone forum
 
   @javascript
   Scenario: Create and view shared forum
-    Given I log in as "student2"
-    And I am on "Course 2" course homepage
+    Given I am on the "C2" "Course" page logged in as student2
     And I follow "Test forum"
     Then I should see "D1"
     Given I add a discussion with the following data:
       | Subject | D2 |
       | Message | abc |
     And I log out
-    Given I log in as "admin"
-    And I am on "Course 1" course homepage
-    And I am on the "Test forum" "forumng activity" page
+    Given I am on the "C1" "Course" page logged in as admin
+    And I click on "Open course index" "button"
+    And I follow "Test forum"
     Then I should see "D1"
     And I should see "D2"
     And I should see "TF1" in the ".forumng-shareinfo" "css_element"
     And I should see "C2" in the ".forumng-shareinfo a" "css_element"
-    Given I am on "Course 2" course homepage
+    Given  I am on the "C2" "Course" page
     And I follow "Test forum"
     Then I should see "This is a shared forum"
     And I should see "C1" in the ".forumng-shareinfo" "css_element"
@@ -64,7 +62,7 @@ Feature: Clone forum
     When I press "Save and display"
     And I follow "original forum"
     Then I should see "C1"
-    Given I am on "Course 2" course homepage
+    Given  I am on the "C2" "Course" page
     And I follow "Test forum"
     And I follow "D1"
     And I click on ".arrow_link" "css_element"

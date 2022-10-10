@@ -16,8 +16,7 @@ Feature: Delete discussions
       | user | course | role |
       | student1 | C1 | student |
       | student2 | C1 | student |
-    And I log in as "admin"
-    And I am on "Course 1" course homepage
+    And I am on the "C1" "Course" page logged in as admin
     And I turn editing mode on
     And the following "activities" exist:
       | activity | name            | intro                  | course | section |
@@ -25,8 +24,7 @@ Feature: Delete discussions
     And I log out
 
   Scenario: Delete discussion from forum
-    Given I log in as "student1"
-    And I am on "Course 1" course homepage
+    Given I am on the "C1" "Course" page logged in as student1
     And I follow "Test forum name"
     When I add a discussion with the following data:
       | Subject | Discussion 1 |
@@ -46,8 +44,7 @@ Feature: Delete discussions
     When I press "Delete"
     Then I should not see "Discussion 1a"
     Given I log out
-    And I log in as "admin"
-    And I am on "Course 1" course homepage
+    And I am on the "C1" "Course" page logged in as admin
     And I follow "Test forum name"
     And I follow "Discussion 1a"
     When I press "Undelete"
@@ -76,14 +73,13 @@ Feature: Delete discussions
     Given I navigate to "Security > Site security settings" in site administration
     And I set the field "Maximum time to edit posts" to "1 minutes"
     And I press "Save changes"
-    And I am on "Course 1" course homepage
+    And I am on the "C1" "Course" page
     And I am on the "Test forum name" "forumng activity" page
     When I add a discussion with the following data:
       | Subject | Discussion 1 |
       | Message | abc |
     And I log out
-    Given I log in as "student2"
-    And I am on "Course 1" course homepage
+    Given I am on the "C1" "Course" page logged in as student2
     Given I follow "Test forum name"
     When I add a discussion with the following data:
       | Subject | Discussion 2 |
@@ -95,8 +91,7 @@ Feature: Delete discussions
       | Message | reply |
     Then "Delete" "button" should not exist in the "#region-main" "css_element"
     Given I log out
-    And I log in as "admin"
-    And I am on "Course 1" course homepage
+    And I am on the "C1" "Course" page logged in as admin
     Given I am on the "Test forum name" "forumng activity" page
     And I follow "Discussion 2"
     Given I change window size to "large"
@@ -120,8 +115,7 @@ Feature: Delete discussions
     And I press "Cancel"
     Given I change window size to "medium"
     Given I log out
-    And I log in as "student2"
-    And I am on "Course 1" course homepage
+    And I am on the "C1" "Course" page logged in as student2
     And I follow "Test forum name"
     # Test editing timeout: arbitrary 30 secs as set to 1 min but other steps undertaken take time.
     And I wait "30" seconds
