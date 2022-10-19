@@ -121,7 +121,7 @@ class mod_forumng_mod_form extends moodleform_mod {
         // Atom/RSS feed on/off/discussions-only.
         if ($CFG->enablerssfeeds && !empty($CFG->forumng_enablerssfeeds)) {
             if ($CFG->forumng_feedtype == -1 || $CFG->forumng_feeditems == -1) {
-                $mform->addElement('header', '', get_string('feeds', 'forumng'));
+                $mform->addElement('header', 'feeds', get_string('feeds', 'forumng'));
             }
 
             if ($CFG->forumng_feedtype == -1) {
@@ -142,7 +142,7 @@ class mod_forumng_mod_form extends moodleform_mod {
 
         // Add tagging to discussions.
         if ($CFG->usetags && core_tag_tag::is_enabled('mod_forumng', 'forumng')) {
-            $mform->addElement('header', '', get_string('tagging', 'forumng'));
+            $mform->addElement('header', 'tagging', get_string('tagging', 'forumng'));
             // Enable tagging.
             $mform->addElement('checkbox', 'enabletags', get_string('enabletagging', 'forumng'));
             $mform->addHelpButton('enabletags', 'tagging', 'forumng');
@@ -161,7 +161,7 @@ class mod_forumng_mod_form extends moodleform_mod {
         }
 
         // Ratings header.
-        $mform->addElement('header', '', get_string('ratings', 'forumng'));
+        $mform->addElement('header', 'ratings', get_string('ratings', 'forumng'));
 
         $options = array(mod_forumng::FORUMNG_NO_RATING => get_string('noratings', 'forumng'),
                         mod_forumng::FORUMNG_RATING_OBSOLETE => get_string('forumngratingsobsolete', 'forumng'),
@@ -194,7 +194,7 @@ class mod_forumng_mod_form extends moodleform_mod {
         $mform->disabledIf('ratingthreshold', 'enableratings', 'neq', mod_forumng::FORUMNG_RATING_OBSOLETE);
 
         // Grading.
-        $mform->addElement('header', '', get_string('grading', 'forumng'));
+        $mform->addElement('header', 'grade', get_string('grading', 'forumng'));
 
         $mform->addElement('select', 'grading', get_string('gradenoun'),
             mod_forumng::get_grading_options());
@@ -206,7 +206,7 @@ class mod_forumng_mod_form extends moodleform_mod {
         $mform->setDefault('gradingscale', 5);
 
         // Blocking header.
-        $mform->addElement('header', '', get_string('limitposts', 'forumng'));
+        $mform->addElement('header', 'limitposts', get_string('limitposts', 'forumng'));
 
         // Post dates.
         $mform->addElement('date_time_selector', 'postingfrom',
@@ -241,7 +241,7 @@ class mod_forumng_mod_form extends moodleform_mod {
 
         // Remove old discussion.
         $options = mod_forumng_utils::create_remove_options();
-        $mform->addElement('header', '', get_string('removeolddiscussions', 'forumng'));
+        $mform->addElement('header', 'manageolddiscussions', get_string('removeolddiscussions', 'forumng'));
         $mform->addElement('select', 'removeafter',
                 get_string('removeolddiscussionsafter', 'forumng'), $options);
         $mform->addHelpButton('removeafter', 'removeolddiscussions', 'forumng');
@@ -273,7 +273,7 @@ class mod_forumng_mod_form extends moodleform_mod {
 
         // Sharing options are advanced and for administrators only.
         if ($CFG->forumng_enableadvanced && has_capability('mod/forumng:addinstance', context_system::instance())) {
-            $mform->addElement('header', '', get_string('sharing', 'forumng'));
+            $mform->addElement('header', 'sharing', get_string('sharing', 'forumng'));
             $mform->addElement('advcheckbox', 'shared', get_string('shared', 'forumng'));
             $mform->addHelpButton('shared', 'shared', 'forumng');
 
