@@ -33,7 +33,7 @@ Feature: Delete discussions
     Given I reply to post "1" with the following data:
       | Message | def |
     Then "Delete" "button" should not exist in the "#forumng-features" "css_element"
-    Given I follow "Test forum name"
+    Given I am on the "Test forum name" "forumng activity" page
     When I add a discussion with the following data:
       | Subject | Discussion 1a |
       | Message | abcdef |
@@ -45,7 +45,7 @@ Feature: Delete discussions
     Then I should not see "Discussion 1a"
     Given I log out
     And I am on the "C1" "Course" page logged in as admin
-    And I follow "Test forum name"
+    And I am on the "Test forum name" "forumng activity" page
     And I follow "Discussion 1a"
     When I press "Undelete"
     And I press "Cancel"
@@ -59,7 +59,7 @@ Feature: Delete discussions
     And I should not see "Notify other contributors"
     And I press "Cancel"
     And I should see "abcdef"
-    Given I follow "Test forum name"
+    Given I am on the "Test forum name" "forumng activity" page
     And I follow "Discussion 1"
     And I reply to post "1" with the following data:
       | Message | ghi |
@@ -80,12 +80,12 @@ Feature: Delete discussions
       | Message | abc |
     And I log out
     Given I am on the "C1" "Course" page logged in as student2
-    Given I follow "Test forum name"
+    Given I am on the "Test forum name" "forumng activity" page
     When I add a discussion with the following data:
       | Subject | Discussion 2 |
       | Message | abc |
     Then "Delete" "button" should exist
-    Given I follow "Test forum name"
+    Given I am on the "Test forum name" "forumng activity" page
     When I follow "Discussion 1"
     And I reply to post "1" with the following data:
       | Message | reply |
