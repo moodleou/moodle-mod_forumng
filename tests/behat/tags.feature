@@ -147,6 +147,7 @@ Feature: Add forumng activity and test basic tagging functionality
 
     # Test forum wide 'set' tags
     Then I navigate to "Settings" in current page administration
+    And I expand all fieldsets
     Then the "Enable discussion tagging" "checkbox" should be enabled
     Given I set the field "Set tags for forum" to "setA, setB, setC"
     And I click on "Save and display" "button"

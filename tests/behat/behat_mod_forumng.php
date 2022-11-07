@@ -183,6 +183,8 @@ class behat_mod_forumng extends behat_base {
             $this->execute('behat_general::wait_until_exists', array($savebutton, 'button'));
             $this->execute('behat_general::wait_until_the_page_is_ready', array());
             if ($type == 'reply') {
+                $this->execute('behat_general::wait_until_exists',
+                        array('#id_submitbutton[disabled]', 'css_element'));
                 $this->execute('behat_general::the_element_should_be_disabled',
                         array($savebutton, 'button'));
             }

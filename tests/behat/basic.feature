@@ -438,7 +438,9 @@ Feature: Add forumng activity and test basic functionality
     Given I log in as "admin"
     And I am on "Course 1" course homepage
     And I follow "Test forum name"
+    And I am on the "Test forum name" "forumng activity" page
     And I navigate to "Settings" in current page administration
+    And I expand all fieldsets
     And I click on "#id_postinguntil_enabled" "css_element"
     And I click on "#id_postingfrom_enabled" "css_element"
     And I set the field "id_postinguntil_year" to "2011"
@@ -456,6 +458,7 @@ Feature: Add forumng activity and test basic functionality
     And I am on "Course 1" course homepage
     And I follow "Test forum name"
     And I navigate to "Settings" in current page administration
+    And I expand all fieldsets
     And I set the field "id_canpostanon" to "2"
     And I set the field "id_enableratings" to "1"
     And I set the field "id_ratingthreshold" to "1"
