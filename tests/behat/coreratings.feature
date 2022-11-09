@@ -73,6 +73,7 @@ Feature: Add forumng activity and test basic ratings functionality
     And I am on "Course 1" course homepage
     And I am on the "Test forum name" "forumng activity" page
     And I navigate to "Settings" in current page administration
+    And I expand all fieldsets
     And I set the field "Grade" to "Count of ratings"
     And I press "Save and display"
     When I follow "Admin1"
@@ -81,6 +82,7 @@ Feature: Add forumng activity and test basic ratings functionality
     # Switch on rating time limit to.
     Given I am on the "Test forum name" "forumng activity" page
     And I navigate to "Settings" in current page administration
+    And I expand all fieldsets
     And I set the field "id_ratingfrom_enabled" to "1"
     And I set the field "id_ratinguntil_enabled" to "1"
     And I set the field "id_ratingfrom_year" to "2010"

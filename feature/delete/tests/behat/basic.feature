@@ -117,7 +117,7 @@ Feature: Delete discussions
     Given I log out
     And I am on the "C1" "Course" page logged in as student2
     And I follow "Test forum name"
-    # Test editing timeout: arbitrary 30 secs as set to 1 min but other steps undertaken take time.
-    And I wait "30" seconds
+    # Test editing timeout: arbitrary 50 secs as set to 1 min but other steps undertaken take time.
+    And I wait "50" seconds
     And I follow "Discussion 2"
     Then "Delete" "button" should not exist in the "#region-main" "css_element"
