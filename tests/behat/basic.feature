@@ -202,6 +202,7 @@ Feature: Add forumng activity and test basic functionality
       | Message | REPLY1 |
     And I reply to post "1" with the following data:
       | Message | REPLY2 |
+    And I wait "2" seconds
     And I reply to post "1" with the following data:
       | Message | REPLY3 |
     Then I should see "Discussion 1"
