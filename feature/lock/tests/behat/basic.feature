@@ -65,3 +65,8 @@ Feature: Lock multiple discussions
     And I set the field "Message" to "now locked"
     When I press "Lock discussion"
     Then ".forumng-locked.forumng-deleted" "css_element" should not exist
+    And ".forumng-locked" "css_element" should exist
+    And I should see "D1"
+    And I should see "D2"
+    And I should see "D3"
+    And I should see "D4"

@@ -651,6 +651,35 @@ class mod_forumng_post_test extends forumng_test_lib {
     }
 
     /**
+     * Check that an empty message doesn't lead to a processing error.
+     *
+     * @return void
+     * @throws coding_exception
+     */
+    public function test_get_formatted_message_empty() {
+        global $USER;
+        $this->resetAfterTest(true);
+        $this->setAdminUser();
+        $adminid = $USER->id;
+        $course = $this->get_new_course();
+        $generator = $this->getDataGenerator()->get_plugin_generator('mod_forumng');
+        $forum1 = $this->get_new_forumng($course->id, array('groupmode' => VISIBLEGROUPS));
+        $did1 = $generator->create_discussion(array('course' => $course,
+                'forum' => $forum1->get_id(), 'userid' => $adminid));
+        $post1 = $generator->create_post(
+            array(
+                'discussionid' => $did1[0],
+                'parentpostid' => $did1[1],
+                'userid' => $adminid,
+                'message' => ''
+            ));
+        $postobj = mod_forumng_post::get_from_id($post1->id, 0);
+        $expected = '';
+        $actual = $postobj->get_formatted_message([mod_forumng_post::OPTION_EMAIL => 1]);
+        $this->assertEquals($expected, $actual);
+    }
+
+    /**
      * Test get total reply when postfields is or is not set.
      */
     public function test_get_total_reply() {

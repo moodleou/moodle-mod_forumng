@@ -2672,6 +2672,10 @@ WHERE
      */
     protected function add_hash_to_image($html) {
         global $CFG;
+        if (empty($html)) {
+            // Stop DOMDoc errors, no need to continue if empty html.
+            return '';
+        }
         $salt = context_course::instance($this->get_forum()->get_course()->id)->id;
 
         $doc = new DOMDocument();
