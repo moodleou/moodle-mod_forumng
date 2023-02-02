@@ -219,14 +219,16 @@ Feature: Add forumng activity and test basic functionality
     And ".forumng-p4 .forumng-flagpost img" "css_element" should exist
     And the "title" attribute of ".forumng-p1 .forumng-flagpost a" "css_element" should contain "Star this post for future reference"
 
-    # Click to flag Reply1
-    And I click on ".forumng-p2 .forumng-flagpost a" "css_element"
     # Click 'Expand' to access 'Flag' for Replies
-    And I expand post "3"
-    And I click on ".forumng-p3 .forumng-flagpost a" "css_element"
     And I expand post "4"
     And I click on ".forumng-p4 .forumng-flagpost a" "css_element"
-    And ".forumng-p4 .forumng-flagpost img" "css_element" should exist
+    And I wait "1" seconds
+    And I expand post "3"
+    And I click on ".forumng-p3 .forumng-flagpost a" "css_element"
+    And I wait "1" seconds
+    And I expand post "2"
+    And I click on ".forumng-p2 .forumng-flagpost a" "css_element"
+    And ".forumng-p2 .forumng-flagpost img" "css_element" should exist
     And the "title" attribute of ".forumng-p2 .forumng-flagpost a" "css_element" should contain "Remove star"
 
     # Check flagged posts display ok on main forum page
@@ -239,7 +241,8 @@ Feature: Add forumng activity and test basic functionality
     And "REPLY1" "link" should exist
 
     # Click Reply3 to remove flag
-    And I click on "tr.r0 td.cell.c0 form.forumng-flag input[type=image]" "css_element"
+    And I click on "#forumng-flaggedposts tr.r0.lastrow td.cell.c0 form.forumng-flag input[type=image]" "css_element"
+    And I wait "3" seconds
     Then "REPLY3" "link" should not exist
     And "REPLY2" "link" should exist
     And "REPLY1" "link" should exist
