@@ -1489,7 +1489,6 @@ WHERE
         // Update completion status in case it needs marking false for anyone
         $this->update_completion(false);
 
-
         // Log delete
         if ($log) {
             $this->log('delete discussion');
@@ -2782,7 +2781,7 @@ WHERE
             $cm = $this->get_course_module();
             $completion = new completion_info($course);
             $completion->update_state($cm, $positive ? COMPLETION_COMPLETE : COMPLETION_INCOMPLETE,
-                    $userid, true);
+                    $userid);
         }
     }
 
