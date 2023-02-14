@@ -134,4 +134,70 @@ class forumngtype_ipud_testcase extends forumng_test_lib {
         $this->assertFalse($options['markimportant']);
     }
 
+    /**
+     * Checks unread as ipud is a bit different as discussion post should not be counted.
+     */
+    public function test_ipud_unread_discussion() {
+        global $USER;
+        $this->resetAfterTest(true);
+        $this->setAdminUser();
+
+        // Create the generator object for ForumNG.
+        $generator = self::getDataGenerator()->get_plugin_generator('mod_forumng');
+
+        // Create course.
+        $course = self::getDataGenerator()->create_course(array('shortname' => 'Course 1'));
+
+        // Create forum.
+        $forum = $generator->create_instance(array('course' => $course->id, 'type' => 'ipud'));
+
+        $user1 = $this->get_new_user('student', $course->id);
+
+        // Create discussion for current user.
+        $record = new stdClass();
+        $record->course = $course->id;
+        $record->forum = $forum->id;
+        $record->userid = $USER->id;
+        $discussion = $generator->create_discussion($record);
+
+        $discussionuser1 = mod_forumng_discussion::get_from_id($discussion[0], 0, $user1->id);
+        // Root post always count as read in IPUD.
+        $numposts = $discussionuser1->get_num_posts();
+        $unreadnumposts = $discussionuser1->get_num_unread_posts();
+        $this->assertEquals(0, $numposts);
+        $this->assertEquals(0, $unreadnumposts);
+    }
+
+    /**
+     * Checks unread as ipud is a bit different as discussion post should not be counted.
+     */
+    public function test_ipud_unread_forum() {
+        global $USER;
+        $this->resetAfterTest(true);
+        $this->setAdminUser();
+
+        // Create the generator object for ForumNG.
+        $generator = self::getDataGenerator()->get_plugin_generator('mod_forumng');
+
+        // Create course.
+        $course = self::getDataGenerator()->create_course(array('shortname' => 'Course 1'));
+
+        // Create forum.
+        $forum = $generator->create_instance(array('course' => $course->id, 'type' => 'ipud'));
+
+        $user1 = $this->get_new_user('student', $course->id);
+
+        // Create discussion for current user.
+        $record = new stdClass();
+        $record->course = $course->id;
+        $record->forum = $forum->id;
+        $record->userid = $USER->id;
+        $discussion = $generator->create_discussion($record);
+
+        $forums = \mod_forumng::get_course_forums($course, $user1->id, mod_forumng::UNREAD_DISCUSSIONS);
+        $forumuser1 = $forums[$forum->id];
+        // Root post always count as read in IPUD.
+        $unreadnumposts = $forumuser1->has_unread_discussions();
+        $this->assertEquals(false, $unreadnumposts);
+    }
 }

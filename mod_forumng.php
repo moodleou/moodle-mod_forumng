@@ -3381,6 +3381,7 @@ WHERE
              AND cm2.module = (SELECT id FROM {modules} WHERE name = 'forumng')
        WHERE fplast.modified > ?
          AND (f1.type != ? OR fpfirst.userid = ? OR ($inviewhiddenforums))
+         AND NOT (f1.type = ? AND fd.postid = fd.lastpostid)
          AND (
              (fd.groupid IS NULL)
              OR ($ingroups)
@@ -3400,9 +3401,9 @@ WHERE
     $indreadpart
        WHERE discussions.forumngid = f.id
     $indreadwhere";
-            $sharedqueryparams = array_merge(array($userid, $endtime, 'studyadvice', $userid),
-                    $inviewhiddenforumsparams, $ingroupsparams, $inaagforumsparams, array($now, $now), $inviewhiddenforumsparams,
-                    array($userid, $userid), $restrictionparams, $indreadparms);
+            $sharedqueryparams = array_merge([$userid, $endtime, 'studyadvice', $userid], $inviewhiddenforumsparams, ['ipud'],
+                    $ingroupsparams, $inaagforumsparams, [$now, $now], $inviewhiddenforumsparams,
+                    [$userid, $userid], $restrictionparams, $indreadparms);
 
             // Note: There is an unusual case in which this number can
             // be inaccurate. It is to do with ignoring messages the user
