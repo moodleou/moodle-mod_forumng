@@ -99,11 +99,11 @@
         <%# hasreplies %>
         <ion-button slot="end" fill="outline" *ngIf="(!CONTENT_OTHERDATA.iscollapseall && !CONTENT_OTHERDATA.isexpandall) || CONTENT_OTHERDATA.iscollapseall" (click)="expand_all_posts()">
             {{CONTENT_OTHERDATA.expandall}}
-            <ion-icon slot="end" name="chevron-down-outline"></ion-icon>
+            <ion-icon slot="end" name="fa-chevron-down"></ion-icon>
         </ion-button>
         <ion-button slot="end" fill="outline" *ngIf="(!CONTENT_OTHERDATA.iscollapseall && !CONTENT_OTHERDATA.isexpandall) || CONTENT_OTHERDATA.isexpandall" (click)="collapse_all_posts()">
             {{CONTENT_OTHERDATA.collapseallpost}}
-            <ion-icon slot="end" name="chevron-up-outline"></ion-icon>
+            <ion-icon slot="end" name="fa-chevron-up"></ion-icon>
         </ion-button>
         <%/ hasreplies %>
     </ion-item>
@@ -354,10 +354,10 @@
                         </div>
                     </ion-label>
                     <div *ngIf="!reply.isexpanded" slot="end" class="mma-forumng-post-reply-expandall">
-                        <ion-icon *ngIf="!(reply.hidedeleteionformation && reply.showdeletemessage)" name="chevron-down" (click)="reply.isexpanded = !reply.isexpanded"></ion-icon>
+                        <ion-icon *ngIf="!(reply.hidedeleteionformation && reply.showdeletemessage)" name="fa-chevron-down" (click)="reply.isexpanded = !reply.isexpanded"></ion-icon>
                     </div>
                     <div *ngIf="reply.isexpanded" slot="end" class="mma-forumng-post-reply-expandall">
-                        <ion-icon *ngIf="!(reply.hidedeleteionformation && reply.showdeletemessage)" name="chevron-up" (click)="reply.isexpanded = !reply.isexpanded"></ion-icon>
+                        <ion-icon *ngIf="!(reply.hidedeleteionformation && reply.showdeletemessage)" name="fa-chevron-up" (click)="reply.isexpanded = !reply.isexpanded"></ion-icon>
                     </div>
                 </ion-item>
                 <ion-item *ngIf="!reply.hidedeleteionformation" class="mma-forumng-posts ion-text-wrap" lines="none">
@@ -526,10 +526,10 @@
                                     </div>
                                 </ion-label>
                                 <div *ngIf="!subreply.isexpanded" slot="end" class="mma-forumng-post-subreply-expandall">
-                                    <ion-icon *ngIf="!(subreply.hidedeleteionformation && subreply.showdeletemessage)" name="chevron-down" (click)="subreply.isexpanded = !subreply.isexpanded"></ion-icon>
+                                    <ion-icon *ngIf="!(subreply.hidedeleteionformation && subreply.showdeletemessage)" name="fa-chevron-down" (click)="subreply.isexpanded = !subreply.isexpanded"></ion-icon>
                                 </div>
                                 <div *ngIf="subreply.isexpanded" slot="end" class="mma-forumng-post-reply-expandall">
-                                    <ion-icon *ngIf="!(subreply.hidedeleteionformation && subreply.showdeletemessage)" name="chevron-up" (click)="subreply.isexpanded = !subreply.isexpanded"></ion-icon>
+                                    <ion-icon *ngIf="!(subreply.hidedeleteionformation && subreply.showdeletemessage)" name="fa-chevron-up" (click)="subreply.isexpanded = !subreply.isexpanded"></ion-icon>
                                 </div>
                             </ion-item>
                             <ion-item class="mma-forumng-posts ion-text-wrap" *ngIf="!subreply.hidedeleteionformation" lines="none">

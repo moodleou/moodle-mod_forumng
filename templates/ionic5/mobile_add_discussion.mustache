@@ -109,13 +109,21 @@
     </ion-item>
     <%/ hasoption %>
     <ion-item class="mma-forumng-group-button" lines="none">
-        <ion-button id="mma-forumng-add-discussion-button" fill="outline" (click)="addDiscussion()"
-                [disabled]="subject == '' || message == null || message == ''"><% submitlabel %>
-        </ion-button>
-        <ion-button fill="outline" (click)="NewDiscussionCancel()">{{ 'core.cancel' | translate }}</ion-button>
-        <ion-button id="mma-forumng-add-draft-button" fill="outline" (click)="addDraft()"
-                [disabled]="subject == '' || message == null || message == ''"><% submitdraftlabel %>
-        </ion-button>
+        <ion-row>
+            <ion-col>
+                <ion-button id="mma-forumng-add-discussion-button" fill="outline" (click)="addDiscussion()"
+                                    [disabled]="subject == '' || message == null || message == ''"><% submitlabel %>
+                            </ion-button>
+            </ion-col>
+            <ion-col>
+                <ion-button fill="outline" (click)="NewDiscussionCancel()">{{ 'core.cancel' | translate }}</ion-button>
+            </ion-col>
+            <ion-col>
+                <ion-button id="mma-forumng-add-draft-button" fill="outline" (click)="addDraft()"
+                                    [disabled]="subject == '' || message == null || message == ''"><% submitdraftlabel %>
+                            </ion-button>
+            </ion-col>
+        </ion-row>
     </ion-item>
     <ion-item class="mma-forumng-label-required" lines="none">
         <ion-label class="mma-forumng-boldtitle mma-forumng-required-before">
