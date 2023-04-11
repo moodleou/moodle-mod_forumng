@@ -83,7 +83,7 @@
             <%/ displaytext %>
             <%^ displaytext %>
             <ion-label><% grouplabel %></ion-label>
-            <ion-select [(ngModel)]="CONTENT_OTHERDATA.defaultgroup" interface="popover"
+            <ion-select value="{{CONTENT_OTHERDATA.defaultgroup}}" interface="popover"
                         (ionChange)="updateGroupContent({cmid: <% cmid %>, courseid: <% courseid %>, group: $event.detail.value, isupdate: 1, 'sortid': CONTENT_OTHERDATA.selectedsort})">
                 <%# groups %>
                 <ion-select-option value="<% groupid %>"><% groupname %></ion-select-option>
