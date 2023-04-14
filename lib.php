@@ -242,7 +242,7 @@ function forumng_get_coursemodule_info($coursemodule) {
 
     $forumng = $DB->get_record('forumng',
             array('id' => $coursemodule->instance), 'id, name, type, intro, introformat,
-             completiondiscussions, completionreplies, completionposts');
+             completiondiscussions, completionreplies, completionposts, completionwordcountmin, completionwordcountmax');
     if (!$forumng) {
         return null;
     }
@@ -259,6 +259,8 @@ function forumng_get_coursemodule_info($coursemodule) {
         $info->customdata->customcompletionrules['completiondiscussions'] = $forumng->completiondiscussions;
         $info->customdata->customcompletionrules['completionreplies'] = $forumng->completionreplies;
         $info->customdata->customcompletionrules['completionposts'] = $forumng->completionposts;
+        $info->customdata->customcompletionrules['completionwordcountmin'] = $forumng->completionwordcountmin;
+        $info->customdata->customcompletionrules['completionwordcountmax'] = $forumng->completionwordcountmax;
     }
 
     return $info;

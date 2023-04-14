@@ -2665,6 +2665,21 @@ WHERE
     }
 
     /**
+     * Clear completion status cache and force update.
+     *
+     */
+    public function force_update_completion() {
+        // Do nothing if completion isn't enabled
+        if (!$this->get_forum()->is_auto_completion_enabled(true)) {
+            return;
+        }
+        $course = $this->get_forum()->get_course();
+        $cm = $this->get_forum()->get_course_module();
+        $completion = new completion_info($course);
+        $completion->update_state($cm, COMPLETION_UNKNOWN, $this->postfields->userid);
+    }
+
+    /**
      * Append hash after image link found in the document.
      *
      * @param string $html HTML string.

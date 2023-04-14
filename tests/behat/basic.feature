@@ -727,3 +727,72 @@ Feature: Add forumng activity and test basic functionality
     Given I follow "History"
     Then I should see "REPLY2"
     And I should see "Change reply2 EDIT"
+
+  @javascript
+  Scenario: Check forum custom completion with wordcount.
+    Given the following "courses" exist:
+      | fullname | shortname | format      | enablecompletion |
+      | Course 3 | C3        | oustudyplan | 1                |
+    And the following "course enrolments" exist:
+      | user     | course | role    |
+      | student1 | C3     | student |
+    And the following "activities" exist:
+      | activity | name                          | introduction           | course | idnumber | completion | completionrepliesenabled | completionreplies | completionwordcountminenabled | completionwordcountmin | completionwordcountmaxenabled | completionwordcountmax |
+      | forumng  | Test forum replies completion | Test forum description | C3     | forumng3 | 2          | 1                        | 2                 | 1                             | 1                      | 1                             | 5                      |
+    And the following "activities" exist:
+      | activity | name                              | introduction           | course | idnumber | completion | completiondiscussionsenabled | completiondiscussions | completionwordcountminenabled | completionwordcountmin | completionwordcountmaxenabled | completionwordcountmax |
+      | forumng  | Test forum discussions completion | Test forum description | C3     | forumng4 | 2          | 1                            | 1                     | 1                             | 1                      | 1                             | 5                      |
+    And the following "activities" exist:
+      | activity | name                        | introduction           | course | idnumber | completion | completionpostsenabled | completionposts | completionwordcountminenabled | completionwordcountmin | completionwordcountmaxenabled | completionwordcountmax |
+      | forumng  | Test forum posts completion | Test forum description | C3     | forumng5 | 2          | 1                      | 3               | 1                             | 1                      | 1                             | 5                      |
+    And I log in as "student1"
+    And I am on "Course 3" course homepage
+    # Check custom completion replies with wordcount.
+    And I follow "Test forum replies completion"
+    And "Test forum replies completion" should have the "Make replies: 2" completion condition
+    And "Test forum replies completion" should have the "Make discussion or reply with minimum word count: 1" completion condition
+    And "Test forum replies completion" should have the "Make discussion or reply with maximum word count: 5" completion condition
+    When I add a discussion with the following data:
+      | Subject | Discussion 1 |
+      | Message | Discussion 1 |
+    And I reply to post "1" with the following data:
+      | Message | REPLY1 |
+    And I reply to post "1" with the following data:
+      | Message | REPLY2 |
+    And I reload the page
+    Then the "Make replies: 2" completion condition of "Test forum replies completion" is displayed as "done"
+    And the "Make discussion or reply with minimum word count: 1" completion condition of "Test forum replies completion" is displayed as "done"
+    And the "Make discussion or reply with maximum word count: 5" completion condition of "Test forum replies completion" is displayed as "done"
+    And I am on "Course 3" course homepage
+   # Check custom completion discussion with wordcount.
+    And I follow "Test forum discussions completion"
+    And "Test forum discussions completion" should have the "Make discussions: 1" completion condition
+    And "Test forum discussions completion" should have the "Make discussion or reply with minimum word count: 1" completion condition
+    And "Test forum discussions completion" should have the "Make discussion or reply with maximum word count: 5" completion condition
+    When I add a discussion with the following data:
+      | Subject | Discussion 1 |
+      | Message | Discussion 1 |
+    Then the "Make discussions: 1" completion condition of "Test forum discussions completion" is displayed as "done"
+    And the "Make discussion or reply with minimum word count: 1" completion condition of "Test forum discussions completion" is displayed as "done"
+    And the "Make discussion or reply with maximum word count: 5" completion condition of "Test forum discussions completion" is displayed as "done"
+    And I edit post "1" with the following data:
+      | Message | Discussion does not meet the maximum word count |
+    And I reload the page
+    And "Test forum discussions completion" should have the "Make discussion or reply with maximum word count: 5" completion condition
+    # Check custom completion posts with wordcount.
+    And I am on "Course 3" course homepage
+    And I follow "Test forum posts completion"
+    And "Test forum posts completion" should have the "Make posts: 3" completion condition
+    And "Test forum posts completion" should have the "Make discussion or reply with minimum word count: 1" completion condition
+    And "Test forum posts completion" should have the "Make discussion or reply with maximum word count: 5" completion condition
+    When I add a discussion with the following data:
+      | Subject | Discussion 1 |
+      | Message | Discussion 1 |
+    And I reply to post "1" with the following data:
+      | Message | REPLY1 |
+    And I reply to post "1" with the following data:
+      | Message | REPLY2 |
+    And I reload the page
+    Then the "Make posts: 3" completion condition of "Test forum posts completion" is displayed as "done"
+    And the "Make discussion or reply with minimum word count: 1" completion condition of "Test forum posts completion" is displayed as "done"
+    And the "Make discussion or reply with maximum word count: 5" completion condition of "Test forum posts completion" is displayed as "done"

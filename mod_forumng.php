@@ -4455,44 +4455,43 @@ WHERE
      *   return value is $type)
      */
     public function get_completion_state($userid, $type) {
-        global $DB;
         $result = $type; // Default return value
 
         $forumngid = $this->get_id();
         $postcountsql = "
 SELECT
-    COUNT(1)
+    fp.id, fp.discussionid, fp.parentpostid, fp.message
 FROM
     {forumng_posts} fp
     INNER JOIN {forumng_discussions} fd ON fp.discussionid = fd.id
 WHERE
-    fp.userid = ? AND fd.forumngid = ? AND fp.deleted = 0 AND fd.deleted = 0";
-        $postcountparams = array($userid, $forumngid);
+    fp.userid = ? AND fd.forumngid = ? AND fp.deleted = 0 AND fd.deleted = 0 AND fp.oldversion = 0";
+        $postcountparams = [$userid, $forumngid];
 
         if ($this->forumfields->completiondiscussions) {
-            $value = $this->forumfields->completiondiscussions <=
-                    $DB->get_field_sql( $postcountsql . ' AND fp.parentpostid IS NULL',
-                    $postcountparams);
-            if ($type==COMPLETION_AND) {
+            $discussionssql = $postcountsql . ' AND fp.parentpostid IS NULL';
+            $discussions = $this->get_posts_meet_wordcount($discussionssql, $postcountparams);
+            $value = $this->forumfields->completiondiscussions <= count($discussions);
+            if ($type == COMPLETION_AND) {
                 $result = $result && $value;
             } else {
                 $result = $result || $value;
             }
         }
         if ($this->forumfields->completionreplies) {
-            $value = $this->forumfields->completionreplies <=
-                    $DB->get_field_sql( $postcountsql . ' AND fp.parentpostid IS NOT NULL',
-                            $postcountparams);
-            if ($type==COMPLETION_AND) {
+            $repliessql = $postcountsql . ' AND fp.parentpostid IS NOT NULL';
+            $replies = $this->get_posts_meet_wordcount($repliessql, $postcountparams);
+            $value = $this->forumfields->completionreplies <= count($replies);
+            if ($type == COMPLETION_AND) {
                 $result = $result && $value;
             } else {
                 $result = $result || $value;
             }
         }
         if ($this->forumfields->completionposts) {
-            $value = $this->forumfields->completionposts <=
-                    $DB->get_field_sql($postcountsql, $postcountparams);
-            if ($type==COMPLETION_AND) {
+            $post = $this->get_posts_meet_wordcount($postcountsql, $postcountparams);
+            $value = $this->forumfields->completionposts <= count($post);
+            if ($type == COMPLETION_AND) {
                 $result = $result && $value;
             } else {
                 $result = $result || $value;
@@ -4500,6 +4499,43 @@ WHERE
         }
 
         return $result;
+    }
+
+    /**
+     * Get list forumng posts that meet wordcount conditions.
+     *
+     * @param string $sql SQL query for getting the post.
+     * @param array|null $params Query parameters.
+     * @return array Array of forumng post objects.
+     */
+    private function get_posts_meet_wordcount(string $sql = '', ?array $params = null): array {
+        global $DB;
+        $posts = [];
+        $min = $this->forumfields->completionwordcountmin ?? 0;
+        $max = $this->forumfields->completionwordcountmax ?? 0;
+        if ($records = $DB->get_records_sql($sql, $params)) {
+            if (!$min && !$max) {
+                return $records;
+            }
+            foreach ($records as $key => $value) {
+                $wordcount = count_words($value->message);
+                $flag = true;
+                if ($min) {
+                    if ($wordcount < $min) {
+                        $flag = false;
+                    }
+                }
+                if ($max) {
+                    if ($wordcount > $max) {
+                        $flag = false;
+                    }
+                }
+                if ($flag) {
+                    $posts[$key] = $value;
+                }
+            }
+        }
+        return $posts;
     }
 
     // Conversion

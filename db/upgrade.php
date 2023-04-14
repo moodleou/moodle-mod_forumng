@@ -489,5 +489,27 @@ function xmldb_forumng_upgrade($oldversion=0) {
         upgrade_mod_savepoint(true, 2022012500, 'forumng');
     }
 
+    if ($oldversion < 2023042000) {
+
+        // Define field completionwordcountmin to be added to forumng.
+        $table = new xmldb_table('forumng');
+        $field = new xmldb_field('completionwordcountmin', XMLDB_TYPE_INTEGER, '9', null,
+                XMLDB_NOTNULL, null, 0, 'lastemailprocessing');
+        // Conditionally launch add field.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        $field = new xmldb_field('completionwordcountmax', XMLDB_TYPE_INTEGER, '9', null,
+                XMLDB_NOTNULL, null, 0, 'completionwordcountmin');
+        // Conditionally launch add field.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Forumng savepoint reached.
+        upgrade_mod_savepoint(true, 2023042000, 'forumng');
+    }
+
     return true;
 }

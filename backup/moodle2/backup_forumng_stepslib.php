@@ -48,7 +48,8 @@ class backup_forumng_activity_structure_step extends backup_activity_structure_s
             'maxpostsperiod', 'maxpostsblock', 'postingfrom', 'postinguntil',
             'typedata', 'magicnumber', 'completiondiscussions', 'completionreplies',
             'completionposts', 'removeafter', 'removeto', 'shared', 'originalcmid',
-            'gradingscale', 'canpostanon', 'enabletags', 'enableratings', 'timemodified'));
+            'gradingscale', 'canpostanon', 'enabletags', 'enableratings', 'timemodified',
+            'completionwordcountmin', 'completionwordcountmax'));
 
         $discussions = new backup_nested_element('discussions');
 

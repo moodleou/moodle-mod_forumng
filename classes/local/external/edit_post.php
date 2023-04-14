@@ -147,6 +147,9 @@ class edit_post extends external_api {
 
             $editpost->edit_finish($validatedata->message['text'], $validatedata->message['format'], $gotsubject);
 
+            // Force update completion state after editing.
+            $editpost->force_update_completion();
+
             // Get reply detail information and then return.
             $neweditpost = mod_forumng_post::get_from_id($postid, false, true);
             $postobj = \mod_forumng_utils::convert_forumng_post_to_object($neweditpost, $neweditpost->get_parent()->get_id());

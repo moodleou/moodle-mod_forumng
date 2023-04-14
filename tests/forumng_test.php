@@ -566,6 +566,255 @@ class mod_forumng_forumng_testcase extends forumng_test_lib {
         $this->assertTrue($forum3->get_completion_state($USER->id, COMPLETION_OR));
     }
 
+    /**
+     * Tests completion of discussions with wordcount.
+     */
+    public function test_completion_wordcount_discussions() {
+        global $USER, $DB, $CFG;
+
+        $this->resetAfterTest(true);
+        $this->setAdminUser();
+        $generator = $this->getDataGenerator()->get_plugin_generator('mod_forumng');
+        $CFG->enablecompletion = true;
+        $course = $this->get_new_course();
+        $course->enablecompletion = true;
+        $DB->update_record('course', $course);
+        $user1 = $this->get_new_user('student', $course->id);
+        $user2 = $this->get_new_user('student', $course->id);
+        $message6character = html_writer::tag('p', 'Message for post has 6 character');
+        $message3character = html_writer::tag('p', 'Message for post');
+
+        // Test discussions with wordcount min.
+        $forum1 = $this->get_new_forumng($course->id, ['completion' => COMPLETION_TRACKING_AUTOMATIC,
+                'completiondiscussionsenabled' => 1, 'completiondiscussions' => 1, 'completionwordcountminenabled' => 1,
+                'completionwordcountmin' => 5]);
+        $this->assertEquals(1, $forum1->get_completion_discussions());
+        $this->assertFalse($forum1->get_completion_state($USER->id, COMPLETION_OR));
+        // User1 meets the conditions.
+        list ($discuss, $postid) = $generator->create_discussion(['course' => $course->id,
+                'forum' => $forum1->get_id(), 'userid' => $user1->id, 'message' => $message6character]);
+        $this->assertTrue($forum1->get_completion_state($user1->id, COMPLETION_OR));
+        // User2 does not meet the conditions.
+        list ($discuss, $postid) = $generator->create_discussion(['course' => $course->id,
+                'forum' => $forum1->get_id(), 'userid' => $user2->id, 'message' => $message3character]);
+        $this->assertFalse($forum1->get_completion_state($user2->id, COMPLETION_OR));
+
+        // Test discussions with wordcount max.
+        $forum2 = $this->get_new_forumng($course->id, ['completion' => COMPLETION_TRACKING_AUTOMATIC,
+                'completiondiscussionsenabled' => 1, 'completiondiscussions' => 1, 'completionwordcountmaxenabled' => 1,
+                'completionwordcountmax' => 3]);
+        $this->assertEquals(1, $forum2->get_completion_discussions());
+        $this->assertFalse($forum2->get_completion_state($USER->id, COMPLETION_OR));
+        // User1 does not meet the conditions.
+        list ($discuss, $postid) = $generator->create_discussion(['course' => $course->id,
+                'forum' => $forum2->get_id(), 'userid' => $user1->id, 'message' => $message6character]);
+        $this->assertFalse($forum2->get_completion_state($user1->id, COMPLETION_OR));
+        // User2 meets the conditions.
+        list ($discuss, $postid) = $generator->create_discussion(['course' => $course->id,
+                'forum' => $forum2->get_id(), 'userid' => $user2->id, 'message' => $message3character]);
+        $this->assertTrue($forum2->get_completion_state($user2->id, COMPLETION_OR));
+
+        // Test discussions with wordcount min and max.
+        $forum3 = $this->get_new_forumng($course->id, ['completion' => COMPLETION_TRACKING_AUTOMATIC,
+                'completiondiscussionsenabled' => 1, 'completiondiscussions' => 1, 'completionwordcountminenabled' => 1,
+                'completionwordcountmin' => 3, 'completionwordcountmaxenabled' => 1, 'completionwordcountmax' => 5]);
+        $this->assertEquals(1, $forum3->get_completion_discussions());
+        $this->assertFalse($forum3->get_completion_state($USER->id, COMPLETION_OR));
+        // User1 does not meet the conditions.
+        list ($discuss, $postid) = $generator->create_discussion(['course' => $course->id,
+                'forum' => $forum3->get_id(), 'userid' => $user1->id, 'message' => $message6character]);
+        $this->assertFalse($forum3->get_completion_state($user1->id, COMPLETION_OR));
+        // User2 meets the conditions.
+        list ($discuss, $postid) = $generator->create_discussion(['course' => $course->id,
+                'forum' => $forum3->get_id(), 'userid' => $user2->id, 'message' => $message3character]);
+        $this->assertTrue($forum3->get_completion_state($user2->id, COMPLETION_OR));
+    }
+
+    /**
+     * Tests completion of replies with wordcount.
+     */
+    public function test_completion_wordcount_replies() {
+        global $USER, $DB, $CFG;
+
+        $this->resetAfterTest(true);
+        $this->setAdminUser();
+        $generator = $this->getDataGenerator()->get_plugin_generator('mod_forumng');
+        $CFG->enablecompletion = true;
+        $course = $this->get_new_course();
+        $course->enablecompletion = true;
+        $DB->update_record('course', $course);
+        $user1 = $this->get_new_user('student', $course->id);
+        $user2 = $this->get_new_user('student', $course->id);
+        $message6character = html_writer::tag('p', 'Message for post has 6 character');
+        $message3character = html_writer::tag('p', 'Message for post');
+
+        // Test replies with wordcount min.
+        $forum1 = $this->get_new_forumng($course->id, ['completion' => COMPLETION_TRACKING_AUTOMATIC,
+                'completionrepliesenabled' => 1, 'completionreplies' => 1, 'completionwordcountminenabled' => 1,
+                'completionwordcountmin' => 5]);
+        $this->assertEquals(1, $forum1->get_completion_replies());
+        $this->assertFalse($forum1->get_completion_state($USER->id, COMPLETION_OR));
+        list ($discuss, $postid) = $generator->create_discussion(['course' => $course->id,
+                'forum' => $forum1->get_id(), 'userid' => $user1->id]);
+
+        // User1 meets the conditions.
+        $generator->create_post(['discussionid' => $discuss, 'userid' => $user1->id,
+                'parentpostid' => $postid, 'message' => $message6character]);
+        $this->assertTrue($forum1->get_completion_state($user1->id, COMPLETION_OR));
+        // User2 does not meet the conditions.
+        $generator->create_post(['discussionid' => $discuss, 'userid' => $user2->id,
+                'parentpostid' => $postid, 'message' => $message3character]);
+        $this->assertFalse($forum1->get_completion_state($user2->id, COMPLETION_OR));
+
+        // Test replies with wordcount max.
+        $forum2 = $this->get_new_forumng($course->id, ['completion' => COMPLETION_TRACKING_AUTOMATIC,
+                'completionrepliesenabled' => 1, 'completionreplies' => 1, 'completionwordcountmaxenabled' => 1,
+                'completionwordcountmax' => 3]);
+        $this->assertEquals(1, $forum2->get_completion_replies());
+        $this->assertFalse($forum2->get_completion_state($USER->id, COMPLETION_OR));
+        list ($discuss, $postid) = $generator->create_discussion(['course' => $course->id,
+                'forum' => $forum2->get_id(), 'userid' => $user1->id]);
+
+        // User1 does not meet the conditions.
+        $generator->create_post(['discussionid' => $discuss, 'userid' => $user1->id,
+                'parentpostid' => $postid, 'message' => $message6character]);
+        $this->assertFalse($forum2->get_completion_state($user1->id, COMPLETION_OR));
+        // User2 meets the conditions.
+        $generator->create_post(['discussionid' => $discuss, 'userid' => $user2->id,
+                'parentpostid' => $postid, 'message' => $message3character]);
+        $this->assertTrue($forum2->get_completion_state($user2->id, COMPLETION_OR));
+
+        // Test replies with wordcount min and max.
+        $forum3 = $this->get_new_forumng($course->id, ['completion' => COMPLETION_TRACKING_AUTOMATIC,
+                'completionrepliesenabled' => 1, 'completionreplies' => 1, 'completionwordcountminenabled' => 1,
+                'completionwordcountmin' => 3, 'completionwordcountmaxenabled' => 1, 'completionwordcountmax' => 5]);
+        $this->assertEquals(1, $forum3->get_completion_replies());
+        $this->assertFalse($forum3->get_completion_state($USER->id, COMPLETION_OR));
+        list ($discuss, $postid) = $generator->create_discussion(['course' => $course->id,
+                'forum' => $forum3->get_id(), 'userid' => $user1->id]);
+
+        // User1 does not meet the conditions.
+        $generator->create_post(['discussionid' => $discuss, 'userid' => $user1->id,
+                'parentpostid' => $postid, 'message' => $message6character]);
+        $this->assertFalse($forum3->get_completion_state($user1->id, COMPLETION_OR));
+        // User2 meets the conditions.
+        $generator->create_post(['discussionid' => $discuss, 'userid' => $user2->id,
+                'parentpostid' => $postid, 'message' => $message3character]);
+        $this->assertTrue($forum3->get_completion_state($user2->id, COMPLETION_OR));
+    }
+
+    /**
+     * Tests completion of posts with wordcount.
+     */
+    public function test_completion_wordcount_posts() {
+        global $USER, $DB, $CFG;
+
+        $this->resetAfterTest(true);
+        $this->setAdminUser();
+        $generator = $this->getDataGenerator()->get_plugin_generator('mod_forumng');
+        $CFG->enablecompletion = true;
+        $course = $this->get_new_course();
+        $course->enablecompletion = true;
+        $DB->update_record('course', $course);
+        $user1 = $this->get_new_user('student', $course->id);
+        $user2 = $this->get_new_user('student', $course->id);
+        $message6character = html_writer::tag('p', 'Message for post has 6 character');
+        $message3character = html_writer::tag('p', 'Message for post');
+
+        // Test posts with wordcount min.
+        $forum1 = $this->get_new_forumng($course->id, ['completion' => COMPLETION_TRACKING_AUTOMATIC,
+                'completionpostsenabled' => 1, 'completionposts' => 1, 'completionwordcountminenabled' => 1,
+                'completionwordcountmin' => 5]);
+        $this->assertEquals(1, $forum1->get_completion_posts());
+        $this->assertFalse($forum1->get_completion_state($USER->id, COMPLETION_OR));
+        // User1 meets the conditions.
+        list ($discuss, $postid) = $generator->create_discussion(['course' => $course->id,
+                'forum' => $forum1->get_id(), 'userid' => $user1->id, 'message' => $message6character]);
+        $this->assertTrue($forum1->get_completion_state($user1->id, COMPLETION_OR));
+        // User2 does not meet the conditions.
+        list ($discuss, $postid) = $generator->create_discussion(['course' => $course->id,
+                'forum' => $forum1->get_id(), 'userid' => $user2->id, 'message' => $message3character]);
+        $this->assertFalse($forum1->get_completion_state($user2->id, COMPLETION_OR));
+
+        // Test posts with wordcount max.
+        $forum2 = $this->get_new_forumng($course->id, ['completion' => COMPLETION_TRACKING_AUTOMATIC,
+                'completionpostsenabled' => 1, 'completionposts' => 1, 'completionwordcountmaxenabled' => 1,
+                'completionwordcountmax' => 3]);
+        $this->assertEquals(1, $forum2->get_completion_posts());
+        $this->assertFalse($forum2->get_completion_state($USER->id, COMPLETION_OR));
+        // User1 does not meet the conditions.
+        list ($discuss, $postid) = $generator->create_discussion(['course' => $course->id,
+                'forum' => $forum2->get_id(), 'userid' => $user1->id, 'message' => $message6character]);
+        $this->assertFalse($forum2->get_completion_state($user1->id, COMPLETION_OR));
+        // User2 meets the conditions.
+        list ($discuss, $postid) = $generator->create_discussion(['course' => $course->id,
+                'forum' => $forum2->get_id(), 'userid' => $user2->id, 'message' => $message3character]);
+        $this->assertTrue($forum2->get_completion_state($user2->id, COMPLETION_OR));
+
+        // Test posts with wordcount min and max.
+        $forum3 = $this->get_new_forumng($course->id, ['completion' => COMPLETION_TRACKING_AUTOMATIC,
+                'completionpostsenabled' => 1, 'completionposts' => 1, 'completionwordcountminenabled' => 1,
+                'completionwordcountmin' => 3, 'completionwordcountmaxenabled' => 1, 'completionwordcountmax' => 5]);
+        $this->assertEquals(1, $forum3->get_completion_posts());
+        $this->assertFalse($forum3->get_completion_state($USER->id, COMPLETION_OR));
+        // User1 does not meet the conditions.
+        list ($discuss, $postid) = $generator->create_discussion(['course' => $course->id,
+                'forum' => $forum3->get_id(), 'userid' => $user1->id, 'message' => $message6character]);
+        $this->assertFalse($forum3->get_completion_state($user1->id, COMPLETION_OR));
+        // User2 meets the conditions.
+        list ($discuss, $postid) = $generator->create_discussion(['course' => $course->id,
+                'forum' => $forum3->get_id(), 'userid' => $user2->id, 'message' => $message3character]);
+        $this->assertTrue($forum3->get_completion_state($user2->id, COMPLETION_OR));
+    }
+
+    /**
+     * Tests completion of posts, discussions, replies with wordcount.
+     */
+    public function test_completion_wordcount_all_require() {
+        global $USER, $DB, $CFG;
+
+        $this->resetAfterTest(true);
+        $this->setAdminUser();
+        $generator = $this->getDataGenerator()->get_plugin_generator('mod_forumng');
+        $CFG->enablecompletion = true;
+        $course = $this->get_new_course();
+        $course->enablecompletion = true;
+        $DB->update_record('course', $course);
+        $user1 = $this->get_new_user('student', $course->id);
+        $user2 = $this->get_new_user('student', $course->id);
+        $message6character = html_writer::tag('p', 'Message for post has 6 character');
+        $message3character = html_writer::tag('p', 'Message for post');
+
+        // Test all require with wordcount min/max.
+        $forum1 = $this->get_new_forumng($course->id, ['completion' => COMPLETION_TRACKING_AUTOMATIC,
+                'completionpostsenabled' => 1, 'completionposts' => 1,
+                'completiondiscussionsenabled' => 1, 'completiondiscussions' => 1,
+                'completionrepliesenabled' => 1, 'completionreplies' => 2,
+                'completionwordcountminenabled' => 1, 'completionwordcountmin' => 3,
+                'completionwordcountmaxenabled' => 1, 'completionwordcountmax' => 5]);
+        $this->assertEquals(1, $forum1->get_completion_posts());
+        $this->assertEquals(1, $forum1->get_completion_discussions());
+        $this->assertEquals(2, $forum1->get_completion_replies());
+        $this->assertFalse($forum1->get_completion_state($USER->id, COMPLETION_OR));
+        list ($discuss, $postid) = $generator->create_discussion(['course' => $course->id,
+                'forum' => $forum1->get_id(), 'userid' => $user1->id, 'message' => $message3character]);
+
+        // User1 meets the conditions [disscussion:pass, replies:pass].
+        $generator->create_post(['discussionid' => $discuss, 'userid' => $user1->id,
+                'parentpostid' => $postid, 'message' => $message3character]);
+        $generator->create_post(['discussionid' => $discuss, 'userid' => $user1->id,
+                'parentpostid' => $postid, 'message' => $message3character]);
+        $this->assertTrue($forum1->get_completion_state($user1->id, COMPLETION_AND));
+
+        // User2 does not meet the conditions [discussion:pass, replies:fail].
+        $generator->create_post(['discussionid' => $discuss, 'userid' => $user2->id,
+                'parentpostid' => $postid, 'message' => $message3character]);
+        // Fails because this step reply does not meet the conditions.
+        $generator->create_post(['discussionid' => $discuss, 'userid' => $user2->id,
+                'parentpostid' => $postid, 'message' => $message6character]);
+        $this->assertFalse($forum1->get_completion_state($user2->id, COMPLETION_AND));
+    }
+
     public function test_subscribers_with_oucu() {
         global $DB, $CFG;
         $this->resetAfterTest(true);

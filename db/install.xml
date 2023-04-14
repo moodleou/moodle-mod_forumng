@@ -43,6 +43,8 @@
         <FIELD NAME="enableratings" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="enable ratings"/>
         <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Time (in seconds since epoch)."/>
         <FIELD NAME="lastemailprocessing" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Time that the most recent email processing started for this forum; the system sends normal emails in order of this time"/>
+        <FIELD NAME="completionwordcountmin" TYPE="int" LENGTH="9" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Nonzero if a certain minimum word count per discussion or reply are required to mark this forum complete for a user."/>
+        <FIELD NAME="completionwordcountmax" TYPE="int" LENGTH="9" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Nonzero if a certain maximum word count per discussion or reply are required to mark this forum complete for a user."/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>

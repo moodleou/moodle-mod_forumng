@@ -400,6 +400,14 @@ class mod_forumng_mod_form extends moodleform_mod {
             }
         }
 
+        // If completion wordcount is enabled.
+        if ((!empty($data['completionwordcountminenabled']) && $data['completionwordcountmin'] <= 0) ||
+                (!empty($data['completionwordcountmaxenabled']) && $data['completionwordcountmax'] <= 0) ||
+                (!empty($data['completionwordcountminenabled']) && !empty($data['completionwordcountmaxenabled']) &&
+                ($data['completionwordcountmin'] > $data['completionwordcountmax']))) {
+            $errors['completion'] = get_string('badautocompletion', 'completion');
+        }
+
         return $errors;
     }
 
@@ -437,14 +445,23 @@ class mod_forumng_mod_form extends moodleform_mod {
         if (empty($data['completionposts'])) {
             $data['completionposts'] = 1;
         }
+        $data['completionwordcountminenabled'] = !empty($data['completionwordcountmin']) ? 1 : 0;
+        if (empty($data['completionwordcountmin'])) {
+            $data['completionwordcountmin'] = 1;
+        }
+        $data['completionwordcountmaxenabled'] = !empty($data['completionwordcountmax']) ? 1 : 0;
+        if (empty($data['completionwordcountmax'])) {
+            $data['completionwordcountmax'] = 1;
+        }
     }
 
     public function add_completion_rules() {
+        global $PAGE;
         $mform = $this->_form;
 
         $group = array();
         $group[] =& $mform->createElement('checkbox', 'completionpostsenabled', '',
-                get_string('completionposts', 'forumng'));
+                get_string('completionposts', 'forumng'), ['class' => 'forumng-completion-require']);
         $group[] =& $mform->createElement('text', 'completionposts', '', array('size' => 3));
         $mform->setType('completionposts', PARAM_INT);
         $mform->addGroup($group, 'completionpostsgroup',
@@ -454,7 +471,7 @@ class mod_forumng_mod_form extends moodleform_mod {
 
         $group = array();
         $group[] =& $mform->createElement('checkbox', 'completiondiscussionsenabled', '',
-                get_string('completiondiscussions', 'forumng'));
+                get_string('completiondiscussions', 'forumng'), ['class' => 'forumng-completion-require']);
         $group[] =& $mform->createElement('text', 'completiondiscussions', '', array('size' => 3));
         $mform->setType('completiondiscussions', PARAM_INT);
         $mform->addGroup($group, 'completiondiscussionsgroup',
@@ -465,7 +482,7 @@ class mod_forumng_mod_form extends moodleform_mod {
 
         $group = array();
         $group[] =& $mform->createElement('checkbox', 'completionrepliesenabled', '',
-                get_string('completionreplies', 'forumng'));
+                get_string('completionreplies', 'forumng'), ['class' => 'forumng-completion-require']);
         $group[] =& $mform->createElement('text', 'completionreplies', '', array('size' => 3));
         $mform->setType('completionreplies', PARAM_INT);
         $mform->addGroup($group, 'completionrepliesgroup',
@@ -476,15 +493,35 @@ class mod_forumng_mod_form extends moodleform_mod {
         // Restriction for grade completion.
         $mform->disabledIf('completionusegrade', 'grading', 'eq', 0);
 
-        return array('completiondiscussionsgroup',
-                'completionrepliesgroup', 'completionpostsgroup');
+        $group = [];
+        $group[] =& $mform->createElement('checkbox', 'completionwordcountminenabled', '',
+                get_string('completionwordcountmin', 'forumng'));
+        $group[] =& $mform->createElement('text', 'completionwordcountmin', '', ['size' => 3]);
+        $mform->setType('completionwordcountmin', PARAM_INT);
+        $mform->disabledIf('completionwordcountmin', 'completionwordcountminenabled', 'notchecked');
+        $mform->addGroup($group, 'completionwordcountmingroup',
+                get_string('completionwordcountgroup', 'forumng'), [' '], false);
+        $mform->addHelpButton('completionwordcountmingroup', 'completionwordcountgroup', 'forumng');
+
+        $group = [];
+        $group[] =& $mform->createElement('checkbox', 'completionwordcountmaxenabled', '',
+                get_string('completionwordcountmax', 'forumng'));
+        $group[] =& $mform->createElement('text', 'completionwordcountmax', '', ['size' => 3]);
+        $mform->setType('completionwordcountmax', PARAM_INT);
+        $mform->disabledIf('completionwordcountmax', 'completionwordcountmaxenabled', 'notchecked');
+        $mform->addGroup($group, 'completionwordcountmaxgroup','', [' '], false);
+
+        $PAGE->requires->js_call_amd('mod_forumng/mod_form', 'init', [$mform->getAttribute('id')]);
+
+        return ['completiondiscussionsgroup', 'completionrepliesgroup', 'completionpostsgroup',
+                'completionwordcountmingroup', 'completionwordcountmaxgroup'];
     }
 
     public function completion_rule_enabled($data) {
         return (!empty($data['completiondiscussionsenabled']) &&
-                $data['completiondiscussions'] != 0) || (!empty($data['completionrepliesenabled']) &&
-                $data['completionreplies'] != 0) || (!empty($data['completionpostsenabled']) &&
-                $data['completionposts'] != 0);
+                        $data['completiondiscussions'] != 0) || (!empty($data['completionrepliesenabled']) &&
+                        $data['completionreplies'] != 0) || (!empty($data['completionpostsenabled']) &&
+                        $data['completionposts'] != 0);
     }
 
     public function get_data() {
@@ -537,6 +574,12 @@ class mod_forumng_mod_form extends moodleform_mod {
             }
             if (empty($data->completionpostsenabled) || !$autocompletion) {
                 $data->completionposts = 0;
+            }
+            if (empty($data->completionwordcountminenabled) || !$autocompletion) {
+                $data->completionwordcountmin = 0;
+            }
+            if (empty($data->completionwordcountmaxenabled) || !$autocompletion) {
+                $data->completionwordcountmax = 0;
             }
         }
 

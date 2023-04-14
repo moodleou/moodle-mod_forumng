@@ -263,6 +263,15 @@ other conditions).';
 $string['completiondetail:discussions'] = 'Make discussions: {$a}';
 $string['completiondetail:posts'] = 'Make posts: {$a}';
 $string['completiondetail:replies'] = 'Make replies: {$a}';
+$string['completiondetail:wordcountmin'] = 'Make discussion or reply with minimum word count: {$a}';
+$string['completiondetail:wordcountmax'] = 'Make discussion or reply with maximum word count: {$a}';
+$string['completionwordcountmax'] = 'Max word count per discussion or reply:';
+$string['completionwordcountmin'] = 'Min word count per discussion or reply:';
+$string['completionwordcountgroup'] = 'Require Word count (min/max)';
+$string['completionwordcountgroup_help'] = 'If <b>Require posts, require discussions,</b> or <b>Require replies</b> is selected,
+you can add the additional requirement of a mininum word count, a maximum word count, or both.
+
+Only posts/replies which meet these parameters will be counted towards activity completion.';
 $string['ratingfrom'] = 'Rate only posts from';
 $string['ratinguntil'] = 'Rate only posts until';
 $string['postingfrom'] = 'Posting only allowed from';

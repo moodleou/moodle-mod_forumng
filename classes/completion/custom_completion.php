@@ -51,7 +51,9 @@ class custom_completion extends activity_custom_completion {
         return [
                 'completionposts',
                 'completiondiscussions',
-                'completionreplies'
+                'completionreplies',
+                'completionwordcountmin',
+                'completionwordcountmax',
         ];
     }
 
@@ -64,11 +66,15 @@ class custom_completion extends activity_custom_completion {
         $completionposts = $this->cm->customdata->customcompletionrules['completionposts'] ?? 0;
         $completiondiscussions = $this->cm->customdata->customcompletionrules['completiondiscussions'] ?? 0;
         $completionreplies = $this->cm->customdata->customcompletionrules['completionreplies'] ?? 0;
+        $completionwordcountmin = $this->cm->customdata->customcompletionrules['completionwordcountmin'] ?? 0;
+        $completionwordcountmax = $this->cm->customdata->customcompletionrules['completionwordcountmax'] ?? 0;
 
         return [
             'completionposts' => get_string('completiondetail:posts', 'forumng', $completionposts),
             'completiondiscussions' => get_string('completiondetail:discussions', 'forumng', $completiondiscussions),
             'completionreplies' => get_string('completiondetail:replies', 'forumng', $completionreplies),
+            'completionwordcountmin' => get_string('completiondetail:wordcountmin', 'forumng', $completionwordcountmin),
+            'completionwordcountmax' => get_string('completiondetail:wordcountmax', 'forumng', $completionwordcountmax),
         ];
     }
 
@@ -82,6 +88,8 @@ class custom_completion extends activity_custom_completion {
                 'completionview',
                 'completionposts',
                 'completiondiscussions',
+                'completionwordcountmin',
+                'completionwordcountmax',
                 'completionreplies',
                 'completionusegrade',
         ];

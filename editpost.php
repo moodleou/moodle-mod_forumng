@@ -641,6 +641,10 @@ try {
 
             // Redirect to view discussion
             $transaction->allow_commit();
+
+            // Force update completion state after editing.
+            $post->force_update_completion();
+
             finish($post->get_id(), $cloneid, 'discuss.php?' .
                 $post->get_discussion()->get_link_params(mod_forumng::PARAM_PLAIN) .
                 $expandparam . '#p' . $post->get_id(),
