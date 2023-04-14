@@ -775,9 +775,7 @@ class mobile {
         $posteranon = $post->get_asmoderator();
         if ($poster) {
             $userimage = new \user_picture($poster);
-            $token = optional_param('wstoken', '', PARAM_RAW);
             $userurl = $userimage->get_url($PAGE);
-            $userurl->param('token', $token);
             $startedbyurl = self::change_web_service_url($userurl->out(false));
         } else {
             $startedbyurl = $defaultimage;
@@ -1409,21 +1407,25 @@ class mobile {
     }
 
     /**
-     * @param mod_forumng $forumng
+     * Get attachment url using tokenpluginfile.php.
+     *
+     * @param mod_forumng $forumng ForumNG instance
      * @param string $attachment Attachment name (will not be checked for existence)
      * @param int $itemid Item id
      * @param string $filearea File area
-     * @return moodle_url URL to attachment
+     * @return \moodle_url URL to attachment
      */
-    private static function get_attachment_url(\mod_forumng $forumng, $attachment, $itemid, $filearea){
+    private static function get_attachment_url(\mod_forumng $forumng, string $attachment, int $itemid, string $filearea) {
+        global $USER;
         $filecontext = $forumng->get_context(true);
         $params = [];
         if ($forumng->is_shared()) {
             $params['clone'] = $forumng->get_course_module_id();
         }
-        $token = \optional_param('wstoken', '', PARAM_RAW);
-        return new \moodle_url('/webservice/pluginfile.php/' . $filecontext->id . '/mod_forumng/' . $filearea . '/' .
-            $itemid . '/' . rawurlencode($attachment) . '?token=' . $token, $params);
+        $token = get_user_key('core_files', $USER->id);
+        return new \moodle_url('/tokenpluginfile.php/' . $token . '/' . $filecontext->id .
+            '/mod_forumng/' . $filearea . '/' .
+            $itemid . '/' . rawurlencode($attachment), $params);
     }
 
     /**
@@ -1439,11 +1441,13 @@ class mobile {
     /**
      * Add webservice url for files.
      *
-     * @param string $url
-     * @return string url
+     * @param string $url Example: http://example.com/pluginfile.php/5/user/icon/osep/f2?rev={number}
+     * @return string Example: http://example.com/ou/tokenpluginfile.php/{token}/5/user/icon/osep/f2?rev={number}
      */
-    private static function change_web_service_url($url) {
-        return str_replace('pluginfile.php', 'webservice/pluginfile.php', $url);
+    private static function change_web_service_url(string $url): string {
+        global $USER;
+        $token = get_user_key('core_files', $USER->id);
+        return str_replace('pluginfile.php', 'tokenpluginfile.php/' . $token, $url);
     }
 
     /**
