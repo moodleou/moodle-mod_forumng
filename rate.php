@@ -47,7 +47,7 @@ if ($discussionid) {
     foreach ($changes as $postid => $rating) {
         $post = $rootpost->find_child($postid, true);
         if (!$post->can_rate()) {
-            print_error('rate_nopermission', 'forumng', '', $postid);
+            throw new moodle_exception('rate_nopermission', 'forumng', '', $postid);
         }
         $post->rate($rating);
     }
@@ -64,7 +64,7 @@ $rating = required_param('rating', PARAM_INT);
 $post = mod_forumng_post::get_from_id($postid, $cloneid);
 $post->require_view();
 if (!$post->can_rate()) {
-    print_error('rate_nopermission', 'forumng', '', $postid);
+    throw new moodle_exception('rate_nopermission', 'forumng', '', $postid);
 }
 
 $post->rate($rating);

@@ -49,7 +49,7 @@ $out = $discussion->init_page($url, $pagename);
 // Do all access security checks
 $post->require_view();
 if (!$post->can_view_history($whynot)) {
-    print_error($whynot, 'forumng');
+    throw new moodle_exception($whynot, 'forumng');
 }
 
 // Work out navigation for header

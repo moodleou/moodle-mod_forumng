@@ -67,4 +67,4 @@ foreach ($_POST as $key => $value) {
 }
 
 // If no actions were found, print error.
-print_error('unknownuseraction');
+throw new moodle_exception('unknownuseraction');

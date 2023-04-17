@@ -2590,7 +2590,7 @@ WHERE
         // Check if they are allowed to start discussion
         $whynot = '';
         if (!$this->can_start_discussion($groupid, $whynot)) {
-            print_error($whynot, 'forumng',
+            throw new moodle_exception($whynot, 'forumng',
                     $this->get_url(self::PARAM_HTML));
         }
     }

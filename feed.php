@@ -81,13 +81,13 @@ switch ($feedtype) {
         }
         // Fall through
     case mod_forumng::FEEDTYPE_NONE:
-        print_error('feed_notavailable', 'forumng');
+        throw new moodle_exception('feed_notavailable', 'forumng');
 }
 
 // Check that the key is valid
 $correctkey = $forum->get_feed_key($groupid, $userid);
 if ($correctkey != $key) {
-    print_error('feed_nopermission', 'forumng');
+    throw new moodle_exception('feed_nopermission', 'forumng');
 }
 
 // Get most recent posts or discussions
@@ -130,7 +130,7 @@ if ($d) {
 // if you can view the content of discussions
 if ($feedtype != mod_forumng::FEEDTYPE_DISCUSSIONS &&
     !$forum->can_view_discussions($userid)) {
-    print_error('feed_nopermission', 'forumng');
+    throw new moodle_exception('feed_nopermission', 'forumng');
 }
 
 // Place data into standard format for atomlib/rsslib

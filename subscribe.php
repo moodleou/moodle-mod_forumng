@@ -84,7 +84,7 @@ if ($groupid && ($requestingsubscribegroup || $requestingunsubscribegroup) &&
     $groupok = false;
 }
 if ($options != 1 || $subscribeoptions != 1 || !$groupok) {
-    print_error('error_subscribeparams', 'forumng');
+    throw new moodle_exception('error_subscribeparams', 'forumng');
 }
 
 // Permitted values 'index', 'view', 'discuss', nothing
@@ -151,7 +151,7 @@ if ($discussionid) {
     $discussion->require_view();
     $forum = $discussion->get_forum();
     if (!$discussion->can_subscribe() && !$discussion->can_unsubscribe()) {
-        print_error('error_cannotchangediscussionsubscription', 'forumng');
+        throw new moodle_exception('error_cannotchangediscussionsubscription', 'forumng');
     }
     if ($requestingsubscribe && $discussion->can_subscribe()) {
         $discussion->subscribe();
@@ -211,7 +211,7 @@ if ($cmid) {
     }
 
     if (!$forum->can_change_subscription()) {
-        print_error('error_cannotchangesubscription', 'forumng');
+        throw new moodle_exception('error_cannotchangesubscription', 'forumng');
     }
     $subscriptioninfo = $forum->get_subscription_info();
     $discussionidcount = count($subscriptioninfo->discussionids);
@@ -219,7 +219,7 @@ if ($cmid) {
     if (!$forum->get_group_mode()) {
         // No group mode.
         if ($requestingsubscribegroup || $requestingunsubscribegroup) {
-            print_error('error_cannotchangegroupsubscription', 'forumng');
+            throw new moodle_exception('error_cannotchangegroupsubscription', 'forumng');
         }
         if ($subscriptioninfo->wholeforum) {
             // Subscribed to the entire forum.
@@ -242,7 +242,7 @@ if ($cmid) {
                 $forum->unsubscribe();
                 $confirmtext = get_string('unsubscribe_confirm', 'forumng');
             } else {
-                print_error('error_invalidsubscriptionrequest', 'forumng');
+                throw new moodle_exception('error_invalidsubscriptionrequest', 'forumng');
             }
         } else if ($discussionidcount != 0 || $groupidcount != 0 ) {
             // Possible for subscribing to /unsubscribing from forum/group.
@@ -271,7 +271,7 @@ if ($cmid) {
                     $forum->subscribe(0, $groupid);
                     $confirmtext = get_string('subscribe_confirm_group', 'forumng');
                 } else {
-                    print_error('subscribe_already_group', 'forumng');
+                    throw new moodle_exception('subscribe_already_group', 'forumng');
                 }
             } else if ($requestingunsubscribegroup) {
                 $canunsubscribefromgroup = false;
@@ -292,10 +292,10 @@ if ($cmid) {
                     $forum->unsubscribe(0, $groupid);
                     $confirmtext = get_string('unsubscribe_confirm_group', 'forumng');
                 } else {
-                    print_error('unsubscribe_already_group', 'forumng');
+                    throw new moodle_exception('unsubscribe_already_group', 'forumng');
                 }
             } else {
-                print_error('error_invalidsubscriptionrequest', 'forumng');
+                throw new moodle_exception('error_invalidsubscriptionrequest', 'forumng');
             }
 
         } else {
@@ -314,7 +314,7 @@ if ($cmid) {
                 $forum->subscribe(0, $groupid);
                 $confirmtext = get_string('subscribe_confirm_group', 'forumng');
             } else {
-                print_error('error_invalidsubscriptionrequest', 'forumng');
+                throw new moodle_exception('error_invalidsubscriptionrequest', 'forumng');
             }
         }
     }

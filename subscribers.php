@@ -43,7 +43,7 @@ $course = $forum->get_course();
 
 $groupid = $forum->require_view(mod_forumng::GET_GROUP_AFTER_LOGIN);
 if (!$forum->can_view_subscribers()) {
-    print_error('subscribers_nopermission', 'forumng');
+    throw new moodle_exception('subscribers_nopermission', 'forumng');
 }
 $canmanage = $forum->can_manage_subscriptions();
 

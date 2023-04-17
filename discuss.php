@@ -54,7 +54,7 @@ if ($draftid) {
     $draft = mod_forumng_draft::get_from_id($draftid);
     if (!$draft->is_reply() ||
         $draft->get_discussion_id() != $discussionid) {
-        print_error('draft_mismatch', 'forumng', $forum->get_url(mod_forumng::PARAM_HTML));
+        throw new moodle_exception('draft_mismatch', 'forumng', $forum->get_url(mod_forumng::PARAM_HTML));
     }
     $root = $discussion->get_root_post();
     $inreplyto = $root->find_child($draft->get_parent_post_id(), false);
@@ -62,7 +62,7 @@ if ($draftid) {
         if (!$whynot) {
             $whynot = 'reply_missing';
         }
-        print_error('draft_cannotreply', 'forumng', $forum->get_url(mod_forumng::PARAM_HTML),
+        throw new moodle_exception('draft_cannotreply', 'forumng', $forum->get_url(mod_forumng::PARAM_HTML),
             get_string($whynot, 'forumng'));
     }
     $inreplyto->force_expand();

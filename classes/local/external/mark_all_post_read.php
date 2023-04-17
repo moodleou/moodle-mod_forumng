@@ -110,7 +110,7 @@ class mark_all_post_read extends external_api {
                     $discussionforum = $discussionforum->get_real_forum();
                 }
                 if (!$discussionforum->can_mark_read()) {
-                    print_error('error_cannotmarkread', 'forumng');
+                    throw new \moodle_exception('error_cannotmarkread', 'forumng');
                 }
                 $discussion->mark_read();
             }

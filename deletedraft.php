@@ -42,7 +42,7 @@ $out = $forum->init_page(new moodle_url('/mod/forumng/deletedraft.php', $pagepar
 
 // Check it belongs to current user
 if ($USER->id != $draft->get_user_id()) {
-    print_error('draft_mismatch', 'forumng');
+    throw new moodle_exception('draft_mismatch', 'forumng');
 }
 
 // If they are actually deleting it, go ahead

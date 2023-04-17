@@ -44,7 +44,7 @@ $course = $forum->get_course();
 $post->require_view();
 
 if (!$post->can_alert($whynot)) {
-    print_error($whynot, 'forumng');
+    throw new moodle_exception($whynot, 'forumng');
 }
 
 // Set up page
@@ -120,7 +120,7 @@ if ($fromform = $mform->get_data()) {
         $alltext .= get_string('alert_emailappendix', 'forumng' );
 
         if (!email_to_user($fakeuser, $from, $subject, $alltext)) {
-            print_error('error_sendalert', 'forumng', $url, $fakeuser->email);
+            throw new moodle_exception('error_sendalert', 'forumng', $url, $fakeuser->email);
         }
     }
     // Log it after senting out

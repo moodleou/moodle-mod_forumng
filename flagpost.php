@@ -48,7 +48,7 @@ try {
     // Do all access security checks
     $post->require_view();
     if (!$post->can_flag()) {
-        print_error('error_nopermission', 'forumng');
+        throw new moodle_exception('error_nopermission', 'forumng');
     }
 
     // Change the flag

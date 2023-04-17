@@ -2051,7 +2051,7 @@ WHERE
         // Check post edit
         $whynot = '';
         if (!$this->can_edit($whynot)) {
-            print_error($whynot, 'forumng', 'discuss.php?' .
+            throw new moodle_exception($whynot, 'forumng', 'discuss.php?' .
                     $this->discussion->get_link_params(mod_forumng::PARAM_HTML));
         }
     }
@@ -2067,7 +2067,7 @@ WHERE
         // Check post reply
         $whynot = '';
         if (!$this->can_reply($whynot)) {
-            print_error($whynot, 'forumng', 'discuss.php?' .
+            throw new moodle_exception($whynot, 'forumng', 'discuss.php?' .
                     $this->discussion->get_link_params(mod_forumng::PARAM_HTML));
         }
     }

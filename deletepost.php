@@ -76,11 +76,11 @@ $out = $discussion->init_page($url, $pagename);
 $post->require_view();
 if ($delete) {
     if (!$post->can_delete($whynot)) {
-        print_error($whynot, 'forumng');
+        throw new moodle_exception($whynot, 'forumng');
     }
 } else {
     if (!$post->can_undelete($whynot)) {
-        print_error($whynot, 'forumng');
+        throw new moodle_exception($whynot, 'forumng');
     }
 }
 
@@ -153,7 +153,7 @@ if ($email) {
 
         // Send an email to the author of the post.
         if (!email_to_user($user, $from, $subject, $message, $messagehtml)) {
-            print_error(get_string('emailerror', 'forumng'));
+            throw new moodle_exception(get_string('emailerror', 'forumng'));
         }
 
         // Prepare for copies.
@@ -162,7 +162,7 @@ if ($email) {
         if ($copyself) {
             // Send an email copy to the current user, with prefered format.
             if (!email_to_user($USER, $from, $subject, $message, $messagehtml)) {
-                print_error(get_string('emailerror', 'forumng'));
+                throw new moodle_exception(get_string('emailerror', 'forumng'));
             }
         }
 
@@ -180,7 +180,7 @@ if ($email) {
                         'id' => -1
                 );
                 if (!email_to_user($fakeuser, $from, $subject, '', $messagehtml)) {
-                    print_error(get_string('emailerror', 'forumng'));
+                    throw new moodle_exception(get_string('emailerror', 'forumng'));
                 }
             }
         }

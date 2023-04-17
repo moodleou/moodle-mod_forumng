@@ -85,7 +85,7 @@ function send_edit_email($formdata, $post) {
 
     // Send an email to the author of the post, using prefered format.
     if (!email_to_user($user, $from, $subject, html_to_text($messagetext), $messagetext)) {
-        print_error(get_string('emailerror', 'forumng'));
+        throw new moodle_exception(get_string('emailerror', 'forumng'));
     }
 
     // Prepare for copies.
@@ -94,7 +94,7 @@ function send_edit_email($formdata, $post) {
     if (!empty($formdata->emailself)) {
         // Send an email copy to the current user, using prefered format.
         if (!email_to_user($USER, $from, $subject, html_to_text($messagetext), $messagetext)) {
-            print_error(get_string('emailerror', 'forumng'));
+            throw new moodle_exception(get_string('emailerror', 'forumng'));
         }
     }
 
@@ -112,7 +112,7 @@ function send_edit_email($formdata, $post) {
                     'id' => -1
             );
             if (!email_to_user($fakeuser, $from, $subject, '', $messagetext)) {
-                print_error(get_string('emailerror', 'forumng'));
+                throw new moodle_exception(get_string('emailerror', 'forumng'));
             }
         }
     }
@@ -149,7 +149,7 @@ try {
 
         // Draft post must be for current user!
         if ($draft->get_user_id() != $USER->id) {
-            print_error('draft_mismatch', 'forumng');
+            throw new moodle_exception('draft_mismatch', 'forumng');
         }
         if ($draft->is_reply()) {
             $replytoid = $draft->get_parent_post_id();
@@ -231,7 +231,7 @@ try {
         $forum = $discussion->get_forum();
         $discussion->require_edit();
         if ($discussion->is_locked()) {
-            print_error('edit_locked', 'forumng');
+            throw new moodle_exception('edit_locked', 'forumng');
         }
 
         $ispost = true;
@@ -502,7 +502,7 @@ try {
                     }
                 }
                 if (isset($SESSION->forumng_createdrandoms[$random])) {
-                    print_error('error_duplicate', 'forumng',
+                    throw new moodle_exception('error_duplicate', 'forumng',
                             $forum->get_url(mod_forumng::PARAM_PLAIN));
                 }
                 $SESSION->forumng_createdrandoms[$random] = $now;

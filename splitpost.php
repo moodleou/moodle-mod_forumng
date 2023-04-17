@@ -52,7 +52,7 @@ $out = $discussion->init_page($url, $pagename);
 // Do all access security checks
 $post->require_view();
 if (!$post->can_split($whynot)) {
-    print_error($whynot, 'forumng');
+    throw new moodle_exception($whynot, 'forumng');
 }
 
 require_once('splitpost_form.php');

@@ -2331,7 +2331,9 @@ WHERE
      * user cannot view it.
      * This function should be a complete access check. It calls the forum's
      * equivalent method.
+     *
      * @param int $userid ID of user to check for
+     * @throws moodle_exception
      */
     public function require_view($userid=0) {
         $userid = mod_forumng_utils::get_real_userid($userid);
@@ -2355,7 +2357,7 @@ WHERE
 
         // Let forum type check permission too
         if (!$this->forum->get_type()->can_view_discussion($this, $userid)) {
-            print_error('error_cannotviewdiscussion', 'forumng');
+            throw new moodle_exception('error_cannotviewdiscussion', 'forumng');
         }
 
         // Check time limits / delete
@@ -2374,11 +2376,13 @@ WHERE
      * Requires that the user can edit discussion options, otherwise prints
      * an error. (You need the managediscussions capability for this.)
      * Editing options is not affected by locks.
+     *
+     * @throws moodle_exception
      */
     public function require_edit() {
         $this->require_view();
         if (!$this->can_manage()) {
-            print_error('error_cannotmanagediscussion', 'forumng');
+            throw new moodle_exception('error_cannotmanagediscussion', 'forumng');
         }
     }
 

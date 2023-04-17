@@ -33,7 +33,7 @@ $cmid = optional_param('id', 0, PARAM_INT);
 $discussionid = optional_param('d', 0, PARAM_INT);
 $postid = optional_param('p', 0, PARAM_INT);
 if ((!$cmid && !$discussionid && !$postid) || ($cmid && $discussionid && $postid)) {
-    print_error('error_markreadparams', 'forumng');
+    throw new moodle_exception('error_markreadparams', 'forumng');
 }
 $cloneid = optional_param('clone', 0, PARAM_INT);
 $ajax = optional_param('ajax', 0, PARAM_BOOL);
@@ -62,7 +62,7 @@ if ($cmid) {
     }
     $forum->require_view($groupid);
     if (!$forum->can_mark_read()) {
-        print_error('error_cannotmarkread', 'forumng');
+        throw new moodle_exception('error_cannotmarkread', 'forumng');
     }
     $forum->mark_read($groupid);
 }
@@ -73,7 +73,7 @@ if ($discussionid) {
     $forum = $discussion->get_forum();
     $discussion->require_view();
     if (!$discussion->get_forum()->can_mark_read()) {
-        print_error('error_cannotmarkread', 'forumng');
+        throw new moodle_exception('error_cannotmarkread', 'forumng');
     }
     $discussion->mark_read();
     $cmid = $discussion->get_forum()->get_course_module_id();
@@ -86,7 +86,7 @@ if ($postid) {
     $forum = $discussion->get_forum();
     $post->require_view();
     if (!$forum->can_mark_read()) {
-        print_error('error_cannotmarkread', 'forumng');
+        throw new moodle_exception('error_cannotmarkread', 'forumng');
     }
     $post->mark_read();
 }
