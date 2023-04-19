@@ -845,14 +845,6 @@
      * @param {object} outerThis The main component.
      */
     window.forumngPostsPageInit = function(outerThis) {
-        // Hide the bottom navigation bar.
-        let navBar = document.querySelector('.mainmenu-tabs');
-        outerThis.ionViewDidEnter = function() {
-            navBar.style.display = 'none';
-        }
-        outerThis.ionViewDidLeave = function() {
-            navBar.style.display = 'flex';
-        }
         // Function to get Unix time.
         var get_unix_time = function() {
             return Math.round((new Date()).getTime() / 1000);
