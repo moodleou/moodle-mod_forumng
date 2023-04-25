@@ -58,7 +58,7 @@ $out = $discussion->init_page($url, $pagename);
 $post->require_view();
 $whynot = '';
 if (!$post->can_undelete($whynot)) {
-    print_error($whynot, 'forumng');
+    throw new moodle_exception($whynot, 'forumng');
 } else {
     // Undelete the post.
     $post->undelete();

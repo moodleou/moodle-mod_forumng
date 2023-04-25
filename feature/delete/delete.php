@@ -101,7 +101,7 @@ if ($email) {
 
         // Send an email to the author of the discussion post, using prefered format.
         if (!email_to_user($user, $from, $subject, html_to_text($messagetext), $messagehtml)) {
-            print_error(get_string('emailerror', 'forumng'));
+            throw new moodle_exception('emailerror', 'forumng');
         }
 
         // Get copy email addresses.
@@ -111,7 +111,7 @@ if ($email) {
         if ($copyself) {
             // Send an email copy to the current user, with prefered format.
             if (!email_to_user($USER, $from, $subject, html_to_text($messagetext), $messagehtml)) {
-                print_error(get_string('emailerror', 'forumng'));
+                throw new moodle_exception('emailerror', 'forumng');
             }
             $selfmail[] = $USER->email;
         }
@@ -135,7 +135,7 @@ if ($email) {
                         'id' => -1
                 );
                 if (!email_to_user($fakeuser, $from, $subject, '', $messagehtml)) {
-                    print_error(get_string('emailerror', 'forumng'));
+                    throw new moodle_exception('emailerror', 'forumng');
                 }
             }
         }
@@ -150,7 +150,7 @@ if ($email) {
                         'id' => -1
                     );
                     if (!email_to_user($fakeuser, $from, $subject, html_to_text($notifymessagetext), $notifymessagehtml)) {
-                        print_error(get_string('emailerror', 'forumng'));
+                        throw new moodle_exception('emailerror', 'forumng');
                     }
                 }
             }

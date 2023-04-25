@@ -61,7 +61,7 @@ if ($forum->is_forced_to_subscribe()) {
 // If they clicked the unsubscribe button, do something different
 if (optional_param('unsubscribe', '', PARAM_RAW)) {
     if (!$canmanage) {
-        print_error('unsubscribe_nopermission', 'forumng');
+        throw new moodle_exception('unsubscribe_nopermission', 'forumng');
     }
 
     // Header
@@ -96,7 +96,7 @@ if (optional_param('unsubscribe', '', PARAM_RAW)) {
 }
 if (optional_param('confirmunsubscribe', 0, PARAM_INT)) {
     if (!$canmanage) {
-        print_error('unsubscribe_nopermission', 'forumng');
+        throw new moodle_exception('unsubscribe_nopermission', 'forumng');
     }
     $subscribers = $forum->get_subscribers($groupid);
     $transaction = $DB->start_delegated_transaction();

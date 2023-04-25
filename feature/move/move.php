@@ -33,7 +33,7 @@ if ($cloneid) {
     $pageparams['clone'] = $cloneid;
 }
 if (!$target) {
-    print_error('move_notselected', 'forumng');
+    throw new moodle_exception('move_notselected', 'forumng');
 }
 
 $discussion = mod_forumng_discussion::get_from_id($d, $cloneid);
@@ -60,7 +60,7 @@ if ($groupmode && !$targetgroup) {
         reset($options);
         $targetgroup = key($options);
     } else if (count($options) == 0) {
-        print_error('move_nogroups', 'forumng');
+        throw new moodle_exception('move_nogroups', 'forumng');
     }
 }
 

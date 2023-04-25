@@ -49,12 +49,12 @@ if ($managesettags || $editsettags) {
         $groupsaccessto = groups_get_activity_allowed_groups($cm);
         if (!$managesettags && empty($groupsaccessto)) {
             // Nothing to show - shouldn't get button anyway so error.
-            print_error('nopermissiontoshow');
+            throw new moodle_exception('nopermissiontoshow');
         }
     }
 } else {
     // Get out of here.
-    print_error('nopermissiontoshow');
+    throw new moodle_exception('nopermissiontoshow');
 }
 
 require_once('managetags_form.php');

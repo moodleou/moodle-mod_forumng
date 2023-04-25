@@ -50,14 +50,14 @@ if (empty($groupid)) {
 $forum->require_view($groupid);
 if (!$forum->can_tag_discussion()) {
     // Get out of here.
-    print_error('nopermissiontoshow');
+    throw new moodle_exception('nopermissiontoshow');
 }
 
 $user = $discussion->get_poster();
 if ($USER->id != $user->id) {
     if (!$discussion->can_manage()) {
         // Get out of here.
-        print_error('nopermissiontoshow');
+        throw new moodle_exception('nopermissiontoshow');
     }
 }
 

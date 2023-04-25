@@ -41,7 +41,7 @@ $url = new moodle_url('/mod/forumng/feature/userposts/savegrades.php');
 $forum = mod_forumng::get_from_cmid($id, mod_forumng::CLONE_DIRECT);
 
 if (!$cm = $forum->get_course_module()) {
-    print_error('invalidcoursemodule');
+    throw new moodle_exception('invalidcoursemodule');
 }
 
 $PAGE->set_cm($cm);
@@ -52,7 +52,7 @@ require_course_login($course, true, $cm);
 
 // Grading capability check.
 if (!$forum->can_grade()) {
-    print_error('nopermissiontoshow');
+    throw new moodle_exception('nopermissiontoshow');
 }
 
 $mode = '';

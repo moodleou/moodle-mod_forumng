@@ -56,7 +56,7 @@ if (empty($groupid)) {
 $groupid = $forum->require_view($groupid, 0, true);
 
 if (!$forum->can_manage_discussions()) {
-    print_error('error_cannotmanagediscussion', 'forumng');
+    throw new moodle_exception('error_cannotmanagediscussion', 'forumng');
 }
 
 // Get update button, if allowed for current user.

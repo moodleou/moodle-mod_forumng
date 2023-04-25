@@ -48,12 +48,12 @@ $out = $discussion->init_page($url, $pagename);
 // Require that you can see this discussion (etc) and merge them
 $discussion->require_view();
 if (!$discussion->can_split($whynot)) {
-    print_error($whynot, 'forumng');
+    throw new moodle_exception($whynot, 'forumng');
 }
 
 if ($stage == 2) {
     if (!confirm_sesskey()) {
-        print_error('invalidsesskey');
+        throw new moodle_exception('invalidsesskey');
     }
 
     if (!isset($_POST['cancel'])) {
@@ -63,10 +63,10 @@ if ($stage == 2) {
                 $SESSION->forumng_mergefrom->cloneid);
         $sourcediscussion->require_view();
         if (!$sourcediscussion->can_split($whynot)) {
-            print_error($whynot, 'forumng');
+            throw new moodle_exception($whynot, 'forumng');
         }
         if ($sourcediscussion->get_forum()->get_id() != $discussion->get_forum()->get_id()) {
-            print_error('error_wrongforum', 'forumngfeature_merge');
+            throw new moodle_exception('error_wrongforum', 'forumngfeature_merge');
         }
 
         // Do actual merge

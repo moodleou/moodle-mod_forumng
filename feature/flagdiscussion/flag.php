@@ -38,7 +38,7 @@ $forum = $discussion->get_forum();
 // Require that you can see this discussion (etc) and flag them.
 $discussion->require_view();
 if (!$discussion->can_flag()) {
-    print_error('flaggingnotallowed', 'forumngfeature_flag');
+    throw new moodle_exception('flaggingnotallowed', 'forumngfeature_flag');
 }
 
 $discussion->set_flagged($flag, $USER->id);

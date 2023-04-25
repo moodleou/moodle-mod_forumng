@@ -57,14 +57,14 @@ if (empty($groupid)) {
 $groupid = $forum->require_view($groupid, 0, true);
 
 if (!$forum->can_manage_discussions()) {
-    print_error('error_cannotmanagediscussion', 'forumng');
+    throw new moodle_exception('error_cannotmanagediscussion', 'forumng');
 }
 
 // Check that USER can edit posts.
 global $USER;
 
 if (!has_capability('mod/forumng:editanypost', $forum->get_context(), $USER->id)) {
-    print_error('edit_nopermission', 'forumng');
+    throw new moodle_exception('edit_nopermission', 'forumng');
 }
 
 // Get update button, if allowed for current user.
