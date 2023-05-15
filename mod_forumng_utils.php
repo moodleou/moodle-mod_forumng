@@ -843,7 +843,7 @@ WHERE
      */
     public static function html_to_text($content): string {
         // Convert &nbsp; to space so we can trim multiple space.
-        $content = htmlentities($content, null, 'utf-8');
+        $content = htmlentities($content, ENT_QUOTES, 'utf-8');
         $content = str_replace('&nbsp;', ' ', $content);
         $content = html_entity_decode($content);
         // Only add spacing after block tags or end line tag.

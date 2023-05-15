@@ -1011,7 +1011,7 @@ WHERE
         $postobj->important = $setimportant ? 1 : 0;
         $postobj->oldversion = 0;
         $postobj->edituserid = null;
-        $postobj->subject = strlen(trim($subject)) == 0 ? null : $subject;
+        $postobj->subject = strlen(trim($subject ?? '')) == 0 ? null : $subject;
         $postobj->message = $message;
         $postobj->messageformat = $format;
         $postobj->attachments = $attachments ? 1 : 0;

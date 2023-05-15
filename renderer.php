@@ -1247,8 +1247,8 @@ class mod_forumng_renderer extends plugin_renderer_base {
                     if ($post->get_deleted()) {
                         $data->info .= ' ' . get_string('postinfo_deleted', 'forumng');
                     }
-                    $data->info = trim($data->info);
                     if ($data->info) {
+                        $data->info = trim($data->info);
                         $data->info = ' (' . $data->info . ')';
                     }
                     $info = get_string('postnumreply', 'forumng', $data);
@@ -1919,8 +1919,8 @@ class mod_forumng_renderer extends plugin_renderer_base {
         return '';
     }
 
-    public static function nice_shorten_text($text, $length=40) {
-        $text = htmlentities($text, null, 'utf-8');
+    public static function nice_shorten_text(string $text, int $length = 40): string {
+        $text = htmlentities($text, ENT_QUOTES, 'utf-8');
         $text = str_replace('&nbsp;', ' ', $text);
         $text = html_entity_decode($text);
         $text = trim($text);

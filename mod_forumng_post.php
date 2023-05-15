@@ -1277,7 +1277,7 @@ ORDER BY
         $update = new StdClass;
         $gotsubject = false;
         if ($subject!==$this->postfields->subject) {
-            $update->subject = strlen(trim($subject)) == 0 ? null : $subject;
+            $update->subject = strlen(trim($subject ?? '')) == 0 ? null : $subject;
             $gotsubject = true;
         }
         if (!$attachments && $this->postfields->attachments) {
@@ -1359,7 +1359,7 @@ ORDER BY
             // $title here is not the title appearing in the search result
             // but the text which decides the search score
             $title = $this->get_subject();
-            $searchdoc->update($title, $this->get_formatted_message());
+            $searchdoc->update($title ?? '', $this->get_formatted_message());
         }
         $transaction->allow_commit();
     }

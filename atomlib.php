@@ -165,14 +165,15 @@ function atom_end_tag($tag, $level=0, $endline=true) {
 
 // Return the start tag, the contents and the end tag.
 function atom_full_tag($tag, $level, $endline, $content, $attributes = null) {
-    global $CFG;
     $st = atom_start_tag($tag, $level, $endline, $attributes);
     if ($content === false) {
         $st = preg_replace('~>$~', ' />', $st);
         return $st;
     }
-    $co = "";
-    $co = preg_replace("/\r\n|\r/", "\n", $content);
+    $co = '';
+    if (is_string($content) && $content !== '') {
+        $co = preg_replace("/\r\n|\r/", "\n", $content);
+    }
     $et = atom_end_tag($tag, 0, true);
 
     return $st.$co.$et;

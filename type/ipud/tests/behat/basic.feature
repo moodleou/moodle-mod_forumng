@@ -80,6 +80,7 @@ Feature: In-page discussions
     And I should see "Test bottom reply in the discussion"
     Then I reply to post "2" with the following data:
       | Message | post level 2 |
+    And I wait until the page is ready
     Then I should not see "Reply" in the ".forumng-p3" "css_element"
     Then I expand post "2"
     And I should not see "Permalink" in the ".forumng-commands" "css_element"
