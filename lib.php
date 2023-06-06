@@ -547,7 +547,7 @@ function mod_forumng_cm_info_dynamic(cm_info $cm) {
         $property = new ReflectionProperty('moodle_page', '_context');
         $property->setAccessible(true);
         $context = $property->getValue($PAGE);
-        if ($context) {
+        if ($context && $context instanceof \context_course) {
             $cm->set_icon_url($OUTPUT->image_url('ipud_icon', 'mod_forumng'));
         }
     }
