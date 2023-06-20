@@ -35,7 +35,7 @@ require_once($CFG->dirroot . '/mod/forumng/mod_forumng.php');
  * @copyright 2014 The Open University
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class mod_forumng_forumng_testcase extends forumng_test_lib {
+class forumng_test extends forumng_test_lib {
 
     /**
      * Unit tests cover following aspects of mod_forumng:
@@ -1051,5 +1051,194 @@ class mod_forumng_forumng_testcase extends forumng_test_lib {
         $forum = mod_forumng::get_from_cmid($forumcm->id, 0);
         $forumcm = $forum->get_course_module();
         $this->assertEquals($USER->id, $forumcm->get_modinfo()->get_user_id());
+    }
+
+    public function test_forumng_get_max_bytes(): void {
+        global $USER, $DB;
+        $this->resetAfterTest(true);
+
+        $coursemaxbytes = 1024000;
+        $course = $this->getDataGenerator()->create_course([
+            'fullname' => 'testcourse',
+            'maxbytes' => $coursemaxbytes,
+        ]);
+        $this->assertEquals($coursemaxbytes, $course->maxbytes);
+
+        $student = $this->get_new_user('student', $course->id);
+        $manager = $this->get_new_user('manager', $course->id);
+        $teacher = $this->get_new_user('editingteacher', $course->id);
+
+        $maxbytes = 512000;
+        $forumrecord = $this->get_new_forumng($course->id, [
+            'attachmentmaxbytes' => $maxbytes,
+        ]);
+
+        // Get forum data.
+        $forumfields = $DB->get_record('forumng', ['id' => $forumrecord->get_id()], '*', MUST_EXIST);
+        $this->assertEquals($maxbytes, $forumfields->attachmentmaxbytes);
+
+        // Admin.
+        $this->setAdminUser();
+        $forum = mod_forumng::get_from_id($forumrecord->get_id(), 0, true, null, $USER->id);
+        $this->assertInstanceOf(mod_forumng::class, $forum);
+        $this->assertTrue($forum->is_ignore_filesize_limit());
+        // Admin can do anything.
+        $this->assertEquals(USER_CAN_IGNORE_FILE_SIZE_LIMITS, $forum->get_max_bytes());
+        $this->assertTrue($forum->can_create_attachments());
+
+        // Student.
+        $this->setUser($student);
+        $forum = mod_forumng::get_from_id($forumrecord->get_id(), 0, true, null, $student->id);
+        $this->assertInstanceOf(mod_forumng::class, $forum);
+        $this->assertFalse($forum->is_ignore_filesize_limit());
+        // Student must respect ForumNG setting.
+        $this->assertEquals($forumfields->attachmentmaxbytes, $forum->get_max_bytes());
+        $this->assertTrue($forum->can_create_attachments());
+
+        // Manager.
+        $this->setUser($manager);
+        $forum = mod_forumng::get_from_id($forumrecord->get_id(), 0, true, null, $manager->id);
+        $this->assertInstanceOf(mod_forumng::class, $forum);
+        $this->assertTrue($forum->is_ignore_filesize_limit());
+        // Manager ignores ForumNG setting, but still respect course setting.
+        $this->assertEquals($coursemaxbytes, $forum->get_max_bytes());
+        $this->assertTrue($forum->can_create_attachments());
+
+        // Teacher.
+        $this->setUser($teacher);
+        $forum = mod_forumng::get_from_id($forumrecord->get_id(), 0, true, null, $teacher->id);
+        $this->assertInstanceOf(mod_forumng::class, $forum);
+        $this->assertTrue($forum->is_ignore_filesize_limit());
+        // Teacher ignores ForumNG setting, but still respect course setting.
+        $this->assertEquals($coursemaxbytes, $forum->get_max_bytes());
+        $this->assertTrue($forum->can_create_attachments());
+    }
+
+    /**
+     * For site upload limit, we set attachmentmaxbytes = 0.
+     */
+    public function test_forumng_get_max_bytes_with_site_upload_limit(): void {
+        global $USER, $DB;
+        $this->resetAfterTest(true);
+
+        $coursemaxbytes = 1024000;
+        $course = $this->getDataGenerator()->create_course([
+            'fullname' => 'testcourse',
+            'maxbytes' => $coursemaxbytes,
+        ]);
+        $this->assertEquals($coursemaxbytes, $course->maxbytes);
+
+        $student = $this->get_new_user('student', $course->id);
+        $manager = $this->get_new_user('manager', $course->id);
+        $teacher = $this->get_new_user('editingteacher', $course->id);
+
+        $forumrecord = $this->get_new_forumng($course->id, [
+            'attachmentmaxbytes' => 0,
+        ]);
+
+        // Get forum data.
+        $forumfields = $DB->get_record('forumng', ['id' => $forumrecord->get_id()], '*', MUST_EXIST);
+        $this->assertEquals(0, $forumfields->attachmentmaxbytes);
+
+        // Admin.
+        $this->setAdminUser();
+        $forum = mod_forumng::get_from_id($forumrecord->get_id(), 0, true, null, $USER->id);
+        $this->assertInstanceOf(mod_forumng::class, $forum);
+        $this->assertTrue($forum->is_ignore_filesize_limit());
+        // Admin can do anything.
+        $this->assertEquals(USER_CAN_IGNORE_FILE_SIZE_LIMITS, $forum->get_max_bytes());
+        $this->assertTrue($forum->can_create_attachments());
+
+        // Student.
+        $this->setUser($student);
+        $forum = mod_forumng::get_from_id($forumrecord->get_id(), 0, true, null, $student->id);
+        $this->assertInstanceOf(mod_forumng::class, $forum);
+        $this->assertFalse($forum->is_ignore_filesize_limit());
+        // Student must respect ForumNG setting.
+        $this->assertEquals($coursemaxbytes, $forum->get_max_bytes());
+        $this->assertTrue($forum->can_create_attachments());
+
+        // Manager.
+        $this->setUser($manager);
+        $forum = mod_forumng::get_from_id($forumrecord->get_id(), 0, true, null, $manager->id);
+        $this->assertInstanceOf(mod_forumng::class, $forum);
+        $this->assertTrue($forum->is_ignore_filesize_limit());
+        // Manager still respects course setting.
+        $this->assertEquals($coursemaxbytes, $forum->get_max_bytes());
+        $this->assertTrue($forum->can_create_attachments());
+
+        // Teacher.
+        $this->setUser($teacher);
+        $forum = mod_forumng::get_from_id($forumrecord->get_id(), 0, true, null, $teacher->id);
+        $this->assertInstanceOf(mod_forumng::class, $forum);
+        $this->assertTrue($forum->is_ignore_filesize_limit());
+        // Teacher still respects course setting.
+        $this->assertEquals($coursemaxbytes, $forum->get_max_bytes());
+        $this->assertTrue($forum->can_create_attachments());
+    }
+
+    /**
+     * For uploads are not allowed, we set attachmentmaxbytes = -1.
+     */
+    public function test_forumng_get_max_bytes_with_upload_are_not_allowed(): void {
+        global $USER, $DB;
+        $this->resetAfterTest(true);
+
+        $coursemaxbytes = 1024000;
+        $course = $this->getDataGenerator()->create_course([
+            'fullname' => 'testcourse',
+            'maxbytes' => $coursemaxbytes,
+        ]);
+        $this->assertEquals($coursemaxbytes, $course->maxbytes);
+
+        $student = $this->get_new_user('student', $course->id);
+        $manager = $this->get_new_user('manager', $course->id);
+        $teacher = $this->get_new_user('editingteacher', $course->id);
+
+        $forumrecord = $this->get_new_forumng($course->id, [
+            'attachmentmaxbytes' => -1,
+        ]);
+
+        // Get forum data.
+        $forumfields = $DB->get_record('forumng', ['id' => $forumrecord->get_id()], '*', MUST_EXIST);
+        $this->assertEquals(-1, $forumfields->attachmentmaxbytes);
+
+        // Admin.
+        $this->setAdminUser();
+        $forum = mod_forumng::get_from_id($forumrecord->get_id(), 0, true, null, $USER->id);
+        $this->assertInstanceOf(mod_forumng::class, $forum);
+        $this->assertTrue($forum->is_ignore_filesize_limit());
+        // Admin can do anything.
+        $this->assertEquals(USER_CAN_IGNORE_FILE_SIZE_LIMITS, $forum->get_max_bytes());
+        $this->assertTrue($forum->can_create_attachments());
+
+        // Student.
+        $this->setUser($student);
+        $forum = mod_forumng::get_from_id($forumrecord->get_id(), 0, true, null, $student->id);
+        $this->assertInstanceOf(mod_forumng::class, $forum);
+        $this->assertFalse($forum->is_ignore_filesize_limit());
+        // Student must respect ForumNG setting.
+        // Consider to return something else instead of -1 because it is USER_CAN_IGNORE_FILE_SIZE_LIMITS.
+        $this->assertEquals(-1, $forum->get_max_bytes());
+        $this->assertEquals(USER_CAN_IGNORE_FILE_SIZE_LIMITS, $forum->get_max_bytes());
+        $this->assertFalse($forum->can_create_attachments());
+
+        // Manager.
+        $this->setUser($manager);
+        $forum = mod_forumng::get_from_id($forumrecord->get_id(), 0, true, null, $manager->id);
+        $this->assertInstanceOf(mod_forumng::class, $forum);
+        $this->assertTrue($forum->is_ignore_filesize_limit());
+        // Manager still respects course setting.
+        $this->assertEquals($coursemaxbytes, $forum->get_max_bytes());
+        $this->assertFalse($forum->can_create_attachments());
+
+        // Teacher.
+        $this->setUser($teacher);
+        $forum = mod_forumng::get_from_id($forumrecord->get_id(), 0, true, null, $teacher->id);
+        $this->assertInstanceOf(mod_forumng::class, $forum);
+        $this->assertTrue($forum->is_ignore_filesize_limit());
+        // Teacher still respects course setting.
+        $this->assertEquals($coursemaxbytes, $forum->get_max_bytes());
+        $this->assertFalse($forum->can_create_attachments());
     }
 }

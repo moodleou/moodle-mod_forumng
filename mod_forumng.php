@@ -841,10 +841,22 @@ WHERE
     }
 
     /**
+     * Get mod/forumng:ignorefilesizelimits setting value.
+     *
+     * @return bool
+     */
+    public function is_ignore_filesize_limit(): bool {
+        return has_capability('mod/forumng:ignorefilesizelimits', $this->get_context());
+    }
+
+    /**
+     * It seems a bit of a problem that we chose -1 to represent no attachments (which seems a mistake)
+     * when this means unlimited size (USER_CAN_IGNORE_FILE_SIZE_LIMITS).
+     *
      * @return int Max bytes for attachments or -1 if upload is prevented
      */
-    public function get_max_bytes() {
-        if ($this->forumfields->attachmentmaxbytes) {
+    public function get_max_bytes(): int {
+        if (!$this->is_ignore_filesize_limit() && $this->forumfields->attachmentmaxbytes) {
             if ($this->forumfields->attachmentmaxbytes == -1) {
                 return -1;
             } else {
@@ -2856,8 +2868,13 @@ WHERE
      * @param int $userid User ID, 0 for default
      * @return bool True if user has capability
      */
-    public function can_create_attachments($userid=0) {
+    public function can_create_attachments(int $userid = 0): bool {
         $userid = mod_forumng_utils::get_real_userid($userid);
+        if ($this->forumfields->attachmentmaxbytes == -1) {
+            if (!has_capability('moodle/course:ignorefilesizelimits', $this->get_context(),$userid)) {
+                return false;
+            }
+        }
         return has_capability('mod/forumng:createattachment', $this->get_context(),
             $userid);
     }
