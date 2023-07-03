@@ -70,6 +70,27 @@
     }
     t.CoreContentLinksDelegate.registerHandler(new AddonModForumNGModuleDiscussionLinkToPageHandler);
 
+    /**
+     * Even though we don't require downloadables for the forum, we still want to manage forum data on the "Course Downloads" page,
+     * thus we must register module prefetch handlers so that the getModuleStoredSize function can identify this activity.
+     * src\core\features\course\services\module-prefetch-delegate.ts
+     *
+     * Create a class that extends from CoreCourseActivityPrefetchHandlerBase.
+     */
+    class AddonModForumngModulePrefetchHandler extends t.CoreCourseActivityPrefetchHandlerBase {
+        constructor() {
+            super();
+            this.name = 'AddonModForumngModulePrefetchHandler';
+            this.modName = 'forumng';
+            // This must match the plugin identifier from db/mobile.php.
+            this.component = 'mod_forumng';
+            this.updatesNames = /^configuration$|^.*files$/;
+            this.skipListStatus = true;
+        }
+    }
+
+    t.CoreCourseModulePrefetchDelegate.registerHandler(new AddonModForumngModulePrefetchHandler());
+
     t.newDiscussion = {
         subject: '',
         message: '',
@@ -704,7 +725,14 @@
         var cmid = outerThis.module.id;
         var userid = site.getUserId();
         var courseid = outerThis.courseId;
-        var preSets = {updateFrequency: 0, getFromCache: false};
+        // We need the component and componentId properties in the preset
+        // so that the CoreCourseModulePrefetchDelegate.getModuleStoredSize function can query the cache table correctly.
+        var preSets = {
+            updateFrequency: 0,
+            getFromCache: false,
+            component: 'mod_forumng',
+            componentId: cmid,
+        };
         var PopoverTransition = function() {
             var popover = document.querySelector('.popover-content');
             if (popover) {
@@ -747,14 +775,11 @@
         };
 
         outerThis.ionViewWillLeave = function() {
-            var preSets = {updateFrequency: 0, getFromCache: false};
-            var updatemainpageargs = {'cmid' : cmid, 'courseid': courseid};
             window.removeEventListener("orientationchange", PopoverTransition);
             t.mod_forumng.getNeedUpdate(cmid, userid).then(function(result) {
                 // When we go the forum the agrs is only have {cmid, courseid} so we need to update the cache the newest version.
                 if (typeof(result) != 'undefined' && result != null && result) {
                     t.mod_forumng.setNeedUpdate(cmid, null, userid);
-                    outerThis.CoreSitePluginsProvider.getContent('mod_forumng', 'forumng_view', updatemainpageargs, preSets);
                 }
             });
         };

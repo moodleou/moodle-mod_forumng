@@ -194,7 +194,7 @@
                   class="mma-forumng-discussion-item mma-forumng-discussion-short ion-text-wrap">
             <div item-content core-site-plugins-new-content component="mod_forumng" method="posts_view"
                  [args]="{cmid: <% cmid %>, discussionid: discussion.id, unread: discussion.unread}" title="{{ discussion.subject }}"
-                 [preSets]="isOnline() ? {getFromCache: 0} : {getFromCache: 1}"
+                 [preSets]="isOnline() ? {getFromCache: 0, componentId: <% cmid %>} : {getFromCache: 1,  componentId: <% cmid %>}"
                  class="mma-forumng-discussion {{discussion.classes }}">
                 <%# isipud %>
                     <a [href]="discussion.url" core-link class="forumng-ipud-discussion-hyperlink">
