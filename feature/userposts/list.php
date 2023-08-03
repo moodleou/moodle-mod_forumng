@@ -346,7 +346,7 @@ foreach ($users as $u) {
         $username = rtrim($username, ', ') . ')';
 
     }
-    $showallpostsby = null;
+    $showallpostsby = '';
     // Number of discussions.
     if (!isset($u->numdiscussions)) {
         $u->numdiscussions = 0;
@@ -381,7 +381,7 @@ foreach ($users as $u) {
         $postspan = html_writer::end_tag('div');
     }
 
-    $rows[0] = '';
+    $row[0] = '';
     if (empty($download)) {
         $row[0] = $span . $picture . '&nbsp;' . $userdetails . $postspan;
     } else {
