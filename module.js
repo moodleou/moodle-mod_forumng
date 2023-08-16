@@ -87,6 +87,9 @@ M.mod_forumng = {
         if (document.getElementById('page-mod-forumng-feature-deletedposts-deletedpostslist')) {
             this.init_content(this.Y.one(document));
         }
+        if (document.getElementById('page-mod-forumng-feature-userposts-user')) {
+            this.init_content(this.Y.one(document));
+        }
         if (document.getElementById('page-mod-forumng-feature-print-print')) {
             this.init_content(this.Y.one(document));
             this.print_page();
@@ -1308,7 +1311,7 @@ M.mod_forumng = {
                     failure: this.expand_error
                 }
             };
-            this.Y.io('expandpost.php', cfg);
+            this.Y.io(M.cfg.wwwroot + '/mod/forumng/expandpost.php', cfg);
             if (link.loader) {
                 link.loader.set('src', this.loaderpix);
             }

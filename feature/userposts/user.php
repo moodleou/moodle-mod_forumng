@@ -204,6 +204,7 @@ $table->is_downloading($download, $filename, get_string('userposts', 'forumngfea
 
 if (empty($download)) {
     print $out->header();
+    $forum->print_js($cm->id);
     if (($forum->get_enableratings() == mod_forumng::FORUMNG_STANDARD_RATING) &&
     (has_capability('mod/forumng:rate', $context))) {
         $taburl = clone $pageurl;

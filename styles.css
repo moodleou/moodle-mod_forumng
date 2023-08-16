@@ -472,6 +472,12 @@ h3.forumng-subject {
     margin:0.5em 0 0;
     text-align:right;
 }
+
+/* Hide buttons on userparticipation page */
+body#page-mod-forumng-feature-userposts-user .forumng-postfooter {
+    display: none;
+}
+
 /* Hide buttons if copied into message */
 .forumng-message .forumng-postfooter, .forumng-message .forumng-commands,
 .forumng-message .forumng-expandcontainer {
