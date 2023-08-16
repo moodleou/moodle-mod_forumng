@@ -1118,3 +1118,5 @@ $string['showmore'] = 'Show more';
 $string['showless'] = 'Show less';
 $string['subscriptionhelptitle'] = 'Email subscription';
 $string['eqn'] = '[eqn]';
+
+$string['onlyposnum'] = 'Only accepts positive numbers.';

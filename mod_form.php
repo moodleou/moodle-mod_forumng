@@ -320,13 +320,21 @@ class mod_forumng_mod_form extends moodleform_mod {
     public function validation($data, $files) {
         global $COURSE, $DB;
         $errors = parent::validation($data, $files);
-
         if (isset($data['limitgroup']['maxpostsblock']) &&
             !preg_match('/^[0-9]{1,9}$/', $data['limitgroup']['maxpostsblock'])) {
             $errors['limitgroup'] = get_string('err_numeric', 'form');
         }
         if (!empty($data['reportingemail']) && !$this->validate_emails($data['reportingemail'])) {
             $errors['reportingemail'] = get_string('invalidemail', 'forumng');
+        }
+        if (!empty($data['completionposts']) && ($data['completionposts'] < 1  || !is_int($data['completionposts']))){
+            $errors['completionpostsgroup'] = get_string('onlyposnum', 'forumng');
+        }
+        if (!empty($data['completiondiscussions'])  && ($data['completiondiscussions'] < 1 || !is_int($data['completiondiscussions']))){
+            $errors['completiondiscussionsgroup'] = get_string('onlyposnum', 'forumng');
+        }
+        if (!empty($data['completionreplies']) && ($data['completionreplies'] < 1 || !is_int($data['completionreplies']))){
+            $errors['completionrepliesgroup'] = get_string('onlyposnum', 'forumng');
         }
 
         // If old discussions are set to be moved to another forum...
