@@ -81,22 +81,6 @@ class participation_viewed extends \core\event\base {
     }
 
     /**
-     * Return the legacy event log data.
-     *
-     * @return array|null
-     */
-    protected function get_legacy_logdata() {
-        $url = str_replace('/mod/forumng/feature/userposts/', '', $this->other['url']);
-        if (!empty($this->relateduserid)) {
-            $action = 'View user participation';
-        } else {
-            $action = 'View participation list';
-        }
-        return array($this->courseid, 'forumng', $action, $url,
-                $this->objectid, $this->contextinstanceid);
-    }
-
-    /**
      * Custom validation.
      *
      * @throws \coding_exception

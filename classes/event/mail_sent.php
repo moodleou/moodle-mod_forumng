@@ -94,27 +94,6 @@ class mail_sent extends \core\event\base {
     }
 
     /**
-     * Return the legacy event log data.
-     *
-     * @return array|null
-     */
-    protected function get_legacy_logdata() {
-        global $SITE;
-        if (isset($this->other['type'])) {
-            // Subscription or digest.
-            $name = $this->other['type'] == 'digest' ? 'digest' : 'mail';
-            $file = $this->contextlevel == CONTEXT_COURSE ? 'index' : 'view';
-            return array($this->courseid, 'forumng', $name . ' ok', $file .'.php?id=' . $this->contextinstanceid,
-                $this->other['count'], $this->contextinstanceid);
-        } else {
-            // Individual mail.
-            return array($SITE->id, 'library', $name . ' ok', 'cron',
-                'emailsent ' . $this->relateduserid . ' (' . $this->other['username'] . '): ' .
-                    $this->other['subject']);
-        }
-    }
-
-    /**
      * Custom validation.
      *
      * @throws \coding_exception

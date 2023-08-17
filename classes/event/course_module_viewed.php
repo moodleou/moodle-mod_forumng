@@ -46,15 +46,4 @@ class course_module_viewed extends \core\event\course_module_viewed {
         $this->data['edulevel'] = self::LEVEL_PARTICIPATING;
         $this->data['objecttable'] = 'forumng';
     }
-
-    /**
-     * Return the legacy event log data.
-     *
-     * @return array|null
-     */
-    protected function get_legacy_logdata() {
-        return array($this->courseid, 'forumng', 'view', $this->other['logurl'],
-                $this->other['info'], $this->contextinstanceid);
-    }
-
 }

@@ -76,17 +76,6 @@ class usage_viewed extends \core\event\base {
     }
 
     /**
-     * Return the legacy event log data.
-     *
-     * @return array|null
-     */
-    protected function get_legacy_logdata() {
-        $url = str_replace('/mod/forumng/feature/usage/', '', $this->other['url']);
-        return array($this->courseid, 'forumng', 'view usageinfo', $url,
-                $this->objectid, $this->contextinstanceid);
-    }
-
-    /**
      * Custom validation.
      *
      * @throws \coding_exception

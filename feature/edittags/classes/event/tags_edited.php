@@ -76,16 +76,6 @@ class tags_edited extends \core\event\base {
     }
 
     /**
-     * Return the legacy event log data.
-     *
-     * @return array|null
-     */
-    protected function get_legacy_logdata() {
-        $url = str_replace('/mod/forumng/feature/edittags/', '', $this->other['url']);
-        return array($this->courseid, 'forumng', 'edit set tags', $url, $this->objectid, $this->contextinstanceid);
-    }
-
-    /**
      * Custom validation.
      *
      * @throws \coding_exception

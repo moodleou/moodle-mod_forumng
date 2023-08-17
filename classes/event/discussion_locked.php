@@ -81,20 +81,6 @@ class discussion_locked extends \core\event\base {
     }
 
     /**
-     * Return the legacy event log data.
-     *
-     * @return array|null
-     */
-    protected function get_legacy_logdata() {
-        $action = 'lock discussion';
-        if (isset($this->other['auto'])) {
-            $action = 'auto lock discussion';
-        }
-        return array($this->courseid, 'forumng', $action, $this->other['logurl'],
-                $this->other['info'], $this->contextinstanceid);
-    }
-
-    /**
      * Custom validation.
      *
      * @throws \coding_exception
