@@ -301,7 +301,7 @@ class mobile {
         $forum->name = format_string($forumng->get_name());
         // Not used currently $forum->intro = $cm->get_formatted_content().
         list($forum->introduction, $unusedintroductionformat) =
-                external_format_text($forumng->get_introduction(), $forumng->get_introduction_format(), $context->id,
+                \core_external\util::format_text($forumng->get_introduction(), $forumng->get_introduction_format(), $context,
                     'mod_forumng', 'introduction');
         $forum->introduction = self::add_external_content_to_image($forum->introduction);
 
