@@ -51,14 +51,22 @@
                             if (!result) {
                                 return Promise.reject(that.CoreWSProvider.createFakeWSError(response.errormsg));
                             } else {
-                                var pageParams = {
+                                const args = {
+                                    contextlevel: result.contextLevel,
+                                    instanceid: result.instanceid,
+                                    courseid: result.courseid,
+                                    messageid: result.messageid
+                                };
+                                const hash = t.Md5.hashAsciiStr(JSON.stringify(args));
+                                const pageParams = {
                                     title: result.subject,
                                     component: 'mod_forumng',
                                     method: 'posts_view',
                                     args: {discussionid: params.d},
                                     initResult: {},
                                 };
-                                t.CoreContentLinksHelperProvider.goInSite(navCtrl, 'CoreSitePluginsPluginPage', pageParams, siteId);
+                                t.CoreNavigatorService.navigateToSitePath('siteplugins/content/mod_forumng/posts_view/' + hash,
+                                    { params: pageParams });
                             }
                         });
                     });
