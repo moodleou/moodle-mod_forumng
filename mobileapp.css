@@ -190,6 +190,11 @@ body.ionic5  .mma-forumng-discussion-list .mma-forumng-discussion-show-dates {
     text-decoration: line-through;
 }
 
+.mma-forumng-discussion-list .mma-forumng-discussion-sort {
+    position: absolute;
+    right: 0;
+}
+
 .mma-forumng-discussion-list .mma-forumng-discussion ion-label,
 .mma-forumng-discussion-list .mma-forumng-discussion-sort {
     margin: 0 !important;
@@ -353,7 +358,8 @@ body.ionic5 .collapsible-item.collapsible-enabled:not(.collapsible-loading-heigh
     background: linear-gradient(to bottom, rgba(255, 255, 255, 0) calc(100% - 50px), white calc(100% - 15px));
 }
 
-body.ionic5 .mma-forumng-discussion-introduction ion-button > span.collapsible-toggle-arrow {
+body.ionic5 .mma-forumng-discussion-introduction ion-button > span.collapsible-toggle-arrow,
+body.ionic5 .mma-forumng-ipud-discussion-rootpost ion-button > span.collapsible-toggle-arrow {
     display: none;
 }
 
@@ -649,7 +655,7 @@ html[style="font-size: 93.75%;"] .mma-forumng-discussion-list core-format-text[m
 }
 .mma-forumng-discussion-list .mma-forumng-discussion .mma-forumng-discussion-rootpost {
     margin-top: 5px;
-    font-size: 1.4rem;
+    font-size: inherit;
     width: 75%;
 }
 .mma-forumng-discussion-list .mma-forumng-discussion.forumng-ipud {
@@ -1276,11 +1282,15 @@ body.ionic5 .mma-forumng-post-reply .mma-subreply-form ion-item:not(.mma-forumng
 
 body.ionic5 .mma-forumng-discussion-item .mma-forumng-ipud-discussion-icons a.ipud-discussion-open {
     color: #000;
-    font-size: 35px;
+    font-size: 1.5rem;
 }
 
 body.ionic5 .mma-forumng-discussion-list core-format-text[maxHeight].core-text-formatted.core-shortened.mma-forumng-ipud-discussion-rootpost .core-show-more {
     font-size: 14px;
+}
+
+body.ionic5 .mma-forumng-discussion-list .mma-forumng-ipud-discussion-content .mma-forumng-ipud-discussion-rootpost.collapsible-item {
+    --collapsible-height: none;
 }
 
 body.ionic5 .mma-forumng-discussion-list .mma-forumng-ipud-discussion-content .mma-forumng-ipud-discussion-rootpost,
