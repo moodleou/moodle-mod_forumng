@@ -634,6 +634,17 @@ class mobile {
         $rootpost->canmanage = $canmanage;
         $manualmark = !mod_forumng::mark_read_automatically();
 
+        // Properties in otherdata will be checked for Json encoded strings.
+        // When the value begins with the character '[' or '{', this string will be interpreted as needing JSON encoding.
+        // Refer to getContent() in moodle mobile source: src/core/features/siteplugins/services/siteplugins.ts.
+        // Properties that could not be JSON encoded strings.
+        $nonjsonproperties = (object)[
+            'rootpostsubject' => $rootpost->subject,
+            'originalrootpostmessage' => $root->get_formatted_message(),
+            'draftsubject' => $draftid ? $draft->get_subject() : '',
+            'draftmessage' => $draftid ? $draft->get_formatted_message($forumng) : '',
+        ];
+
         return [
             'templates' => [
                 [
@@ -669,23 +680,20 @@ class mobile {
                 'forumngid' => $forumng->get_id(),
                 'rootpostmessage' =>  $rootpost->message,
                 'rootpostid' =>  $rootpost->postid,
-                'originalrootpostmessage' => $root->get_formatted_message(),
                 'edittimeout' => 0,
                 'limittime' => 0,
                 'disable' => 0,
                 'maxyear' => date('Y', strtotime('+30 years')),
                 'draftid' => $draftid,
-                'draftsubject' => $draftid ? $draft->get_subject() : '',
-                'draftmessage' => $draftid ? $draft->get_formatted_message($forumng) : '',
                 'draftexists' => $draftexists,
                 'replytoid' => $replytoid,
                 'important' => $setimportant,
                 'attachmentsforform' => json_encode($attachmentforform),
                 'cmid' => $cmid,
-                'rootpostsubject' => $rootpost->subject,
                 'manualmark' => $manualmark,
                 'discussionurl' => $discussion->get_url(),
-                'refreshicon' => 'refresh'
+                'refreshicon' => 'refresh',
+                'nonjsonproperties' => json_encode($nonjsonproperties),
             ],
             'files' => []
         ];
@@ -1140,6 +1148,14 @@ class mobile {
             'displayperiod' => $displayperiod,
             'submitdraftlabel' => get_string('savedraft', 'mod_forumng'),
         ];
+        // Properties in otherdata will be checked for Json encoded strings.
+        // When the value begins with the character '[' or '{', this string will be interpreted as needing JSON encoding.
+        // Refer to getContent() in moodle mobile source: src/core/features/siteplugins/services/siteplugins.ts.
+        // Properties that could not be JSON encoded strings.
+        $nonjsonproperties = (object) [
+                'draftsubject' => $draftid ? $draft->get_subject() : '',
+                'draftmessage' => $draftid ? $draft->get_formatted_message($forumng) : '',
+        ];
         $html = $OUTPUT->render_from_template('mod_forumng/' . $foldername . 'mobile_add_discussion', $data);
 
         return [
@@ -1161,10 +1177,9 @@ class mobile {
                 'cmid' => $cmid,
                 'maxyear' => date('Y', strtotime('+30 years')),
                 'draftid' => $draftid,
-                'draftsubject' => $draftid ? $draft->get_subject() : '',
-                'draftmessage' => $draftid ? $draft->get_formatted_message($forumng) : '',
                 'draftexists' => $draftexists,
                 'attachmentsforform' => json_encode($attachmentforform),
+                'nonjsonproperties' => json_encode($nonjsonproperties),
             ],
             'files' => []
         ];

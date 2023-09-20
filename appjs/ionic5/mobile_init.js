@@ -978,8 +978,8 @@
             var replytoid = outerThis.CONTENT_OTHERDATA.replytoid;
             t.isEditDraft = 1;
             autoScrollToDraft(replytoid);
-            outerThis.subject = outerThis.CONTENT_OTHERDATA.draftsubject;
-            outerThis.PostControl.value = outerThis.CONTENT_OTHERDATA.draftmessage;
+            outerThis.subject = outerThis.CONTENT_OTHERDATA.nonjsonproperties.draftsubject;
+            outerThis.PostControl.value = outerThis.CONTENT_OTHERDATA.nonjsonproperties.draftmessage;
             var $draftattachments = outerThis.CONTENT_OTHERDATA.attachmentsforform;
             if (typeof $draftattachments !== 'object') {
                 $draftattachments = JSON.parse($draftattachments);
@@ -1316,13 +1316,13 @@
             };
             outerThis.subject = postdata.subject;
             if (postdata.postid == outerThis.CONTENT_OTHERDATA.rootpostid) {
-                outerThis.subject = outerThis.CONTENT_OTHERDATA.rootpostsubject;
+                outerThis.subject = outerThis.CONTENT_OTHERDATA.nonjsonproperties.rootpostsubject;
                 outerThis.CONTENT_OTHERDATA.showfrom = postdata.showfrom;
                 outerThis.CONTENT_OTHERDATA.showsticky = postdata.sticky;
                 t.showsticky = postdata.sticky;
                 t.showfrom = postdata.showfrom;
-                outerThis.PostControl.setValue(outerThis.CONTENT_OTHERDATA.originalrootpostmessage);
-                outerThis.message = outerThis.CONTENT_OTHERDATA.originalrootpostmessage;
+                outerThis.PostControl.setValue(outerThis.CONTENT_OTHERDATA.nonjsonproperties.originalrootpostmessage);
+                outerThis.message = outerThis.CONTENT_OTHERDATA.nonjsonproperties.originalrootpostmessage;
             } else {
                 outerThis.CONTENT_OTHERDATA.showsticky = 0;
                 outerThis.CONTENT_OTHERDATA.showfrom = 0;
@@ -1725,8 +1725,8 @@
         // Set data when editing draft.
         if(outerThis.CONTENT_OTHERDATA.draftid && !t.isEditDraft) {
             t.isEditDraft = 1;
-            outerThis.subject = outerThis.CONTENT_OTHERDATA.draftsubject;
-            outerThis.addDiscussionControl.value = outerThis.CONTENT_OTHERDATA.draftmessage;
+            outerThis.subject = outerThis.CONTENT_OTHERDATA.nonjsonproperties.draftsubject;
+            outerThis.addDiscussionControl.value = outerThis.CONTENT_OTHERDATA.nonjsonproperties.draftmessage;
             var $draftattachments = outerThis.CONTENT_OTHERDATA.attachmentsforform;
             if (typeof $draftattachments !== 'object') {
                 $draftattachments = JSON.parse($draftattachments);
