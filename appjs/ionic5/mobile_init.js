@@ -63,7 +63,6 @@
                                     component: 'mod_forumng',
                                     method: 'posts_view',
                                     args: {discussionid: params.d},
-                                    initResult: {},
                                 };
                                 t.CoreNavigatorService.navigateToSitePath('siteplugins/content/mod_forumng/posts_view/' + hash,
                                     { params: pageParams });
