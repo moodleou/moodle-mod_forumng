@@ -253,6 +253,7 @@ if ($data) {
             $result->set_visible_modules_in_course($COURSE);
 
             // Restrict them to the groups they belong to.
+            // TODO This code does not work because $USER->groupmember no longer exists.
             if (!isset($USER->groupmember[$courseid])) {
                 $result->set_group_ids(array());
             } else {
