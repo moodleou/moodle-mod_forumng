@@ -25,7 +25,6 @@ use mod_forumng_discussion;
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot . '/mod/forumng/mod_forumng.php');
-require_once($CFG->libdir . '/externallib.php');
 
 /**
  * ForumNG services implementation.

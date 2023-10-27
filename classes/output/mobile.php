@@ -33,7 +33,6 @@ require_once(__DIR__ . '/../../mod_forumng.php');
 require_once(__DIR__ . '/../../mod_forumng_utils.php');
 require_once(__DIR__ . '/../../renderer.php');
 require_once(__DIR__ . '/../../feature/forumngfeature_discussion.php');
-require_once($CFG->libdir . '/externallib.php');
 
 /**
  * Mobile output class for forumng
