@@ -474,7 +474,7 @@ h3.forumng-subject {
 }
 
 /* Hide buttons on userparticipation page */
-body#page-mod-forumng-feature-userposts-user .forumng-postfooter {
+body#page-mod-forumng-feature-userposts-user .forumng-postfooter .forumng-commands-box {
     display: none;
 }
 
