@@ -251,7 +251,7 @@
                                 <span *ngIf="discussion.classes" class="{{ discussion.classes }}">
                                 <!-- Add icon(s) as needed indicating sticky discussions etc. -->
                                     <span *ngFor="let decorator of discussion.decorators">
-                                        <img core-external-content *ngIf="decorator.src; else elseBlock" src="{{decorator.src}}"
+                                        <img *ngIf="decorator.src; else elseBlock" src="{{decorator.src}}"
                                              alt="" class="mma-forumng-image-correction {{decorator.class}}">
                                         <ng-template #elseBlock><span
                                                 class='accesshide'>{{ decorator.alt }}</span></ng-template>

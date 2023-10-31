@@ -155,8 +155,11 @@ body.ionic5  .mma-forumng-discussion-list .mma-forumng-discussion-show-dates {
     margin: 15px 0 11px 0;
 }
 
-.mma-forumng-discussion-list .mma-forumng-discussion .mma-forumng-discussion-icons {
-    padding-right: 0.85em;
+.mma-forumng-discussion-list .mma-forumng-discussion .mma-forumng-discussion-icons,
+.mma-forumng-discussion-list .mma-forumng-discussion .mma-forumng-discussion-icons .forumng-locked,
+.mma-forumng-discussion-list .mma-forumng-discussion .mma-forumng-discussion-icons .forumng-sticky,
+.mma-forumng-discussion-list .mma-forumng-discussion .mma-forumng-discussion-icons .forumng-timeout {
+    display: flex;
 }
 
 .mma-forumng-discussion-list .mma-forumng-discussion .mma-forumng-discussion-subject {
