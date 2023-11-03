@@ -52,7 +52,11 @@ if ($d) {
     try {
         $discussion = mod_forumng_discussion::get_from_id($d, $cloneid, $userid);
     } catch (\dml_exception $ex) {
-        redirect(new moodle_url('/local/error/http-error.php', ['test' => '404']));
+        if (file_exists($CFG->dirroot . '/local/error/http-error.php')) {
+            redirect(new moodle_url('/local/error/http-error.php', ['test' => '404']));
+        } else {
+            throw new moodle_exception('invalidcoursemodule');
+        }
     }
     $forum = $discussion->get_forum();
     $groupid = $discussion->get_group_id();
@@ -61,7 +65,11 @@ if ($d) {
     try {
         $forum = mod_forumng::get_from_cmid($cmid, $cloneid, $userid);
     } catch (\moodle_exception $e) {
-        redirect(new moodle_url('/local/error/http-error.php', ['test' => '404']));
+        if (file_exists($CFG->dirroot . '/local/error/http-error.php')) {
+            redirect(new moodle_url('/local/error/http-error.php', ['test' => '404']));
+        } else {
+            throw new moodle_exception('invalidcoursemodule');
+        }
     }
     $url = $forum->get_url(mod_forumng::PARAM_PLAIN);
     if ($groupid == 'unspecified') {
