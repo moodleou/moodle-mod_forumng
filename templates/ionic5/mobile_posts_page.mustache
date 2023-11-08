@@ -84,6 +84,8 @@
 <%/ error %>
 <%^ error %>
 <core-navbar-buttons slot="end">
+    <!-- Add an empty context menu so split view pages can add items, otherwise the menu disappears in some cases. -->
+    <core-context-menu></core-context-menu>
     <core-context-menu>
         <core-context-menu-item [priority]="900" [content]="'core.openinbrowser' | translate" [href]="CONTENT_OTHERDATA.discussionurl" [iconAction]="'open'" autoLogin="no"></core-context-menu-item>
         <core-context-menu-item [priority]="800" [content]="'core.refresh' | translate" (action)="doRefresh()" [iconAction]="CONTENT_OTHERDATA.refreshicon"></core-context-menu-item>
