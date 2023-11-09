@@ -361,6 +361,12 @@ h2.accesshide {
     top: auto;
     left: -10000px;
 }
+.forumng-switchlinkblock.accesshide {
+    display: block;
+    height: auto;
+    width: auto;
+    white-space: initial;
+}
 
 h2.forumng-author {
     font-size: 1.0em;
