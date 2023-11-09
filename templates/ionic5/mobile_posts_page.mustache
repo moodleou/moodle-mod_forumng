@@ -100,11 +100,11 @@
     <ion-item class="mma-forumng-expandall" lines="none">
         <%# hasreplies %>
         <ion-button slot="end" fill="outline" *ngIf="(!CONTENT_OTHERDATA.iscollapseall && !CONTENT_OTHERDATA.isexpandall) || CONTENT_OTHERDATA.iscollapseall" (click)="expand_all_posts()">
-            {{CONTENT_OTHERDATA.expandall}}
+            <core-format-text [text]="CONTENT_OTHERDATA.expandall"></core-format-text>
             <ion-icon slot="end" name="fa-chevron-down"></ion-icon>
         </ion-button>
         <ion-button slot="end" fill="outline" *ngIf="(!CONTENT_OTHERDATA.iscollapseall && !CONTENT_OTHERDATA.isexpandall) || CONTENT_OTHERDATA.isexpandall" (click)="collapse_all_posts()">
-            {{CONTENT_OTHERDATA.collapseallpost}}
+            <core-format-text [text]="CONTENT_OTHERDATA.collapseallpost"></core-format-text>
             <ion-icon slot="end" name="fa-chevron-up"></ion-icon>
         </ion-button>
         <%/ hasreplies %>

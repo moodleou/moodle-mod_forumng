@@ -119,7 +119,7 @@
                     <ion-col>
                         <div class="mma-forumng-draft-heading">
                             <% decorators.heading %>
-                            <img core-external-content src="<%decorators.url%>" title="<%decorators.alt%>" alt="<%decorators.alt%>"
+                            <img src="<%decorators.url%>" title="<%decorators.alt%>" alt="<%decorators.alt%>"
                                  (click)="showMessage('<%decorators.content%>')"/>
                         </div>
                     </ion-col>
@@ -145,7 +145,7 @@
                                     title="Discussion" [preSets]="{getFromCache: 0}"
                                     [text]="draft.summary" component="mod_forumng" componentId="<% cmid %>" class="ion-text-wrap">
                             </core-format-text>
-                            <img core-external-content class="mma-forumng-delete-draft" core-site-plugins-new-content component="mod_forumng" method="draft_view"
+                            <img class="mma-forumng-delete-draft" core-site-plugins-new-content component="mod_forumng" method="draft_view"
                                  [args]="{draftid: draft.id}" [preSets]="{getFromCache: 0}" src="{{draft.deleteicon}}" alt=""/>
                         </div>
                         <div *ngIf="draft.isdeletediscussion">

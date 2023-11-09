@@ -1301,6 +1301,12 @@ body.ionic5 .mma-forumng-discussion-list .mma-forumng-ipud-discussion-content .m
     color: var(--text-color);
 }
 
+body.ionic5 .ios .mma-forumng-posts-list-wrapper .mma-forumng-expandall ion-button core-format-text {
+    text-overflow: unset;
+    white-space: unset;
+    overflow: unset;
+}
+
 /*
  * Dark mode overrides
  *
