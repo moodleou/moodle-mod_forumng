@@ -14,6 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+use core_external\external_value;
+use core_external\external_multiple_structure;
+use core_external\external_single_structure;
+
 /**
  * Class that holds utility functions used by forum.
  * @package mod
