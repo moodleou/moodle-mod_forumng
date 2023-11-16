@@ -575,7 +575,9 @@ Feature: Add forumng activity and test basic functionality
       | Message | REPLY1 |
     And I reload the page
     And I click on "Expand all posts" "link"
-    Given I click on "li.forumng-delete a" "css_element"
+    And I wait "2" seconds
+    And I hover "li.forumng-delete a" "css_element"
+    Given I click on "li.forumng-delete a" "css_element" in the "#forumng-main" "css_element"
     Then I should see "Are you sure you want to delete this post?"
 
   Scenario: Check configurations for manage old discussions and default setting
