@@ -97,6 +97,10 @@ body.ionic5 .mma-forumng-discussion-list .mma-forumng-drafts ion-row:nth-child(2
     align-items: center;
 }
 
+body.ionic5.dark .mma-forumng-discussion-list .mma-forumng-drafts ion-row:nth-child(2) {
+    background-color: transparent;
+}
+
 body.ionic5 .mma-forumng-discussion-list .mma-forumng-drafts ion-row:nth-child(n+2),
 body.ionic5 .mma-forumng-discussion-list ion-item.mma-forumng-discussion-item:not(.no-lines) {
     border-top: 1px solid #dee2e6;
@@ -357,6 +361,10 @@ body.ionic5 .mma-forumng-discussion-listing ion-button > span.collapsible-toggle
     height: auto;
 }
 
+body.ionic5.dark .mma-forumng-discussion-listing ion-button > span.collapsible-toggle-text {
+    color: #fff;
+}
+
 body.ionic5 .collapsible-item.collapsible-enabled:not(.collapsible-loading-height).collapsible-collapsed:before {
     background: linear-gradient(to bottom, rgba(255, 255, 255, 0) calc(100% - 50px), white calc(100% - 15px));
 }
@@ -366,7 +374,7 @@ body.ionic5 .mma-forumng-ipud-discussion-rootpost ion-button > span.collapsible-
     display: none;
 }
 
-body.ionic5 .mma-forumng-posts-list-wrapper  ion-button::part(native),
+body.ionic5 .mma-forumng-posts-list-wrapper ion-button::part(native),
 body.ionic5 .mma-forumng-add-discussion ion-button::part(native),
 body.ionic5 .mma-forumng-discussion-listing #mod_forumg_add_discussion::part(native) {
     color: #000000;
@@ -375,8 +383,25 @@ body.ionic5 .mma-forumng-discussion-listing #mod_forumg_add_discussion::part(nat
     max-height: 37px;
 }
 
-body.ionic5 .mma-forumng-post-reply-expandall {
-    color: #002158  ;
+body.ionic5.dark .mma-forumng-posts-list-wrapper ion-button::part(native),
+body.ionic5.dark .mma-forumng-add-discussion ion-button::part(native),
+body.ionic5.dark .mma-forumng-discussion-listing #mod_forumg_add_discussion::part(native) {
+    color: #fff;
+    border-color: #fff;
+}
+
+body.ionic5.dark .mma-forumng-add-discussion .mma-forumng-label-message .forumng-add-discussion-message,
+body.ionic5.dark .mma-forumng-posts-list-wrapper .mma-forumng-label-message .forumng-reply-message {
+    --background: transparent;
+}
+
+body.ionic5.dark .mma-forumng-add-discussion .mma-forumng-label-message .forumng-add-discussion-message .core-rte-editor:focus-visible,
+body.ionic5.dark .mma-forumng-posts-list-wrapper .mma-forumng-label-message .forumng-reply-message .core-rte-editor:focus-visible {
+   box-shadow: inset 0 0 var(--a11y-focus-width) 1px #fff;
+}
+
+body.ionic5:not(.dark) .mma-forumng-post-reply-expandall {
+    color: #002158;
 }
 
 body.ionic5 .mma-forumng-add-discussion .mma-forumng-group-button ion-row ion-button {
@@ -904,6 +929,10 @@ ion-app.app-root core-format-text.mma-forumng-delete-draft-with-delete-discussio
     right: 0;
 }
 
+body.dark .mma-forumng-posts-list-wrapper .mma-forumng-post-reply .mma-forumng-posts .collapse-post:before {
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0) calc(100% - 50px), #626262 calc(100% - 15px));
+}
+
 .mma-forumng-posts-list-wrapper .mma-forumng-post-reply .unread-post .mma-forumng-posts .collapse-post:before {
     background: linear-gradient(to bottom,rgba(255,255,255,0) calc(100% - 65px),#e7f4fa calc(100% - 20px));
 }
@@ -1032,6 +1061,10 @@ body.ionic5 ion-item.mma-forumng-sort-discussion {
 body.ionic5 ion-item.mma-forumng-sort-discussion::part(native) {
     background-color: #f8f9fa;
     font-size: 16px;
+}
+
+body.ionic5.dark ion-item.mma-forumng-sort-discussion::part(native) {
+    background-color: transparent;
 }
 
 ion-item.mma-forumng-sort-discussion ion-label {
@@ -1270,8 +1303,12 @@ body.ionic5 .mma-forumng-posts-list-wrapper .unread-post {
     background-color: #e7f4fa;
 }
 
-body.ionic5 .mma-forumng-posts-list-wrapper .mma-forumng-p1.unread-post ion-item,
-body.ionic5 .mma-forumng-posts-list-wrapper .mma-forumng-post-reply .unread-post ion-item {
+body.ionic5.dark .mma-forumng-posts-list-wrapper .unread-post {
+    background-color: transparent;
+}
+
+body.ionic5:not(.dark) .mma-forumng-posts-list-wrapper .mma-forumng-p1.unread-post ion-item,
+body.ionic5:not(.dark) .mma-forumng-posts-list-wrapper .mma-forumng-post-reply .unread-post ion-item {
     --background: #e7f4fa;
 }
 
@@ -1323,17 +1360,15 @@ body.dark .mma-forumng-posts-list-wrapper .mma-forumng-posts-subject,
 body.dark .mma-forumng-posts-list-wrapper .mma-forumng-post-info .mma-forumng-startedate,
 body.dark .mma-forumng-posts-list-wrapper .mma-forumng-p1 .mma-forumng-posts-message p,
 body.dark .mma-forumng-boldtitle,
+body.dark .item-has-focus .mma-forumng-boldtitle.label-stacked.sc-ion-label-md-h:not(.ion-color),
 body.dark .mma-forumng-posts-message strong,
 body.dark .deleted-post .mma-forumng-posts-message strong {
     color: white;
 }
 
-body.dark .mma-forumng-posts-list-wrapper .mma-forumng-posts-list .mma-forumng-post-reply {
-    background-color: unset;
-}
-
+body.dark .mma-forumng-posts-list-wrapper .mma-forumng-posts-list .mma-forumng-post-reply,
 body.dark .mma-forumng-posts-list-wrapper {
-    background-color: #3a3a3a;
+    background-color: unset;
 }
 
 body.dark .mma-forumng-posts-list-wrapper .deleted-post .mma-forumng-post-info .mma-forumng-startedate,
