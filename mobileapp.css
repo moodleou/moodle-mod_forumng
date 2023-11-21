@@ -369,6 +369,10 @@ body.ionic5 .collapsible-item.collapsible-enabled:not(.collapsible-loading-heigh
     background: linear-gradient(to bottom, rgba(255, 255, 255, 0) calc(100% - 50px), white calc(100% - 15px));
 }
 
+body.ionic5.dark .collapsible-item.collapsible-enabled:not(.collapsible-loading-height).collapsible-collapsed:before {
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0) calc(100% - 50px), #626262 calc(100% - 15px));
+}
+
 body.ionic5 .mma-forumng-discussion-introduction ion-button > span.collapsible-toggle-arrow,
 body.ionic5 .mma-forumng-ipud-discussion-rootpost ion-button > span.collapsible-toggle-arrow {
     display: none;
