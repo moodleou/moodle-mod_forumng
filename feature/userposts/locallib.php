@@ -55,7 +55,6 @@ function forumngfeature_userposts_update_grades($newgrades, $cm, mod_forumng $fo
                     $grade->rawgrade = $newgrades[$key];
                 }
                 $grade->userid = $key;
-                $forumng->cmidnumber = $cm->id;
                 forumngfeature_userposts_grade_item_update($forumng, $grade);
             }
         }
