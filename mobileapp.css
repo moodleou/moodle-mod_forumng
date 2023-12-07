@@ -1335,3 +1335,15 @@ body.dark .mma-forumng-posts-list-wrapper .mma-forumng-post-reply .mma-forumng-p
     background-color: transparent;
     color: white;
 }
+
+/** For zoom on IOS calculates wrong position. **/
+html[style="--zoom-level: 110%;"] body.ionic5.moodleapp-4 .ios.popover-forumng .popover-content,
+html[style="--zoom-level: 120%;"] body.ionic5.moodleapp-4 .ios.popover-forumng .popover-content {
+    left: unset !important;
+    right: 0;
+}
+
+html[style="--zoom-level: 110%;"] body.ionic5.moodleapp-4 .ios.popover-forumng .popover-content .popover-viewport,
+html[style="--zoom-level: 120%;"] body.ionic5.moodleapp-4 .ios.popover-forumng .popover-content .popover-viewport {
+    max-height: 70vh; /** Possible hack for the list too long but popover used absolute. **/
+}
