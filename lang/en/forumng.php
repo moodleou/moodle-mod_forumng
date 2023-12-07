@@ -170,6 +170,7 @@ $string['forumng:addinstance'] = 'Add a new ForumNG';
 $string['forumng:createattachment'] = 'Create attachments';
 $string['forumng:deleteanypost'] = 'Delete any post';
 $string['forumng:editanypost'] = 'Edit any post';
+$string['forumng:ignorefilesizelimits'] = 'Use files larger than any file size restrictions';
 $string['forumng:managesubscriptions'] = 'Manage subscriptions';
 $string['forumng:movediscussions'] = 'Move discussions';
 $string['forumng:rate'] = 'Rate posts';

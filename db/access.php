@@ -400,4 +400,14 @@ $capabilities = array(
         ),
         'clonepermissionsfrom' => 'mod/forumng:view'
     ),
+
+    // Ability to upload files to forum posts with a larger limit that the forum setting.
+    'mod/forumng:ignorefilesizelimits' => [
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_MODULE,
+        'archetypes' => [
+            'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW,
+        ],
+    ],
 );

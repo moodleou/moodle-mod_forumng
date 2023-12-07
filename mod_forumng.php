@@ -841,10 +841,22 @@ WHERE
     }
 
     /**
+     * Get mod/forumng:ignorefilesizelimits setting value.
+     *
+     * @return bool
+     */
+    public function is_ignore_filesize_limit(): bool {
+        return has_capability('mod/forumng:ignorefilesizelimits', $this->get_context());
+    }
+
+    /**
+     * It seems a bit of a problem that we chose -1 to represent no attachments (which seems a mistake)
+     * when this means unlimited size (USER_CAN_IGNORE_FILE_SIZE_LIMITS).
+     *
      * @return int Max bytes for attachments or -1 if upload is prevented
      */
-    public function get_max_bytes() {
-        if ($this->forumfields->attachmentmaxbytes) {
+    public function get_max_bytes(): int {
+        if (!$this->is_ignore_filesize_limit() && $this->forumfields->attachmentmaxbytes) {
             if ($this->forumfields->attachmentmaxbytes == -1) {
                 return -1;
             } else {
@@ -2597,15 +2609,14 @@ WHERE
 
     /**
      * Checks whether user can access the given group.
-     * @param $groupid Group ID
-     * @param $write True if write access is required (this makes a difference
+     * @param int $groupid Group ID
+     * @param bool $write True if write access is required (this makes a difference
      *   if group mode is visible, when you can see other groups, but not write
      *   to them).
-     * @param $userid User ID (0 = current user)
+     * @param int $userid User ID (0 = current user)
      * @return bool True if user can access group
      */
     public function can_access_group($groupid, $write=false, $userid=0) {
-        global $USER;
         $userid = mod_forumng_utils::get_real_userid($userid);
 
         // Check groupmode.
@@ -2630,15 +2641,9 @@ WHERE
             return false;
         }
 
-        // Trying to view a specific group, must be a member
-        if (isset($USER->groupmember) && (!$userid || $USER->id==$userid)
-            && array_key_exists($this->get_course()->id, $USER->groupmember)) {
-            // Current user, use cached value
-            return array_key_exists($groupid, $USER->groupmember[$this->get_course()->id]);
-        } else {
-            // Not current user, test in database
-            return groups_is_member($groupid, $userid);
-        }
+        // Trying to view a specific group, must be a member.
+        // Note: This is not very performant at the moment (2 db queries + cache lookup).
+        return groups_is_member($groupid, $userid);
     }
 
     /**
@@ -2856,8 +2861,13 @@ WHERE
      * @param int $userid User ID, 0 for default
      * @return bool True if user has capability
      */
-    public function can_create_attachments($userid=0) {
+    public function can_create_attachments(int $userid = 0): bool {
         $userid = mod_forumng_utils::get_real_userid($userid);
+        if ($this->forumfields->attachmentmaxbytes == -1) {
+            if (!has_capability('moodle/course:ignorefilesizelimits', $this->get_context(),$userid)) {
+                return false;
+            }
+        }
         return has_capability('mod/forumng:createattachment', $this->get_context(),
             $userid);
     }
@@ -3140,12 +3150,7 @@ WHERE
                     }
                 }
             }
-            if ($userid == $USER->id && isset($USER->groupmember)) {
-                if (array_key_exists($course->id, $USER->groupmember)) {
-                    $groups = $USER->groupmember[$course->id];
-                } // Else do nothing - groups list should be empty
-            } else {
-                $rs = $DB->get_recordset_sql("
+            $rs = $DB->get_recordset_sql("
 SELECT
     g.id
 FROM
@@ -3154,11 +3159,10 @@ FROM
 WHERE
     g.courseid = ?
     AND gm.userid = ?", array($course->id, $userid));
-                foreach ($rs as $rec) {
-                    $groups[] = $rec->id;
-                }
-                $rs->close();
+            foreach ($rs as $rec) {
+                $groups[] = $rec->id;
             }
+            $rs->close();
         }
 
         $rows = self::query_forums($specificids, $course, $userid,

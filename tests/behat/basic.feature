@@ -796,3 +796,15 @@ Feature: Add forumng activity and test basic functionality
     Then the "Make posts: 3" completion condition of "Test forum posts completion" is displayed as "done"
     And the "Make discussion or reply with minimum word count: 1" completion condition of "Test forum posts completion" is displayed as "done"
     And the "Make discussion or reply with maximum word count: 5" completion condition of "Test forum posts completion" is displayed as "done"
+
+  Scenario: Verify ForumNG uploads are not allowed.
+    Given the following "activities" exist:
+      | activity | course | idnumber | name    | introduction        | attachmentmaxbytes |
+      | forumng  | C1     | F1       | Forum 2 | Forum 2 description | -1                 |
+    And I am on the "Forum 2" "forumng activity" page logged in as "student1"
+    And I press "Start a new discussion"
+    And I should not see "Attachments"
+    # Test normal forum should able to upload.
+    And I am on the "Test forum name" "forumng activity" page logged in as "student1"
+    And I press "Start a new discussion"
+    And I should see "Attachments"
