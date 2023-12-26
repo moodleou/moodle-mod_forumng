@@ -34,6 +34,7 @@
     * cmid int $cm->id
     * courseid int $course->id
     * canstartdiscussion bool Whether the user has permission to start a discussion, so can see the FAB
+    * hasmessage bool Whether we should display the introduction message
 
     Example context (json):
     {
@@ -58,6 +59,7 @@
                     You still have access to submit posts',
         'hasdrafts': true,
         'isipud': true / false,
+        'hasmessage': true / false,
     }
 
 }}
@@ -97,6 +99,7 @@
     </ion-list>
     <%/ hasgroups %>
     <ion-list class="mma-forumng-discussion-list" lines="none">
+        <%# hasmessage %>
         <ion-item class="ion-text-wrap">
             <ion-list>
                 <core-format-text class="mma-forumng-discussion-introduction" text="<% forum.introduction %>"
@@ -112,6 +115,7 @@
                 <%/ postanonmessage %>
             </ion-list>
         </ion-item>
+        <%/ hasmessage %>
         <%# hasdrafts %>
         <ion-item>
             <ion-grid class="mma-forumng-drafts">
@@ -166,9 +170,9 @@
             </ion-grid>
         </ion-item>
         <%/ hasdrafts %>
+        <%^ isipud %>
+        <%# canstartdiscussion %>
         <ion-item class="mma-forumng-discussion-item no-lines">
-            <%^ isipud %>
-            <%# canstartdiscussion %>
             <ion-button fill="outline" expand="block" id="mod_forumg_add_discussion" core-site-plugins-new-content color="primary"
                     title="{{ 'plugin.mod_forumng.addanewdiscussion' | translate }}" component="mod_forumng"
                     method="add_discussion"
@@ -176,9 +180,9 @@
                     [disabled]="!isOnline()">
                 {{ 'plugin.mod_forumng.addanewdiscussion' | translate }}
             </ion-button>
-            <%/ canstartdiscussion %>
-            <%/ isipud %>
         </ion-item>
+        <%/ canstartdiscussion %>
+        <%/ isipud %>
         <%# hasdiscussions %>
         <ion-item class="mma-forumng-discussion-item mma-forumng-sort-discussion">
             <ion-label>{{ 'plugin.mod_forumng.sortdiscussions' | translate }}</ion-label>

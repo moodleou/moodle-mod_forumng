@@ -97,8 +97,8 @@
     </core-context-menu>
 </core-navbar-buttons>
 <div class="mma-forumng-posts-list-wrapper {{ CONTENT_OTHERDATA.isdeleteddiscussion ? 'deleted-discussion': ''}}">
+    <%# hasreplies %>
     <ion-item class="mma-forumng-expandall" lines="none">
-        <%# hasreplies %>
         <ion-button slot="end" fill="outline" *ngIf="(!CONTENT_OTHERDATA.iscollapseall && !CONTENT_OTHERDATA.isexpandall) || CONTENT_OTHERDATA.iscollapseall" (click)="expand_all_posts()">
             <core-format-text [text]="CONTENT_OTHERDATA.expandall"></core-format-text>
             <ion-icon slot="end" name="fa-chevron-down"></ion-icon>
@@ -107,8 +107,8 @@
             <core-format-text [text]="CONTENT_OTHERDATA.collapseallpost"></core-format-text>
             <ion-icon slot="end" name="fa-chevron-up"></ion-icon>
         </ion-button>
-        <%/ hasreplies %>
     </ion-item>
+    <%/ hasreplies %>
     <ion-list *ngIf="CONTENT_OTHERDATA.islock" [id]="CONTENT_OTHERDATA.lockpost.postid" class="mma-forumng-p1 mma-forumng-lockmessage" lines="none">
         <%! Note no ion-card-header as it adds padding so mis-aligns the user image with the contents below. %>
         <ion-item class="mma-forumng-post-info ion-text-wrap">

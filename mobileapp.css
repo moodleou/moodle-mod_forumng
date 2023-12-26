@@ -1075,6 +1075,10 @@ ion-item.mma-forumng-sort-discussion ion-label {
     font-size: 1.6rem;
 }
 
+body.ionic5 ion-item:has(.mma-forumng-discussion-postanon) + .mma-forumng-sort-discussion.in-list {
+    margin-top: 10px;
+}
+
 /*
  * Dark mode overrides
  *

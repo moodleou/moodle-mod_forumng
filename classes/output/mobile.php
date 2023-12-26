@@ -313,6 +313,8 @@ class mobile {
         if ($forumng->get_can_post_anon() == \mod_forumng::CANPOSTATON_NONMODERATOR) {
             $postanonmessage = get_string('identityprotectedmessage', 'forumng');
         }
+        // Check if there is any content of the forum introduction, restriction message, or post-anonymous message to display.
+        $hasmessage = !empty($forum->introduction) || !empty($restrictionmessage) || !empty($postanonmessage);
         $data = [
             'forum' => $forum,
             'hasgroups' => $hasgroups,
@@ -328,6 +330,7 @@ class mobile {
             'isipud' => $isipud,
             'displaytext' => $displaytext,
             'postanonmessage' => $postanonmessage,
+            'hasmessage' => $hasmessage,
         ];
         $html = $OUTPUT->render_from_template('mod_forumng/' . $foldername . 'mobile_discussions_page', $data);
 
