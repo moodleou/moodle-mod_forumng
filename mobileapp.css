@@ -1190,6 +1190,10 @@ body.ionic5 .mma-forumng-discussion-list .mma-forumng-discussion .mma-forumng-di
     margin-left: 5px;
 }
 
+body.ionic5 .mma-forumng-discussion-list .mma-forumng-discussion .mma-forumng-discussion-icons {
+    padding-left: 10px;
+}
+
 body.ionic5 .mma-forumng-discussion-list .mma-forumng-discussion .mma-forumng-discussion-last-post,
 body.ionic5 .mma-forumng-boldtitle,
 body.ionic5 .mma-forumng-label-subject,
