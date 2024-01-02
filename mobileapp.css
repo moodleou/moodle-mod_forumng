@@ -1261,6 +1261,7 @@ body.ionic5 .item-textarea.mma-forumng-label-message core-rich-text-editor .core
 body.ionic5 .mma-forumng-posts-list-wrapper .mma-forumng-p1 .mma-forumng-post-info,
 body.ionic5 .mma-forumng-posts-list-wrapper .mma-forumng-post-reply .sub-reply ion-list .mma-forumng-post-info {
     padding: var(--default-margin) 0 0;
+    align-items: start;
 }
 
 body.ionic5 .mma-forumng-posts-list-wrapper .mma-forumng-posts .mma-forumng-attachments core-file ion-item > ion-label {
@@ -1295,6 +1296,7 @@ body.ionic5 .mma-forumng-posts-list-wrapper .mma-forumng-commands-buttons .mma-f
 
 body.ionic5 .mma-forumng-posts-list-wrapper .mma-forumng-post-reply .mma-forumng-post-info {
     padding: var(--default-margin) 0 0 0;
+    align-items: start;
 }
 body.ionic5 .mma-forumng-posts-list-wrapper .mma-forumng-post-reply .mma-forumng-posts {
     padding: 18px 10px 15px 0;
