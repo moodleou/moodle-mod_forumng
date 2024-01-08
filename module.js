@@ -1408,13 +1408,15 @@ M.mod_forumng = {
 
         // For core ratings, init js on expand.
         if (newpost.one('.forumng-ratings-standard')) {
-            if (M.core_rating && M.core_rating.init) {
-                M.core_rating.init(this.Y);
-            } else if (M.local_themeextras && M.local_themeextras.rating.init) {
-                // OU only code for custom ratings.
-                M.local_themeextras.rating.init(link.postid);
-                M.local_themeextras.rating.init_count_popup(link.postid);
-            }
+            require(['local_themeextras/rating'], function(rating) {
+                if (M.core_rating && M.core_rating.init) {
+                    M.core_rating.init(this.Y);
+                } else if (rating && rating.initRating) {
+                    // OU only code for custom ratings.
+                    rating.initRating(link.postid);
+                    rating.initPopup(link.postid);
+                }
+            });
         }
 
         if (!link.delay) {
