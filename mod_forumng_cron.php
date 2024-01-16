@@ -301,29 +301,72 @@ $mainquery", $mainparams);
                                         $buildemailtime += microtime(true) - $innerbefore;
 
                                         $innerbefore = microtime(true);
+                                        // Basic email headers (similar to core forum).
+                                        $headers = [
+                                            // Headers to make emails easier to track.
+                                            'List-Id: "' . str_replace('"', "'", strip_tags($forum->get_name())) .
+                                                    '" ' . generate_email_messageid('forumng' . $forum->get_id()),
+                                            'List-Help: ' . $forum->get_url(\mod_forumng::PARAM_PLAIN),
+                                            'Message-ID: ' . generate_email_messageid('forumng_post' . $post->get_id()),
+                                            'X-Course-Id: ' . $forum->get_course_id(),
+                                            'X-Course-Name: '. format_string($forum->get_course()->shortname, true),
+                                            // Headers to help prevent auto-responders.
+                                            'Precedence: Bulk',
+                                            'X-Auto-Response-Suppress: All',
+                                            'Auto-Submitted: auto-generated',
+                                        ];
                                         if ($CFG->forumng_usebcc) {
                                             // Use BCC to send all emails at once.
                                             $emailcount += self::email_send_bcc(
                                                     $users, $from, $subject,
                                                     $html, $plaintext,
                                                     "post " . $post->get_id(),
-                                                    $emailtype & 1, $emailtype & 4);
+                                                    $emailtype & 1, $emailtype & 4, $headers);
                                         } else {
+                                            $headers[] = 'List-Unsubscribe-Post: List-Unsubscribe=One-Click';
                                             // Loop through subscribers, sending mail to each one.
                                             foreach ($users as $mailto) {
-                                                $noreplyaddress = '';
-                                                // We separate in 2 case to impove peformance
+                                                if (\mod_forumng::SUBSCRIPTION_FORCED != $forum->get_effective_subscription_option()) {
+                                                    $link = "{$CFG->wwwroot}/mod/forumng/subscribe.php";
+                                                    $link .= '?user=' . $mailto->id;
+                                                    $usersubtype = $discussion->is_subscribed($mailto->id);
+                                                    // Add correct unsubscribe params to target the subscription removal.
+                                                    switch ($usersubtype) {
+                                                        case \mod_forumng::PARTIALLY_SUBSCRIBED:
+                                                            $link .= '&d=' . $discussion->get_id();
+                                                            $link .= '&submitunsubscribe=y';
+                                                            $link .= '&key=' . $forum->get_feed_key($discussion->get_group_id(), $mailto->id);
+                                                        break;
+                                                        case \mod_forumng::THIS_GROUP_SUBSCRIBED:
+                                                            $link .= '&' . $forum->get_link_params(\mod_forumng::PARAM_PLAIN);
+                                                            $link .= '&g=' . $discussion->get_group_id();
+                                                            $link .= '&submitunsubscribe_thisgroup=y';
+                                                            $link .= '&key=' . $forum->get_feed_key($discussion->get_group_id(), $mailto->id);
+                                                        break;
+                                                        default:
+                                                            $link .= '&' . $forum->get_link_params(\mod_forumng::PARAM_PLAIN);
+                                                            $link .= '&submitunsubscribe=y';
+                                                            // For simplicity use no groups in other cases.
+                                                            $link .= '&key=' . $forum->get_feed_key(\mod_forumng::NO_GROUPS, $mailto->id);
+                                                        break;
+                                                    }
+                                                    // Add list headers: https://datatracker.ietf.org/doc/html/rfc8058.
+                                                    $headers[99] = 'List-Unsubscribe: <' . $link . '>';
+                                                    $from->customheaders = $headers;
+                                                }
+                                                // We separate in 2 case to improve performance.
                                                 if ($forum->get_can_post_anon() == mod_forumng::CANPOSTATON_NONMODERATOR ||
                                                         ($forum->get_can_post_anon() == mod_forumng::CANPOSTANON_MODERATOR &&
                                                                 $post->get_asmoderator() == mod_forumng::ASMODERATOR_ANON)) {
                                                     if (mod_forumng_utils::display_discussion_author_anonymously($post, $mailto->id)) {
-                                                        $noreplyaddress = $CFG->noreplyaddress;
+                                                        $from = \core_user::get_noreply_user();
+                                                        $from->customheaders = $headers;
                                                     }
                                                     $post->build_email($inreplyto, $subject1,
                                                             $plaintext1, $html1, $emailtype & 1,
                                                             $emailtype & 2, $emailtype & 4, $lang,
                                                             $timezone, false, false, ['mailto_userid' => $mailto->id]);
-                                                    self::email_send($mailto, $noreplyaddress ? $noreplyaddress : $from, $subject1, $plaintext1, $html1);
+                                                    self::email_send($mailto, $from, $subject1, $plaintext1, $html1);
                                                 } else {
                                                     self::email_send($mailto, $from, $subject, $plaintext, $html);
                                                 }
@@ -705,10 +748,17 @@ $mainquery", $mainparams);
      */
     private static function digest_finish_course(&$course, &$userdigests) {
         global $CFG;
+        $from = \core_user::get_noreply_user();
+        // Headers to match core forum digest... how to support list unsubscribing as not a single list?
+        $from->customheaders = [
+            "Precedence: Bulk",
+            'X-Auto-Response-Suppress: All',
+            'Auto-Submitted: auto-generated',
+        ];
 
         // Loop around all digests and send them out
         foreach ($userdigests as $digest) {
-            self::email_send($digest->user, $CFG->noreplyaddress,
+            self::email_send($digest->user, $from,
                 $digest->subject, $digest->text, $digest->html);
         }
 
@@ -819,10 +869,11 @@ $mainquery", $mainparams);
      * @param bool $ishtml If true, email is in HTML format
      * @param bool $viewfullnames If true, these recipients have access to
      *   see the full name
+     * @param array $headers Custom headers to send in the mail (must not be user specific).
      * @return int Number of emails sent
      */
     private static function email_send_bcc($targets, $from, $subject, $html, $text,
-        $showerrortext, $ishtml, $viewfullnames) {
+        $showerrortext, $ishtml, $viewfullnames, array $headers = []) {
         if (self::DEBUG_VIEW_EMAILS) {
             print "<div style='border:1px solid blue; padding:4px;'>";
             print "<h3>Bulk email sent</h3>";
@@ -848,11 +899,6 @@ $mainquery", $mainparams);
         global $CFG;
         $emailcount = 0;
 
-        // Trim subject length (not sure why but
-        // email_to_user does); note that I did it more
-        // aggressively due to use of textlib.
-        $mail->Subject = core_text::substr($subject, 0, 200);
-
         // Loop through in batches of specified size
         $copy = array();
         foreach ($targets as $key => $target) {
@@ -864,6 +910,11 @@ $mainquery", $mainparams);
 
             // Prepare email
             $mail = get_mailer();
+
+            // Trim subject length (not sure why but
+            // email_to_user does); note that I did it more
+            // aggressively due to use of textlib.
+            $mail->Subject = core_text::substr($subject, 0, 200);
 
             // From support user
             static $supportuser;
@@ -900,6 +951,15 @@ $mainquery", $mainparams);
                 $mail->AddBCC($user->email);
             }
 
+            foreach ($headers as $customheader) {
+                $mail->addCustomHeader($customheader);
+            }
+
+            if (PHPUNIT_TEST) {
+                // Need a To for unit tests.
+                $mail->addAddress($CFG->noreplyaddress);
+            }
+
             $emailcount++;
             if (!$mail->Send()) {
                 $users = '';
@@ -919,7 +979,7 @@ $mainquery", $mainparams);
                 foreach ($batch as $user) {
                     // Note this log entry is in the same format as the
                     // main mail function
-                    $params = array('other' => array('username' => $user->username, 'subject' => $subject),
+                    $params = array('other' => array('username' => $user->username, 'subject' => $subject, 'type' => ''),
                             'context' => context_system::instance(), 'relateduserid' => $user->id);
                     $event = \mod_forumng\event\mail_sent::create($params);
                     $event->trigger();

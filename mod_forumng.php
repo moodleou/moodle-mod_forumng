@@ -1889,7 +1889,7 @@ WHERE $conditions AND m.name = 'forumng' AND $restrictionsql",
         $context = $this->get_context();
 
         // Guests cannot subscribe
-        if (!isloggedin() || isguestuser($userid)) {
+        if (isguestuser($userid)) {
             return false;
         }
 
