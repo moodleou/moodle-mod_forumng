@@ -792,7 +792,8 @@ try {
             $PAGE->requires->js_init_code('window.parent.iframe_has_loaded(window);', true);
         }
 
-        $PAGE->requires->strings_for_js(array('savefailtitle', 'savefailnetwork', 'numberofdiscussions'), 'forumng');
+        $PAGE->requires->strings_for_js(array('savefailtitle', 'savefailnetwork', 'savefailsession',
+                'savefailtext', 'numberofdiscussions'), 'forumng');
         $PAGE->requires->yui_module('moodle-mod_forumng-savecheck', 'M.mod_forumng.savecheck.init',
                 array($forum->get_context()->id));
 

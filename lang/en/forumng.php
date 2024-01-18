@@ -951,8 +951,9 @@ $string['postedasmoderator'] = 'Posted as moderator';
 $string['postedasmoderator_help'] = 'Search for posts that have been identified as being created by a moderator';
 
 $string['savefailtitle'] = 'Post save failed';
-$string['savefailnetwork'] = '<p>Unfortunately, your changes cannot be saved at this time. This is due to a
-network error; the website is temporarily unavailable or you have been signed out. </p><p>Saving has been disabled
+$string['savefailnetwork'] = 'a network error; the website is temporarily unavailable or cannot be reached';
+$string['savefailsession'] = 'a session error; your session has expired due to inactivity or you are no longer logged in';
+$string['savefailtext'] = '<p>Unfortunately, your changes cannot be saved at this time. This is due to {$a}. </p><p>Saving has been disabled
 on this page. In order to retain any changes you must copy the post content, access this page again and then paste in your changes.</p>';
 $string['tagging'] = 'Tagging';
 $string['enabletagging'] = 'Enable discussion tagging';
