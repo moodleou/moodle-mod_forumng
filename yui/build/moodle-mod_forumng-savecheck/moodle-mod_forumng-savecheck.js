@@ -35,7 +35,7 @@ M.mod_forumng.savecheck = {
                 // Trap cancel and make it a GET - so works with login.
                 var cancel = Y.one('#id_cancel');
                 cancel.on('click', function(e) {
-                    var form = Y.one('#region-main #mform1');
+                    var form = Y.one('#region-main .mform');
                     var text = form.one('#fitem_id_message');
                     var attach = form.one('#fitem_id_attachments');
                     text.remove();
