@@ -195,25 +195,23 @@ if ($cmid) {
         $forum->require_view($groupid, $userid);
     } else {
         // If it is a separate groups forum and current user does not have access all groups
+        $userid = mod_forumng_check_key($forum, \mod_forumng::NO_GROUPS);
         $context = context_module::instance($cmid);
-        $aaguser = has_capability('moodle/site:accessallgroups', $context);
+        $aaguser = has_capability('moodle/site:accessallgroups', $context, $userid);
         if ($forum->get_group_mode() == SEPARATEGROUPS && !$aaguser) {
             $grouplist = mod_forumng_get_group_list($userid, $forumngid);
             // Get list of groups that this user belongs to that apply to this
             // forum (same grouping). Call require_view on the first group in this list, or
             // on NO_GROUPS if they don't have any groups
             if (count($grouplist) == 0) {
-                $userid = mod_forumng_check_key($forum, \mod_forumng::NO_GROUPS);
                 $forum->require_view(mod_forumng::NO_GROUPS, $userid);
             } else {
-                $userid = mod_forumng_check_key($forum, \mod_forumng::NO_GROUPS);
                 $forum->require_view($grouplist[0], $userid);
             }
 
         } else {
             // Require access to all groups (if any)
-            $userid = mod_forumng_check_key($forum, \mod_forumng::NO_GROUPS);
-            $forum->require_view(mod_forumng::NO_GROUPS);
+            $forum->require_view(mod_forumng::NO_GROUPS, $userid);
         }
     }
 
