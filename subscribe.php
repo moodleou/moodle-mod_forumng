@@ -105,12 +105,34 @@ global $USER;
 $userid = $USER->id;
 
 /**
+ * Check one click key if used.
+ * @param mod_forumng $forum
+ * @param int|null $groupid
+ * @return int User id to use in this script
+ * @throws coding_exception
+ * @throws moodle_exception
+ */
+function mod_forumng_check_key(\mod_forumng $forum, ?int $groupid): int {
+    global $USER;
+    // Auto unsubscribe from email. Check key (as per feed).
+    if ($user = optional_param('user', null, PARAM_INT)) {
+        $key = required_param('key', PARAM_ALPHANUM);
+        $correctkey = $forum->get_feed_key($groupid, $user);
+        if ($correctkey != $key) {
+            throw new \moodle_exception('feed_nopermission', 'forumng');
+        }
+        return $user;
+    }
+    return isloggedin() ? $USER->id : 0;
+}
+
+/**
  * Return a list of groups the user belongs to that apply to this forum (same grouping)
  * @param int $userid
  * @param int $forumngid
  * @return an array of group lists or an empty array
  */
-function get_group_list($userid, $forumngid) {
+function mod_forumng_get_group_list($userid, $forumngid) {
     global $DB;
     $sqlgroup = "
 SELECT
@@ -148,16 +170,17 @@ $confirmtext = get_string(
 // Handle single discussion
 if ($discussionid) {
     $discussion = mod_forumng_discussion::get_from_id($discussionid, $cloneid);
-    $discussion->require_view();
     $forum = $discussion->get_forum();
-    if (!$discussion->can_subscribe() && !$discussion->can_unsubscribe()) {
+    $userid = mod_forumng_check_key($forum, $discussion->get_group_id());
+    $discussion->require_view($userid);
+    if (!$discussion->can_subscribe($userid) && !$discussion->can_unsubscribe($userid)) {
         throw new moodle_exception('error_cannotchangediscussionsubscription', 'forumng');
     }
-    if ($requestingsubscribe && $discussion->can_subscribe()) {
-        $discussion->subscribe();
+    if ($requestingsubscribe && $discussion->can_subscribe($userid)) {
+        $discussion->subscribe($userid);
         $confirmtext = get_string('subscribe_confirm', 'forumng');
-    } else if ($requestingunsubscribe && $discussion->can_unsubscribe()) {
-        $discussion->unsubscribe();
+    } else if ($requestingunsubscribe && $discussion->can_unsubscribe($userid)) {
+        $discussion->unsubscribe($userid);
         $confirmtext = get_string('unsubscribe_confirm', 'forumng');
     }
 }
@@ -168,29 +191,31 @@ if ($cmid) {
     $forumngid = $forum->get_id();
     $grouplist = -1;
     if ($groupid) {
-        $forum->require_view($groupid);
+        $userid = mod_forumng_check_key($forum, $groupid);
+        $forum->require_view($groupid, $userid);
     } else {
         // If it is a separate groups forum and current user does not have access all groups
+        $userid = mod_forumng_check_key($forum, \mod_forumng::NO_GROUPS);
         $context = context_module::instance($cmid);
-        $aaguser = has_capability('moodle/site:accessallgroups', $context);
+        $aaguser = has_capability('moodle/site:accessallgroups', $context, $userid);
         if ($forum->get_group_mode() == SEPARATEGROUPS && !$aaguser) {
-            $grouplist = get_group_list($userid, $forumngid);
+            $grouplist = mod_forumng_get_group_list($userid, $forumngid);
             // Get list of groups that this user belongs to that apply to this
             // forum (same grouping). Call require_view on the first group in this list, or
             // on NO_GROUPS if they don't have any groups
             if (count($grouplist) == 0) {
-                $forum->require_view(mod_forumng::NO_GROUPS);
+                $forum->require_view(mod_forumng::NO_GROUPS, $userid);
             } else {
-                $forum->require_view($grouplist[0]);
+                $forum->require_view($grouplist[0], $userid);
             }
 
         } else {
             // Require access to all groups (if any)
-            $forum->require_view(mod_forumng::NO_GROUPS);
+            $forum->require_view(mod_forumng::NO_GROUPS, $userid);
         }
     }
 
-    if (isguestuser()) {
+    if (isguestuser($userid)) {
         // This section allows users who are responding to the unsubscribe
         // email link yet who may have already got guest access to the site.
         // The display of the yes/no option is similar to other module behaviour
@@ -210,10 +235,10 @@ if ($cmid) {
         exit;
     }
 
-    if (!$forum->can_change_subscription()) {
+    if (!$forum->can_change_subscription($userid)) {
         throw new moodle_exception('error_cannotchangesubscription', 'forumng');
     }
-    $subscriptioninfo = $forum->get_subscription_info();
+    $subscriptioninfo = $forum->get_subscription_info($userid);
     $discussionidcount = count($subscriptioninfo->discussionids);
     $groupidcount = count($subscriptioninfo->groupids);
     if (!$forum->get_group_mode()) {
@@ -230,16 +255,16 @@ if ($cmid) {
             $subscribed = mod_forumng::PARTIALLY_SUBSCRIBED;
         }
         if ($requestingsubscribe && $subscribed != mod_forumng::FULLY_SUBSCRIBED) {
-            $forum->subscribe();
+            $forum->subscribe($userid);
             $confirmtext = get_string('subscribe_confirm', 'forumng');
         } else if ($requestingunsubscribe && $subscribed != mod_forumng::NOT_SUBSCRIBED) {
-            $forum->unsubscribe();
+            $forum->unsubscribe($userid);
             $confirmtext = get_string('unsubscribe_confirm', 'forumng');
         }
     } else {
         if ($subscriptioninfo->wholeforum) {
             if ($requestingunsubscribe) {
-                $forum->unsubscribe();
+                $forum->unsubscribe($userid);
                 $confirmtext = get_string('unsubscribe_confirm', 'forumng');
             } else {
                 throw new moodle_exception('error_invalidsubscriptionrequest', 'forumng');
@@ -248,15 +273,15 @@ if ($cmid) {
             // Possible for subscribing to /unsubscribing from forum/group.
             if ($requestingsubscribe) {
                 if ($grouplist == -1) {
-                    $forum->subscribe();
+                    $forum->subscribe($userid);
                 } else {
                     foreach ($grouplist as $groupid) {
-                        $forum->subscribe(0, $groupid);
+                        $forum->subscribe($userid, $groupid);
                     }
                 }
                 $confirmtext = get_string('subscribe_confirm', 'forumng');
             } else if ($requestingunsubscribe) {
-                $forum->unsubscribe();
+                $forum->unsubscribe($userid);
                 $confirmtext = get_string('unsubscribe_confirm', 'forumng');
             } else if ($requestingsubscribegroup) {
                 // Check whether the user has subscribed to this group or not
@@ -268,7 +293,7 @@ if ($cmid) {
                     }
                 }
                 if ($cansubscribetogroup) {
-                    $forum->subscribe(0, $groupid);
+                    $forum->subscribe($userid, $groupid);
                     $confirmtext = get_string('subscribe_confirm_group', 'forumng');
                 } else {
                     throw new moodle_exception('subscribe_already_group', 'forumng');
@@ -289,7 +314,7 @@ if ($cmid) {
                     }
                 }
                 if ($canunsubscribefromgroup) {
-                    $forum->unsubscribe(0, $groupid);
+                    $forum->unsubscribe($userid, $groupid);
                     $confirmtext = get_string('unsubscribe_confirm_group', 'forumng');
                 } else {
                     throw new moodle_exception('unsubscribe_already_group', 'forumng');
@@ -303,15 +328,15 @@ if ($cmid) {
             if ($requestingsubscribe) {
                 // TODO Change to take account of group list if there is one
                 if ($grouplist == -1) {
-                    $forum->subscribe();
+                    $forum->subscribe($userid);
                 } else {
                     foreach ($grouplist as $groupid) {
-                        $forum->subscribe(0, $groupid);
+                        $forum->subscribe($userid, $groupid);
                     }
                 }
                 $confirmtext = get_string('subscribe_confirm', 'forumng');
             } else if ($requestingsubscribegroup && $groupid) {
-                $forum->subscribe(0, $groupid);
+                $forum->subscribe($userid, $groupid);
                 $confirmtext = get_string('subscribe_confirm_group', 'forumng');
             } else {
                 throw new moodle_exception('error_invalidsubscriptionrequest', 'forumng');
@@ -321,7 +346,7 @@ if ($cmid) {
 
 }
 
-// Handle whole course
+// Handle whole course (user/key not supported - must be logged in).
 if ($courseid) {
     $course = $DB->get_record('course', array('id' => $courseid), '*', MUST_EXIST);
     require_login($course);
@@ -350,7 +375,7 @@ if ($courseid) {
                 $context = $forum->get_context();
                 $aaguser = has_capability('moodle/site:accessallgroups', $context);
                 if ($forum->get_group_mode() == SEPARATEGROUPS && !$aaguser) {
-                    $grouplist = get_group_list($userid, $forumngid);
+                    $grouplist = mod_forumng_get_group_list($userid, $forumngid);
                 }
                 if ($grouplist == -1) {
                     $forum->subscribe();

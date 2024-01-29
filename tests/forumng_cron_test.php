@@ -41,6 +41,7 @@ class mod_forumng_cron_testcase extends forumng_test_lib
     protected $rootpostid;
     protected $student;
     protected $adminid;
+    protected \mod_forumng $forum;
 
 
     /**
@@ -57,6 +58,7 @@ class mod_forumng_cron_testcase extends forumng_test_lib
         $this->adminid = $USER->id;
         $course = $this->get_new_course();
         $student = $this->get_new_user('student', $course->id);
+        $this->student = $student;
 
         // Set mark as read to 'manually' for discussions and posts.
         set_user_preference('forumng_manualmark', 1, $this->adminid);
@@ -67,6 +69,7 @@ class mod_forumng_cron_testcase extends forumng_test_lib
         $forum = $this->get_new_forumng($course->id, array('groupmode' => VISIBLEGROUPS, 'shared' => false,
             'cmidnumber' => 'IPMR'));
         $forum->subscribe($student->id);
+        $this->forum = $forum;
 
         $discussion = $this->generator->create_discussion(array('course' => $course, 'forum' => $forum->get_id(),
             'userid' => $this->adminid));
@@ -192,5 +195,153 @@ class mod_forumng_cron_testcase extends forumng_test_lib
 
         // Check no email again.
         $this->assertEquals(0, count($messages));
+    }
+
+    /**
+     * Check email headers when subscribed to whole forum.
+     */
+    public function test_email_normal_headers_wholeforum() {
+        global $CFG;
+        $this->setUp();
+        $created = time() - $CFG->forumng_emailafter - 1;
+
+        // Create post with no edit after delay time.
+        $postrecord = $this->generator->create_post(['discussionid' => $this->discussionid,
+                'parentpostid' => $this->rootpostid, 'mailstate' => mod_forumng::MAILSTATE_NOT_MAILED,
+                'created' => $created, 'userid' => $this->adminid]);
+
+        unset_config('noemailever');
+        $sink = $this->redirectEmails();
+        \mod_forumng_cron::email_normal();
+        $messages = $sink->get_messages();
+
+        // Check 1 email sent.
+        $this->assertEquals(1, count($messages));
+        $this->assertEquals(\core_user::get_noreply_user()->email, $messages[0]->from);
+        // Check headers.
+        $this->assertStringContainsString('&submitunsubscribe=y', $messages[0]->header);
+        $this->assertStringContainsString('user=' . $this->student->id, $messages[0]->header);
+        $this->assertStringContainsString('&key=' . $this->forum->get_feed_key(\mod_forumng::NO_GROUPS,
+                        $this->student->id), $messages[0]->header);
+    }
+
+    /**
+     * Check email headers when subscribed to a discussion.
+     */
+    public function test_email_normal_headers_discussion() {
+        global $CFG;
+        $this->setUp();
+        $created = time() - $CFG->forumng_emailafter - 1;
+
+        // Create post with no edit after delay time.
+        $postrecord = $this->generator->create_post(['discussionid' => $this->discussionid,
+                'parentpostid' => $this->rootpostid, 'mailstate' => mod_forumng::MAILSTATE_NOT_MAILED,
+                'created' => $created, 'userid' => $this->adminid]);
+
+        $this->forum->unsubscribe($this->student->id);
+        $discussion = \mod_forumng_discussion::get_from_id($this->discussionid, 0);
+        $discussion->subscribe($this->student->id);
+
+        unset_config('noemailever');
+        $sink = $this->redirectEmails();
+        \mod_forumng_cron::email_normal();
+        $messages = $sink->get_messages();
+
+        // Check 1 email sent.
+        $this->assertEquals(1, count($messages));
+        $this->assertEquals(\core_user::get_noreply_user()->email, $messages[0]->from);
+        // Check headers.
+        $this->assertStringContainsString('&submitunsubscribe=y', $messages[0]->header);
+        $this->assertStringContainsString('user=' . $this->student->id, $messages[0]->header);
+        $this->assertStringContainsString('&key=' . $this->forum->get_feed_key($discussion->get_group_id(),
+                        $this->student->id), $messages[0]->header);
+    }
+
+    /**
+     * Check email headers when subscribed to anonymous forum.
+     */
+    public function test_email_normal_headers_anon() {
+        global $CFG, $DB;
+        $this->setUp();
+        $created = time() - $CFG->forumng_emailafter - 1;
+
+        // Create post with no edit after delay time.
+        $postrecord = $this->generator->create_post(['discussionid' => $this->discussionid,
+                'parentpostid' => $this->rootpostid, 'mailstate' => mod_forumng::MAILSTATE_NOT_MAILED,
+                'created' => $created, 'userid' => $this->adminid, 'asmoderator' => \mod_forumng::ASMODERATOR_NO]);
+
+        $DB->set_field('forumng', 'canpostanon', \mod_forumng::CANPOSTATON_NONMODERATOR);
+
+        unset_config('noemailever');
+        $sink = $this->redirectEmails();
+        \mod_forumng_cron::email_normal();
+        $messages = $sink->get_messages();
+
+        // Check 1 email sent.
+        $this->assertEquals(1, count($messages));
+        $this->assertEquals(\core_user::get_noreply_user()->email, $messages[0]->from);
+        // Check headers.
+        $this->assertStringContainsString('&submitunsubscribe=y', $messages[0]->header);
+        $this->assertStringContainsString('user=' . $this->student->id, $messages[0]->header);
+        $this->assertStringContainsString('&key=' . $this->forum->get_feed_key(\mod_forumng::NO_GROUPS,
+                        $this->student->id), $messages[0]->header);
+    }
+
+    /**
+     * Check email headers in bcc mode.
+     */
+    public function test_email_normal_headers_bcc() {
+        global $CFG, $USER;
+        $this->setUp();
+        $created = time() - $CFG->forumng_emailafter - 1;
+
+        // Create post with no edit after delay time.
+        $postrecord = $this->generator->create_post(['discussionid' => $this->discussionid,
+                'parentpostid' => $this->rootpostid, 'mailstate' => mod_forumng::MAILSTATE_NOT_MAILED,
+                'created' => $created, 'userid' => $this->adminid]);
+
+        unset_config('noemailever');
+        $CFG->forumng_usebcc = 1;
+        $sink = $this->redirectEmails();
+        \mod_forumng_cron::email_normal();
+        $messages = $sink->get_messages();
+
+        // Check 1 email sent.
+        $this->assertEquals(1, count($messages));
+        $this->assertEquals($USER->email, $messages[0]->from);
+        // Check headers.
+        $this->assertStringContainsString('List-Id: "' . $this->forum->get_name(), $messages[0]->header);
+        $this->assertStringContainsString('X-Course-Id: ' . $this->forum->get_course_id(), $messages[0]->header);
+        $this->assertStringNotContainsString('List-Unsubscribe-Post:', $messages[0]->header);
+    }
+
+    /**
+     * Check email headers when subscribed to digest.
+     */
+    public function test_email_digest_headers() {
+        global $CFG, $DB;
+        $this->setUp();
+        $created = time() - $CFG->forumng_emailafter - 1;
+
+        // Create post with no edit after delay time.
+        $postrecord = $this->generator->create_post(['discussionid' => $this->discussionid,
+                'parentpostid' => $this->rootpostid, 'mailstate' => mod_forumng::MAILSTATE_NOT_MAILED,
+                'created' => $created, 'userid' => $this->adminid]);
+
+        $DB->set_field('user', 'maildigest',  2, ['id' => $this->student->id]);
+
+        unset_config('noemailever');
+        $sink = $this->redirectEmails();
+        \mod_forumng_cron::email_normal();
+        $messages = $sink->get_messages();
+
+        $sink->clear();
+        \mod_forumng_cron::email_digest();
+        $messages = $sink->get_messages();
+
+        $this->assertEquals(1, count($messages));
+        $this->assertEquals(\core_user::get_noreply_user()->email, $messages[0]->from);
+        // Check headers.
+        $this->assertStringContainsString('Precedence: Bulk', $messages[0]->header);
     }
 }
