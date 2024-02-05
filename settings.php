@@ -147,3 +147,6 @@ $settings->add(new admin_setting_configselect('forumng_withremoveddiscussions',
         get_string('withremoveddiscussions', 'forumng'),
         get_string('configremoveolddiscussions', 'forumng'), 0, $options));
 
+$settings->add(new admin_setting_configcheckbox('mod_forumng/savecheck',
+        get_string('savecheck', 'forumng'),
+        get_string('savecheck_desc', 'forumng'), 1));

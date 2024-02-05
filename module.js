@@ -362,7 +362,7 @@ M.mod_forumng = {
         this.init_flags(node);
 
         // Notify the filters about the modified nodes.
-        require(['core/event'], function(event) {
+        require(['core_filters/events'], function(event) {
             event.notifyFilterContentUpdated(node.getDOMNode());
         });
     },
