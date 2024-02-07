@@ -359,7 +359,7 @@ class provider implements
                   JOIN {forumng_discussions} d ON d.forumngid = f.id
              LEFT JOIN {groups} g ON g.id = d.groupid
                   JOIN {forumng_posts} p ON p.discussionid = d.id
-                 WHERE f.id ${foruminsql}
+                 WHERE f.id {$foruminsql}
                        AND (p.userid = :postuserid)
         ";
         $params = [
@@ -415,7 +415,7 @@ class provider implements
                   JOIN {forumng_discussions} d ON d.forumngid = f.id
                   JOIN {forumng_posts} p ON p.discussionid = d.id
                        {$ratingsql->join}
-                 WHERE f.id ${foruminsql} AND
+                 WHERE f.id {$foruminsql} AND
                        (
                        p.userid = :postuserid
                        )
