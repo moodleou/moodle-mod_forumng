@@ -43,6 +43,7 @@
         canreply bool
         canedit bool
         candelete bool
+        cancreateattachments bool
 
     Example context (json):
     {
@@ -270,14 +271,16 @@
                                    [placeholder]="'plugin.mod_forumng.message' | translate" name="message">
             </core-rich-text-editor>
         </ion-item>
-        <ion-item class="mma-forumng-label-attachment" lines="none">
-            <ion-label class="mma-forumng-boldtitle mma-forumng-no-margin-bottom">{{ 'plugin.mod_forumng.attachments' | translate }}</ion-label>
-        </ion-item>
-        <div class="mma-forumng-file-attachment ion-text-wrap">
-            <core-attachments class="mma-forumng-attachments" [files]="CONTENT_OTHERDATA.files" [maxSize]="<% maxsize %>"
-                              [component]="mod_forumng" [componentId]="<% cmid %>" [allowOffline]="false">
-            </core-attachments>
-        </div>
+        <%# cancreateattachments %>
+            <ion-item class="mma-forumng-label-attachment" lines="none">
+                <ion-label class="mma-forumng-boldtitle mma-forumng-no-margin-bottom">{{ 'plugin.mod_forumng.attachments' | translate }}</ion-label>
+            </ion-item>
+            <div class="mma-forumng-file-attachment ion-text-wrap">
+                <core-attachments class="mma-forumng-attachments" [files]="CONTENT_OTHERDATA.files" [maxSize]="<% maxsize %>"
+                                  [component]="mod_forumng" [componentId]="<% cmid %>" [allowOffline]="false">
+                </core-attachments>
+            </div>
+        <%/ cancreateattachments %>
         <%# canmanage %>
         <ion-item *ngIf="CONTENT_OTHERDATA.isEdit" class="mma-forumng-label-sticky" lines="full">
             <ion-label class="mma-forumng-boldtitle ion-text-wrap"><%{ displaysticky }%></ion-label>
@@ -465,10 +468,10 @@
                                            [placeholder]="'plugin.mod_forumng.message' | translate" name="message" [autoSave]="false">
                     </core-rich-text-editor>
                 </ion-item>
-                <ion-item class="mma-forumng-label-attachment" lines="none">
+                <ion-item *ngIf="reply.cancreateattachments" class="mma-forumng-label-attachment" lines="none">
                     <ion-label class="mma-forumng-boldtitle mma-forumng-no-margin-bottom">{{ 'plugin.mod_forumng.attachments' | translate }}</ion-label>
                 </ion-item>
-                <div class="mma-forumng-file-attachment ion-text-wrap">
+                <div *ngIf="reply.cancreateattachments" class="mma-forumng-file-attachment ion-text-wrap">
                     <core-attachments class="mma-forumng-attachments" [files]="CONTENT_OTHERDATA.files" [maxSize]="<% maxsize %>" [component]="mod_forumng"
                                       [componentId]="<% cmid %>" [allowOffline]="false">
                     </core-attachments>
@@ -638,10 +641,10 @@
                                                    [placeholder]="'plugin.mod_forumng.message' | translate" name="message" [autoSave]="false">
                             </core-rich-text-editor>
                         </ion-item>
-                        <ion-item class="mma-forumng-label-attachment" lines="none">
+                        <ion-item *ngIf="subreply.cancreateattachments" class="mma-forumng-label-attachment" lines="none">
                             <ion-label class="mma-forumng-boldtitle mma-forumng-no-margin-bottom">{{ 'plugin.mod_forumng.attachments' | translate }}</ion-label>
                         </ion-item>
-                        <div class="mma-forumng-file-attachment ion-text-wrap">
+                        <div *ngIf="subreply.cancreateattachments" class="mma-forumng-file-attachment ion-text-wrap">
                             <core-attachments class="mma-forumng-attachments" [files]="CONTENT_OTHERDATA.files"
                                               [maxSize]="<% maxsize %>" [component]="mod_forumng" [componentId]="<% cmid %>" [allowOffline]="false">
                             </core-attachments>
