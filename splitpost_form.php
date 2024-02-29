@@ -38,7 +38,7 @@ class mod_forumng_splitpost_form extends moodleform {
         $mform->setType('subject', PARAM_TEXT);
         $mform->addRule('subject', get_string('maximumchars', '', 255),
             'maxlength', 255, 'client');
-        $mform->addRule('subject', get_string('required'),
+        $mform->addRule('subject', null,
              'required', null, 'client');
 
         $this->add_action_buttons(true, get_string('splitpostbutton', 'forumng'));

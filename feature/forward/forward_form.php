@@ -44,7 +44,7 @@ class mod_forumng_forward_form extends moodleform {
             array('size'=>48));
         $mform->setType('email', PARAM_RAW);
         $mform->addHelpButton('email', 'forward_email', 'forumngfeature_forward');
-        $mform->addRule('email', get_string('required'), 'required', null,
+        $mform->addRule('email', null, 'required', null,
             'client');
 
         // CC me
@@ -57,7 +57,7 @@ class mod_forumng_forward_form extends moodleform {
         $mform->setType('subject', PARAM_TEXT);
         $mform->addRule('subject', get_string('maximumchars', '', 255),
                 'maxlength', 255, 'client');
-        $mform->addRule('subject', get_string('required'), 'required', null, 'client');
+        $mform->addRule('subject', null, 'required', null, 'client');
         $mform->setDefault('subject', $this->_customdata->subject);
 
         // Email message

@@ -98,9 +98,9 @@ class mod_forumng_editpost_form extends moodleform {
                 $mform->addRule('subject', get_string('maximumchars', '', 255),
                     'maxlength', 255, 'client');
                 if ($isroot) {
-                    $mform->addRule('subject', get_string('required'),
+                    $mform->addRule('subject', null,
                         'required', null, 'client');
-                    $mform->addRule('subject', get_string('required'),
+                    $mform->addRule('subject', get_string('err_required', 'form'),
                         'regex', '/\S+/', 'client');
                 }
                 if ($islock) {
@@ -146,7 +146,7 @@ class mod_forumng_editpost_form extends moodleform {
             }
             $mform->setType('message', PARAM_RAW);
             if (!$allowemptymsg) {
-                $mform->addRule('message', get_string('required'),
+                $mform->addRule('message', null,
                         'required', null, 'client');
             }
 
