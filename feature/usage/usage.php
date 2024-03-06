@@ -89,13 +89,15 @@ for ($a = 0; $a < $totaltoshow; $a++) {
     // Create list of most posts.
     if ($mostposts[$postkeys[$a]]->replies > 0) {
         if ($user = $DB->get_record('user', array('id' => $postkeys[$a]), $userfields)) {
-            $toplist[] = $renderer->render_usage_list_item($forum,
-                    $mostposts[$postkeys[$a]]->replies, $user,
+            $counts = $renderer->render_usage_table_total($mostposts[$postkeys[$a]]->replies);
+            $userinfo = $renderer->render_usage_table_user($forum, $user,
                     html_writer::div($forum->display_user_link($user), 'fng_userlink'));
+            $toplist[$a] = [$counts, $userinfo];
         }
     }
 }
-echo $renderer->render_usage_list($toplist, 'mostposts');
+$mostpostsheadings = ['mostposts', 'users'];
+echo $renderer->render_usage_table($toplist, $mostpostsheadings, 'mostposts_caption', 'mostposts_none');
 echo html_writer::end_div();
 // End posts.
 echo html_writer::start_div('forumng_usage_contrib_cont');
@@ -105,13 +107,15 @@ for ($a = 0; $a < $totaltoshow; $a++) {
     if ($mostdiscussions[$discusskeys[$a]]->discussions > 0) {
         // Add to list of most new discussions.
         if ($user = $DB->get_record('user', array('id' => $discusskeys[$a]), $userfields)) {
-                $toplist[] = $renderer->render_usage_list_item($forum,
-                        $mostdiscussions[$discusskeys[$a]]->discussions, $user,
-                        html_writer::div($forum->display_user_link($user), 'fng_userlink'));
+            $counts = $renderer->render_usage_table_total($mostdiscussions[$discusskeys[$a]]->discussions);
+            $userinfo = $renderer->render_usage_table_user($forum, $user,
+                    html_writer::div($forum->display_user_link($user), 'fng_userlink'));
+            $toplist[$a] = [$counts, $userinfo];
         }
     }
 }
-echo $renderer->render_usage_list($toplist, 'mostdiscussions');
+$mostdiscussheadings = ['mostdiscussions', 'users'];
+echo $renderer->render_usage_table($toplist, $mostdiscussheadings, 'mostdiscussions_caption', 'mostdiscussions_none');
 echo html_writer::end_div();
 echo html_writer::end_div();
 echo html_writer::end_div();
@@ -184,7 +188,7 @@ if (has_capability('forumngfeature/usage:viewusage', $forum->get_context())) {
         $data[] = (object) array(
                 $datelabel => $day,
                 $postslabel => $count,
-                $totallabel => $postcount
+                $totallabel => $postcount,
                 );
     }
     $axes = (object) array(
@@ -199,14 +203,14 @@ if (has_capability('forumngfeature/usage:viewusage', $forum->get_context())) {
                     'keys' => array($postslabel),
                     'type' => 'numeric',
                     'title' => get_string('usagechartpostslabel', 'forumngfeature_usage'),
-                    'minimum' => 0
+                    'minimum' => 0,
                     ),
             $totallabel => (object) array(
                     'position' => 'right',
                     'keys' => array($totallabel),
                     'type' => 'numeric',
                     'title' => get_string('usagecharttotallabel', 'forumngfeature_usage'),
-                    'minimum' => 0
+                    'minimum' => 0,
                     )
 
             );
@@ -467,7 +471,7 @@ if (has_capability('mod/forumng:viewanyrating', $forum->get_context())) {
 
 if (!empty($usageoutput)) {
     echo html_writer::start_div('forumng_usage_section');
-    echo $OUTPUT->heading(get_string('usage', 'forumngfeature_usage'), 4, 'forumng_usage_sectitle');
+    echo $OUTPUT->heading(get_string('usage', 'forumngfeature_usage'), 3, 'forumng_usage_sectitle');
     echo $usageoutput;
     echo html_writer::start_div('clearer') . html_writer::end_div();
     echo html_writer::end_div();

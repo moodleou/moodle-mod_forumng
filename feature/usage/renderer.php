@@ -52,6 +52,26 @@ class forumngfeature_usage_renderer extends plugin_renderer_base {
         return $toreturn;
     }
 
+    public function render_usage_table_user(mod_forumng $forum, stdclass|null $user, string $info): string {
+        if (is_null($user)) {
+            $userimage = html_writer::empty_tag('img',
+                    ['src' => $this->image_url('u/f2'), 'alt' => '']);
+        } else {
+            $userimage = $this->output->user_picture($user);
+            if ($forum->is_shared()) {
+                // Strip course id if shared forum.
+                $userimage = str_replace('&amp;course=' . $forum->get_course()->id, '', $userimage);
+            }
+        }
+        $toreturn = html_writer::div($userimage, 'forumng_usage_list_pic') .
+                html_writer::div($info, 'forumng_usage_list_info');
+        return $toreturn;
+    }
+
+    public function render_usage_table_total(int $total): string {
+        return html_writer::div($total, 'forumng_usage_list_tot');
+    }
+
     /**
      * Output array of list_items
      * @param array $content
@@ -68,6 +88,33 @@ class forumngfeature_usage_renderer extends plugin_renderer_base {
             $toreturn .= html_writer::alist($content, array('class' => 'forumng_usage_list'), 'ol');
         } else {
             $toreturn .= html_writer::tag('p', get_string($stringname . '_none', 'forumngfeature_usage'));
+        }
+        return $toreturn;
+    }
+
+
+    public function render_usage_table(array $contents, array $stringname, string $caption, string $nonemessage, bool $heading = true): string {
+        $toreturn = '';
+        $headings = [];
+        $table = new html_table();
+        $table->attributes['class'] = 'forumng_usage_table generaltable';
+        $help = $this->help_icon($caption, 'forumngfeature_usage');
+        $table->caption = get_string($caption, 'forumngfeature_usage'). $help;
+        if ($heading) {
+            for ($a = 0; $a < count($stringname); $a++) {
+                array_push($headings, get_string($stringname[$a], 'forumngfeature_usage'));
+            }
+            $table->head = $headings;
+        }
+        if (count($contents) > 0){
+            foreach ($contents as $content) {
+                $row = new html_table_row([$content[0], $content[1]]);
+                $table->data[] = $row;
+            }
+            $toreturn .= html_writer::table($table);
+        }else{
+            $toreturn .= html_writer::tag('p id="nonecaption"', get_string($caption, 'forumngfeature_usage'));
+            $toreturn .= html_writer::tag('p', get_string($nonemessage, 'forumngfeature_usage'));
         }
         return $toreturn;
     }

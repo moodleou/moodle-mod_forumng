@@ -40,6 +40,10 @@ Feature: Show usage statistics for ForumNG
       | Subject | Discussion 3 |
       | Message | Discussion 3 |
     And I am on the "Test forum name marking" "forumng activity" page
+    And I add a discussion with the following data:
+      | Subject | Discussion 4 |
+      | Message | Discussion 4 |
+    And I am on the "Test forum name marking" "forumng activity" page
     And I log out
 
   # JS required or fails to find forumng_usage_list elements on the page
@@ -132,28 +136,31 @@ Feature: Show usage statistics for ForumNG
     And I press "Show usage"
     And I should see "Usage" in the "h2" "css_element"
     And I should see "Contribution" in the ".forumng_usage_sectitle" "css_element"
-    And I should see "Most posts" in the ".forumng_usage_listhead" "css_element"
+    And I should see "Most posts"
     And I should see "Most discussions"
+    And I should see "Replies"
+    And I should see "Discussions"
+    And I should see "Users" in the ".forumng_usage_contrib .forumng_usage_contrib_cont:nth-child(1) .forumng_usage_table th:nth-child(2)" "css_element"
+    And I should see "Users" in the ".forumng_usage_contrib .forumng_usage_contrib_cont:nth-child(2) .forumng_usage_table th:nth-child(2)" "css_element"
 
     # Check the MOST POSTS counts
-    And I should see "3" in the ".forumng_usage_contrib .forumng_usage_contrib_cont:nth-child(1) .forumng_usage_list li:nth-child(1) .forumng_usage_list_tot" "css_element"
-    And I should see "2" in the ".forumng_usage_contrib .forumng_usage_contrib_cont:nth-child(1) .forumng_usage_list li:nth-child(2) .forumng_usage_list_tot" "css_element"
-    And I should see "1" in the ".forumng_usage_contrib .forumng_usage_contrib_cont:nth-child(1) .forumng_usage_list li:nth-child(3) .forumng_usage_list_tot" "css_element"
+    And I should see "3" in the ".forumng_usage_contrib .forumng_usage_contrib_cont:nth-child(1) .forumng_usage_table tr:nth-child(1) .forumng_usage_list_tot" "css_element"
+    And I should see "2" in the ".forumng_usage_contrib .forumng_usage_contrib_cont:nth-child(1) .forumng_usage_table tr:nth-child(2) .forumng_usage_list_tot" "css_element"
+    And I should see "1" in the ".forumng_usage_contrib .forumng_usage_contrib_cont:nth-child(1) .forumng_usage_table tr:nth-child(3) .forumng_usage_list_tot" "css_element"
     # Check the MOST POSTS
-    And I should see "Student 3" in the "div.forumng_usage_contrib_cont:nth-child(1) > ol:nth-child(2) > li:nth-child(1) > div:nth-child(3) > div:nth-child(1) > a:nth-child(1)" "css_element"
-    And I should see "Student 2" in the "div.forumng_usage_contrib_cont:nth-child(1) > ol:nth-child(2) > li:nth-child(2) > div:nth-child(3) > div:nth-child(1) > a:nth-child(1)" "css_element"
-    And I should see "Student 1" in the "div.forumng_usage_contrib_cont:nth-child(1) > ol:nth-child(2) > li:nth-child(3) > div:nth-child(3) > div:nth-child(1) > a:nth-child(1)" "css_element"
-
+    And I should see "Student 3" in the ".forumng_usage_contrib .forumng_usage_contrib_cont:nth-child(1) .forumng_usage_table tr:nth-child(1) .forumng_usage_list_info .fng_userlink a" "css_element"
+    And I should see "Student 2" in the ".forumng_usage_contrib .forumng_usage_contrib_cont:nth-child(1) .forumng_usage_table tr:nth-child(2) .forumng_usage_list_info .fng_userlink a" "css_element"
+    And I should see "Student 1" in the ".forumng_usage_contrib .forumng_usage_contrib_cont:nth-child(1) .forumng_usage_table tr:nth-child(3) .forumng_usage_list_info .fng_userlink a" "css_element"
     # Check the MOST DISCUSSIONS counts
-    And I should see "3" in the ".forumng_usage_contrib .forumng_usage_contrib_cont:nth-child(2) .forumng_usage_list:nth-child(2) li:nth-child(1) .forumng_usage_list_tot" "css_element"
-    And I should see "2" in the ".forumng_usage_contrib .forumng_usage_contrib_cont:nth-child(2) .forumng_usage_list:nth-child(2) li:nth-child(2) .forumng_usage_list_tot" "css_element"
-    And I should see "1" in the ".forumng_usage_contrib .forumng_usage_contrib_cont:nth-child(2) .forumng_usage_list:nth-child(2) li:nth-child(3) .forumng_usage_list_tot" "css_element"
+    And I should see "4" in the ".forumng_usage_contrib .forumng_usage_contrib_cont:nth-child(2) .forumng_usage_table tr:nth-child(1) .forumng_usage_list_tot" "css_element"
+    And I should see "2" in the ".forumng_usage_contrib .forumng_usage_contrib_cont:nth-child(2) .forumng_usage_table tr:nth-child(2) .forumng_usage_list_tot" "css_element"
+    And I should see "1" in the ".forumng_usage_contrib .forumng_usage_contrib_cont:nth-child(2) .forumng_usage_table tr:nth-child(3) .forumng_usage_list_tot" "css_element"
     # Check the MOST DISCUSSION
-    And I should see "Admin User" in the "div.forumng_usage_contrib_cont:nth-child(2) > ol:nth-child(2) > li:nth-child(1) > div:nth-child(3) > div:nth-child(1) > a:nth-child(1)" "css_element"
-    And I should see "Student 3" in the "div.forumng_usage_contrib_cont:nth-child(2) > ol:nth-child(2) > li:nth-child(2) > div:nth-child(3) > div:nth-child(1) > a:nth-child(1)" "css_element"
-    And I should see "Student 1" in the "div.forumng_usage_contrib_cont:nth-child(2) > ol:nth-child(2) > li:nth-child(3) > div:nth-child(3) > div:nth-child(1) > a:nth-child(1)" "css_element"
+    And I should see "Admin User" in the ".forumng_usage_contrib .forumng_usage_contrib_cont:nth-child(2) .forumng_usage_table tr:nth-child(1) .forumng_usage_list_info .fng_userlink a" "css_element"
+    And I should see "Student 3" in the ".forumng_usage_contrib .forumng_usage_contrib_cont:nth-child(2) .forumng_usage_table tr:nth-child(2) .forumng_usage_list_info .fng_userlink a" "css_element"
+    And I should see "Student 1" in the ".forumng_usage_contrib .forumng_usage_contrib_cont:nth-child(2) .forumng_usage_table tr:nth-child(3) .forumng_usage_list_info .fng_userlink a" "css_element"
 
-    And I should see "Post history - 12 posts" in the ".forumng_usage_usagechart" "css_element"
+    And I should see "Post history - 13 posts" in the ".forumng_usage_usagechart" "css_element"
     And "Update post history" "button" should exist
     And ".forumng_usage_subscribers" "css_element" should exist
     And I should see "Subscribers" in the ".forumng_usage_subscribers h4" "css_element"

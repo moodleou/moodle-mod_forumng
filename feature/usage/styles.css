@@ -16,22 +16,35 @@ ol.forumng_usage_list {
 ol.forumng_usage_list li {
     clear: left;
 }
-.forumng_usage_list .forumng_usage_list_tot {
+.forumng_usage_table .forumng_usage_list_tot {
     float: left;
     min-width: 2em;
     text-align: center;
     margin-top: .75em;
+    display: inline-block;
 }
-.forumng_usage_list .forumng_usage_list_pic {
+.forumng_usage_table .forumng_usage_list_pic {
     float: left;
     margin-left: .5em;
+    display: inline-block;
 }
-.forumng_usage_list .forumng_usage_list_info {
+.forumng_usage_table .forumng_usage_list_info {
     float: left;
     margin-left: .5em;
+    display: inline-block;
 }
-.forumng_usage_list .forumng_usage_list_info .fng_userlink {
+.forumng_usage_table .forumng_usage_list_info .fng_userlink {
     margin-top: .75em;
+    display: inline-block;
+}
+.forumng_usage_table caption {
+    font-size: 1em;
+}
+.forumng_usage_section #nonecaption {
+    font-weight: 700;
+    color: #002158;
+    line-height: 1.5;
+    margin-bottom: 9px;
 }
 .forumng_usage_chart {
     margin: 10px;
