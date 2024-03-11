@@ -50,6 +50,7 @@
         'postas' : string,
         'displayoption' :string,
         'displayperiod' :string,
+        'cancreateattachments': true/false,
     }
 
 }}
@@ -72,14 +73,16 @@
                                class="forumng-add-discussion-message" [placeholder]="'plugin.mod_forumng.message' | translate" name="message">
         </core-rich-text-editor>
     </ion-item>
-    <ion-item class="mma-forumng-label-attachment" lines="none">
-        <ion-label class="mma-forumng-boldtitle mma-forumng-no-margin-bottom">{{ 'plugin.mod_forumng.attachments' | translate }}</ion-label>
-    </ion-item>
-    <div class="mma-forumng-file-attachment ion-text-wrap">
-        <core-attachments class="mma-forumng-attachments" (ionChange)="onFileChange()" [files]="CONTENT_OTHERDATA.files"
-                          [maxSize]="<% maxsize %>" [component]="mod_forumng" [componentId]="<% cmid %>" [allowOffline]="false">
-        </core-attachments>
-    </div>
+    <%# cancreateattachments %>
+        <ion-item class="mma-forumng-label-attachment" lines="none">
+            <ion-label class="mma-forumng-boldtitle mma-forumng-no-margin-bottom">{{ 'plugin.mod_forumng.attachments' | translate }}</ion-label>
+        </ion-item>
+        <div class="mma-forumng-file-attachment ion-text-wrap">
+            <core-attachments class="mma-forumng-attachments" (ionChange)="onFileChange()" [files]="CONTENT_OTHERDATA.files"
+                              [maxSize]="<% maxsize %>" [component]="mod_forumng" [componentId]="<% cmid %>" [allowOffline]="false">
+            </core-attachments>
+        </div>
+    <%/ cancreateattachments %>
     <%# cantag %>
     <ion-item class="mma-forumng-label-sticky ion-text-wrap" lines="full">
         <ion-label><%{ displayoption }%></ion-label>

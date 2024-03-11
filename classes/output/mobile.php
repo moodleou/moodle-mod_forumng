@@ -313,6 +313,8 @@ class mobile {
         if ($forumng->get_can_post_anon() == \mod_forumng::CANPOSTATON_NONMODERATOR) {
             $postanonmessage = get_string('identityprotectedmessage', 'forumng');
         }
+        // Check if there is any content of the forum introduction, restriction message, or post-anonymous message to display.
+        $hasmessage = !empty($forum->introduction) || !empty($restrictionmessage) || !empty($postanonmessage);
         $data = [
             'forum' => $forum,
             'hasgroups' => $hasgroups,
@@ -328,6 +330,7 @@ class mobile {
             'isipud' => $isipud,
             'displaytext' => $displaytext,
             'postanonmessage' => $postanonmessage,
+            'hasmessage' => $hasmessage,
         ];
         $html = $OUTPUT->render_from_template('mod_forumng/' . $foldername . 'mobile_discussions_page', $data);
 
@@ -610,6 +613,7 @@ class mobile {
         ];
 
         $canmanage = $discussion->get_forum()->can_manage_discussions();
+        $cancreateattachments = $forumng->can_create_attachments();
         $displaysticky = get_string('displayoption', 'mod_forumng');
         $displayperiod = get_string('displayperiodmobile', 'mod_forumng');
         $postdata['hasreplies'] = count($replies);
@@ -631,6 +635,7 @@ class mobile {
         $rootpost->displayperiod = $displayperiod;
         $rootpost->displaysticky = $displaysticky;
         $rootpost->canmanage = $canmanage;
+        $rootpost->cancreateattachments = $cancreateattachments;
         $manualmark = !mod_forumng::mark_read_automatically();
 
         // Properties in otherdata will be checked for Json encoded strings.
@@ -840,6 +845,7 @@ class mobile {
         }
         $hasoption = false;
         $cansetimportant = $forumng->can_set_important();
+        $cancreateattachments = $forumng->can_create_attachments();
         $options = self::post_as_option($forumng);
         $displayoption = get_string('forumng:setimportant', 'mod_forumng');
         if (!empty($options)) {
@@ -1022,6 +1028,7 @@ class mobile {
             'showavatar' => $showavatar,
             'hidepost' => $hidepost,
             'showedithistory' => $showedithistory,
+            'cancreateattachments'=> $cancreateattachments,
         ];
     }
 
@@ -1049,6 +1056,7 @@ class mobile {
         $hasoption = false;
         $canviewhidden = $forumng->can_manage_discussions() && $forumng->can_view_hidden();
         $cantag = $forumng->can_manage_discussions() || $forumng->can_tag_discussion();
+        $cancreateattachments = $forumng->can_create_attachments();
         $options = self::post_as_option($forumng);
         if (!empty($options)) {
             $hasoption = true;
@@ -1146,6 +1154,7 @@ class mobile {
             'displayoption' => $displayoption,
             'displayperiod' => $displayperiod,
             'submitdraftlabel' => get_string('savedraft', 'mod_forumng'),
+            'cancreateattachments' => $cancreateattachments,
         ];
         // Properties in otherdata will be checked for Json encoded strings.
         // When the value begins with the character '[' or '{', this string will be interpreted as needing JSON encoding.

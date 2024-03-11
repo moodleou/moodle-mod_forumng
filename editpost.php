@@ -794,8 +794,10 @@ try {
 
         $PAGE->requires->strings_for_js(array('savefailtitle', 'savefailnetwork', 'savefailsession',
                 'savefailtext', 'numberofdiscussions'), 'forumng');
-        $PAGE->requires->yui_module('moodle-mod_forumng-savecheck', 'M.mod_forumng.savecheck.init',
-                array($forum->get_context()->id));
+        if (get_config('mod_forumng', 'savecheck')) {
+            $PAGE->requires->yui_module('moodle-mod_forumng-savecheck', 'M.mod_forumng.savecheck.init',
+                    array($forum->get_context()->id));
+        }
 
         // Display footer
         print $out->footer();

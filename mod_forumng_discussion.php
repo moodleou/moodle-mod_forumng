@@ -2527,18 +2527,15 @@ WHERE
         }
 
         // Remove crosslinks to posts that do not exist
-        $this->posthtml = $allhtml;
         $allhtml = preg_replace_callback(
             '~<a class="forumng-parentlink" href="#p([0-9]+)">([0-9]+)</a>~',
-            array($this, 'internal_build_selected_posts_replacer'), $allhtml);
-    }
-
-    public function internal_build_selected_posts_replacer($matches) {
-        if (strpos($this->posthtml, ' id="p' . $matches[1] . '"') === false) {
-            return $matches[2];
-        } else {
-            return $matches[0];
-        }
+            function ($matches) use($allhtml) {
+                if (strpos($allhtml, ' id="p' . $matches[1] . '"') === false) {
+                    return $matches[2];
+                } else {
+                    return $matches[0];
+                }
+            }, $allhtml);
     }
 
     /**

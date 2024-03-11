@@ -169,34 +169,29 @@ class mod_forumng_renderer extends plugin_renderer_base {
         global $USER;
         $posteranon = $discussion->get_poster_anon();
         $poster = $discussion->get_poster();
-        $userimage = $this->user_picture($poster, array('courseid' => $courseid));
+        $userimage = $this->user_picture($poster, ['courseid' => $courseid, 'includefullname' => true]);
         $defaultimage = html_writer::empty_tag('img',
-                array('src' => $this->image_url('u/f2'), 'alt' => ''));
+                ['src' => $this->image_url('u/f2'), 'alt' => '']);
         if ($discussion->get_forum()->is_shared()) {
             // Strip course id if shared forum.
             $userimage = str_replace('&amp;course=' . $courseid, '', $userimage);
         }
 
         $result = "<td class='forumng-startedby cell c$num lastcol'>";
-        $wrapper = html_writer::start_tag('div', array('class' => 'forumng-startedby-wrapper'));
-        $user = $discussion->get_forum()->display_user_link($poster);
         $br = html_writer::empty_tag('br', array());
         $moderator = get_string('moderator', 'forumng');
         $userpicture = html_writer::tag('div', $userimage,
                 array('class' => 'forumng-startedbyimage'));
         $defaultpicture = html_writer::tag('div', $defaultimage,
                 array('class' => 'forumng-startedbyimage'));
-        $userlink = html_writer::tag('div', $user ,
-                array('class' => 'forumng-startedbyuser'));
         $moderated = html_writer::tag('div', $moderator,
                 array('class' => 'forumng-moderator'));
-        $endwrapper = html_writer::end_tag('div');
         // Post as moderator.
         if ($posteranon == mod_forumng::ASMODERATOR_IDENTIFY) {
-            $startedby = $userpicture . $wrapper . $userlink . $moderated . $endwrapper;
+            $startedby = $userpicture . $moderated;
         } else if ($posteranon == mod_forumng::ASMODERATOR_ANON) {
             if ($discussion->get_forum()->can_post_anonymously()) {
-                $startedby = $userpicture . $wrapper . $userlink .  $moderated . $endwrapper;
+                $startedby = $userpicture .  $moderated;
             } else {
                 $startedby = $defaultimage . $moderator;
             }
@@ -205,7 +200,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
                 $startedby = $defaultimage . get_string('identityprotected', 'forumng');
             } else {
                 // Post as normal and Moderator can view the post anonymous.
-                $startedby = $userimage . $user;
+                $startedby = $userimage;
             }
         }
         $result .= $startedby . "</td>";
@@ -413,7 +408,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
      * @return string HTML code for end of table
      */
     public function render_discussion_list_end($forum, $groupid) {
-        return '</tbody></table>';
+        return '</tbody></table></nav>';
     }
 
     /**
@@ -422,7 +417,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
      * @return string HTML code for start of table
      */
     public function render_draft_list_start() {
-        $result = '<div class="forumng-drafts"><div class="forumng-heading"><h3>' .
+        $result = '<nav class="forumng-drafts" aria-label="' . get_string('drafts', 'forumng') . '"><div class="forumng-heading"><h3>' .
             get_string('drafts', 'forumng') . '</h3>';
         $result .= $this->help_icon('drafts', 'forumng') . '</div>';
 
@@ -500,7 +495,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
      * @return string HTML code for end of table
      */
     public function render_draft_list_end() {
-        return '</table></div>';
+        return '</table></nav>';
     }
 
     /**
@@ -552,7 +547,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
             $helptext = $this->help_icon('starredposts', 'forumng');
         }
 
-        $result = '<div class="forumng-flagged" id="' .$flagid .'">
+        $result = '<nav class="forumng-flagged" id="' .$flagid .'" aria-label="'. $title .'">
             <div class="forumng-heading"><h3>' . $title . '</h3>';
         $result .= $helptext . '</div>';
 
@@ -702,7 +697,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
      * @return string HTML code for end of table
      */
     public function render_flagged_list_end() {
-        return '</table></div>';
+        return '</table></nav>';
     }
 
     /**
@@ -2256,7 +2251,8 @@ class mod_forumng_renderer extends plugin_renderer_base {
         $lpnum = $nextnum + 1;
         $npnum = $nextnum + 2;
         $sbnum = $nextnum + 3;
-        $table = html_writer::start_tag('table', array('class' => 'generaltable forumng-discussionlist'));
+        $table = html_writer::start_tag('nav', array('aria-label' => get_string('discussions', 'forumng')));
+        $table .= html_writer::start_tag('table', array('class' => 'generaltable forumng-discussionlist'));
         $table .= html_writer::start_tag('thead');
         $table .= html_writer::start_tag('tr');
         // Subject column th.

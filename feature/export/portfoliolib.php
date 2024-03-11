@@ -32,8 +32,10 @@ require_once($CFG->dirroot . '/mod/forumng/mod_forumng_cron.php');
 require_once($CFG->libdir . '/portfolio/caller.php');
 
 abstract class forumng_portfolio_caller_base extends portfolio_module_caller_base {
-    protected $modcontext;
-    protected $files = array();
+    protected $modcontext, $forumng, $discussionid, $cloneid;
+    protected $files = [];
+    protected $posts = [];
+    protected $discussionids = [];
 
     // Attachments: array of arrays of stored_file, keyed on versionid
     protected $attachments = array();

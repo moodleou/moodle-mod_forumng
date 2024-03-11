@@ -933,8 +933,6 @@ $mainquery", $mainparams);
                 $mail->FromName = fullname($from, $viewfullnames);
             }
 
-            $mail->ToName = 'Test to name';
-
             $mail->Subject = $subject;
 
             if ($ishtml) {

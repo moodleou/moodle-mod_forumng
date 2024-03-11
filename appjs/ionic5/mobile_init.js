@@ -747,14 +747,14 @@
                 popover.style.left = null;
             }
         };
-        var defaultarg = {
+        const defaultArg = {
             'cmid': cmid,
             'courseid' : courseid,
             'group' : outerThis.CONTENT_OTHERDATA.defaultgroup,
             'sortid': outerThis.CONTENT_OTHERDATA.selectedsort,
             'isupdate': '1',
         };
-        outerThis.CoreSitePluginsProvider.getContent('mod_forumng', 'forumng_view', defaultarg, preSets);
+        outerThis.CoreSitePluginsProvider.getContent('mod_forumng', 'forumng_view', defaultArg, preSets);
 
         if (t.removeEvent) {
             window.addEventListener("orientationchange", PopoverTransition);
@@ -781,14 +781,26 @@
             return outerThis.CoreAppProvider.isOnline();
         };
 
+        /**
+         * Handle event when entering the forum discussion page.
+         */
+        outerThis.ionViewDidEnter = function() {
+            outerThis.CoreSitePluginsProvider.getContent('mod_forumng', 'forumng_view', defaultArg, preSets);
+            t.mod_forumng.setNeedUpdate(cmid, 1, userid);
+            outerThis.updateContent(defaultArg, 'mod_forumng', 'forumng_view', true);
+        };
+
+        /**
+         * Handle event when leaving the forum discussion page.
+         */
         outerThis.ionViewWillLeave = function() {
             window.removeEventListener("orientationchange", PopoverTransition);
-            t.mod_forumng.getNeedUpdate(cmid, userid).then(function(result) {
-                // When we go the forum the agrs is only have {cmid, courseid} so we need to update the cache the newest version.
-                if (typeof(result) != 'undefined' && result != null && result) {
-                    t.mod_forumng.setNeedUpdate(cmid, null, userid);
-                }
-            });
+            try {
+                // Get content when navigating to the forums page.
+                outerThis.CoreSitePluginsProvider.getContent('format_oustudyplan', 'forums_page', {'courseid': courseid}, preSets);
+            } catch (err) {
+                t.CoreDomUtilsProvider.showErrorModalDefault(err, '', false);
+            }
         };
         outerThis.showMessage = async function (text) {
             var successalert = await this.AlertController.create({

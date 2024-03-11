@@ -369,6 +369,10 @@ body.ionic5 .collapsible-item.collapsible-enabled:not(.collapsible-loading-heigh
     background: linear-gradient(to bottom, rgba(255, 255, 255, 0) calc(100% - 50px), white calc(100% - 15px));
 }
 
+body.ionic5.dark .collapsible-item.collapsible-enabled:not(.collapsible-loading-height).collapsible-collapsed:before {
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0) calc(100% - 50px), #626262 calc(100% - 15px));
+}
+
 body.ionic5 .mma-forumng-discussion-introduction ion-button > span.collapsible-toggle-arrow,
 body.ionic5 .mma-forumng-ipud-discussion-rootpost ion-button > span.collapsible-toggle-arrow {
     display: none;
@@ -1071,6 +1075,10 @@ ion-item.mma-forumng-sort-discussion ion-label {
     font-size: 1.6rem;
 }
 
+body.ionic5 ion-item:has(.mma-forumng-discussion-postanon) + .mma-forumng-sort-discussion.in-list {
+    margin-top: 10px;
+}
+
 /*
  * Dark mode overrides
  *
@@ -1182,6 +1190,10 @@ body.ionic5 .mma-forumng-discussion-list .mma-forumng-discussion .mma-forumng-di
     margin-left: 5px;
 }
 
+body.ionic5 .mma-forumng-discussion-list .mma-forumng-discussion .mma-forumng-discussion-icons {
+    padding-left: 10px;
+}
+
 body.ionic5 .mma-forumng-discussion-list .mma-forumng-discussion .mma-forumng-discussion-last-post,
 body.ionic5 .mma-forumng-boldtitle,
 body.ionic5 .mma-forumng-label-subject,
@@ -1249,6 +1261,7 @@ body.ionic5 .item-textarea.mma-forumng-label-message core-rich-text-editor .core
 body.ionic5 .mma-forumng-posts-list-wrapper .mma-forumng-p1 .mma-forumng-post-info,
 body.ionic5 .mma-forumng-posts-list-wrapper .mma-forumng-post-reply .sub-reply ion-list .mma-forumng-post-info {
     padding: var(--default-margin) 0 0;
+    align-items: start;
 }
 
 body.ionic5 .mma-forumng-posts-list-wrapper .mma-forumng-posts .mma-forumng-attachments core-file ion-item > ion-label {
@@ -1283,6 +1296,7 @@ body.ionic5 .mma-forumng-posts-list-wrapper .mma-forumng-commands-buttons .mma-f
 
 body.ionic5 .mma-forumng-posts-list-wrapper .mma-forumng-post-reply .mma-forumng-post-info {
     padding: var(--default-margin) 0 0 0;
+    align-items: start;
 }
 body.ionic5 .mma-forumng-posts-list-wrapper .mma-forumng-post-reply .mma-forumng-posts {
     padding: 18px 10px 15px 0;
