@@ -54,6 +54,8 @@ class custom_completion extends activity_custom_completion {
                 'completionreplies',
                 'completionwordcountmin',
                 'completionwordcountmax',
+                'timetrackingfrom',
+                'timetrackingto',
         ];
     }
 
@@ -68,6 +70,8 @@ class custom_completion extends activity_custom_completion {
         $completionreplies = $this->cm->customdata->customcompletionrules['completionreplies'] ?? 0;
         $completionwordcountmin = $this->cm->customdata->customcompletionrules['completionwordcountmin'] ?? 0;
         $completionwordcountmax = $this->cm->customdata->customcompletionrules['completionwordcountmax'] ?? 0;
+        $timetrackingfrom = $this->cm->customdata->customcompletionrules['timetrackingfrom'] ?? 0;
+        $timetrackingto = $this->cm->customdata->customcompletionrules['timetrackingto'] ?? 0;
 
         return [
             'completionposts' => get_string('completiondetail:posts', 'forumng', $completionposts),
@@ -75,6 +79,10 @@ class custom_completion extends activity_custom_completion {
             'completionreplies' => get_string('completiondetail:replies', 'forumng', $completionreplies),
             'completionwordcountmin' => get_string('completiondetail:wordcountmin', 'forumng', $completionwordcountmin),
             'completionwordcountmax' => get_string('completiondetail:wordcountmax', 'forumng', $completionwordcountmax),
+            'timetrackingfrom' =>
+                    get_string('completiondetail:trackingfrom', 'forumng', date('m/d/Y h:i', (int)$timetrackingfrom)),
+            'timetrackingto' =>
+                    get_string('completiondetail:trackingto', 'forumng', date('m/d/Y h:i', (int)$timetrackingto)),
         ];
     }
 
@@ -92,6 +100,8 @@ class custom_completion extends activity_custom_completion {
                 'completionwordcountmax',
                 'completionreplies',
                 'completionusegrade',
+                'timetrackingfrom',
+                'timetrackingto',
         ];
     }
 }

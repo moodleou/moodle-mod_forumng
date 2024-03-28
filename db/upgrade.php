@@ -511,5 +511,28 @@ function xmldb_forumng_upgrade($oldversion=0) {
         upgrade_mod_savepoint(true, 2023042000, 'forumng');
     }
 
+    if ($oldversion < 2024032800) {
+
+        // Define field timetrackingfrom to be added to forumng.
+        $table = new xmldb_table('forumng');
+        $field = new xmldb_field('timetrackingfrom', XMLDB_TYPE_INTEGER, '10', null,
+                XMLDB_NOTNULL, null, 0, 'completionwordcountmax');
+        // Conditionally launch add field.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Define field timetrackingto to be added to forumng.
+        $field = new xmldb_field('timetrackingto', XMLDB_TYPE_INTEGER, '10', null,
+                XMLDB_NOTNULL, null, 0, 'timetrackingfrom');
+        // Conditionally launch add field.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Forumng savepoint reached.
+        upgrade_mod_savepoint(true, 2024032800, 'forumng');
+    }
+
     return true;
 }

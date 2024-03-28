@@ -6,15 +6,15 @@ Feature: Add forumng activity and test basic functionality
 
   Background:
     Given the following "users" exist:
-      | username | firstname | lastname | email |
-      | student1 | Student | 1 | student1@asd.com |
-      | student2 | Student | 2 | student2@asd.com |
+      | username | firstname | lastname | email            |
+      | student1 | Student   | 1        | student1@asd.com |
+      | student2 | Student   | 2        | student2@asd.com |
     And the following "courses" exist:
       | fullname | shortname | category |
-      | Course 1 | C1 | 0 |
+      | Course 1 | C1        | 0        |
     And the following "course enrolments" exist:
-      | user | course | role |
-      | student1 | C1 | student |
+      | user     | course | role    |
+      | student1 | C1     | student |
     And the following "activities" exist:
       | activity | name            | introduction           | course | idnumber |
       | forumng  | Test forum name | Test forum description | C1     | forumng1 |
@@ -32,22 +32,22 @@ Feature: Add forumng activity and test basic functionality
     And I follow "Test forum name"
     And I add a discussion with the following data:
       | Subject | Discussion 1 |
-      | Message | abc |
+      | Message | abc          |
     And I follow "Test forum name"
     Then I should see "Discussion 1" in the ".forumng-subject" "css_element"
     And "//td[1]//img" "xpath_element" should not exist in the "Discussion 1" "table_row"
     And I should see "1" in the "//table[contains(@class,'forumng-discussionlist')]/tbody/tr[1]//td[4]" "xpath_element"
     Given I add a discussion with the following data:
       | Subject | Discussion 2 |
-      | Message | abcdefg |
-      | sticky | 1 |
+      | Message | abcdefg      |
+      | sticky  | 1            |
     And I follow "Test forum name"
     Then I should see "Discussion 2" in the ".forumng-subject" "css_element"
     And I should see "Discussion 2" in the "//table[contains(@class,'forumng-discussionlist')]/tbody/tr[1]//td[1]" "xpath_element"
     And "//td[1]//img" "xpath_element" should exist in the "Discussion 2" "table_row"
     Given I add a discussion with the following data:
       | Subject | Discussion 3 |
-      | Message | abcdefghijk |
+      | Message | abcdefghijk  |
     And I follow "Test forum name"
     # Check discussion 3 is second in list of discussions (allowing for extra divider row)
     Then I should see "Discussion 3" in the "//table[contains(@class,'forumng-discussionlist')]/tbody/tr[3]//td[1]" "xpath_element"
@@ -75,7 +75,7 @@ Feature: Add forumng activity and test basic functionality
     And I follow "Test forum name"
     And I add a discussion with the following data:
       | Subject | Discussion 1 |
-      | Message | abc |
+      | Message | abc          |
     And I reply to post "1" with the following data:
       | Message | REPLY1 |
     And I reply to post "1" with the following data:
@@ -153,7 +153,7 @@ Feature: Add forumng activity and test basic functionality
     And I follow "Test forum name"
     And I add a discussion with the following data:
       | Subject | Discussion 1 |
-      | Message | abc |
+      | Message | abc          |
     And I reply to post "1" with the following data:
       | Message | REPLY1 |
     Given I click on "li.forumng-delete a" "css_element"
@@ -197,7 +197,7 @@ Feature: Add forumng activity and test basic functionality
     And I follow "Test forum name"
     And I add a discussion with the following data:
       | Subject | Discussion 1 |
-      | Message | abc |
+      | Message | abc          |
     And I reply to post "1" with the following data:
       | Message | REPLY1 |
     And I reply to post "1" with the following data:
@@ -271,7 +271,7 @@ Feature: Add forumng activity and test basic functionality
     And I follow "Test forum name"
     And I add a discussion with the following data:
       | Subject | Discussion 1 abc |
-      | Message | abc |
+      | Message | abc              |
     And I reply to post "1" with the following data:
       | Message | REPLY1 |
     And I reply to post "1" with the following data:
@@ -340,7 +340,7 @@ Feature: Add forumng activity and test basic functionality
     And "Subscribe" "button" should exist
     Given I add a discussion with the following data:
       | Subject | Discussion 1 |
-      | Message | abc |
+      | Message | abc          |
     Then I should see "You do not currently receive messages from this"
     And "Subscribe to discussion" "button" should exist
     Given I press "Subscribe to discussion"
@@ -412,7 +412,7 @@ Feature: Add forumng activity and test basic functionality
     And I follow "Test forum name"
     And I add a discussion with the following data:
       | Subject | Discussion 1 |
-      | Message | abc |
+      | Message | abc          |
     And I reply to post "1" with the following data:
       | Message | REPLY1 |
     And I click on "Reply" "link" in the ".forumng-p2" "css_element"
@@ -432,7 +432,7 @@ Feature: Add forumng activity and test basic functionality
     And I follow "Test forum name"
     And I add a discussion with the following data:
       | Subject | Discussion original |
-      | Message | abc |
+      | Message | abc                 |
     When I edit post "1" with the following data:
       | Subject | Discussion edited |
     And I should see "Discussion edited" in the ".forumng-subject" "css_element"
@@ -513,8 +513,8 @@ Feature: Add forumng activity and test basic functionality
 
   Scenario: Check atom and rss links displayed as expected
     Given the following config values are set as admin:
-      | enablerssfeeds   | 1 |
-      | forumng_feedtype | 2 |
+      | enablerssfeeds         | 1 |
+      | forumng_feedtype       | 2 |
       | forumng_enablerssfeeds | 1 |
     Given I log in as "admin"
     And I am on "Course 1" course homepage
@@ -522,8 +522,8 @@ Feature: Add forumng activity and test basic functionality
     Then "Atom" "link" should exist
     And "RSS" "link" should exist
     When I add a discussion with the following data:
-      | Subject            | Discussion 1 |
-      | Message            | abc          |
+      | Subject | Discussion 1 |
+      | Message | abc          |
     Then "Atom" "link" should exist
     And "RSS" "link" should exist
     Given the following "permission overrides" exist:
@@ -600,8 +600,8 @@ Feature: Add forumng activity and test basic functionality
       | forumng_removeolddiscussions   | 31104000 |
       | forumng_withremoveddiscussions | -1       |
     When the following "activity" exist:
-      | activity  | name              | intro                  | course |
-      | forumng   | Test forum name 2 | Test forum description | C1     |
+      | activity | name              | intro                  | course |
+      | forumng  | Test forum name 2 | Test forum description | C1     |
 
     And I am on "Course 1" course homepage
     And I turn editing mode on
@@ -690,8 +690,8 @@ Feature: Add forumng activity and test basic functionality
       | fullname | shortname | format      | enablecompletion |
       | Course 2 | C2        | oustudyplan | 1                |
     And the following "course enrolments" exist:
-      | user | course | role |
-      | student1 | C2 | student |
+      | user     | course | role    |
+      | student1 | C2     | student |
     And the following "activities" exist:
       | activity | name                  | introduction           | course | idnumber | completion | completionview | completiondiscussionsenabled | completiondiscussions |
       | forumng  | Test forum completion | Test forum description | C2     | forumng2 | 2          | 1              | 1                            | 1                     |
@@ -717,7 +717,7 @@ Feature: Add forumng activity and test basic functionality
     And I follow "Test forum name"
     And I add a discussion with the following data:
       | Subject | Discussion 1 |
-      | Message | abc |
+      | Message | abc          |
     And I reply to post "1" with the following data:
       | Message | REPLY1 |
     And I reply to post "1" with the following data:
@@ -798,6 +798,121 @@ Feature: Add forumng activity and test basic functionality
     Then the "Make posts: 3" completion condition of "Test forum posts completion" is displayed as "done"
     And the "Make discussion or reply with minimum word count: 1" completion condition of "Test forum posts completion" is displayed as "done"
     And the "Make discussion or reply with maximum word count: 5" completion condition of "Test forum posts completion" is displayed as "done"
+
+  @javascript
+  Scenario: Check forum custom completion with tracking time.
+    Given the following "courses" exist:
+      | fullname | shortname | format      | enablecompletion |
+      | Course 3 | C3        | oustudyplan | 1                |
+    And the following "course enrolments" exist:
+      | user     | course | role    |
+      | student1 | C3     | student |
+    And the following "activities" exist:
+      | activity | name                          | introduction           | course | idnumber | completion | completionrepliesenabled | completionreplies |
+      | forumng  | Test forum replies completion | Test forum description | C3     | forumng3 | 2          | 1                        | 1                 |
+    And the following "activities" exist:
+      | activity | name                              | introduction           | course | idnumber | completion | completiondiscussionsenabled | completiondiscussions |
+      | forumng  | Test forum discussions completion | Test forum description | C3     | forumng4 | 2          | 1                            | 1                     |
+    And the following "activities" exist:
+      | activity | name                        | introduction           | course | idnumber | completion | completionpostsenabled | completionposts |
+      | forumng  | Test forum posts completion | Test forum description | C3     | forumng5 | 2          | 1                      | 3               |
+    And I am on the "Course 3" course page logged in as admin
+    And I follow "Test forum replies completion"
+    And I follow "Settings"
+    And I set the following fields to these values:
+      | id_timetrackingfrom_enabled | 1    |
+      | id_timetrackingfrom_day     | 1    |
+      | id_timetrackingfrom_month   | 1    |
+      | id_timetrackingfrom_year    | 2017 |
+      | id_timetrackingfrom_hour    | 10   |
+      | id_timetrackingfrom_minute  | 10   |
+    And I press "Save and display"
+    And I log out
+    And I log in as "student1"
+    And I am on "Course 3" course homepage
+    # Check custom completion replies with time tracking from.
+    And I follow "Test forum replies completion"
+    And "Test forum replies completion" should have the "Make replies: 1" completion condition
+    And "Test forum replies completion" should have the "Tracking from: 01/01/2017 10:10" completion condition
+    When I add a discussion with the following data:
+      | Subject | Discussion 1 |
+      | Message | Discussion 1 |
+    And I reply to post "1" with the following data:
+      | Message | REPLY1 |
+    And I reload the page
+    Then the "Make replies: 1" completion condition of "Test forum replies completion" is displayed as "done"
+    And the "Tracking from: 01/01/2017 10:10" completion condition of "Test forum replies completion" is displayed as "done"
+    And I log out
+    # Check custom completion discussion with tracking time.
+    And I am on the "Course 3" course page logged in as admin
+    And I follow "Test forum discussions completion"
+    And I follow "Settings"
+    And I set the following fields to these values:
+      | id_timetrackingfrom_enabled | 1    |
+      | id_timetrackingto_enabled   | 1    |
+      | id_timetrackingfrom_day     | 1    |
+      | id_timetrackingfrom_month   | 1    |
+      | id_timetrackingfrom_year    | 2017 |
+      | id_timetrackingfrom_hour    | 10   |
+      | id_timetrackingfrom_minute  | 10   |
+      | id_timetrackingto_day       | 1    |
+      | id_timetrackingto_month     | 1    |
+      | id_timetrackingto_year      | 2017 |
+      | id_timetrackingto_hour      | 10   |
+      | id_timetrackingto_minute    | 10   |
+    And I press "Save and display"
+    And I should see "The end datetime selection cannot be earlier than or equal to the start datetime"
+    And I set the following fields to these values:
+      | id_timetrackingfrom_enabled | 1    |
+      | id_timetrackingto_enabled   | 1    |
+      | id_timetrackingto_day       | 1    |
+      | id_timetrackingto_month     | 2    |
+      | id_timetrackingto_year      | 2017 |
+      | id_timetrackingto_hour      | 10   |
+      | id_timetrackingto_minute    | 10   |
+    And I press "Save and display"
+    And I log out
+    And I log in as "student1"
+    And I am on "Course 3" course homepage
+    And I follow "Test forum discussions completion"
+    And "Test forum discussions completion" should have the "Make discussions: 1" completion condition
+    And "Test forum discussions completion" should have the "Tracking from: 01/01/2017 10:10" completion condition
+    And "Test forum discussions completion" should have the "Tracking to: 02/01/2017 10:10" completion condition
+    When I add a discussion with the following data:
+      | Subject | Discussion 1 |
+      | Message | Discussion 1 |
+    And the "Make discussions: 1" completion condition of "Test forum discussions completion" is displayed as "todo"
+    And the "Tracking from: 01/01/2017 10:10" completion condition of "Test forum discussions completion" is displayed as "todo"
+    And the "Tracking to: 02/01/2017 10:10" completion condition of "Test forum discussions completion" is displayed as "todo"
+    And I log out
+    # Check custom completion posts with wordcount.
+    And I am on the "Course 3" course page logged in as admin
+    And I follow "Test forum posts completion"
+    And I follow "Settings"
+    And I set the following fields to these values:
+      | id_timetrackingto_enabled | 1    |
+      | id_timetrackingto_day     | 1    |
+      | id_timetrackingto_month   | 1    |
+      | id_timetrackingto_year    | 2017 |
+      | id_timetrackingto_hour    | 10   |
+      | id_timetrackingto_minute  | 10   |
+    And I press "Save and display"
+    And I log out
+    And I log in as "student1"
+    And I am on "Course 3" course homepage
+    And I follow "Test forum posts completion"
+    And "Test forum posts completion" should have the "Make posts: 3" completion condition
+    And "Test forum posts completion" should have the "Tracking to: 01/01/2017 10:10" completion condition
+    When I add a discussion with the following data:
+      | Subject | Discussion 1 |
+      | Message | Discussion 1 |
+    And I reply to post "1" with the following data:
+      | Message | REPLY1 |
+    And I reply to post "1" with the following data:
+      | Message | REPLY2 |
+    And I reload the page
+    Then the "Make posts: 3" completion condition of "Test forum posts completion" is displayed as "todo"
+    And the "Tracking to: 01/01/2017 10:10" completion condition of "Test forum posts completion" is displayed as "todo"
 
   Scenario: Verify ForumNG uploads are not allowed.
     Given the following "activities" exist:

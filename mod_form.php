@@ -336,6 +336,11 @@ class mod_forumng_mod_form extends moodleform_mod {
         if (!empty($data['completionreplies']) && ($data['completionreplies'] < 1 || !is_int($data['completionreplies']))){
             $errors['completionrepliesgroup'] = get_string('onlyposnum', 'forumng');
         }
+        if (isset($data['timetrackingto'])
+                && ($data['timetrackingto'] != 0) && ($data['timetrackingfrom'] != 0)
+                && ($data['timetrackingto'] <= $data['timetrackingfrom'])) {
+            $errors['completiontracking'] = get_string('completionenddateerror', 'forumng');
+        }
 
         // If old discussions are set to be moved to another forum...
         $targetforumngid = isset($data['removeto']) ? $data['removeto'] : 0;
@@ -412,7 +417,9 @@ class mod_forumng_mod_form extends moodleform_mod {
         if ((!empty($data['completionwordcountminenabled']) && $data['completionwordcountmin'] <= 0) ||
                 (!empty($data['completionwordcountmaxenabled']) && $data['completionwordcountmax'] <= 0) ||
                 (!empty($data['completionwordcountminenabled']) && !empty($data['completionwordcountmaxenabled']) &&
-                ($data['completionwordcountmin'] > $data['completionwordcountmax']))) {
+                ($data['completionwordcountmin'] > $data['completionwordcountmax']) &&
+                        !empty($data['timetrackingfrom']) && !empty($data['timetrackingto'])
+                )) {
             $errors['completion'] = get_string('badautocompletion', 'completion');
         }
 
@@ -519,10 +526,31 @@ class mod_forumng_mod_form extends moodleform_mod {
         $mform->disabledIf('completionwordcountmax', 'completionwordcountmaxenabled', 'notchecked');
         $mform->addGroup($group, 'completionwordcountmaxgroup','', [' '], false);
 
-        $PAGE->requires->js_call_amd('mod_forumng/mod_form', 'init', [$mform->getAttribute('id')]);
+        $group = [];
+        $group[] =& $mform->createElement('date_time_selector', 'timetrackingfrom', get_string('completiontrackingfrom',
+                'forumng'), ['optional' => true]);
+        $group[] =& $mform->createElement('date_time_selector', 'timetrackingto', get_string('completiontrackingto',
+                'forumng'), ['optional' => true]);
+        $mform->addGroup($group, 'completiontracking', get_string('completiontracking', 'forumng'), [' '], false);
+        $mform->addHelpButton('completiontracking', 'completiontracking', 'forumng');
+
+        // Use setDefault to set the timetrackingfrom and timetrackingto when unlock the completion.
+        // Otherwise, the form will set the current time to those field.
+        $data = $this->current;
+        if ($data->timetrackingfrom && $data->timetrackingfrom !== 0) {
+            $mform->setDefault('timetrackingfrom', $data->timetrackingfrom);
+        }
+        if ($data->timetrackingto && $data->timetrackingto !== 0) {
+            $mform->setDefault('timetrackingto', $data->timetrackingto);
+        }
+        $timetracking = (object)[
+                'timetrackingfrom' => $data->timetrackingfrom,
+                'timetrackingto' => $data->timetrackingto,
+        ];
+        $PAGE->requires->js_call_amd('mod_forumng/mod_form', 'init', [$mform->getAttribute('id'), $timetracking]);
 
         return ['completiondiscussionsgroup', 'completionrepliesgroup', 'completionpostsgroup',
-                'completionwordcountmingroup', 'completionwordcountmaxgroup'];
+                'completionwordcountmingroup', 'completionwordcountmaxgroup', 'completiontracking'];
     }
 
     public function completion_rule_enabled($data) {
@@ -588,6 +616,12 @@ class mod_forumng_mod_form extends moodleform_mod {
             }
             if (empty($data->completionwordcountmaxenabled) || !$autocompletion) {
                 $data->completionwordcountmax = 0;
+            }
+            if (empty($data->timetrackingfrom) || !$autocompletion) {
+                $data->timetrackingfrom = 0;
+            }
+            if (empty($data->timetrackingto) || !$autocompletion) {
+                $data->timetrackingto = 0;
             }
         }
 

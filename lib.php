@@ -241,8 +241,9 @@ function forumng_get_coursemodule_info($coursemodule) {
     global $DB;
 
     $forumng = $DB->get_record('forumng',
-            array('id' => $coursemodule->instance), 'id, name, type, intro, introformat,
-             completiondiscussions, completionreplies, completionposts, completionwordcountmin, completionwordcountmax');
+            ['id' => $coursemodule->instance], 'id, name, type, intro, introformat,
+             completiondiscussions, completionreplies, completionposts, completionwordcountmin, completionwordcountmax,
+              timetrackingfrom, timetrackingto');
     if (!$forumng) {
         return null;
     }
@@ -261,6 +262,8 @@ function forumng_get_coursemodule_info($coursemodule) {
         $info->customdata->customcompletionrules['completionposts'] = $forumng->completionposts;
         $info->customdata->customcompletionrules['completionwordcountmin'] = $forumng->completionwordcountmin;
         $info->customdata->customcompletionrules['completionwordcountmax'] = $forumng->completionwordcountmax;
+        $info->customdata->customcompletionrules['timetrackingfrom'] = $forumng->timetrackingfrom;
+        $info->customdata->customcompletionrules['timetrackingto'] = $forumng->timetrackingto;
     }
 
     return $info;

@@ -4464,7 +4464,7 @@ WHERE
         $forumngid = $this->get_id();
         $postcountsql = "
 SELECT
-    fp.id, fp.discussionid, fp.parentpostid, fp.message
+    fp.id, fp.discussionid, fp.parentpostid, fp.message, fp.modified
 FROM
     {forumng_posts} fp
     INNER JOIN {forumng_discussions} fd ON fp.discussionid = fd.id
@@ -4474,7 +4474,7 @@ WHERE
 
         if ($this->forumfields->completiondiscussions) {
             $discussionssql = $postcountsql . ' AND fp.parentpostid IS NULL';
-            $discussions = $this->get_posts_meet_wordcount($discussionssql, $postcountparams);
+            $discussions = $this->get_posts_meet_conditions($discussionssql, $postcountparams);
             $value = $this->forumfields->completiondiscussions <= count($discussions);
             if ($type == COMPLETION_AND) {
                 $result = $result && $value;
@@ -4484,7 +4484,7 @@ WHERE
         }
         if ($this->forumfields->completionreplies) {
             $repliessql = $postcountsql . ' AND fp.parentpostid IS NOT NULL';
-            $replies = $this->get_posts_meet_wordcount($repliessql, $postcountparams);
+            $replies = $this->get_posts_meet_conditions($repliessql, $postcountparams);
             $value = $this->forumfields->completionreplies <= count($replies);
             if ($type == COMPLETION_AND) {
                 $result = $result && $value;
@@ -4493,7 +4493,7 @@ WHERE
             }
         }
         if ($this->forumfields->completionposts) {
-            $post = $this->get_posts_meet_wordcount($postcountsql, $postcountparams);
+            $post = $this->get_posts_meet_conditions($postcountsql, $postcountparams);
             $value = $this->forumfields->completionposts <= count($post);
             if ($type == COMPLETION_AND) {
                 $result = $result && $value;
@@ -4506,23 +4506,29 @@ WHERE
     }
 
     /**
-     * Get list forumng posts that meet wordcount conditions.
+     * Get list forumng posts that meet specific conditions.
+     *
+     * This function filters forum posts based on optional word count and time tracking conditions.
      *
      * @param string $sql SQL query for getting the post.
      * @param array|null $params Query parameters.
      * @return array Array of forumng post objects.
      */
-    private function get_posts_meet_wordcount(string $sql = '', ?array $params = null): array {
+    private function get_posts_meet_conditions(string $sql = '', ?array $params = null): array {
         global $DB;
         $posts = [];
         $min = $this->forumfields->completionwordcountmin ?? 0;
         $max = $this->forumfields->completionwordcountmax ?? 0;
+        $timetrackingfrom = $this->forumfields->timetrackingfrom ?? 0;
+        $timetrackingto = $this->forumfields->timetrackingto ?? 0;
+
         if ($records = $DB->get_records_sql($sql, $params)) {
-            if (!$min && !$max) {
+            if (!$min && !$max && !$timetrackingfrom && !$timetrackingto) {
                 return $records;
             }
             foreach ($records as $key => $value) {
                 $wordcount = count_words($value->message);
+                $posttime = $value->modified;
                 $flag = true;
                 if ($min) {
                     if ($wordcount < $min) {
@@ -4534,6 +4540,14 @@ WHERE
                         $flag = false;
                     }
                 }
+
+                if ($timetrackingfrom && $posttime < $timetrackingfrom) {
+                    $flag = false;
+                }
+                if ($timetrackingto && $posttime > $timetrackingto) {
+                    $flag = false;
+                }
+
                 if ($flag) {
                     $posts[$key] = $value;
                 }

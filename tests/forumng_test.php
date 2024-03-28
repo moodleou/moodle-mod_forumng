@@ -815,6 +815,349 @@ class forumng_test extends forumng_test_lib {
         $this->assertFalse($forum1->get_completion_state($user2->id, COMPLETION_AND));
     }
 
+    /**
+     * Tests completion of discussions with tracking time.
+     */
+    public function test_completion_tracking_time_discussions() {
+        global $USER, $DB, $CFG;
+
+        $this->resetAfterTest(true);
+        $this->setAdminUser();
+        $generator = $this->getDataGenerator()->get_plugin_generator('mod_forumng');
+        $CFG->enablecompletion = true;
+        $course = $this->get_new_course();
+        $course->enablecompletion = true;
+        $DB->update_record('course', $course);
+        $user1 = $this->get_new_user('student', $course->id);
+        $user2 = $this->get_new_user('student', $course->id);
+        $now = time();
+        $timetrackingfrom1 = (new \DateTime())->setTimestamp($now)->modify('-2 day');
+        $timetrackingto1 = (new \DateTime())->setTimestamp($now)->modify('-1 day');
+
+        $timetrackingfrom2 = (new \DateTime())->setTimestamp($now)->modify('+1 day');
+        $timetrackingto2 = (new \DateTime())->setTimestamp($now)->modify('+2 day');
+
+        $timetrackingfrom3 = (new \DateTime())->setTimestamp($now)->modify('-1 day');
+        $timetrackingto3 = (new \DateTime())->setTimestamp($now)->modify('+1 day');
+
+        // Test discussions with time tracking from.
+        $forum1 = $this->get_new_forumng($course->id, ['completion' => COMPLETION_TRACKING_AUTOMATIC,
+                'completiondiscussionsenabled' => 1, 'completiondiscussions' => 1, '
+                timetrackingfrom' => $timetrackingfrom1->getTimestamp()]);
+        $this->assertEquals(1, $forum1->get_completion_discussions());
+        $this->assertFalse($forum1->get_completion_state($USER->id, COMPLETION_OR));
+        $forum2 = $this->get_new_forumng($course->id, ['completion' => COMPLETION_TRACKING_AUTOMATIC,
+                'completiondiscussionsenabled' => 1, 'completiondiscussions' => 1,
+                'timetrackingfrom' => $timetrackingfrom2->getTimestamp()]);
+        $this->assertEquals(1, $forum2->get_completion_discussions());
+        $this->assertFalse($forum2->get_completion_state($USER->id, COMPLETION_OR));
+
+        // User1 meets the conditions.
+        list ($discuss, $postid) = $generator->create_discussion(['course' => $course->id,
+                'forum' => $forum1->get_id(), 'userid' => $user1->id ]);
+
+        $this->assertTrue($forum1->get_completion_state($user1->id, COMPLETION_OR));
+
+        // User2 does not meet the conditions.
+        list ($discuss, $postid) = $generator->create_discussion(['course' => $course->id,
+                'forum' => $forum2->get_id(), 'userid' => $user2->id ]);
+
+        $this->assertFalse($forum2->get_completion_state($user2->id, COMPLETION_OR));
+
+        // Test discussions with time tracking to.
+        $forum3 = $this->get_new_forumng($course->id, ['completion' => COMPLETION_TRACKING_AUTOMATIC,
+                'completiondiscussionsenabled' => 1, 'completiondiscussions' => 1,
+                'timetrackingto' => $timetrackingto1->getTimestamp()]);
+        $this->assertEquals(1, $forum3->get_completion_discussions());
+        $this->assertFalse($forum3->get_completion_state($USER->id, COMPLETION_OR));
+
+        $forum4 = $this->get_new_forumng($course->id, ['completion' => COMPLETION_TRACKING_AUTOMATIC,
+                'completiondiscussionsenabled' => 1, 'completiondiscussions' => 1,
+                'timetrackingto' => $timetrackingto2->getTimestamp()]);
+        $this->assertEquals(1, $forum4->get_completion_discussions());
+        $this->assertFalse($forum4->get_completion_state($USER->id, COMPLETION_OR));
+        // User1 does not meet the conditions.
+        list ($discuss, $postid) = $generator->create_discussion(['course' => $course->id,
+                'forum' => $forum3->get_id(), 'userid' => $user1->id]);
+        $this->assertFalse($forum3->get_completion_state($user1->id, COMPLETION_OR));
+        // User2 meets the conditions.
+        list ($discuss, $postid) = $generator->create_discussion(['course' => $course->id,
+                'forum' => $forum4->get_id(), 'userid' => $user2->id]);
+        $this->assertTrue($forum4->get_completion_state($user2->id, COMPLETION_OR));
+
+        // Test discussions with time tracking from min and time tracking to.
+        $forum5 = $this->get_new_forumng($course->id, ['completion' => COMPLETION_TRACKING_AUTOMATIC,
+                'completiondiscussionsenabled' => 1, 'completiondiscussions' => 1,
+                'timetrackingfrom' => $timetrackingfrom1->getTimestamp(), 'timetrackingto' => $timetrackingto1->getTimestamp()]);
+        $this->assertEquals(1, $forum5->get_completion_discussions());
+        $this->assertFalse($forum5->get_completion_state($USER->id, COMPLETION_OR));
+        $forum6 = $this->get_new_forumng($course->id, ['completion' => COMPLETION_TRACKING_AUTOMATIC,
+                'completiondiscussionsenabled' => 1, 'completiondiscussions' => 1,
+                'timetrackingfrom' => $timetrackingfrom3->getTimestamp(), 'timetrackingto' => $timetrackingto3->getTimestamp()]);
+        $this->assertEquals(1, $forum6->get_completion_discussions());
+        $this->assertFalse($forum6->get_completion_state($USER->id, COMPLETION_OR));
+        // User1 does not meet the conditions.
+        list ($discuss, $postid) = $generator->create_discussion(['course' => $course->id,
+                'forum' => $forum5->get_id(), 'userid' => $user1->id]);
+        $this->assertFalse($forum5->get_completion_state($user1->id, COMPLETION_OR));
+        // User2 meets the conditions.
+        list ($discuss, $postid) = $generator->create_discussion(['course' => $course->id,
+                'forum' => $forum6->get_id(), 'userid' => $user2->id]);
+        $this->assertTrue($forum6->get_completion_state($user2->id, COMPLETION_OR));
+    }
+
+    /**
+     * Tests completion of replies with tracking time.
+     */
+    public function test_completion_tracking_time_replies() {
+        global $USER, $DB, $CFG;
+
+        $this->resetAfterTest(true);
+        $this->setAdminUser();
+        $generator = $this->getDataGenerator()->get_plugin_generator('mod_forumng');
+        $CFG->enablecompletion = true;
+        $course = $this->get_new_course();
+        $course->enablecompletion = true;
+        $DB->update_record('course', $course);
+        $user1 = $this->get_new_user('student', $course->id);
+        $user2 = $this->get_new_user('student', $course->id);
+        $now = time();
+        $timetrackingfrom1 = (new \DateTime())->setTimestamp($now)->modify('-2 day');
+        $timetrackingto1 = (new \DateTime())->setTimestamp($now)->modify('-1 day');
+
+        $timetrackingfrom2 = (new \DateTime())->setTimestamp($now)->modify('+1 day');
+        $timetrackingto2 = (new \DateTime())->setTimestamp($now)->modify('+2 day');
+
+        $timetrackingfrom3 = (new \DateTime())->setTimestamp($now)->modify('-1 day');
+        $timetrackingto3 = (new \DateTime())->setTimestamp($now)->modify('+1 day');
+
+        // Test replies with time tracking from.
+        $forum1 = $this->get_new_forumng($course->id, ['completion' => COMPLETION_TRACKING_AUTOMATIC,
+                'completionrepliesenabled' => 1, 'completionreplies' => 1,
+                'timetrackingfrom' => $timetrackingfrom1->getTimestamp()]);
+        $this->assertEquals(1, $forum1->get_completion_replies());
+        $this->assertFalse($forum1->get_completion_state($USER->id, COMPLETION_OR));
+        $forum2 = $this->get_new_forumng($course->id, ['completion' => COMPLETION_TRACKING_AUTOMATIC,
+                'completionrepliesenabled' => 1, 'completionreplies' => 1,
+                'timetrackingfrom' => $timetrackingfrom2->getTimestamp()]);
+        $this->assertEquals(1, $forum2->get_completion_replies());
+        $this->assertFalse($forum2->get_completion_state($USER->id, COMPLETION_OR));
+        list ($discuss1, $postid1) = $generator->create_discussion(['course' => $course->id,
+                'forum' => $forum1->get_id(), 'userid' => $user1->id]);
+        list ($discuss2, $postid2) = $generator->create_discussion(['course' => $course->id,
+                'forum' => $forum2->get_id(), 'userid' => $user2->id]);
+        // User1 meets the conditions.
+        $generator->create_post(['discussionid' => $discuss1, 'userid' => $user1->id,
+                'parentpostid' => $postid1]);
+        $this->assertTrue($forum1->get_completion_state($user1->id, COMPLETION_OR));
+
+        // User2 does not meet the conditions.
+        $generator->create_post(['discussionid' => $discuss2, 'userid' => $user2->id,
+                'parentpostid' => $postid2]);
+        $this->assertFalse($forum1->get_completion_state($user2->id, COMPLETION_OR));
+
+        // Test discussions with time tracking to.
+        $forum3 = $this->get_new_forumng($course->id, ['completion' => COMPLETION_TRACKING_AUTOMATIC,
+                'completionrepliesenabled' => 1, 'completionreplies' => 1, 'timetrackingto' => $timetrackingto1->getTimestamp()]);
+        $this->assertEquals(1, $forum3->get_completion_replies());
+        $this->assertFalse($forum3->get_completion_state($USER->id, COMPLETION_OR));
+
+        $forum4 = $this->get_new_forumng($course->id, ['completion' => COMPLETION_TRACKING_AUTOMATIC,
+                'completionrepliesenabled' => 1, 'completionreplies' => 1, 'timetrackingto' => $timetrackingto2->getTimestamp()]);
+        $this->assertEquals(1, $forum4->get_completion_replies());
+        $this->assertFalse($forum4->get_completion_state($USER->id, COMPLETION_OR));
+
+        list ($discuss3, $postid3) = $generator->create_discussion(['course' => $course->id,
+                'forum' => $forum3->get_id(), 'userid' => $user1->id]);
+        list ($discuss4, $postid4) = $generator->create_discussion(['course' => $course->id,
+                'forum' => $forum4->get_id(), 'userid' => $user2->id]);
+
+        // User1 does not meet the conditions.
+        $generator->create_post(['discussionid' => $discuss3, 'userid' => $user1->id,
+                'parentpostid' => $postid3]);
+        $this->assertFalse($forum3->get_completion_state($user1->id, COMPLETION_OR));
+        // User2 meets the conditions.
+        $generator->create_post(['discussionid' => $discuss4, 'userid' => $user2->id,
+                'parentpostid' => $postid4]);
+        $this->assertTrue($forum4->get_completion_state($user2->id, COMPLETION_OR));
+
+        // Test discussions with time tracking from min and time tracking to.
+        $forum5 = $this->get_new_forumng($course->id, ['completion' => COMPLETION_TRACKING_AUTOMATIC,
+                'completionrepliesenabled' => 1, 'completionreplies' => 1, 'timetrackingfrom' => $timetrackingfrom1->getTimestamp(),
+                'timetrackingto' => $timetrackingto1->getTimestamp()]);
+        $this->assertEquals(1, $forum5->get_completion_replies());
+        $this->assertFalse($forum5->get_completion_state($USER->id, COMPLETION_OR));
+        $forum6 = $this->get_new_forumng($course->id, ['completion' => COMPLETION_TRACKING_AUTOMATIC,
+                'completionrepliesenabled' => 1, 'completionreplies' => 1, 'timetrackingfrom' => $timetrackingfrom3->getTimestamp(),
+                'timetrackingto' => $timetrackingto3->getTimestamp()]);
+        $this->assertEquals(1, $forum6->get_completion_replies());
+        $this->assertFalse($forum6->get_completion_state($USER->id, COMPLETION_OR));
+
+        list ($discuss5, $postid5) = $generator->create_discussion(['course' => $course->id,
+                'forum' => $forum5->get_id(), 'userid' => $user1->id]);
+        list ($discuss6, $postid6) = $generator->create_discussion(['course' => $course->id,
+                'forum' => $forum6->get_id(), 'userid' => $user2->id]);
+
+        // User1 does not meet the conditions.
+        $generator->create_post(['discussionid' => $discuss5, 'userid' => $user1->id,
+                'parentpostid' => $postid5]);
+        $this->assertFalse($forum5->get_completion_state($user1->id, COMPLETION_OR));
+        // User2 meets the conditions.
+        $generator->create_post(['discussionid' => $discuss6, 'userid' => $user2->id,
+                'parentpostid' => $postid6]);
+        $this->assertTrue($forum6->get_completion_state($user2->id, COMPLETION_OR));
+    }
+
+    /**
+     * Tests completion of posts with tracking time.
+     */
+    public function test_completion_tracking_time_posts() {
+        global $USER, $DB, $CFG;
+        $this->resetAfterTest(true);
+        $this->setAdminUser();
+        $generator = $this->getDataGenerator()->get_plugin_generator('mod_forumng');
+        $CFG->enablecompletion = true;
+        $course = $this->get_new_course();
+        $course->enablecompletion = true;
+        $DB->update_record('course', $course);
+        $user1 = $this->get_new_user('student', $course->id);
+        $user2 = $this->get_new_user('student', $course->id);
+        $now = time();
+        $timetrackingfrom1 = (new \DateTime())->setTimestamp($now)->modify('-2 day');
+        $timetrackingto1 = (new \DateTime())->setTimestamp($now)->modify('-1 day');
+
+        $timetrackingfrom2 = (new \DateTime())->setTimestamp($now)->modify('+1 day');
+        $timetrackingto2 = (new \DateTime())->setTimestamp($now)->modify('+2 day');
+
+        $timetrackingfrom3 = (new \DateTime())->setTimestamp($now)->modify('-1 day');
+        $timetrackingto3 = (new \DateTime())->setTimestamp($now)->modify('+1 day');
+
+        // Test replies with time tracking from.
+        $forum1 = $this->get_new_forumng($course->id, ['completion' => COMPLETION_TRACKING_AUTOMATIC,
+                'completionpostsenabled' => 1, 'completionposts' => 1, 'timetrackingfrom' => $timetrackingfrom1->getTimestamp()]);
+        $this->assertEquals(1, $forum1->get_completion_posts());
+        $this->assertFalse($forum1->get_completion_state($USER->id, COMPLETION_OR));
+        $forum2 = $this->get_new_forumng($course->id, ['completion' => COMPLETION_TRACKING_AUTOMATIC,
+                'completionpostsenabled' => 1, 'completionposts' => 1, 'timetrackingfrom' => $timetrackingfrom2->getTimestamp()]);
+        $this->assertEquals(1, $forum2->get_completion_posts());
+        $this->assertFalse($forum2->get_completion_state($USER->id, COMPLETION_OR));
+
+        // User1 meets the conditions.
+        list ($discuss, $postid) = $generator->create_discussion(['course' => $course->id,
+                'forum' => $forum1->get_id(), 'userid' => $user1->id]);
+        $this->assertTrue($forum1->get_completion_state($user1->id, COMPLETION_OR));
+        // User2 does not meet the conditions.
+        list ($discuss, $postid) = $generator->create_discussion(['course' => $course->id,
+                'forum' => $forum2->get_id(), 'userid' => $user2->id]);
+        $this->assertFalse($forum1->get_completion_state($user2->id, COMPLETION_OR));
+
+        // Test discussions with time tracking to.
+        $forum3 = $this->get_new_forumng($course->id, ['completion' => COMPLETION_TRACKING_AUTOMATIC,
+                'completionpostsenabled' => 1, 'completionposts' => 1,
+                'timetrackingto' => $timetrackingto1->getTimestamp()]);
+        $this->assertEquals(1, $forum3->get_completion_posts());
+        $this->assertFalse($forum3->get_completion_state($USER->id, COMPLETION_OR));
+
+        $forum4 = $this->get_new_forumng($course->id, ['completion' => COMPLETION_TRACKING_AUTOMATIC,
+                'completionpostsenabled' => 1, 'completionposts' => 1,
+                'timetrackingto' => $timetrackingto2->getTimestamp()]);
+        $this->assertEquals(1, $forum4->get_completion_posts());
+        $this->assertFalse($forum4->get_completion_state($USER->id, COMPLETION_OR));
+
+        list ($discuss, $postid) = $generator->create_discussion(['course' => $course->id,
+                'forum' => $forum3->get_id(), 'userid' => $user1->id]);
+        $this->assertFalse($forum3->get_completion_state($user1->id, COMPLETION_OR));
+
+        list ($discuss, $postid) = $generator->create_discussion(['course' => $course->id,
+                'forum' => $forum4->get_id(), 'userid' => $user2->id]);
+        $this->assertTrue($forum4->get_completion_state($user2->id, COMPLETION_OR));
+
+        // Test discussions with time tracking from min and time tracking to.
+        $forum5 = $this->get_new_forumng($course->id, ['completion' => COMPLETION_TRACKING_AUTOMATIC,
+                'completionpostsenabled' => 1, 'completionposts' => 1,
+                'timetrackingfrom' => $timetrackingfrom1->getTimestamp(),
+                'timetrackingto' => $timetrackingto1->getTimestamp()]);
+        $this->assertEquals(1, $forum5->get_completion_posts());
+        $this->assertFalse($forum5->get_completion_state($USER->id, COMPLETION_OR));
+        $forum6 = $this->get_new_forumng($course->id, ['completion' => COMPLETION_TRACKING_AUTOMATIC,
+                'completionpostsenabled' => 1, 'completionposts' => 1,
+                'timetrackingfrom' => $timetrackingfrom3->getTimestamp(),
+                'timetrackingto' => $timetrackingto3->getTimestamp()]);
+        $this->assertEquals(1, $forum6->get_completion_posts());
+        $this->assertFalse($forum6->get_completion_state($USER->id, COMPLETION_OR));
+
+        // User1 does not meet the conditions.
+        list ($discuss, $postid) = $generator->create_discussion(['course' => $course->id,
+                'forum' => $forum5->get_id(), 'userid' => $user1->id]);
+        $this->assertFalse($forum5->get_completion_state($user1->id, COMPLETION_OR));
+        // User2 meets the conditions.
+        list ($discuss, $postid) = $generator->create_discussion(['course' => $course->id,
+                'forum' => $forum6->get_id(), 'userid' => $user2->id]);
+        $this->assertTrue($forum6->get_completion_state($user2->id, COMPLETION_OR));
+    }
+
+    /**
+     * Tests completion of posts, discussions, replies with tracking time.
+     */
+    public function test_completion_tracking_time_all_require() {
+        global $USER, $DB, $CFG;
+
+        $this->resetAfterTest(true);
+        $this->setAdminUser();
+        $generator = $this->getDataGenerator()->get_plugin_generator('mod_forumng');
+        $CFG->enablecompletion = true;
+        $course = $this->get_new_course();
+        $course->enablecompletion = true;
+        $DB->update_record('course', $course);
+        $user1 = $this->get_new_user('student', $course->id);
+        $user2 = $this->get_new_user('student', $course->id);
+        $now = time();
+        $timetrackingfrom1 = (new \DateTime())->setTimestamp($now)->modify('-1 day');
+        $timetrackingto1 = (new \DateTime())->setTimestamp($now)->modify('+1 day');
+        $timetrackingfrom2 = (new \DateTime())->setTimestamp($now)->modify('+1 day');
+        $timetrackingto2 = (new \DateTime())->setTimestamp($now)->modify('+2 day');
+
+        // Test all require with wordcount min/max.
+        $forum1 = $this->get_new_forumng($course->id, ['completion' => COMPLETION_TRACKING_AUTOMATIC,
+                'completionpostsenabled' => 1, 'completionposts' => 1,
+                'completiondiscussionsenabled' => 1, 'completiondiscussions' => 1,
+                'completionrepliesenabled' => 1, 'completionreplies' => 2,
+                'timetrackingfrom' => $timetrackingfrom1->getTimestamp(), 'timetrackingto' => $timetrackingto1->getTimestamp()]);
+        $this->assertEquals(1, $forum1->get_completion_posts());
+        $this->assertEquals(1, $forum1->get_completion_discussions());
+        $this->assertEquals(2, $forum1->get_completion_replies());
+        $this->assertFalse($forum1->get_completion_state($USER->id, COMPLETION_OR));
+        list ($discuss1, $postid1) = $generator->create_discussion(['course' => $course->id,
+                'forum' => $forum1->get_id(), 'userid' => $user1->id]);
+
+        $forum2 = $this->get_new_forumng($course->id, ['completion' => COMPLETION_TRACKING_AUTOMATIC,
+                'completionpostsenabled' => 1, 'completionposts' => 1,
+                'completiondiscussionsenabled' => 1, 'completiondiscussions' => 1,
+                'completionrepliesenabled' => 1, 'completionreplies' => 2,
+                'timetrackingfrom' => $timetrackingfrom2->getTimestamp(), 'timetrackingto' => $timetrackingto2->getTimestamp()]);
+        $this->assertEquals(1, $forum1->get_completion_posts());
+        $this->assertEquals(1, $forum1->get_completion_discussions());
+        $this->assertEquals(2, $forum1->get_completion_replies());
+        $this->assertFalse($forum2->get_completion_state($USER->id, COMPLETION_OR));
+        list ($discuss2, $postid2) = $generator->create_discussion(['course' => $course->id,
+                'forum' => $forum2->get_id(), 'userid' => $user2->id]);
+
+        // User1 meets the conditions [disscussion:pass, replies:pass].
+        $generator->create_post(['discussionid' => $discuss1, 'userid' => $user1->id,
+                'parentpostid' => $postid1]);
+        $generator->create_post(['discussionid' => $discuss1, 'userid' => $user1->id,
+                'parentpostid' => $postid1]);
+        $this->assertTrue($forum1->get_completion_state($user1->id, COMPLETION_AND));
+
+        // User2 does not meet the conditions [discussion:pass, replies:fail].
+        $generator->create_post(['discussionid' => $discuss2, 'userid' => $user2->id,
+                'parentpostid' => $postid2]);
+        // Fails because this step reply does not meet the conditions.
+        $generator->create_post(['discussionid' => $discuss2, 'userid' => $user2->id,
+                'parentpostid' => $postid2]);
+        $this->assertFalse($forum1->get_completion_state($user2->id, COMPLETION_AND));
+    }
+
     public function test_subscribers_with_oucu() {
         global $DB, $CFG;
         $this->resetAfterTest(true);

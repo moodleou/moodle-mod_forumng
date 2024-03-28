@@ -261,9 +261,19 @@ $string['completionrepliesgroup'] = 'Require replies';
 $string['completionrepliesgroup_help'] = 'If ticked, the forum will be marked complete for a
 student once they have made the required number of replies to existing discussions (and met any
 other conditions).';
+$string['completionenddateerror'] = 'The end datetime selection cannot be earlier than or equal to the start datetime';
+$string['completiontrackingenabled'] = 'Enable';
+$string['completiontrackingfrom'] = 'From';
+$string['completiontrackingto'] = 'To';
+$string['completiontracking'] = 'Completion tracking windows';
+$string['completiontracking_help'] = 'If enabled, this option will allow the user to define a set of dates,
+or "windows" in which activity completion will be tracked. <br />
+Any activity outside of these windows will not count towards the completion of the activity.';
 $string['completiondetail:discussions'] = 'Make discussions: {$a}';
 $string['completiondetail:posts'] = 'Make posts: {$a}';
 $string['completiondetail:replies'] = 'Make replies: {$a}';
+$string['completiondetail:trackingfrom'] = 'Tracking from: {$a}';
+$string['completiondetail:trackingto'] = 'Tracking to: {$a}';
 $string['completiondetail:wordcountmin'] = 'Make discussion or reply with minimum word count: {$a}';
 $string['completiondetail:wordcountmax'] = 'Make discussion or reply with maximum word count: {$a}';
 $string['completionwordcountmax'] = 'Max word count per discussion or reply:';

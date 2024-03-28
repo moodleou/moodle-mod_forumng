@@ -1200,3 +1200,14 @@ padding-top: 1em;
         height: 37px;
     }
 }
+
+#fgroup_id_completiontracking div[data-groupname="timetrackingfrom"] > label,
+#fgroup_id_completiontracking div[data-groupname="timetrackingto"] > label {
+    display: contents;
+    font-weight: 600;
+}
+
+#fgroup_id_completiontracking div[data-groupname="timetrackingfrom"] span,
+#fgroup_id_completiontracking div[data-groupname="timetrackingto"] span {
+    margin-left: 5px;
+}
