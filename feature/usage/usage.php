@@ -29,7 +29,7 @@ require_once($CFG->dirroot. '/mod/forumng/feature/usage/locallib.php');
 $cmid = required_param('id', PARAM_INT);
 $cloneid = optional_param('clone', 0, PARAM_INT);
 $ratings = optional_param('ratings', 0, PARAM_INT);
-$pageparams = array('id' => $cmid);
+$pageparams = ['id' => $cmid];
 if ($cloneid) {
     $pageparams['clone'] = $cloneid;
 }
@@ -45,10 +45,10 @@ require_capability('forumngfeature/usage:view', $forum->get_context());
 if ($groupid != mod_forumng::NO_GROUPS && $groupid != mod_forumng::ALL_GROUPS) {
     $pageparams['group'] = $groupid;
     $groupwhere = 'AND (fd.groupid = ? OR fd.groupid IS NULL)';
-    $groupparams = array($groupid);
+    $groupparams = [$groupid];
 } else {
     $groupwhere = '';
-    $groupparams = array();
+    $groupparams = [];
 }
 
 $ajaxparams = $pageparams;
@@ -82,13 +82,13 @@ $discusskeys = array_keys($mostdiscussions);
 echo html_writer::start_div('forumng_usage_contrib');
 // Start posts/replies.
 echo html_writer::start_div('forumng_usage_contrib_cont');
-$toplist = array();
+$toplist = [];
 $totaltoshow = $contribcount > count($posts) ? count($posts) : $contribcount;
 $userfields = implode(',', \core_user\fields::get_picture_fields());
 for ($a = 0; $a < $totaltoshow; $a++) {
     // Create list of most posts.
     if ($mostposts[$postkeys[$a]]->replies > 0) {
-        if ($user = $DB->get_record('user', array('id' => $postkeys[$a]), $userfields)) {
+        if ($user = $DB->get_record('user', ['id' => $postkeys[$a]], $userfields)) {
             $counts = $renderer->render_usage_table_total($mostposts[$postkeys[$a]]->replies);
             $userinfo = $renderer->render_usage_table_user($forum, $user,
                     html_writer::div($forum->display_user_link($user), 'fng_userlink'));
@@ -101,12 +101,12 @@ echo $renderer->render_usage_table($toplist, $mostpostsheadings, 'mostposts_capt
 echo html_writer::end_div();
 // End posts.
 echo html_writer::start_div('forumng_usage_contrib_cont');
-$toplist = array();
+$toplist = [];
 $totaltoshow = $contribcount > count($posts) ? count($posts) : $contribcount;
 for ($a = 0; $a < $totaltoshow; $a++) {
     if ($mostdiscussions[$discusskeys[$a]]->discussions > 0) {
         // Add to list of most new discussions.
-        if ($user = $DB->get_record('user', array('id' => $discusskeys[$a]), $userfields)) {
+        if ($user = $DB->get_record('user', ['id' => $discusskeys[$a]], $userfields)) {
             $counts = $renderer->render_usage_table_total($mostdiscussions[$discusskeys[$a]]->discussions);
             $userinfo = $renderer->render_usage_table_user($forum, $user,
                     html_writer::div($forum->display_user_link($user), 'fng_userlink'));
@@ -125,7 +125,7 @@ flush();// In case any lengthy stats flush, so something is showing.
 $usageoutput = '';
 if (has_capability('forumngfeature/usage:viewusage', $forum->get_context())) {
     // Show post history.
-    $dateform = new forumngfeature_usage_usagechartdate(null, array('params' => $pageparams));
+    $dateform = new forumngfeature_usage_usagechartdate(null, ['params' => $pageparams]);
     $starttime = 0;
     $endtime = time();
     if ($formdata = $dateform->get_data()) {
@@ -152,8 +152,8 @@ if (has_capability('forumngfeature/usage:viewusage', $forum->get_context())) {
            AND fp.oldversion = 0
            AND (fp.created >= ? AND fp.created <= ?)
         $groupwhere
-      ORDER BY fp.created asc", array_merge(array($forum->get_id(), $starttime, $endtime), $groupparams));
-    $days = array();
+      ORDER BY fp.created asc", array_merge([$forum->get_id(), $starttime, $endtime], $groupparams));
+    $days = [];
     if ($starttime == 0) {
         $starttime = $COURSE->startdate;// Earliest start time.
     }
@@ -178,55 +178,55 @@ if (has_capability('forumngfeature/usage:viewusage', $forum->get_context())) {
     }
     $allposts->close();
     // Setup YUI chart data. Gets passed to js.
-    $data = array();
+    $data = [];
     $postcount = 0;
     $datelabel = get_string('usagechartday', 'forumngfeature_usage');
     $postslabel = get_string('usagechartposts', 'forumngfeature_usage');
     $totallabel = get_string('usagecharttotal', 'forumngfeature_usage');
     foreach ($days as $day => $count) {
         $postcount += $count;
-        $data[] = (object) array(
+        $data[] = (object) [
                 $datelabel => $day,
                 $postslabel => $count,
                 $totallabel => $postcount,
-                );
+                ];
     }
-    $axes = (object) array(
-            $datelabel => (object) array(
+    $axes = (object) [
+            $datelabel => (object) [
                     'type' => 'time',
-                    'keys' => array($datelabel),
+                    'keys' => [$datelabel],
                     'labelFormat' => get_string('strftimedate', 'langconfig'),
                     'position' => 'bottom',
-                    ),
-            $postslabel => (object) array(
+                    ],
+            $postslabel => (object) [
                     'position' => 'left',
-                    'keys' => array($postslabel),
+                    'keys' => [$postslabel],
                     'type' => 'numeric',
                     'title' => get_string('usagechartpostslabel', 'forumngfeature_usage'),
                     'minimum' => 0,
-                    ),
-            $totallabel => (object) array(
+                    ],
+            $totallabel => (object) [
                     'position' => 'right',
-                    'keys' => array($totallabel),
+                    'keys' => [$totallabel],
                     'type' => 'numeric',
                     'title' => get_string('usagecharttotallabel', 'forumngfeature_usage'),
                     'minimum' => 0,
-                    )
+                    ],
 
-            );
-    $options = (object) array(
+            ];
+    $options = (object) [
             'render' => '#usagechart',
             'categoryKey' => $datelabel,
             'categoryType' => 'time',
-            'styles' => (object) array('axes' => (object) array($datelabel => (object) array('label' => (object) array('rotation' => -90)))),
+            'styles' => (object) ['axes' => (object) [$datelabel => (object) ['label' => (object) ['rotation' => -90]]]],
             'type' => 'combo',
-            'seriesCollection' => array(
-                    (object) array(
+            'seriesCollection' => [
+                    (object) [
                             'type' => 'column',
                             'yKey' => $postslabel,
-                            )
-                    )
-            );
+                            ],
+                    ],
+            ];
     // There are 11 day labels shown by default on chart - if less available update axis.
     $interval = $startdate->diff($enddate);
     $totaldays = $interval->days + 1;// Add 1 to day diff as we always show start and end days.
@@ -238,7 +238,7 @@ if (has_capability('forumngfeature/usage:viewusage', $forum->get_context())) {
     if (count($data) > 1) {
         // Chart only works if more than 1 record.
         $PAGE->requires->yui_module('moodle-forumngfeature_usage-usagegraph',
-                'M.mod_forumng.forumngfeature_usage_chart.output', array($data, $axes, $options));
+                'M.mod_forumng.forumngfeature_usage_chart.output', [$data, $axes, $options]);
     }
 
     $usageoutput .= html_writer::start_div('forumng_usage_usagechart');
@@ -248,13 +248,13 @@ if (has_capability('forumngfeature/usage:viewusage', $forum->get_context())) {
     $usageoutput .= $dateform->render();
     // Accessible table of chart.
     $charttable = new html_table();
-    $charttable->head = array($datelabel, $postslabel, $totallabel);
+    $charttable->head = [$datelabel, $postslabel, $totallabel];
     $charttable->data = $data;
     $charttable->summary = get_string('usagechartpoststable', 'forumngfeature_usage');
     if (count($data) > 1) {
         // Show table hidden for screenreaders (also keyboard focus toggled by css).
         $usageoutput .= get_accesshide(html_writer::table($charttable), 'div', 'skip', 'tabindex = 0');
-        $usageoutput .= html_writer::div('', 'forumng_usage_chart', array('id' => 'usagechart'));
+        $usageoutput .= html_writer::div('', 'forumng_usage_chart', ['id' => 'usagechart']);
     } else {
         // Show table instead of chart.
         $usageoutput .= html_writer::table($charttable);
@@ -283,13 +283,13 @@ if ($forum->can_view_subscribers()) {
     $usageoutput .= $OUTPUT->heading(get_string('usagesubscribers', 'forumngfeature_usage') . $help, 4);
     $subtable = new html_table();
     $subtable->summary = get_string('usagesubscribers', 'forumngfeature_usage');
-    $subtable->head = array(get_string('usagesubscribertabletype', 'forumngfeature_usage'),
-            get_string('usagesubscribertabletotal', 'forumngfeature_usage'));
-    $subtable->data = array(
-            array(get_string('usagesubscribertable_all', 'forumngfeature_usage'), count($subs)),
-            array(get_string('usagesubscribertable_whole', 'forumngfeature_usage'), $wholecount),
-            array(get_string('usagesubscribertable_group', 'forumngfeature_usage'), $groupcount),
-            array(get_string('usagesubscribertable_discuss', 'forumngfeature_usage'), $discussioncount));
+    $subtable->head = [get_string('usagesubscribertabletype', 'forumngfeature_usage'),
+            get_string('usagesubscribertabletotal', 'forumngfeature_usage')];
+    $subtable->data = [
+            [get_string('usagesubscribertable_all', 'forumngfeature_usage'), count($subs)],
+            [get_string('usagesubscribertable_whole', 'forumngfeature_usage'), $wholecount],
+            [get_string('usagesubscribertable_group', 'forumngfeature_usage'), $groupcount],
+            [get_string('usagesubscribertable_discuss', 'forumngfeature_usage'), $discussioncount]];
     $usageoutput .= html_writer::table($subtable);
     $usageoutput .= html_writer::end_div();
 }
@@ -320,8 +320,8 @@ if (has_capability('forumngfeature/usage:viewflagged', $forum->get_context())) {
             $groupwhere
             $anonwhere
           GROUP BY fp.id
-          ORDER BY count desc, fp.id desc", array_merge(array($forum->get_id()), $groupparams, $anonparams), 0, 5);
-    $flaggedlist = array();
+          ORDER BY count desc, fp.id desc", array_merge([$forum->get_id()], $groupparams, $anonparams), 0, 5);
+    $flaggedlist = [];
     foreach ($flagged as $apost) {
         $post = mod_forumng_post::get_from_id($apost->id, $cloneid, true, true);
         list($content, $user) = $renderer->render_usage_post_info($forum, $post->get_discussion(), $post);
@@ -343,8 +343,8 @@ if (has_capability('forumngfeature/usage:viewflagged', $forum->get_context())) {
             $groupwhere
             $anonwhere
             GROUP BY fd.id
-            ORDER BY count desc, fd.id desc", array_merge(array($forum->get_id()), $groupparams, $anonparams), 0, 5);
-    $flaggedlist = array();
+            ORDER BY count desc, fd.id desc", array_merge([$forum->get_id()], $groupparams, $anonparams), 0, 5);
+    $flaggedlist = [];
     foreach ($flagged as $adiscuss) {
         $discuss = mod_forumng_discussion::get_from_id($adiscuss->id, $cloneid, 0, true);
         list($content, $user) = $renderer->render_usage_discussion_info($forum, $discuss);
@@ -413,10 +413,10 @@ if (has_capability('mod/forumng:viewanyrating', $forum->get_context())) {
                 break;
         }
 
-        $ratingslist = array();
-        $conditionsparams = array($forum->get_id());
+        $ratingslist = [];
+        $conditionsparams = [$forum->get_id()];
         $conditions = '  fd.forumngid = ?';
-        $havingparams = array();
+        $havingparams = [];
         if ($ratingtype == mod_forumng::FORUMNG_STANDARD_RATING ) {
             // Moodle ratings.
             $postid = ' r.itemid AS postid ';
@@ -478,11 +478,11 @@ if (!empty($usageoutput)) {
 }
 echo $OUTPUT->footer();
 // Log usage view.
-$params = array(
+$params = [
     'context' => $forum->get_context(),
     'objectid' => $forum->get_id(),
-    'other' => array('url' => $thisurl->out_as_local_url())
-);
+    'other' => ['url' => $thisurl->out_as_local_url()],
+];
 
 $event = \forumngfeature_usage\event\usage_viewed::create($params);
 $event->add_record_snapshot('course_modules', $forum->get_course_module());
