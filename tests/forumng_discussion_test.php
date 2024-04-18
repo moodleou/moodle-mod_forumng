@@ -468,14 +468,6 @@ class mod_forumng_discussion_testcase  extends forumng_test_lib {
 
         $complete = $completion->get_data($forum->get_course_module());
         $this->assertEquals(COMPLETION_INCOMPLETE, $complete->completionstate);
-        if (mod_forumng::search_installed()) {
-            $searchdoc = $root2->search_get_document();
-            $this->assertFalse($searchdoc->find());
-            $query = new local_ousearch_search('Message for discussion');
-            $query->set_coursemodule($forum->get_course_module(true));
-            $results = $query->query();
-            $this->assertEmpty($results->results);
-        }
     }
 
     /**
@@ -529,15 +521,6 @@ class mod_forumng_discussion_testcase  extends forumng_test_lib {
         $this->assertFalse($list->is_empty());
         $discussion = $list->get_normal_discussions();
         $this->assertEquals(2 , reset($discussion)->get_num_posts());
-
-        if (mod_forumng::search_installed()) {
-            $searchdoc = reset($discussion)->get_root_post()->search_get_document();
-            $this->assertTrue($searchdoc->find());
-            $query = new local_ousearch_search('reply');
-            $query->set_coursemodule($other->get_course_module(true));
-            $results = $query->query();
-            $this->assertNotEmpty($results->results);
-        }
     }
 
     /**

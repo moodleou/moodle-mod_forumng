@@ -143,10 +143,6 @@ function forumng_delete_instance($id) {
     $cm = get_coursemodule_from_instance('forumng', $id);
     $forum = mod_forumng::get_from_id($id, mod_forumng::CLONE_DIRECT, true, $cm);
     $forum->delete_all_data();
-    if (mod_forumng::search_installed()) {
-        $cm = $forum->get_course_module();
-        local_ousearch_document::delete_module_instance_data($cm);
-    }
 
     if ($forum->is_shared()) {
         // Find all the clone instances.
@@ -167,59 +163,6 @@ function forumng_delete_instance($id) {
     return $DB->delete_records('forumng', array('id' => $id));
 }
 
-
-/**
- * Obtains a search document given the ousearch parameters.
- * @param object $document Object containing fields from the ousearch documents table
- * @return mixed False if object can't be found, otherwise object containing the following
- *   fields: ->content, ->title, ->url, ->activityname, ->activityurl,
- *   and optionally ->extrastrings array and ->data
- */
-function forumng_ousearch_get_document($document) {
-    require_once(dirname(__FILE__).'/mod_forumng.php');
-    return mod_forumng_post::search_get_page($document);
-}
-
-/**
- * Update all documents for ousearch.
- * @param bool $feedback If true, prints feedback as HTML list items
- * @param int $courseid If specified, restricts to particular courseid
- */
-function forumng_ousearch_update_all($feedback=false, $courseid=0) {
-    if (get_config('local_ousearch', 'ousearchindexingdisabled')) {
-        // Do nothing if the OU Search system is turned off.
-        return;
-    }
-    require_once(dirname(__FILE__).'/mod_forumng.php');
-    mod_forumng::search_update_all($feedback, $courseid);
-}
-
-/**
- * Return the correct cm for clone forum.
- * @param object $cm course module
- * @param object $course course object
- */
-function forumng_ousearch_add_visible_module($cm, $course) {
-    global $CFG, $FORUMNG_CLONE_MAP;
-    if (empty($FORUMNG_CLONE_MAP)) {
-        $FORUMNG_CLONE_MAP = array();
-        require_once($CFG->dirroot . '/mod/forumng/mod_forumng.php');
-        $forums = mod_forumng::get_course_forums($course, 0,
-                mod_forumng::UNREAD_NONE, array(), true);
-
-        foreach ($forums as $id => $forum) {
-            if ($forum->is_shared()) {
-                $originalcmid = $forum->get_course_module_id(true);
-                $FORUMNG_CLONE_MAP[$originalcmid] = $forum->get_course_module();
-            }
-        }
-    }
-    if (array_key_exists($cm->id, $FORUMNG_CLONE_MAP)) {
-        return $FORUMNG_CLONE_MAP[$cm->id];
-    } else {
-        return $cm;
-    }
-}
 
 /**
  * Returns all other caps used in module

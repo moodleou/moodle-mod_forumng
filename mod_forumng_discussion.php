@@ -56,8 +56,6 @@ class mod_forumng_discussion {
 
     private $postscache, $groupscache, $incache;
 
-    private $ismakingsearchchange;
-
     private $totalsize = 0;
 
     /** @return mod_forumng The forum that this discussion comes from */
@@ -622,7 +620,6 @@ class mod_forumng_discussion {
         $this->timeretrieved = time();
         $this->postscache = null;
         $this->groupscache = null;
-        $this->ismakingsearchchange = false;
     }
 
     /**
@@ -1036,11 +1033,6 @@ WHERE
             $DB->update_record('forumng_discussions', $discussionchange);
         }
 
-        // Update search index (replies only)
-        if ($parentpost) {
-            $post->search_update();
-        }
-
         // Update completion state
         $post->update_completion(true);
 
@@ -1049,17 +1041,6 @@ WHERE
         $transaction->allow_commit();
 
         return $post->get_id();
-    }
-
-    /**
-     * Used when updating search data for posts. When this function returns
-     * true, updating search data will cause it to be deleted. After making
-     * the change which affects search, make this function return false again.
-     * @return bool True if search data is being changed and posts should
-     *   delete their search data
-     */
-    public function is_making_search_change() {
-        return $this->ismakingsearchchange;
     }
 
     /**
@@ -1114,16 +1095,6 @@ WHERE
         $update = new StdClass;
         if ($groupid != $this->discussionfields->groupid) {
             $update->groupid = $groupid;
-
-            // When group changes, need to redo the search data; must remove it
-            // before changing group or it won't be able to find the old
-            // search documents any more (because it looks for them under the
-            // new group id).
-            $this->ismakingsearchchange = true;
-            $root = $this->get_root_post();
-            $root->search_update();
-            $root->search_update_children();
-            $this->ismakingsearchchange = false;
         }
         if ($timestart != $this->discussionfields->timestart) {
             $update->timestart = $timestart;
@@ -1185,14 +1156,6 @@ WHERE
             $this->discussionfields->{$key} = $value;
         }
 
-        // Update group if required
-        if (isset($update->groupid)) {
-            // When group has changed, must add items to the new group
-            $root = $this->get_root_post();
-            $root->search_update();
-            $root->search_update_children();
-        }
-
         // End transaction
         $transaction->allow_commit();
     }
@@ -1224,13 +1187,6 @@ WHERE
         // Update modified time so that Moodle global search knows it needs reindexing with the
         // new location/group.
         $update->modified = time();
-
-        // Delete search data for this discussion before moving.
-        $this->ismakingsearchchange = true;
-        $root = $this->get_root_post();
-        $root->search_update();
-        $root->search_update_children();
-        $this->ismakingsearchchange = false;
 
         $update->id = $this->discussionfields->id;
 
@@ -1286,11 +1242,6 @@ WHERE
                 $newdiscussion->update_completion(true);
             }
         }
-
-        // Update the search data after the move.
-        $newroot = $newdiscussion->get_root_post();
-        $newroot->search_update();
-        $newroot->search_update_children();
 
         // Update the tags after the move.
         if ($targetforum->get_id() != $this->forum->get_id()) {
@@ -1420,9 +1371,6 @@ WHERE
         // Update the search data after the copy
         $newdiscussion = self::get_from_id($newdiscussionid,
                 $targetforum->get_course_module_id(true), -1);
-        $root = $newdiscussion->get_root_post();
-        $root->search_update();
-        $root->search_update_children();
         $transaction->allow_commit();
         // Update any discussion tags.
         $tagslist = $this->get_tags();
@@ -1482,10 +1430,6 @@ WHERE
         $DB->update_record('forumng_discussions', $update);
         $this->discussionfields->deleted = $update->deleted;
 
-        // Update all the posts to remove them from search
-        $this->get_root_post()->search_update();
-        $this->get_root_post()->search_update_children();
-
         // Update completion status in case it needs marking false for anyone
         $this->update_completion(false);
 
@@ -1514,10 +1458,6 @@ WHERE
         $update->modified = time();
         $DB->update_record('forumng_discussions', $update);
         $this->discussionfields->deleted = 0;
-
-        // Update all the posts to add them back to search
-        $this->get_root_post()->search_update();
-        $this->get_root_post()->search_update_children();
 
         // Update completion status in case it needs marking true for anyone
         $this->update_completion(true);
@@ -1714,13 +1654,6 @@ WHERE
         global $DB;
         $transaction = $DB->start_delegated_transaction();
 
-        // Delete search data for the source discussion
-        $this->ismakingsearchchange = true;
-        $root = $this->get_root_post();
-        $root->search_update();
-        $root->search_update_children();
-        $this->ismakingsearchchange = false;
-
         // Update parent post id of root post
         $record = new stdClass;
         $record->id = $this->discussionfields->postid;
@@ -1748,11 +1681,6 @@ WHERE
         // (if there was a requirement for discussions and this is no longer
         // a discussion in its own right).
         $this->update_completion(false);
-
-        // Update the search data for the target discussion after the merge
-        $newroot = $targetdiscussion->get_root_post();
-        $newroot->search_update();
-        $newroot->search_update_children();
 
         if ($log) {
             $this->log('merge discussion', 'd' . $this->get_id() . ' into d' .

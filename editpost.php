@@ -668,11 +668,8 @@ try {
         }
         $PAGE->navbar->add($pagename);
 
-        $buttontext = '';
-
         $PAGE->set_heading($course->fullname);
         $PAGE->set_title(format_string($forum->get_name()) . ': ' . $pagename);
-        $PAGE->set_button($buttontext);
 
         $out = mod_forumng_utils::get_renderer();
         print $out->header();

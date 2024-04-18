@@ -62,10 +62,7 @@ if (!$forum->can_manage_discussions()) {
 // Get update button, if allowed for current user.
 $strforum = get_string("modulename", "forum");
 
-$buttontext = $forum->display_search_form();
-
-// Display header. Because this pagelib class doesn't actually have a
-// $buttontext parameter, there has to be a really evil hack.
+// Display header.
 $out = $forum->init_page($pageurl, get_string('deleteddiscussions', 'forumngfeature_deletedposts'));
 print $out->header();
 $forum->print_js($cm->id);

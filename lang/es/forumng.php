@@ -368,9 +368,7 @@ $string['attachment'] = 'Adjunto';
 $string['choosefile'] = '1. Elige el fichero';
 $string['clicktoadd'] = '2. Añádelo';
 $string['readdata'] = 'Leer datos';
-$string['search_update_count'] = '{$a} foros por procesar.';
 $string['searchthisforum'] = 'Buscar en este foro';
-$string['searchthisforumlink'] = 'Buscar en este foro';
 $string['viewsubscribers'] = 'Ver suscriptores';
 $string['inreplyto'] = 'En respuesta a';
 $string['forumng:view'] = 'Ver foro';
@@ -500,7 +498,6 @@ $string['convert_process_dashboard'] = 'Convirtiendo favoritos del tablón...';
 $string['convert_process_dashboard_done'] = 'hecho (OK {$a->yay}, error {$a->nay}).';
 $string['convert_process_assignments'] = 'Actualizando asignaciones de rol...';
 $string['convert_process_overrides'] = 'Actualizando role overrides...';
-$string['convert_process_search'] = 'Regenerando datos para búsquedas...';
 $string['convert_process_update_subscriptions'] = 'Convirtiendo a suscripciones de grupo...';
 $string['convert_process_complete'] = 'Conversión completada en {$a->seconds}s (ver {$a->link}).';
 $string['convert_newforum'] = 'nuevo foro';
@@ -681,45 +678,11 @@ Si es necesario debes eliminar primero esos otros foros.';
 $string['error_nosharedforum'] = 'Foro <strong>{$a->name}</strong>: No se ha podido restaurar como foro
 compartido; No se ha encontrado el número ID {$a->idnumber}. El foro restaurado es un foro independiente.';
 $string['error_ratingrequired'] = 'Has elegido calificar por valoraciones, pero las valoraciones no están habilitadas';
-$string['advancedsearch'] = 'Búsqueda avanzada';
-$string['words'] = 'Buscar';
-$string['words_help'] =
-'Introduce aquí tu búsqueda.
-
-Para buscar frases exactas utiliza las comillas.
-
-Para excluir una palabra añade un guión precediendo a la palabra a excluir.
-
-Ejemplo: la búsqueda <tt>picasso -escultura &quot;primeros trabajos</tt> devolverá resultados para
-&lsquo;picasso&rsquo; o la frase &lsquo;primeros trabajos&rsquo; pero excluyendo ítems que contengan &lsquo;escultura&rsquo;.
-
-Si dejas esto en blanco, entonces se mostrarán todas las entradas que cumplan los criterios de
-autor y/o fecha, independientemente de su contenido.';
-$string['authorname'] = 'Nombre del autor';
-$string['authorname_help'] = 'Puedes introducir el nombre (Íñigo), un apellido (Montoya), el nombre completo (Íñigo Montoya),
-o el principio de cualquiera de estos (Íñ, Mon, Íñi M). Las búsquedas no distinguen mayúsculas y minúsculas.
-
-También puedes introducir el nombre de usuario (imon001).
-
-Si dejas este campo en blanco se incluirán entradas de cualquier autor.';
-$string['daterangefrom'] = 'Rango de fechas desde';
-$string['daterangefrom_help'] = 'Utiliza estas fechas para restringir la búsqueda e incluir sólo las entradas
-entre ese rango de fechas.
-
-Si no indicas ninguna fecha se incluirán entradas de cualquier fecha en los resultados.';
-$string['daterangeto'] = 'Rango de fechas hasta';
-$string['searchresults'] = 'Resultados de la búsqueda: <strong>{$a}</strong>';
-$string['searchtime'] = 'Hora de la búsqueda: {$a} s';
-$string['nothingfound'] = ' No se han encontrado resultados. Prueba utilizando otra consulta.';
-$string['previousresults'] = 'Volver a los resultados {$a}';
-$string['nextresults'] = 'Ver más resultados';
 $string['author'] = ' autor: \"{$a}\"';
 $string['from'] = ' de: {$a}';
 $string['to'] = ' a: {$a}';
 $string['inappropriatedateortime'] = 'La fecha "desde" no puede ser posterior a hoy.';
 $string['daterangemismatch'] = 'La fecha "hasta" es anterior a la fecha "desde".';
-$string['nosearchcriteria'] = 'No hay criterios de búsqueda. Por favor, utilice uno o más de los criterios de búsqueda
-que se muestran debajo.';
 $string['searchallforums'] = 'Buscar en todos los foros';
 
 $string['replies'] = 'Respuestas';

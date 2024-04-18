@@ -302,9 +302,7 @@ $string['attachment'] = 'Annexe';
 $string['choosefile'] = '1. Choisir le fichier';
 $string['clicktoadd'] = '2. Ajouter';
 $string['readdata'] = 'Lecture des données';
-$string['search_update_count'] = '{$a} forums à traiter.';
 $string['searchthisforum'] = 'Rechercher dans ce forum';
-$string['searchthisforumlink'] = 'Rechercher dans ce forum';
 $string['viewsubscribers'] = 'Voir les abonnés';
 $string['inreplyto'] = 'En réponse à';
 $string['forumng:view'] = 'Voir les forums';
@@ -403,7 +401,6 @@ $string['convert_process_dashboard'] = 'Conversion de vos préférences de table
 $string['convert_process_dashboard_done'] = 'Validé (OK {$a->yay}, Echec {$a->nay}).';
 $string['convert_process_assignments'] = 'Mise à jour de l\'attribution des rôles...';
 $string['convert_process_overrides'] = 'Mise à jour des dérogations des rôles...';
-$string['convert_process_search'] = 'Recalcul des données de recherche...';
 $string['convert_process_update_subscriptions'] = 'Conversion des abonnements de groupe...';
 $string['convert_process_complete'] = 'Conversion effectuée en {$a->seconds}s (voir {$a->link}).';
 $string['convert_newforum'] = 'Nouveau forum';
@@ -541,39 +538,11 @@ $string['error_sharingrequiresidnumber'] = 'Lorsque vous partagez ce forum, vous
 $string['error_sharingidnumbernotfound'] = 'Lorsque vous utilisez un forum partagé, vous devez entrer un numéro d\'identification qui corresponde exactement à un numéro précédemment entré dans un forum partagé.';
 $string['error_sharinginuse'] = 'Vous ne pouvez pas désactiver le partage de ce forum car il y a déjà des forums qui le partagent. Si nécessaire, supprimer d\'abord ces autres forums.';
 $string['error_nosharedforum'] = 'Forum <strong>{$a->name}</strong> : impossible de le restaurer en tant que forum partagé ; numéro d\'identification {$a->idnumber} introuvable. Le forum a été restauré en tant que forum indépendant.';
-$string['advancedsearch'] = 'Recherche avancée';
-$string['words'] = 'Rechercher par mots';
-$string['words_help'] = 'Tapez le terme recherché ici.
-
-Utilisez les guillemets pour rechercher des expressions exactes.
-
-Pour exclure un mot, insérez un trait d\'union immédiatement avant celui-ci.
-
-Par exemple: la recherche <tt> picasso -sculpture "premières œuvres" </ tt> renverra des résultats pour le terme "Picasso" ou l\'expression "premières œuvres" mais exclura les éléments contenant le terme "sculpture".
-
-Si vous laissez cette zone vide, tous les messages qui correspondent à l\'auteur et/ou à des critères de date seront retournés, indépendamment de leur contenu.';
-$string['authorname'] = 'Nom de l\'auteur';
-$string['authorname_help'] = 'Vous pouvez taper un prénom (Michel), un nom de famille (Dupont), le nom complet (Michel Dupont), ou la première partie de l\'un de ces éléments (Mic, dup, Michel D). La recherches est insensible à la casse.
-
-Vous pouvez également taper un nom d\'utilisateur (dépend de votre système d\'authentification et de création de compte).
-
-Si vous laissez ce champ vide, les messages de tous les auteurs seront inclus.';
-$string['daterangefrom'] = 'Date à partir de';
-$string['daterangefrom_help'] = 'Utilisez les dates pour restreindre votre recherche pour inclure uniquement les messages dans la période donnée.
-
-Si vous ne spécifiez pas les dates, les messages de n\'importe quelle date seront inclus dans les résultats.';
-$string['daterangeto'] = 'Date jusqu\'à';
-$string['searchresults'] = 'Résultats de la recherche : <strong>{$a}</strong>';
-$string['searchtime'] = 'Rechercher par date : {$a} s';
-$string['nothingfound'] = 'Aucun résultat ne correspond à votre recherche. Veuillez tenter une autre requête.';
-$string['previousresults'] = 'Retour au résultats {$a}';
-$string['nextresults'] = 'Plus de résultats';
 $string['author'] = ' auteur : "{$a}"';
 $string['from'] = ' de : {$a}';
 $string['to'] = ' jusqu\'à : {$a}';
 $string['inappropriatedateortime'] = 'La <strong>ériode de fin</strong> est ultérieure à la date du jour. Veuillez vérifier et essayer à nouveau.';
 $string['daterangemismatch'] = 'Erreur de période : la <strong>Date à partir de</strong> est postérieure à la <strong>Date jusqu\'à</strong>.';
-$string['nosearchcriteria'] = 'Ce critère de recherche n\'est pas valide : veuillez utiliser un ou plusieurs des critères ci-dessous et réessayez.';
 $string['searchallforums'] = 'Rechercher dans tous les forums';
 $string['replies'] = 'Réponses';
 $string['newdiscussion'] = 'Nouvelle discussion';

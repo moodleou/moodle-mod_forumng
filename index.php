@@ -52,9 +52,6 @@ $coursecontext = context_course::instance($id);
 $canmaybesubscribe = (!isguestuser()
     && has_capability('moodle/course:view', $coursecontext));
 
-// TODO Add search form to button
-$buttontext = '';
-
 // Display header
 $PAGE->set_url(new moodle_url('/mod/forumng/index.php', $pageparams));
 $PAGE->set_context($coursecontext);

@@ -164,8 +164,6 @@ class restore_forumng_activity_task extends restore_activity_task {
                 'unsubscribeall', 'index.php?id={course}', '{course}');
         $rules[] = new restore_log_rule('forumng',
                 'user report', 'user.php?course={course}&id={user}&mode=[mode]', '{user}');
-        $rules[] = new restore_log_rule('forumng',
-                'search', 'search.php?id={course}&search=[searchenc]', '[search]');
         */
         return $rules;
     }

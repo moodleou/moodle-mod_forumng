@@ -439,9 +439,7 @@ $string['attachment'] = 'Attachment';
 $string['choosefile'] = '1. Choose file';
 $string['clicktoadd'] = '2. Add it';
 $string['readdata'] = 'Read data';
-$string['search_update_count'] = '{$a} forums to process.';
 $string['searchthisforum'] = 'Search this forum';
-$string['searchthisforumlink'] = 'Search this forum';
 $string['viewsubscribers'] = 'View subscribers';
 $string['inreplyto'] = 'In reply to';
 $string['forumng:view'] = 'View forum';
@@ -591,7 +589,6 @@ $string['convert_process_dashboard'] = 'Converting dashboard favourites...';
 $string['convert_process_dashboard_done'] = 'done (OK {$a->yay}, failed {$a->nay}).';
 $string['convert_process_assignments'] = 'Updating role assignments...';
 $string['convert_process_overrides'] = 'Updating role overrides...';
-$string['convert_process_search'] = 'Regenerating search data...';
 $string['convert_process_update_subscriptions'] = 'Converting to group subscriptions...';
 $string['convert_process_complete'] = 'Conversion complete in {$a->seconds}s (view {$a->link}).';
 $string['convert_newforum'] = 'new forum';
@@ -803,40 +800,11 @@ $string['error_nosharedforum'] = 'Forum <strong>{$a->name}</strong>: Could not r
 forum; ID number {$a->idnumber} not found. Restored forum is an independent forum.';
 $string['error_ratingrequired'] = 'Grading chosen to be based on ratings, but ratings not enabled';
 
-$string['advancedsearch'] = 'Advanced search';
-$string['words'] = 'Search for';
-$string['words_help'] = 'Type your search term here.
-
-To search for exact phrases use quote marks.
-
-To exclude a word insert a hyphen immediately before the word.
-
-Example: the search term <tt>picasso -sculpture &quot;early works&quot;</tt> will return results for &lsquo;picasso&rsquo; or the phrase &lsquo;early works&rsquo; but will exclude items containing &lsquo;sculpture&rsquo;.
-
-If you leave this box blank, then all posts that match the author and/or date criteria will be returned, regardless of their content.';
-$string['authorname'] = 'Author name';
-$string['authorname_help'] = 'You can type a first name (Jane), a surname (Brown), the whole name (jane brown), or the first part of any of these (Ja, bro, Jane B). Searches are not case sensitive.
-
-You can also type a username (jb001).
-
-If you leave this blank, posts from all authors will be included.';
-$string['daterangefrom'] = 'Date range from';
-$string['daterangefrom_help'] = 'Use the dates to restrict your search to only include posts
-within the given time range.
-
-If you don&rsquo;t specify dates, posts from any date will be included in the results.';
-$string['daterangeto'] = 'Date range to';
-$string['searchresults'] = 'Search results: <strong>{$a}</strong>';
-$string['searchtime'] = 'Search time: {$a} s';
-$string['nothingfound'] = ' Could not find any matching results. Try using different query.';
-$string['previousresults'] = 'Back to results {$a}';
-$string['nextresults'] = 'Find more results';
 $string['author'] = ' author: &lsquo;{$a}&rsquo;';
 $string['from'] = ' from: {$a}';
 $string['to'] = ' to: {$a}';
 $string['inappropriatedateortime'] = 'From date cannot be after present.';
 $string['daterangemismatch'] = 'To date is before From date.';
-$string['nosearchcriteria'] = 'No search criteria. Please use one or more of the criteria below.';
 $string['searchallforums'] = 'Search all forums';
 
 $string['replies'] = 'Replies';
@@ -892,25 +860,6 @@ $string['flaggeddiscussions_help'] = 'Flagged discussions appear in this list. T
 click on it.
 
 To remove the flag from a discussion, click on the flag icon (here or the \'Remove flag\' button in the discussion).';
-
-$string['searchthisforum_help'] = 'Type your search term and press Enter or click the button.
-
-To search for exact phrases use quote marks.
-
-To exclude a word insert a hyphen immediately before the word.
-
-Example: the search term <tt>picasso -sculpture &quot;early works&quot;</tt> will return results for &lsquo;picasso&rsquo; or the phrase &lsquo;early works&rsquo; but will exclude items containing &lsquo;sculpture&rsquo;.
-
-To search by author or date use Advanced search. Access this directly by not entering a search term.';
-$string['searchthisforumlink_help'] = 'Type your search term and press Enter or click the button.
-
-To search for exact phrases use quote marks.
-
-To exclude a word insert a hyphen immediately before the word.
-
-Example: the search term <tt>picasso -sculpture &quot;early works&quot;</tt> will return results for &lsquo;picasso&rsquo; or the phrase &lsquo;early works&rsquo; but will exclude items containing &lsquo;sculpture&rsquo;.
-
-To search by author or date, click &lsquo;More options&rsquo;.';
 
 $string['notext'] = '(no text)';
 

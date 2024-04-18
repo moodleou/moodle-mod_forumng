@@ -74,8 +74,6 @@ $CURRENTFORUM = $forum;
 // Update completion 'viewed' flag if in use
 $completion = new completion_info($course);
 $completion->set_module_viewed($cm);
-// Display header. Because this pagelib class doesn't actually have a
-// $buttontext parameter, there has to be a really evil hack
 $out = $forum->init_page($pageurl);
 print $out->header();
 $forum->print_js($cm->id);

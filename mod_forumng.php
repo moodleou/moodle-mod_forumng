@@ -1580,11 +1580,6 @@ WHERE $conditions AND m.name = 'forumng' AND $restrictionsql",
 
         $newdiscussion->log('add discussion');
 
-        if (self::search_installed()) {
-            mod_forumng_post::get_from_id($postid,
-                    $this->get_course_module_id())->search_update();
-        }
-
         // If tags add to tag_instance records.
         if ($tags != null) {
             core_tag_tag::set_item_tags('mod_forumng', 'forumng_discussions', $discussionobj->id, $this->context, $tags);
@@ -3490,12 +3485,6 @@ ORDER BY
     // Search
     /*///////*/
 
-    /** @return True if the OU search extension is available */
-    public static function search_installed() {
-        return @include_once(dirname(__FILE__) .
-            '/../../local/ousearch/searchlib.php');
-    }
-
     /**
      * Returns the SQL code for an 'exists' to be used in the select list,
      * surrounded in brackets. This function is used because 'EXISTS' works
@@ -3512,120 +3501,8 @@ ORDER BY
         }
     }
 
-    /**
-     * Update all documents for ousearch.
-     *
-     * If specified, the progress object should be ready to receive indeterminate
-     * progress calls.
-     *
-     * @param bool $feedback If true, prints feedback as HTML list items
-     * @param int $courseid If specified, restricts to particular courseid
-     * @param int $cmid If specified, restricts to particular cmid
-     * @param \core\progress\base $progress Set to a progress object or null
-     */
-    public static function search_update_all($feedback=false, $courseid=0, $cmid=0,
-            \core\progress\base $progress = null) {
-        global $DB;
-        if (get_config('local_ousearch', 'ousearchindexingdisabled')) {
-            // Do nothing if the OU Search system is turned off.
-            return;
-        }
-        raise_memory_limit(MEMORY_EXTRA);
-        // If cmid is specified, only retrieve that one
-        if ($cmid) {
-            $cmrestrict = "cm.id = ? AND";
-            $cmrestrictparams = array($cmid);
-        } else {
-            $cmrestrict = '';
-            $cmrestrictparams = array();
-        }
-        // Get module-instances that need updating
-        $cms = $DB->get_records_sql("
-SELECT
-    cm.id, cm.course, cm.instance, f.name
-FROM
-    {forumng} f
-    INNER JOIN {course_modules} cm ON cm.instance = f.id
-WHERE
-    $cmrestrict
-    cm.module = (SELECT id FROM {modules} m WHERE name = 'forumng')".
-                ($courseid ? " AND f.course = ?" : ''), array_merge($cmrestrictparams,
-                $courseid ? array($courseid) : array()));
-
-        // Print count
-        if ($feedback && !$cmid) {
-            print '<li>' . get_string('search_update_count', 'forumng',
-                '<strong>'.count($cms).'</strong>') . '</li>';
-        }
-
-        // This can take a while, so let's be sure to have a long time limit.
-        $timelimitbefore = 300;
-
-        // Loop around updating
-        foreach ($cms as $cm) {
-            $transaction = $DB->start_delegated_transaction();
-
-            // Wipe existing search data, if any
-            local_ousearch_document::delete_module_instance_data($cm);
-
-            // Get all discussions for this forum
-            $discussions = $DB->get_records('forumng_discussions',
-                array('forumngid' => $cm->instance), '', 'id, postid');
-            if ($feedback) {
-                print '<li><strong>' . $cm->name . '</strong> (' . count($discussions) . '):';
-            }
-
-            // Process each discussion
-            foreach ($discussions as $discussionrec) {
-                // Ignore discussion with no postid
-                // (This should not happen, where ther is a $discussionrec->id
-                // it also shopuld have a $discussionrec->postid. This if-statement
-                // fixes bug 10497 and would not have any side-effect.)
-                if (!$discussionrec->postid) {
-                    continue;
-                }
-                core_php_time_limit::raise($timelimitbefore);
-                $discussion = mod_forumng_discussion::get_from_id($discussionrec->id,
-                    self::CLONE_DIRECT, -1);
-                $root = $discussion->get_root_post();
-                $root->search_update();
-                $root->search_update_children();
-                $root = null;
-                if ($feedback) {
-                    echo '. ';
-                    flush();
-                }
-                if ($progress) {
-                    $progress->progress(\core\progress\base::INDETERMINATE);
-                }
-            }
-
-            $transaction->allow_commit();
-
-            if ($feedback) {
-                print '</li>';
-            }
-        }
-    }
-
     // UI
     /*///*/
-
-    /**
-     * Returns HTML for search form, or blank if there is no search facility
-     * in this forum.
-     * @param string $querytext Text of query (not escaped)
-     * @return string HTML code for search form
-     */
-    public function display_search_form($querytext='') {
-        if (!self::search_installed()) {
-            return '';
-        }
-        $linkfields = $this->get_link_params(self::PARAM_FORM);
-        $out = mod_forumng_utils::get_renderer();
-        $help = $out->help_icon('searchthisforum', 'forumng');
-        return $out->render_search_form($querytext, $linkfields, $help, $this);
-    }
 
     /**
      * Displays the post button, if user is permitted to post.
@@ -4016,8 +3893,6 @@ WHERE
         if ($pagename) {
             $PAGE->navbar->add($pagename);
         }
-        $buttontext = $this->display_search_form();
-        $PAGE->set_button($buttontext);
 
         return mod_forumng_utils::get_renderer();
     }
@@ -5009,15 +4884,6 @@ GROUP BY
 
         // Do course cache
         rebuild_course_cache($course->id, true);
-
-        // Update search data
-        if (self::search_installed()) {
-            if ($progress) {
-                print '<li>' . get_string('convert_process_search', 'forumng') . '</li>';
-                flush();
-            }
-            self::search_update_all($progress, $course->id, $newcm->id);
-        }
 
         if ($progress) {
             print '<li>' . get_string('convert_process_update_subscriptions', 'forumng');

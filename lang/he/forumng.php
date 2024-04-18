@@ -25,7 +25,6 @@
 defined('MOODLE_INTERNAL') || die();
 
 $string['addanewdiscussion'] = 'התחילו דיון חדש';
-$string['advancedsearch'] = 'חיפוש מתקדם';
 $string['afterenddate'] = 'לא ניתן לפרסם פרסומים חדשים בקבוצת־דיון זו,
 אלא רק לקרוא פרסומים שכבר קיימים. קבוצת־דיון זו חסומה לשליחת פרסומים {$a}.';
 $string['afterenddatecapable'] = 'המשתמשים יכולים לקרוא את כל הפרסומים שבתוך
@@ -78,8 +77,6 @@ $string['attachmentmaxbytes_help'] = 'זהו הגודל המירבי  האפשר
 $string['attachmentnum'] = 'קובץ מצורף';
 $string['attachments'] = 'קבצים מצורפים';
 $string['author'] = 'מחבר';
-$string['authorname'] = 'שם המחבר';
-$string['authorname_help'] = 'ניתן להקליד את השם הפרטי (ג\'יין), משפחה (בראון), שם מלא (ג\'יין בראון), או את החלק הראשון של כל אחד מאלה (גי,ברא, ג\'יין ב \').  ניתן גם להקליד שם משתמש (jb001). אם תשאירו משבצת זו ריקה, פירסומיי כל המחברים,  ייכללו בחיפוש.';
 $string['averagerating'] = 'ציון ממוצע: {$a->avg} (פרסומים: {$a->num})';
 $string['beforeenddate'] = 'קבוצת־דיון זו סגורה בפני פרסומים חדשים ב {$a}.';
 $string['beforeenddatecapable'] = 'קבוצת־דיון זו סגורה בפני פרסומים של תלמידים ב {$a}.';
@@ -133,7 +130,6 @@ $string['convert_process_dashboard_done'] = 'בוצע (בהצלחה {$a->yay}, �
 $string['convert_process_discussions'] = 'המרת דיונים...';
 $string['convert_process_init'] = 'יצירת מבנה של קבוצת־דיון...';
 $string['convert_process_overrides'] = 'עדכון עקיפת תפקידים...';
-$string['convert_process_search'] = 'יצירה מחדש של  מאגר נתוני מנגנון החיפוש';
 $string['convert_process_show'] = 'עדכון מצב תצוגת קבוצת־הדיון ל:"גלוי"';
 $string['convert_process_state_done'] = 'בוצע';
 $string['convert_process_subscriptions_initial'] = 'המרת מנויים ראשוניים...';
@@ -142,8 +138,6 @@ $string['convert_process_update_subscriptions'] = 'המרה  לקבוצות מנ
 $string['convert_title'] = 'המרת קבוצות־דיון';
 $string['crondebug'] = 'פלט איתור תקלות (Cron)';
 $string['currentpost'] = 'גרסה נוכחית של הפרסום';
-$string['daterangefrom'] = 'מתאריך:';
-$string['daterangeto'] = 'עד תאריך:';
 $string['date_asc'] = 'תצוגת הפרסום הוותיק ביותר,
 בראש הרשימה';
 $string['date_desc'] = 'תצוגת הפרסום העדכני ביותר,
@@ -341,13 +335,10 @@ $string['modulename_help'] = 'קבוצת־דיון NG מהווה תחליף
 $string['move_nogroups'] = 'אין לכם גישה לאף אחת מהקבוצות שבקבוצת־הדיון שנבחרה.';
 $string['move_notselected'] = 'עליכם לבחור קבוצת־דיון אליה מתוך רשימת־הבחירה של קבוצות־דיון זמינות, לפני שאתם מקליקים על הכפתור "העברה".';
 $string['newdiscussion'] = 'דיון חדש';
-$string['nextresults'] = 'מצאו תוצאות נוספות';
 $string['nodiscussions'] = 'טרם נמצאו דיונים בקבוצת־דיון זו.';
 $string['noguestsubscribe'] = 'סליחה, אורחים אינם רשאים להירשם לקבלת פרסומים דרך הדוא"ל.';
-$string['nosearchcriteria'] = 'אין קריטריון (אמת מידה) לחיפוש: בבקשה השתמשו באחד או יותר מהקריטריונים הנ"ל, ונסו שוב!';
 $string['nosubscribers'] = 'טרם נרשמו מנויים לקבוצת־דיון זו.';
 $string['nosubscribersgroup'] = 'טרם נרשמו משתמשים מהקבוצה, לקבוצת־דיון זו.';
-$string['nothingfound'] = 'לא נמצאו תוצאות התואמות לדרישתכם. אנא נסו להשתמש בשאילתה אחרת.';
 $string['nothingtodisplay'] = '<h3>אין דבר לתצוגה<h3>';
 $string['numberofdiscussion'] = '{$a}דיון';
 $string['numberofdiscussions'] = '{$a} דיונים';
@@ -373,7 +364,6 @@ $string['postinguntil'] = 'פרסום בלבד מותר עד';
 $string['postmailinfo'] = 'זהו העתק של הודעה, אשר פורסמה באתר האינטרנט {$a}. כדי להוסיף את תגובתכם באמצעות אתר האינטרנט,אנא הקישו על הקישור הבא:';
 $string['postreply'] = 'שליחת תגובה';
 $string['posts'] = 'פרסומים';
-$string['previousresults'] = 'חזרה לתוצאות {$a}';
 $string['quotaleft_plural'] = 'הנכם רשאים ליצור
 <strong>{$a->posts}</strong> יותר פרסומים כרגע
 {$a->period}.';
@@ -418,12 +408,7 @@ $string['savedraft'] = 'שמירת טיוטה';
 $string['savedtoportfolio'] = 'המידע שנבחר,נשמר ב- MyStuff';
 $string['savetoportfolio'] = 'שמירה ב- MyStuff';
 $string['searchallforums'] = 'בחרו את כל קבוצות הדיון';
-$string['searchresults'] = 'תוצאות חיפוש:
-<strong>{$a}</strong>';
 $string['searchthisforum'] = 'חיפוש בקבוצת־דיון זו';
-$string['searchthisforumlink'] = 'חיפוש בקבוצת־דיון זו';
-$string['searchtime'] = 'חיפוש זמן: {$a} שניות';
-$string['search_update_count'] = '{$a} קבוצות-דיון בתהליך עיבוד';
 $string['selectedposts'] = 'פרסומים נבחרים (מסומנים)';
 $string['selectlabel'] = 'בחרו פרסום {$a}';
 $string['selectorall'] = 'האם אתם מעוניינים לכלול את הדיון כולו, או  את הפרסומים הנבחרים בלבד?';
@@ -530,5 +515,4 @@ $string['useshared_help'] = 'אם ברצונכם ליצור שכפול של קב
 פעולה זו למעשה,אינה יוצרת קבוצת־דיון חדשה, אלא יוצרת קישור לקבוצת־דיון  קיימת. הייחודיות בכך  היא הזמינות  ואפשרויות מעקב ההתקדמות (מתבצעת ידנית בלבד).';
 $string['viewsubscribers'] = 'ניהול רשימת מנויים';
 $string['withremoveddiscussions'] = 'העברת דיונים ל:';
-$string['words'] = 'חיפוש';
 $string['yourrating'] = 'הדירוג לשלך:';

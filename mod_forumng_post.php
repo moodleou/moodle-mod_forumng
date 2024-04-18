@@ -616,21 +616,6 @@ WHERE
     }
 
     /**
-     * Obtains search document representing this post.
-     * @return local_ousearch_document Document object
-     */
-    public function search_get_document() {
-        $doc = new local_ousearch_document();
-        $doc->init_module_instance('forumng',
-                $this->get_forum()->get_course_module(true));
-        if ($groupid = $this->discussion->get_group_id()) {
-            $doc->set_group_id($groupid);
-        }
-        $doc->set_int_refs($this->get_id());
-        return $doc;
-    }
-
-    /**
      * @param array $out Array that receives list of this post and all
      *   children (including nested children) in order
      */
@@ -799,90 +784,6 @@ WHERE
             $newpost = new mod_forumng_post($discussion, $postfields);
             return $newpost;
         }
-    }
-
-    /**
-     * Obtains a search document given the ousearch parameters.
-     * @param object $document Object containing fields from the ousearch documents table
-     * @return mixed False if object can't be found, otherwise object containing the following
-     *   fields: ->content, ->title, ->url, ->activityname, ->activityurl,
-     *   and optionally ->extrastrings array, ->data, ->hide
-     */
-    public static function search_get_page($document) {
-        global $DB, $CFG, $USER;
-
-        // Implemented directly in SQL for performance, rather than using the
-        // objects themselves
-        $result = $DB->get_record_sql("
-SELECT
-    fp.message AS content, fp.subject, firstpost.subject AS firstpostsubject,
-    firstpost.id AS firstpostid, fd.id AS discussionid,
-    f.name AS activityname, cm.id AS cmid, fd.timestart, fd.timeend,
-    f.shared AS shared, f.type AS forumtype
-FROM
-    {forumng_posts} fp
-    INNER JOIN {forumng_discussions} fd ON fd.id = fp.discussionid
-    INNER JOIN {forumng_posts} firstpost ON fd.postid = firstpost.id
-    INNER JOIN {forumng} f ON fd.forumngid = f.id
-    INNER JOIN {course_modules} cm ON cm.instance = f.id AND cm.course = f.course
-    INNER JOIN {modules} m ON cm.module = m.id
-WHERE
-    fp.id = ? AND m.name = 'forumng'", array($document->intref1), IGNORE_MISSING);
-        if (!$result) {
-            return false;
-        }
-
-        // Title is either the post subject or Re: plus the discussion subject
-        // if the post subject is blank
-        $result->title = $result->subject;
-
-        if (is_null($result->title)) {
-            $result->title = get_string('re', 'forumng', $result->firstpostsubject);
-        }
-
-         // Link is to value in url if present, otherwise to original forum
-        $cloneparam = $result->cmid;
-        if ($result->shared) {
-            global $FORUMNG_CLONE_MAP;
-            if (!empty($FORUMNG_CLONE_MAP)) {
-                $cloneparam = $FORUMNG_CLONE_MAP[$result->cmid]->id;
-                $clonebit = '&amp;clone=' . $cloneparam;
-            } else {
-                $clonebit = '&amp;clone=' .
-                    ($cloneparam = optional_param('clone', $result->cmid, PARAM_INT));
-            }
-        } else {
-            $clonebit = '';
-        }
-
-        // Work out URL to post
-        $result->url = $CFG->wwwroot . '/mod/forumng/discuss.php?d=' .
-            $result->discussionid . $clonebit . '#p' . $document->intref1;
-
-        // Activity URL
-        $result->activityurl = $CFG->wwwroot . '/mod/forumng/view.php?id=' .
-            $result->cmid . $clonebit;
-
-        // Hide results outside their time range (unless current user can see)
-        $now = time();
-        if ($now < $result->timestart || ($result->timeend && $now>=$result->timeend) &&
-            !has_capability('mod/forumng:viewallposts',
-                context_module::instance($result->cmid))) {
-            $result->hide = true;
-        }
-
-        // Handle annoying forum types that hide discussions
-        $type = forumngtype::get_new($result->forumtype);
-        if ($type->has_unread_restriction()) {
-            // TODO The name of the _unread_restriction should be _discussion_restriction.
-            // This is going to be slow, we need to load the discussion
-            $discussion = mod_forumng_discussion::get_from_id($result->discussionid, $cloneparam);
-            if (!$type->can_view_discussion($discussion, $USER->id)) {
-                $result->hide = true;
-            }
-        }
-
-        return $result;
     }
 
     // Object methods
@@ -1205,18 +1106,6 @@ ORDER BY
         // update gets latest data)
         $this->get_discussion()->uncache();
 
-        // Update search index
-        if ((isset($update->message) || $gotsubject)) {
-            // Update for this post
-            $this->search_update();
-
-            // If changing the subject of a root post, update all posts in the
-            // discussion (ugh)
-            if ($this->is_root_post() && $gotsubject) {
-                $this->search_update_children();
-            }
-        }
-
         $transaction->allow_commit();
     }
 
@@ -1337,65 +1226,6 @@ ORDER BY
     }
 
     /**
-     * Updates search data for this post.
-     * @param bool $expectingquery True if it might need to make a query to
-     *   get the subject
-     */
-    public function search_update($expectingquery = false) {
-        if (!mod_forumng::search_installed()) {
-            return;
-        }
-        global $DB;
-
-        $searchdoc = $this->search_get_document();
-
-        $transaction = $DB->start_delegated_transaction();
-        if ($this->get_deleted() || $this->get_discussion()->is_deleted() ||
-            $this->get_discussion()->is_making_search_change()) {
-            if ($searchdoc->find()) {
-                $searchdoc->delete();
-            }
-        } else {
-            // $title here is not the title appearing in the search result
-            // but the text which decides the search score
-            $title = $this->get_subject();
-            $searchdoc->update($title ?? '', $this->get_formatted_message());
-        }
-        $transaction->allow_commit();
-    }
-
-    /**
-     * Calls search_update on each child of the current post, and recurses.
-     * Used when the subject's discussion is changed.
-     */
-    public function search_update_children() {
-        if (!mod_forumng::search_installed()) {
-            return;
-        }
-        // If the in-memory post object isn't already part of a full
-        // discussion...
-        if (!is_array($this->children)) {
-            // ...then get one
-            $discussion = mod_forumng_discussion::get_from_id(
-                $this->discussion->get_id(),
-                $this->get_forum()->get_course_module_id());
-            $post = $discussion->get_root_post()->find_child($this->get_id());
-            // Do this update on the new discussion
-            $post->search_update_children();
-            return;
-        }
-
-        // Loop through all children
-        foreach ($this->children as $child) {
-            // Update its search fields
-            $child->search_update();
-
-            // Recurse
-            $child->search_update_children();
-        }
-    }
-
-    /**
      * Marks a post as deleted.
      * @param int $userid User ID to mark as having deleted the post
      * @param bool $log If true, adds entry to Moodle log
@@ -1430,8 +1260,6 @@ ORDER BY
             $this->log('delete post');
         }
 
-        $this->search_update();
-
         $transaction->allow_commit();
         $this->get_discussion()->uncache();
     }
@@ -1465,8 +1293,6 @@ ORDER BY
         if ($log) {
             $this->log('undelete post');
         }
-
-        $this->search_update();
 
         $transaction->allow_commit();
         $this->get_discussion()->uncache();

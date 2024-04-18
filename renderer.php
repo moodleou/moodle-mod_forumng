@@ -2100,32 +2100,6 @@ class mod_forumng_renderer extends plugin_renderer_base {
     }
 
     /**
-     * Returns html for forumng search entry form for the header
-     * @param string $querytext user query
-     * @param string $linkfields passing through forum link parameters for form submission
-     * @param string $help help string if needed
-     * @param mod_forumng $forum Forum object if needed
-     * @return string
-     */
-    public function render_search_form($querytext, $linkfields, $help = '', $forum = null) {
-        $strsearchthisactivity = get_string('searchthisforum', 'forumng');
-        $out = html_writer::start_tag('form', array('action' => 'search.php', 'method' => 'get'));
-        $out .= html_writer::start_tag('div');
-        $out .= $linkfields;
-        $out .= html_writer::tag('label', $strsearchthisactivity,
-                array('for' => 'forumng_searchquery'));
-        $out .= $help;
-        $out .= html_writer::empty_tag('input', array('type' => 'text', 'name' => 'query',
-                'id' => 'forumng_searchquery', 'value' => $querytext));
-        $out .= html_writer::empty_tag('input', array('type' => 'image',
-                'id' => 'ousearch_searchbutton', 'alt' => get_string('search'),
-                'title' => get_string('search'), 'src' => $this->image_url('i/search')));
-        $out .= html_writer::end_tag('div');
-        $out .= html_writer::end_tag('form');
-        return $out;
-    }
-
-    /**
      * Print a message along with three buttons buttoneone/buttontwo/Cancel
      *
      * If a string or moodle_url is given instead of a single_button, method defaults to post.
