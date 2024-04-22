@@ -244,7 +244,7 @@ class forumng_all_portfolio_caller extends forumng_portfolio_caller_base {
         $discussion->build_selected_posts_email($selected, $poststext, $postshtml,
                 array(mod_forumng_post::OPTION_EXPORT => true));
         $allhtml .= $postshtml;
-        if ($plugin == 'rtf' && isset($this->discussionids)) {
+        if ($plugin == 'rtf' && !empty($this->discussionids)) {
             // Support discussions e.g. all into one file.
             if ($this->discussionid != $this->discussionids[0]) {
                 // Make this text just body if not first discussion.
@@ -304,7 +304,7 @@ class forumng_all_portfolio_caller extends forumng_portfolio_caller_base {
         }
 
         $content = $allhtml;
-        if ($plugin == 'rtf' && isset($this->discussionids)) {
+        if ($plugin == 'rtf' && !empty($this->discussionids)) {
             // Different functionality if multiple discussions.
             if ($this->discussionid != $this->discussionids[count($this->discussionids) - 1]) {
                 $this->content .= $content;
@@ -352,7 +352,6 @@ class forumng_all_portfolio_caller extends forumng_portfolio_caller_base {
  * Portfolio class for exporting the contents of multiple discussions.
  */
 class forumng_discussions_portfolio_caller extends forumng_all_portfolio_caller {
-    protected $discussionids;
 
     public static function expected_callbackargs() {
         return array(
