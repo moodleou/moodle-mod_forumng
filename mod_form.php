@@ -448,25 +448,30 @@ class mod_forumng_mod_form extends moodleform_mod {
         // Set up the completion checkboxes which aren't part of standard data.
         // We also make the default value (if you turn on the checkbox) for those
         // numbers to be 1, this will not apply unless checkbox is ticked.
-        $data['completiondiscussionsenabled'] = !empty($data['completiondiscussions']) ? 1 : 0;
-        if (empty($data['completiondiscussions'])) {
-            $data['completiondiscussions'] = 1;
+        $data[$this->get_suffixed_name('completiondiscussionsenabled')] =
+                !empty($data[$this->get_suffixed_name('completiondiscussions')]) ? 1 : 0;
+        if (empty($data[$this->get_suffixed_name('completiondiscussions')])) {
+            $data[$this->get_suffixed_name('completiondiscussions')] = 1;
         }
-        $data['completionrepliesenabled'] = !empty($data['completionreplies']) ? 1 : 0;
-        if (empty($data['completionreplies'])) {
-            $data['completionreplies'] = 1;
+        $data[$this->get_suffixed_name('completionrepliesenabled')] =
+                !empty($data[$this->get_suffixed_name('completionreplies')]) ? 1 : 0;
+        if (empty($data[$this->get_suffixed_name('completionreplies')])) {
+            $data[$this->get_suffixed_name('completionreplies')] = 1;
         }
-        $data['completionpostsenabled'] = !empty($data['completionposts']) ? 1 : 0;
-        if (empty($data['completionposts'])) {
-            $data['completionposts'] = 1;
+        $data[$this->get_suffixed_name('completionpostsenabled')] =
+                !empty($data[$this->get_suffixed_name('completionposts')]) ? 1 : 0;
+        if (empty($data[$this->get_suffixed_name('completionposts')])) {
+            $data[$this->get_suffixed_name('completionposts')] = 1;
         }
-        $data['completionwordcountminenabled'] = !empty($data['completionwordcountmin']) ? 1 : 0;
-        if (empty($data['completionwordcountmin'])) {
-            $data['completionwordcountmin'] = 1;
+        $data[$this->get_suffixed_name('completionwordcountminenabled')] =
+                !empty($data[$this->get_suffixed_name('completionwordcountmin')]) ? 1 : 0;
+        if (empty($data[$this->get_suffixed_name('completionwordcountmin')])) {
+            $data[$this->get_suffixed_name('completionwordcountmin')] = 1;
         }
-        $data['completionwordcountmaxenabled'] = !empty($data['completionwordcountmax']) ? 1 : 0;
-        if (empty($data['completionwordcountmax'])) {
-            $data['completionwordcountmax'] = 1;
+        $data[$this->get_suffixed_name('completionwordcountmaxenabled')] =
+                !empty($data[$this->get_suffixed_name('completionwordcountmax')]) ? 1 : 0;
+        if (empty($data[$this->get_suffixed_name('completionwordcountmax')])) {
+            $data[$this->get_suffixed_name('completionwordcountmax')] = 1;
         }
     }
 
@@ -474,90 +479,112 @@ class mod_forumng_mod_form extends moodleform_mod {
         global $PAGE;
         $mform = $this->_form;
 
-        $group = array();
-        $group[] =& $mform->createElement('checkbox', 'completionpostsenabled', '',
+        $group = [];
+        $completionpostsenabledel = $this->get_suffixed_name('completionpostsenabled');
+        $group[] =& $mform->createElement('checkbox', $completionpostsenabledel, '',
                 get_string('completionposts', 'forumng'), ['class' => 'forumng-completion-require']);
-        $group[] =& $mform->createElement('text', 'completionposts', '', array('size' => 3));
-        $mform->setType('completionposts', PARAM_INT);
-        $mform->addGroup($group, 'completionpostsgroup',
+        $completionpostsel = $this->get_suffixed_name('completionposts');
+        $group[] =& $mform->createElement('text', $completionpostsel, '', array('size' => 3));
+        $mform->setType($completionpostsel, PARAM_INT);
+        $completionpostsgroupel = $this->get_suffixed_name('completionpostsgroup');
+        $mform->addGroup($group, $completionpostsgroupel,
                 get_string('completionpostsgroup', 'forumng'), array(' '), false);
-        $mform->addHelpButton('completionpostsgroup', 'completionpostsgroup', 'forumng');
-        $mform->disabledIf('completionposts', 'completionpostsenabled', 'notchecked');
+        $mform->addHelpButton($completionpostsgroupel, 'completionpostsgroup', 'forumng');
+        $mform->disabledIf($completionpostsel, $completionpostsenabledel, 'notchecked');
 
-        $group = array();
-        $group[] =& $mform->createElement('checkbox', 'completiondiscussionsenabled', '',
+        $group = [];
+        $completiondiscussionsenabledel = $this->get_suffixed_name('completiondiscussionsenabled');
+        $group[] =& $mform->createElement('checkbox', $completiondiscussionsenabledel, '',
                 get_string('completiondiscussions', 'forumng'), ['class' => 'forumng-completion-require']);
-        $group[] =& $mform->createElement('text', 'completiondiscussions', '', array('size' => 3));
-        $mform->setType('completiondiscussions', PARAM_INT);
-        $mform->addGroup($group, 'completiondiscussionsgroup',
+        $completiondiscussionsel = $this->get_suffixed_name('completiondiscussions');
+        $group[] =& $mform->createElement('text', $completiondiscussionsel, '', array('size' => 3));
+        $mform->setType($completiondiscussionsel, PARAM_INT);
+        $completiondiscussionsgroupel = $this->get_suffixed_name('completiondiscussionsgroup');
+        $mform->addGroup($group, $completiondiscussionsgroupel,
                 get_string('completiondiscussionsgroup', 'forumng'), array(' '), false);
-        $mform->addHelpButton('completiondiscussionsgroup',
+        $mform->addHelpButton($completiondiscussionsgroupel,
                 'completiondiscussionsgroup', 'forumng');
-        $mform->disabledIf('completiondiscussions', 'completiondiscussionsenabled', 'notchecked');
+        $mform->disabledIf($completiondiscussionsel, $completiondiscussionsenabledel, 'notchecked');
 
-        $group = array();
-        $group[] =& $mform->createElement('checkbox', 'completionrepliesenabled', '',
+        $group = [];
+        $completionrepliesenabledel = $this->get_suffixed_name('completionrepliesenabled');
+        $group[] =& $mform->createElement('checkbox', $completionrepliesenabledel, '',
                 get_string('completionreplies', 'forumng'), ['class' => 'forumng-completion-require']);
-        $group[] =& $mform->createElement('text', 'completionreplies', '', array('size' => 3));
-        $mform->setType('completionreplies', PARAM_INT);
-        $mform->addGroup($group, 'completionrepliesgroup',
-                get_string('completionrepliesgroup', 'forumng'), array(' '), false);
-        $mform->addHelpButton('completionrepliesgroup', 'completionrepliesgroup', 'forumng');
-        $mform->disabledIf('completionreplies', 'completionrepliesenabled', 'notchecked');
+        $completionrepliesel = $this->get_suffixed_name('completionreplies');
+        $group[] =& $mform->createElement('text', $completionrepliesel, '', ['size' => 3]);
+        $mform->setType($completionrepliesel, PARAM_INT);
+        $completionrepliesgroupel = $this->get_suffixed_name('completionrepliesgroup');
+        $mform->addGroup($group, $completionrepliesgroupel,
+                get_string('completionrepliesgroup', 'forumng'), [' '], false);
+        $mform->addHelpButton($completionrepliesgroupel, 'completionrepliesgroup', 'forumng');
+        $mform->disabledIf($completionrepliesel, $completionrepliesenabledel, 'notchecked');
 
         // Restriction for grade completion.
         $mform->disabledIf('completionusegrade', 'grading', 'eq', 0);
 
         $group = [];
-        $group[] =& $mform->createElement('checkbox', 'completionwordcountminenabled', '',
+        $completionwordcountminenabledel = $this->get_suffixed_name('completionwordcountminenabled');
+        $group[] =& $mform->createElement('checkbox', $completionwordcountminenabledel, '',
                 get_string('completionwordcountmin', 'forumng'));
-        $group[] =& $mform->createElement('text', 'completionwordcountmin', '', ['size' => 3]);
-        $mform->setType('completionwordcountmin', PARAM_INT);
-        $mform->disabledIf('completionwordcountmin', 'completionwordcountminenabled', 'notchecked');
-        $mform->addGroup($group, 'completionwordcountmingroup',
+        $completionwordcountminel = $this->get_suffixed_name('completionwordcountmin');
+        $group[] =& $mform->createElement('text', $completionwordcountminel, '', ['size' => 3]);
+        $mform->setType($completionwordcountminel, PARAM_INT);
+        $mform->disabledIf($completionwordcountminel, $completionwordcountminenabledel, 'notchecked');
+        $completionwordcountmingroupel = $this->get_suffixed_name('completionwordcountmingroup');
+        $mform->addGroup($group, $completionwordcountmingroupel,
                 get_string('completionwordcountgroup', 'forumng'), [' '], false);
-        $mform->addHelpButton('completionwordcountmingroup', 'completionwordcountgroup', 'forumng');
+        $mform->addHelpButton($completionwordcountmingroupel, 'completionwordcountgroup', 'forumng');
 
         $group = [];
-        $group[] =& $mform->createElement('checkbox', 'completionwordcountmaxenabled', '',
+        $completionwordcountmaxenabledel = $this->get_suffixed_name('completionwordcountmaxenabled');
+        $group[] =& $mform->createElement('checkbox', $completionwordcountmaxenabledel, '',
                 get_string('completionwordcountmax', 'forumng'));
-        $group[] =& $mform->createElement('text', 'completionwordcountmax', '', ['size' => 3]);
-        $mform->setType('completionwordcountmax', PARAM_INT);
-        $mform->disabledIf('completionwordcountmax', 'completionwordcountmaxenabled', 'notchecked');
-        $mform->addGroup($group, 'completionwordcountmaxgroup','', [' '], false);
+        $completionwordcountmaxel = $this->get_suffixed_name('completionwordcountmax');
+        $group[] =& $mform->createElement('text', $completionwordcountmaxel, '', ['size' => 3]);
+        $mform->setType($completionwordcountmaxel, PARAM_INT);
+        $mform->disabledIf($completionwordcountmaxel, $completionwordcountmaxenabledel, 'notchecked');
+        $completionwordcountmaxgroupel = $this->get_suffixed_name('completionwordcountmaxgroup');
+        $mform->addGroup($group, $completionwordcountmaxgroupel,'', [' '], false);
 
         $group = [];
-        $group[] =& $mform->createElement('date_time_selector', 'timetrackingfrom', get_string('completiontrackingfrom',
+        $timetrackingfromel = $this->get_suffixed_name('timetrackingfrom');
+        $group[] =& $mform->createElement('date_time_selector', $timetrackingfromel, get_string('completiontrackingfrom',
                 'forumng'), ['optional' => true]);
-        $group[] =& $mform->createElement('date_time_selector', 'timetrackingto', get_string('completiontrackingto',
+        $timetrackingtoel = $this->get_suffixed_name('timetrackingto');
+        $group[] =& $mform->createElement('date_time_selector', $timetrackingtoel, get_string('completiontrackingto',
                 'forumng'), ['optional' => true]);
-        $mform->addGroup($group, 'completiontracking', get_string('completiontracking', 'forumng'), [' '], false);
-        $mform->addHelpButton('completiontracking', 'completiontracking', 'forumng');
+        $completiontrackingel = $this->get_suffixed_name('completiontracking');
+        $mform->addGroup($group, $completiontrackingel, get_string('completiontracking', 'forumng'), [' '], false);
+        $mform->addHelpButton($completiontrackingel, 'completiontracking', 'forumng');
 
         // Use setDefault to set the timetrackingfrom and timetrackingto when unlock the completion.
         // Otherwise, the form will set the current time to those field.
         $data = $this->current;
-        if ($data->timetrackingfrom && $data->timetrackingfrom !== 0) {
-            $mform->setDefault('timetrackingfrom', $data->timetrackingfrom);
+        if (isset($data->{$this->get_suffixed_name('timetrackingfrom')}) && $data->{$this->get_suffixed_name('timetrackingfrom')} !== 0) {
+            $mform->setDefault($timetrackingfromel, $data->{$this->get_suffixed_name('timetrackingfrom')});
         }
-        if ($data->timetrackingto && $data->timetrackingto !== 0) {
-            $mform->setDefault('timetrackingto', $data->timetrackingto);
+        if (isset($data->{$this->get_suffixed_name('timetrackingto')}) && $data->{$this->get_suffixed_name('timetrackingto')} !== 0) {
+            $mform->setDefault($timetrackingtoel, $data->{$this->get_suffixed_name('timetrackingto')});
         }
         $timetracking = (object)[
-                'timetrackingfrom' => $data->timetrackingfrom,
-                'timetrackingto' => $data->timetrackingto,
+                $timetrackingfromel =>
+                        $data->{$this->get_suffixed_name('timetrackingfrom')} ?? 0,
+                $timetrackingtoel =>
+                        $data->{$this->get_suffixed_name('timetrackingto')} ?? 0,
         ];
         $PAGE->requires->js_call_amd('mod_forumng/mod_form', 'init', [$mform->getAttribute('id'), $timetracking]);
 
-        return ['completiondiscussionsgroup', 'completionrepliesgroup', 'completionpostsgroup',
-                'completionwordcountmingroup', 'completionwordcountmaxgroup', 'completiontracking'];
+        return [$completiondiscussionsgroupel, $completionrepliesgroupel, $completionpostsgroupel,
+                $completionwordcountmingroupel, $completionwordcountmaxgroupel, $completiontrackingel];
     }
 
     public function completion_rule_enabled($data) {
-        return (!empty($data['completiondiscussionsenabled']) &&
-                        $data['completiondiscussions'] != 0) || (!empty($data['completionrepliesenabled']) &&
-                        $data['completionreplies'] != 0) || (!empty($data['completionpostsenabled']) &&
-                        $data['completionposts'] != 0);
+        return (!empty($data[$this->get_suffixed_name('completiondiscussionsenabled')]) &&
+                        $data[$this->get_suffixed_name('completiondiscussions')] != 0) ||
+                (!empty($data[$this->get_suffixed_name('completionrepliesenabled')]) &&
+                        $data[$this->get_suffixed_name('completionreplies')] != 0) ||
+                (!empty($data[$this->get_suffixed_name('completionpostsenabled')]) &&
+                        $data[$this->get_suffixed_name('completionposts')] != 0);
     }
 
     public function get_data() {
@@ -599,29 +626,29 @@ class mod_forumng_mod_form extends moodleform_mod {
         }
 
         // Turn off completion settings if the checkboxes aren't ticked.
-        if (!empty($data->completionunlocked)) {
-            $autocompletion = !empty($data->completion) &&
-                    $data->completion == COMPLETION_TRACKING_AUTOMATIC;
-            if (empty($data->completiondiscussionsenabled) || !$autocompletion) {
-                $data->completiondiscussions = 0;
+        if (!empty($data->{$this->get_suffixed_name('completionunlocked')})) {
+            $autocompletion = !empty($data->{$this->get_suffixed_name('completion')}) &&
+                    $data->{$this->get_suffixed_name('completion')} == COMPLETION_TRACKING_AUTOMATIC;
+            if (empty($data->{$this->get_suffixed_name('completiondiscussionsenabled')}) || !$autocompletion) {
+                $data->{$this->get_suffixed_name('completiondiscussions')} = 0;
             }
-            if (empty($data->completionrepliesenabled) || !$autocompletion) {
-                $data->completionreplies = 0;
+            if (empty($data->{$this->get_suffixed_name('completionrepliesenabled')}) || !$autocompletion) {
+                $data->{$this->get_suffixed_name('completionreplies')} = 0;
             }
-            if (empty($data->completionpostsenabled) || !$autocompletion) {
-                $data->completionposts = 0;
+            if (empty($data->{$this->get_suffixed_name('completionpostsenabled')}) || !$autocompletion) {
+                $data->{$this->get_suffixed_name('completionposts')} = 0;
             }
-            if (empty($data->completionwordcountminenabled) || !$autocompletion) {
-                $data->completionwordcountmin = 0;
+            if (empty($data->{$this->get_suffixed_name('completionwordcountminenabled')}) || !$autocompletion) {
+                $data->{$this->get_suffixed_name('completionwordcountmin')} = 0;
             }
-            if (empty($data->completionwordcountmaxenabled) || !$autocompletion) {
-                $data->completionwordcountmax = 0;
+            if (empty($data->{$this->get_suffixed_name('completionwordcountmaxenabled')}) || !$autocompletion) {
+                $data->{$this->get_suffixed_name('completionwordcountmax')} = 0;
             }
-            if (empty($data->timetrackingfrom) || !$autocompletion) {
-                $data->timetrackingfrom = 0;
+            if (empty($data->{$this->get_suffixed_name('timetrackingfrom')}) || !$autocompletion) {
+                $data->{$this->get_suffixed_name('timetrackingfrom')} = 0;
             }
-            if (empty($data->timetrackingto) || !$autocompletion) {
-                $data->timetrackingto = 0;
+            if (empty($data->{$this->get_suffixed_name('timetrackingto')}) || !$autocompletion) {
+                $data->{$this->get_suffixed_name('timetrackingto')} = 0;
             }
         }
 
@@ -655,5 +682,15 @@ class mod_forumng_mod_form extends moodleform_mod {
                     get_string('invalidforum', 'forumng'), $targetforumngid);
             }
         }
+    }
+
+    /**
+     * Get the suffix of name.
+     *
+     * @param string $fieldname The field name of the completion element.
+     * @return string The suffixed name.
+     */
+    protected function get_suffixed_name(string $fieldname): string {
+        return $fieldname . $this->get_suffix();
     }
 }
