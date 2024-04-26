@@ -327,13 +327,13 @@ class mod_forumng_mod_form extends moodleform_mod {
         if (!empty($data['reportingemail']) && !$this->validate_emails($data['reportingemail'])) {
             $errors['reportingemail'] = get_string('invalidemail', 'forumng');
         }
-        if (!empty($data['completionposts']) && ($data['completionposts'] < 1  || !is_int($data['completionposts']))){
+        if (!empty($data['completionpostsenabled']) && (!empty($data['completionposts']) && ($data['completionposts'] < 1  || !is_int($data['completionposts'])))){
             $errors['completionpostsgroup'] = get_string('onlyposnum', 'forumng');
         }
-        if (!empty($data['completiondiscussions'])  && ($data['completiondiscussions'] < 1 || !is_int($data['completiondiscussions']))){
+        if (!empty($data['completiondiscussionsenabled']) && (!empty($data['completiondiscussions'])  && ($data['completiondiscussions'] < 1 || !is_int($data['completiondiscussions'])))){
             $errors['completiondiscussionsgroup'] = get_string('onlyposnum', 'forumng');
         }
-        if (!empty($data['completionreplies']) && ($data['completionreplies'] < 1 || !is_int($data['completionreplies']))){
+        if (!empty($data['completionrepliesenabled']) && (!empty($data['completionreplies']) && ($data['completionreplies'] < 1 || !is_int($data['completionreplies'])))){
             $errors['completionrepliesgroup'] = get_string('onlyposnum', 'forumng');
         }
         if (isset($data['timetrackingto'])
