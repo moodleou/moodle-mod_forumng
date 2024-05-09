@@ -54,7 +54,7 @@ Feature: Lock multiple discussions
     Then "Lock discussions" "button" should exist
     Given I press "Lock discussions"
     And I click on "Selected discussions" "button" in the ".forumng-confirmdialog" "css_element"
-    And I click on "table.generaltable tbody tr:nth-child(1) > td:nth-child(1) input" "css_element"
+    And I click on "//table[contains(@class, 'generaltable')]//tbody//tr[position()=1]//td[position()=1]//input" "xpath_element"
     When I press "Confirm selection"
     Then "Lock discussion" "button" should exist
     Given I set the field "Message" to "now locked"
