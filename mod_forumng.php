@@ -1372,7 +1372,7 @@ WHERE
             $hastag = true;
             $tagjoin = "LEFT JOIN {tag_instance} ti ON ti.itemid = fd.id AND ti.itemtype = 'forumng_discussions'
                     AND ti.component = 'mod_forumng'";
-            $conditions .= "AND ti.tagid = ?";
+            $conditions .= " AND ti.tagid = ?";
             $conditionparams[] = $tagid;
         }
 

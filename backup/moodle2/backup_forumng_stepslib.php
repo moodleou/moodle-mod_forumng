@@ -173,7 +173,7 @@ class backup_forumng_activity_structure_step extends backup_activity_structure_s
                     array('forumngid' => backup::VAR_PARENTID));
 
             // Need posts ordered by id so parents are always before childs on restore.
-            $post->set_source_sql("SELECT * FROM {forumng_posts} WHERE discussionid = ?" .
+            $post->set_source_sql("SELECT * FROM {forumng_posts} WHERE discussionid = ? " .
                     "ORDER BY id", array(backup::VAR_PARENTID));
 
             $read->set_source_table('forumng_read', array('discussionid' => backup::VAR_PARENTID));
