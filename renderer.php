@@ -2286,4 +2286,13 @@ class mod_forumng_renderer extends plugin_renderer_base {
     public function render_discussion_after_header($discussion) {
         return '';
     }
+
+    /**
+     * Hook called in init_page.
+     * @param mod_forumng $forum
+     * @return void
+     */
+    public function early_init_page_hook(\mod_forumng $forum) {
+        // Add in functionality in your theme renderer.
+    }
 }
