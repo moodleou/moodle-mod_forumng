@@ -1415,3 +1415,7 @@ html[style="--zoom-level: 110%;"] body.ionic5.moodleapp-4 .ios.popover-forumng .
 html[style="--zoom-level: 120%;"] body.ionic5.moodleapp-4 .ios.popover-forumng .popover-content .popover-viewport {
     max-height: 70vh; /** Possible hack for the list too long but popover used absolute. **/
 }
+
+body.ionic5 .mma-forumng-file-attachment core-download-refresh {
+    margin-right: 6px;
+}
