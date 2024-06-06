@@ -3881,8 +3881,6 @@ ORDER BY
      */
     public function init_page(moodle_url $url, $pagename='', $navigation=array()) {
         global $PAGE;
-        $ren = mod_forumng_utils::get_renderer();
-        $ren->early_init_page_hook($this);
         $PAGE->set_url($url);
         $PAGE->set_context($this->get_context());
         $course = $this->get_course();
@@ -3896,6 +3894,8 @@ ORDER BY
             $PAGE->navbar->add($pagename);
         }
 
+        $ren = mod_forumng_utils::get_renderer();
+        $ren->early_init_page_hook($this);
         return $ren;
     }
 
