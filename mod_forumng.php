@@ -3924,66 +3924,11 @@ ORDER BY
      * @param int $cmid If specified, passes this through to JS
      */
     public function print_js($cmid=0) {
-        global $CFG, $PAGE;
+        global $PAGE;
         $simple = get_user_preferences('forumng_simplemode', '');
         if ($PAGE->devicetypeinuse == 'legacy' || $simple) {
             return;
         }
-
-        // Prepare strings
-        $mainstrings = array(
-            'rate' => null,
-            'expand' => '#',
-            'collapse' => '#',
-            'jserr_load' => null,
-            'jserr_save' => null,
-            'jserr_alter' => null,
-            'jserr_attachments' => null,
-            'confirmdelete' => null,
-            'confirmundelete' => null,
-             'confirmdeletediscuss' => null,
-            'deleteemailpostbutton' => null,
-            'deletepostbutton' => null,
-            'undeletepostbutton' => null,
-            'js_nratings' => null,
-            'js_nratings1' => null,
-            'js_nopublicrating' => null,
-            'js_publicrating' => null,
-            'js_nouserrating' => null,
-            'js_userrating' => null,
-            'js_outof' => null,
-            'js_clicktosetrating' => null,
-            'js_clicktosetrating1' => null,
-            'js_clicktoclearrating' => null,
-            'selectlabel' => null,
-            'selectintro' => null,
-            'confirmselection' => null,
-            'selectedposts' => null,
-            'discussion' => null,
-            'selectorall' => null,
-            'selectoralldisc' => null,
-            'selectorselecteddisc' => null,
-            'selectordiscall' => null,
-            'selectdiscintro' => null,
-            'staron' => null,
-            'staroff' => null,
-            'clearstar' => null,
-            'setstar' => null,
-            'starpost' => null);
-        if ($this->has_post_quota()) {
-            $mainstrings['quotaleft_plural'] = (object)array(
-                'posts'=>'#', 'period' => $this->get_max_posts_period(true, true));
-            $mainstrings['quotaleft_singular'] = (object)array(
-                'posts'=>'#', 'period' => $this->get_max_posts_period(true, true));
-        }
-        $stringlist = array();
-        foreach ($mainstrings as $string => $value) {
-            $stringlist[] = array($string, 'forumng', $value);
-        }
-        foreach (array('cancel', 'delete', 'add', 'selectall', 'deselectall') as $string) {
-            $stringlist[] = array($string, 'moodle');
-        }
-
         // Use star ratings where the scale is between 2 and 5 (3 and 6 stars)
         $out = mod_forumng_utils::get_renderer();
         $scale = $this->get_rating_scale();
@@ -3992,29 +3937,32 @@ ORDER BY
         } else {
             $ratingstars = 0;
         }
-        $starurls = array();
-        foreach (array('circle', 'star') as $base) {
-            foreach (array('y', 'n') as $user) {
-                foreach (array('y', 'n') as $public) {
+        $starurls = [];
+        foreach (['circle', 'star'] as $base) {
+            foreach (['y', 'n'] as $user) {
+                foreach (['y', 'n'] as $public) {
                     $key = "$base-$user-$public";
-                    $starurls[$key] = $out->image_url($key, 'forumng')->out(false);
+                    $starurls[$key] = $key;
                 }
             }
         }
 
-        $module = array(
-            'name'      => 'mod_forumng',
-            'fullpath'  => '/mod/forumng/module.js',
-            'requires'  => array('base', 'node', 'node-event-simulate', 'dom', 'event', 'io',
-                'anim', 'json-parse'),
-            'strings'   => $stringlist
-        );
-        $PAGE->requires->js_init_call('M.mod_forumng.init',
-                array($cmid ? $cmid : 0,
-                    $this->is_shared() ? $this->get_course_module_id() : 0,
-                    $ratingstars, $this->get_remaining_post_quota(),
-                    $out->image_url('i/ajaxloader')->out(false), $starurls),
-                false, $module);
+        $postquota = null;
+        if ($this->has_post_quota()) {
+            $postquota = $this->get_max_posts_period(true, true);
+        }
+
+        $data = [
+            'cmid' => $cmid ?? 0,
+            'cloneid' => $this->is_shared() ? $this->get_course_module_id() : 0,
+            'ratingstars' => $ratingstars,
+            'quotaleft' => $this->get_remaining_post_quota(),
+            'loaderpix' => $out->image_url('i/ajaxloader')->out(false),
+            'starpix' => $starurls,
+            'postquota' => $postquota,
+        ];
+
+        $PAGE->requires->js_call_amd('mod_forumng/main', 'init', [$data]);
     }
 
     // Feeds
