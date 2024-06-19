@@ -2561,8 +2561,7 @@ WHERE
     protected function get_domain_from_url($url) {
         $host = parse_url($url, PHP_URL_HOST);
         if (!$host) {
-            $host = explode('/', $host);
-            $host = $host[0];
+            $host = '';
         }
         $regex = '/^www.(.*)/';
         return preg_replace($regex, '$1', $host);
