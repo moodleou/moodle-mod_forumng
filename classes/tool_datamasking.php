@@ -43,7 +43,7 @@ class tool_datamasking implements \tool_datamasking\plugin {
 
         $plan->table('files')->add(new \tool_datamasking\files_mask('mod_forumng', 'attachment'));
         $plan->table('files')->add(new \tool_datamasking\files_mask('mod_forumng', 'draft'));
-        $plan->table('files')->add(new \tool_datamasking\files_mask('mod_forumng', 'draftmessage'));
-        $plan->table('files')->add(new \tool_datamasking\files_mask('mod_forumng', 'message'));
+        $plan->table('files')->add(new \tool_datamasking\files_mask('mod_forumng', 'draftmessage', 'forumng_drafts', 'message'));
+        $plan->table('files')->add(new \tool_datamasking\files_mask('mod_forumng', 'message', 'forumng_posts', 'message'));
     }
 }
