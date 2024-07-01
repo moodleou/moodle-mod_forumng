@@ -1419,7 +1419,13 @@ html[style="--zoom-level: 120%;"] body.ionic5.moodleapp-4 .ios.popover-forumng .
 body.ionic5 .mma-forumng-file-attachment core-download-refresh {
     margin-right: 6px;
 }
+
 body.ionic5 ion-app .mma-forumng-attachments core-local-file ion-item ion-button:has(ion-icon[name='fas-share-from-square']),
 body.ionic5 ion-app .mma-forumng-attachments core-file ion-item ion-button:has(ion-icon[name='fas-share-from-square']) {
     display: none;
+}
+
+body.ionic5.dark ion-app .mma-forumng-attachments core-file ion-thumbnail[slot=start],
+body.ionic5.dark ion-app .mma-forumng-attachments core-local-file ion-thumbnail[slot=start] {
+    filter: invert(100%);
 }
