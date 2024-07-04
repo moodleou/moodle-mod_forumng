@@ -42,6 +42,9 @@ require_once(__DIR__ . '/../../feature/forumngfeature_discussion.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class mobile {
+    /** @var string  Folder of latest app version */
+    const LATEST_FOLDER = 'latest/';
+
     /** @var string  Folder of ionic5 app version */
     const IONIC5_FOLDER = 'ionic5/';
 
@@ -70,10 +73,9 @@ class mobile {
     public static function mobile_forumng_init(array $args) : array {
         global $CFG;
         $args = (object) $args;
-        $foldername = self::mobile_get_folder_name($args);
         return [
                 'templates' => [],
-                'javascript' => file_get_contents($CFG->dirroot . '/mod/forumng/appjs/' . $foldername . 'mobile_init.js'),
+                'javascript' => file_get_contents($CFG->dirroot . '/mod/forumng/appjs/latest/mobile_init.js'),
                 'otherdata' => '',
                 'files' => []
         ];
@@ -1480,6 +1482,6 @@ class mobile {
      * @return string Folder name
      */
     public static function mobile_get_folder_name($args): string {
-        return isset($args->appversioncode) && $args->appversioncode >= 3950 ? self::IONIC5_FOLDER : self::IONIC3_FOLDER;
+        return isset($args->appversioncode) && $args->appversioncode >= 44000 ? self::LATEST_FOLDER : self::IONIC5_FOLDER;
     }
 }
