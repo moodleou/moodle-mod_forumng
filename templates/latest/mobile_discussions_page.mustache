@@ -86,10 +86,10 @@
             <ion-label><% grouplabel %>: <% displaytext %></ion-label>
             <%/ displaytext %>
             <%^ displaytext %>
-            <ion-label><% grouplabel %></ion-label>
             <ion-select value="{{CONTENT_OTHERDATA.defaultgroup}}" interface="popover"
                         [interfaceOptions]="{ cssClass: 'popover-forumng' }"
                         (ionChange)="updateGroupContent({cmid: <% cmid %>, courseid: <% courseid %>, group: $event.detail.value, isupdate: 1, 'sortid': CONTENT_OTHERDATA.selectedsort})">
+                <span slot="label"><% grouplabel %></span>
                 <%# groups %>
                 <ion-select-option value="<% groupid %>"><% groupname %></ion-select-option>
                 <%/ groups %>

@@ -63,13 +63,14 @@
         </ion-label>
     </ion-item>
     <ion-item class="mma-forumng-label-subject" lines="full">
-        <ion-label position="stacked" class="mma-forumng-boldtitle mma-forumng-required-after">{{ 'plugin.mod_forumng.subject' | translate }}</ion-label>
         <ion-input (ionChange)="onSubjectChange()" type="text" [placeholder]="'plugin.mod_forumng.subject' | translate"
-                   [(ngModel)]="subject" name="subject"></ion-input>
+                   [(ngModel)]="subject" name="subject" labelPlacement="stacked">
+            <span slot="label" class="mma-forumng-boldtitle mma-forumng-required-after">{{ 'plugin.mod_forumng.subject' | translate }}</span>
+        </ion-input>
     </ion-item>
     <ion-item class="mma-forumng-label-message" lines="full">
         <ion-label position="stacked" class="mma-forumng-boldtitle mma-forumng-required-after">{{ 'plugin.mod_forumng.message' | translate }}</ion-label>
-        <core-rich-text-editor item-content (contentChanged)="onMessageChange($event)" [control]="addDiscussionControl"
+        <core-rich-text-editor (contentChanged)="onMessageChange($event)" [control]="addDiscussionControl"
                                class="forumng-add-discussion-message" [placeholder]="'plugin.mod_forumng.message' | translate" name="message">
         </core-rich-text-editor>
     </ion-item>
@@ -85,24 +86,30 @@
     <%/ cancreateattachments %>
     <%# cantag %>
     <ion-item class="mma-forumng-label-sticky ion-text-wrap" lines="full">
-        <ion-label><%{ displayoption }%></ion-label>
         <ion-toggle (ionChange)="onStickyChange()" id="mma-forumng-show-sticky"
-                    [(ngModel)]="CONTENT_OTHERDATA.showsticky"></ion-toggle>
+                    [(ngModel)]="CONTENT_OTHERDATA.showsticky">
+            <%{ displayoption }%>
+        </ion-toggle>
     </ion-item>
     <%/ cantag %>
     <%# canviewhidden %>
     <ion-item class="mma-forumng-label-date ion-text-wrap" lines="full">
         <ion-label><%{ displayperiod }%></ion-label>
-        <ion-datetime [max]="CONTENT_OTHERDATA.maxyear" (ionChange)="onDateChange($event)"
-                      [placeholder]="'core.date' | translate" [displayFormat]="dateFormat"
-                      [value]="CONTENT_OTHERDATA.showfrom != 0 ? CONTENT_OTHERDATA.showfrom : null">
-        </ion-datetime>
+        <ion-datetime-button datetime="mma-forumng-new-discussion-time" />
+        <ion-modal [keepContentsMounted]="true">
+            <ng-template>
+                <ion-datetime id="mma-forumng-new-discussion-time" [max]="CONTENT_OTHERDATA.maxyear" (ionChange)="onDateChange($event)"
+                    [value]="CONTENT_OTHERDATA.showfrom != 0 ? CONTENT_OTHERDATA.showfrom : null" presentation="date" [showDefaultButtons]="true">
+                    <span slot="title"><%{ displayperiod }%></span>
+                </ion-datetime>
+            </ng-template>
+        </ion-modal>
     </ion-item>
     <%/ canviewhidden %>
     <%# hasoption %>
     <ion-item class="mma-forumng-label-postas ion-text-wrap" lines="full">
-        <ion-label><%{ postas }%></ion-label>
-        <ion-select (ionChange)="PostAsChange($event)" value="{{CONTENT_OTHERDATA.postas}}" interface="action-sheet" class="ion-text-wrap">
+        <ion-select (ionChange)="PostAsChange($event)" value="{{CONTENT_OTHERDATA.postas}}" interface="action-sheet" class="ion-text-wrap"
+                    label="<%{ postas }%>">
             <%# options %>
             <ion-select-option value="<% key %>">
                 <% value %>
