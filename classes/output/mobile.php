@@ -48,9 +48,6 @@ class mobile {
     /** @var string  Folder of ionic5 app version */
     const IONIC5_FOLDER = 'ionic5/';
 
-    /** @var string  Folder of ionic3 app version */
-    const IONIC3_FOLDER = 'ionic3/';
-
     /**
      * @var int SHORTENED_LENGTH Shortened post message length.
      */
