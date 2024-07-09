@@ -67,9 +67,6 @@ if (!has_capability('mod/forumng:editanypost', $forum->get_context(), $USER->id)
     throw new moodle_exception('edit_nopermission', 'forumng');
 }
 
-// Get update button, if allowed for current user.
-$strforum = get_string('modulename', 'forum');
-
 // Display header.
 $out = $forum->init_page($pageurl, get_string('deletedposts', 'forumngfeature_deletedposts'));
 print $out->header();

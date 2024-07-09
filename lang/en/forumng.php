@@ -633,6 +633,7 @@ group.';
 $string['error_cannotunsubscribefromgroup'] = 'You are not permitted to unsubscribe from your
 selected group.';
 $string['error_invalidsubscriptionrequest'] = 'Your subscription request is invalid.';
+$string['error_nooldforum'] = 'Old forum not installed.';
 $string['error_unknownsort'] = 'Unknown sort option.';
 $string['error_ratingthreshold'] = 'Rating threshold must be a positive number.';
 $string['error_duplicate'] = 'You have already created a post using the previous form. (This error

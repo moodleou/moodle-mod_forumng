@@ -4705,7 +4705,7 @@ WHERE
                     $subject = $subjects[$newid];
                     $parentsubject = $subjects[$newparentid];
                     if ($subject &&
-                        ($subject == get_string('re', 'forum') . ' ' . $parentsubject
+                        ($subject == get_string('re', 'forumng', $parentsubject)
                         || $subject == $parentsubject)) {
                         $removesubjects[] = $newid;
                     }

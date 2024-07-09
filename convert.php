@@ -60,6 +60,11 @@ class mod_forumng_convert_form extends moodleform {
     }
 }
 
+// This script won't work if the old forum is not installed.
+if (!array_key_exists('forum', \core_plugin_manager::instance()->get_plugins_of_type('mod'))) {
+    throw new \moodle_exception('error_nooldforum', 'forumng');
+}
+
 $courseid = required_param('course', PARAM_INT);
 $course = $DB->get_record('course', array('id' => $courseid), '*', MUST_EXIST);
 require_login($course);
