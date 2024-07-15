@@ -778,7 +778,7 @@
         };
         // Same for isOnline.
         outerThis.isOnline = function() {
-            return outerThis.CoreAppProvider.isOnline();
+            return outerThis.CoreNetwork.isOnline();
         };
 
         /**
@@ -942,7 +942,7 @@
         }, 100);
 
         outerThis.isOnline = function() {
-            return outerThis.CoreAppProvider.isOnline();
+            return outerThis.CoreNetwork.isOnline();
         };
 
         var PopoverTransition = function() {
@@ -1681,7 +1681,7 @@
         var currentOuterThis = outerThis;
         // Same for isOnline.
         outerThis.isOnline = function() {
-            return outerThis.CoreAppProvider.isOnline();
+            return outerThis.CoreNetwork.isOnline();
         };
         outerThis.deleteDraftInPage = function(draftid) {
             t.mod_forumng.deleteDraft(currentOuterThis, draftid, true);
@@ -1867,14 +1867,14 @@
 
         // Network online check that disables the submission button if the app is offline.
         if (!t.mod_forumng.subscription) {
-            t.mod_forumng.subscription = outerThis.Network.onChange().subscribe(function(online) {
+            t.mod_forumng.subscription = outerThis.CoreNetwork.onChange().subscribe(function(online) {
                 if (!document.getElementById('mma-forumng-add-discussion-button')) {
                     t.mod_forumng.subscription.unsubscribe();
                     delete t.mod_forumng.subscription;
                     return;
                 }
                 // Disable the add discusion button if the device goes offline.
-                document.getElementById('mma-forumng-add-discussion-button').disabled = !t.CoreAppProvider.isOnline();
+                document.getElementById('mma-forumng-add-discussion-button').disabled = !t.CoreNetwork.isOnline();
             });
         }
     };
