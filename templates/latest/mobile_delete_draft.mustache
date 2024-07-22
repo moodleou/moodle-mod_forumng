@@ -42,12 +42,12 @@
     <div class="delete-draft-message-warning">
         <% deletemessage %>
     </div>
-    <button ion-button id="mod_forumg_delete_draft" (click)="deleteDraftInPage(CONTENT_OTHERDATA.draftid)" [disabled]="!isOnline()" >
+    <ion-button id="mod_forumg_delete_draft" (click)="deleteDraftInPage(CONTENT_OTHERDATA.draftid)" [disabled]="!isOnline()" >
         {{ 'plugin.mod_forumng.deletepostbutton' | translate }}
-    </button>
-    <button ion-button color="primary" class="button-cancel-draft" (click)="cancelDeleteDraft()" [disabled]="!isOnline()">
+    </ion-button>
+    <ion-button class="button-cancel-draft" (click)="cancelDeleteDraft()" [disabled]="!isOnline()">
         {{ 'core.cancel' | translate }}
-    </button>
+    </ion-button>
 </div>
 
 
@@ -56,7 +56,7 @@
         <ion-item>
             <core-format-text text-wrap class="mma-forumng-draft-subject" text=" <% subject %>"></core-format-text>
         </ion-item>
-        <ion-item>
+        <ion-item lines="none">
             <core-format-text text-wrap class="mma-forumng-draft-message" text=" <% message %>"></core-format-text>
         </ion-item>
     </ion-list>
