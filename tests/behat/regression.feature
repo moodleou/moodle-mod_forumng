@@ -28,16 +28,16 @@ Feature: To Create a ForumNG on Learn2
       | Message | Test Split on Learn2 |
     And I follow "Reply"
     And I reply to post "1" with the following data:
-      | Message    | Text r1                              |
-      | Attachment | mod/forumng/tests/fixtures/Reply.txt |
-    And I reply to post "1" with the following data:
       | subject | MOD01-r2 |
       | Message | Text r2  |
-    And I click on "Split" "link"
+    And I reply to post "1" with the following data:
+      | Message    | Text r1                              |
+      | Attachment | mod/forumng/tests/fixtures/Reply.txt |
+    And I click on "Split" "link" in the "li.forumng-split" "css_element"
     And I should see "A new discussion will be created (shown below)."
     And I press "Cancel"
-    And I expand post "2"
-    And I click on "Split" "link"
+    And I expand post "3"
+    And I click on "Split" "link" in the "li.forumng-split" "css_element"
     And I set the field "subject" to "MOD01-r1 "
     And I press "Split post as new discussion"
     Then I should see "MOD01-r1"
