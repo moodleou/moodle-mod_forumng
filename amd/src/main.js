@@ -754,23 +754,6 @@ class Main {
 
                     doc.body.focus();
                     window.scrollTo(0, 0);
-                } else {
-                    // Handle specific cases for theme OU.
-                    if (Config.theme.includes('ou')) {
-                        const parentNode = iframe.parentNode.parentNode;
-                        if (parentNode) {
-                            iframe.width = parentNode.getComputedStyle('width');
-                        }
-
-                        if (this.isMobile()) {
-                            const margin = parseInt(parentNode.getComputedStyle('width')) - doc.body.scrollWidth;
-                            if (margin < 0) {
-                                iframecon.style.marginLeft = `${margin}px`;
-                                iframe.style.width = `${doc.body.scrollWidth}px`;
-                                iframecon.style.width = `${doc.body.scrollWidth}px`;
-                            }
-                        }
-                    }
                 }
 
                 counter++;
