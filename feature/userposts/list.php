@@ -565,7 +565,7 @@ function get_all_user_post_counts_sql($groupid, $ignoreanon = false, $start = nu
     AND fp.oldversion = 0';
 
     if ($groupid != mod_forumng::NO_GROUPS && $groupid != mod_forumng::ALL_GROUPS) {
-        $getuserswhere .= ' AND (fd.groupid = :fd_groupid'.$suffix.'OR fd.groupid IS NULL)';
+        $getuserswhere .= ' AND (fd.groupid = :fd_groupid' . $suffix . ' OR fd.groupid IS NULL)';
         $getusersparams['fd_groupid'.$suffix] = $groupid;
     }
 
