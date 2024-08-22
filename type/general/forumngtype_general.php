@@ -213,6 +213,10 @@ class forumngtype_general extends forumngtype {
             print '<p class="forumng-nodiscussions">' .
                 $this->get_string($forum, 'nodiscussions') . '</p>';
         }
+        if (isset($SESSION->forumng_mergefrom)) {
+            $discussionid = $SESSION->forumng_mergefrom->discussionid;
+            $PAGE->requires->js_call_amd('mod_forumng/mergediscussion', 'init' , [['discussionid' => $discussionid]]);
+        }
 
         print $out->render_forum_footer_above($forum, $groupid);
 

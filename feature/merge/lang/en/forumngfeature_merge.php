@@ -21,8 +21,14 @@
  * @copyright 2011 The Open University
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-$string['merge'] = 'Merge';
+
 $string['beginmerge'] = 'Begin merge';
+$string['cancelmerge'] = 'Cancel merge';
+$string['cannotmergehere'] = '(Cannot merge here.)';
+$string['error_wrongforum'] = 'Cannot merge into different forum';
+$string['merge'] = 'Merge';
+$string['mergedsuccessfully'] = 'Discussion merged successfully';
+$string['mergehere'] = 'Merge here';
 $string['mergeinfo'] = 'To merge this discussion into another:<ol>
 <li>Click <strong>Begin merge</strong> to confirm this form.</li>
 <li>Go to the discussion that you want to merge it into. (This must be in the
@@ -30,9 +36,6 @@ same forum.)</li>
 <li>Click <strong>Merge here</strong> to finish the merge, or
 the <strong>Cancel</strong> button alongside if you change your mind.</li>
 </ol>';
-$string['mergehere'] = 'Merge here';
-$string['cancelmerge'] = 'Cancel merge';
-$string['cannotmergehere'] = '(Cannot merge here.)';
-$string['error_wrongforum'] = 'Cannot merge into different forum';
+$string['merginginstructions'] = 'Merging Instructions';
 $string['pluginname'] = 'Merge discussions';
 $string['privacy:metadata:preference:forumng_hidemergehelp'] = 'Hide instruction to merge a discussion into another.';

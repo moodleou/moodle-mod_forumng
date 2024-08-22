@@ -36,7 +36,15 @@ class forumngfeature_merge extends forumngfeature_discussion {
     }
 
     public function display($discussion) {
-        global $SESSION;
+        global $SESSION, $PAGE;
+
+        $discussionid = 0;
+        if (isset($SESSION->forumng_mergefrom)) {
+            $discussionid = $SESSION->forumng_mergefrom->discussionid;
+        }
+
+        $PAGE->requires->js_call_amd('mod_forumng/mergediscussion', 'init', [['discussionid' => $discussionid]]);
+
         if (isset($SESSION->forumng_mergefrom)) {
             if ($SESSION->forumng_mergefrom->discussionid == $discussion->get_id() ||
                     $SESSION->forumng_mergefrom->forumid != $discussion->get_forum()->get_id()) {
@@ -55,8 +63,10 @@ class forumngfeature_merge extends forumngfeature_discussion {
                         get_string('cancel') . '" />', true);
             }
         } else {
+            $script = !get_user_preferences('forumng_hidemergehelp', 0) ? '' : 'feature/merge/merge.php';
             return parent::get_button($discussion,
-                get_string('merge', 'forumngfeature_merge'), 'feature/merge/merge.php');
+                get_string('merge', 'forumngfeature_merge'), $script, false, [], '', false, false, 'merge-form');
         }
+
     }
 }

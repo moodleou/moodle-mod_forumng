@@ -25,6 +25,7 @@ require_once('../../../../config.php');
 require_once($CFG->dirroot . '/mod/forumng/mod_forumng.php');
 
 $d = required_param('d', PARAM_INT);
+$hidelater = optional_param('hidelater', 0, PARAM_INT);
 $pageparams = array('d'=>$d);
 $cloneid = optional_param('clone', 0, PARAM_INT);
 if ($cloneid) {
@@ -42,8 +43,6 @@ $course = $forum->get_course();
 
 // Set up page
 $pagename = get_string('merge', 'forumngfeature_merge');
-$url = new moodle_url('/mod/forumng/feature/merge/merge.php', $pageparams);
-$out = $discussion->init_page($url, $pagename);
 
 // Require that you can see this discussion (etc) and merge them
 $discussion->require_view();
@@ -55,7 +54,7 @@ if ($stage == 2) {
     if (!confirm_sesskey()) {
         throw new moodle_exception('invalidsesskey');
     }
-
+    $success = false;
     if (!isset($_POST['cancel'])) {
         // Get source discussion and check permissions
         $sourcediscussion = mod_forumng_discussion::get_from_id(
@@ -71,38 +70,26 @@ if ($stage == 2) {
 
         // Do actual merge
         $sourcediscussion->merge_into($discussion);
+        $success = true;
     }
 
     unset($SESSION->forumng_mergefrom);
-    redirect('../../discuss.php?' . $discussion->get_link_params(mod_forumng::PARAM_PLAIN));
+
+    $redirecturl = '../../discuss.php?' . $discussion->get_link_params(mod_forumng::PARAM_PLAIN);
+    $message = $success ? get_string('mergedsuccessfully', 'forumngfeature_merge') : null;
+    $notificationtype = $success ? \core\output\notification::NOTIFY_SUCCESS : null;
+
+    redirect($redirecturl, $message, null, $notificationtype);
 }
 
-// Create form
-require_once('merge_form.php');
-$mform = new mod_forumng_merge_form('merge.php', array('d'=>$d, 'clone'=>$cloneid));
-
-if ($mform->is_cancelled()) {
-    redirect('../../discuss.php?' . $discussion->get_link_params(mod_forumng::PARAM_PLAIN));
-} else if (($fromform = $mform->get_data(false)) ||
-    get_user_preferences('forumng_hidemergehelp', 0)) {
-    // Remember in session that the discussion is being merged
-    $SESSION->forumng_mergefrom = new stdClass;
-    $SESSION->forumng_mergefrom->discussionid = $d;
-    $SESSION->forumng_mergefrom->forumid = $forum->get_id();
-    $SESSION->forumng_mergefrom->cloneid = $cloneid;
-
-    if (!empty($fromform->hidelater)) {
-        set_user_preference('forumng_hidemergehelp', 1);
-    }
-
-    // Redirect back to view page
-    redirect($forum->get_url(mod_forumng::PARAM_PLAIN));
+// Remember in session that the discussion is being merged.
+$SESSION->forumng_mergefrom = new stdClass;
+$SESSION->forumng_mergefrom->discussionid = $d;
+$SESSION->forumng_mergefrom->forumid = $forum->get_id();
+$SESSION->forumng_mergefrom->cloneid = $cloneid;
+if ($hidelater) {
+    set_user_preference('forumng_hidemergehelp', 1);
 }
 
-// Work out navigation for header
-print $out->header();
-
-// Print form
-$mform->display();
-
-print $out->footer();
+// Redirect back to view page.
+redirect($forum->get_url(mod_forumng::PARAM_PLAIN));

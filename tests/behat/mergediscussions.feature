@@ -1,4 +1,4 @@
-@mod @mod_forumng @ou @ou_vle @mod_forumng_postanon
+@mod @mod_forumng @ou @ou_vle @mod_forumng_postanon @javascript
 Feature: Test merge discussions functionality
   In order to manage forum discussions
   As a teacher
@@ -35,6 +35,7 @@ Feature: Test merge discussions functionality
     And I should see "Discussion 1" in the ".forumng-discussionlist tr.r1 td.forumng-subject" "css_element"
     When I follow "Discussion 1"
     And I press "Merge"
+    Then I should see "Begin merge" in the "Merging Instructions" "dialogue"
     And I press "Begin merge"
     And I follow "Discussion 2"
     And I press "Merge here"
@@ -59,7 +60,7 @@ Feature: Test merge discussions functionality
     When I follow "Discussion 1"
     And I press "Merge"
     Then I should see "Begin merge"
-    When I press "Cancel"
+    When I click on "Cancel" "button" in the "Merging Instructions" "dialogue"
     Then I should see "Discussion 1" in the ".forumng-subject" "css_element"
     And "Merge" "button" should exist
     # Cancel before completing the merge
@@ -84,13 +85,7 @@ Feature: Test merge discussions functionality
     When I follow "Discussion 1"
     And I press "Merge"
     And I press "Begin merge"
-    And I follow "Discussion 1"
-    Then "Cancel merge" "button" should exist
-    And I should see "(Cannot merge here.)" in the ".forumngfeature-merge-extrahtml" "css_element"
-    When I press "Cancel merge"
-    Then I should see "Discussion 1" in the ".forumng-subject" "css_element"
-    And ".forumngfeature-merge-extrahtml" "css_element" should not exist
-    And "Merge" "button" should exist
+    And "tr.forumng-discussion-short.r0.disabled" "css_element" should exist
 
   Scenario: Cannot merge with discussion in another forum
     Given I log in as "teacher1"
