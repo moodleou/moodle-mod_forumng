@@ -228,9 +228,6 @@ ORDER BY
         $textoptions = new stdClass();
         // Don't put a <p> tag round post
         $textoptions->para = false;
-        // Does not indicate that we trust the text, only that the
-        // TRUSTTEXT marker would be supported. At present though it isn't (hm)
-        $textoptions->trusttext = false;
         if (trusttext_active() && $this->get_user_id() && has_capability('moodle/site:trustcontent',
                 $context, $this->get_user_id())) {
             // Support trusted text when initial author is safe.
