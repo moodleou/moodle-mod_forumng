@@ -21,7 +21,7 @@ Feature: Clone forum
       | forumng_enableadvanced | 1 |
     And I am on the "C1" "Course" page logged in as admin
     And I turn editing mode on
-    And I add a "ForumNG" to section "1" and I fill the form with:
+    And I add a forumng activity to course "Course 1" section "1" and I fill the form with:
       | Forum name | Test forum |
       | cmidnumber | TF1 |
       | id_shared | 1 |
@@ -30,7 +30,7 @@ Feature: Clone forum
       | Subject | D1 |
       | Message | abc |
     And I am on the "C2" "Course" page
-    And I add a "ForumNG" to section "1" and I fill the form with:
+    And I add a forumng activity to course "Course 2" section "1" and I fill the form with:
       | Forum name | Test clone forum |
       | id_usesharedgroup_useshared | 1 |
       | id_usesharedgroup_originalcmidnumber | TF1 |

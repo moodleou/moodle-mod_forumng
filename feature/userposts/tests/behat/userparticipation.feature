@@ -21,7 +21,7 @@ Feature: Add forumng activity and test user ratings
     And I log in as "admin"
     And I am on "Course 1" course homepage
     And I turn editing mode on
-    And I add a "ForumNG" to section "1" and I fill the form with:
+    And I add a forumng activity to course "Course 1" section "1" and I fill the form with:
       | Forum name                  | Test forum name        |
       | Forum introduction          | Test forum description |
       | Allow posts to be rated     | 2                      |

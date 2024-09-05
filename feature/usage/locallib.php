@@ -107,8 +107,8 @@ class forumngfeature_usage_usagechartdate extends moodleform {
                 'startyear' => userdate($COURSE->startdate, '%Y'),
                 'optional' => true,
                 'stopyear' => date('Y'));
-        $mform->addElement('date_selector', 'usagedatefrom', get_string('from'), $options);
-        $mform->addElement('date_selector', 'usagedateto', get_string('to'), $options);
+        $mform->addElement('date_selector', 'usagedatefrom', get_string('from', 'forumngfeature_usage'), $options);
+        $mform->addElement('date_selector', 'usagedateto', get_string('to', 'forumngfeature_usage'), $options);
         foreach ($this->_customdata['params'] as $param => $val) {
             $mform->addElement('hidden', $param, $val);
             $mform->setType($param, PARAM_INT);

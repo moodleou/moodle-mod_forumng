@@ -96,7 +96,7 @@ Feature: To Create a ForumNG on Learn2
   Scenario: Verify "Attachment"
     Given I log in as "admin"
     And I am on "Course1" course homepage with editing mode on
-    And I add a "ForumNG" to section "1"
+    And I add a "ForumNG" to section "1" using the activity chooser
     And I set the field "Forum" to "F.wc"
     And I press "Save and display"
     And I press "Start a new discussion"
@@ -116,7 +116,7 @@ Feature: To Create a ForumNG on Learn2
   Scenario: Verify "Save as draft Attachment"
     Given I log in as "admin"
     And I am on "Course1" course homepage with editing mode on
-    And I add a "ForumNG" to section "1"
+    And I add a "ForumNG" to section "1" using the activity chooser
     And I set the field "Forum" to "F.wc"
     And I press "Save and display"
     And I press "Start a new discussion"

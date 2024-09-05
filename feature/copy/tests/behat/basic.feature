@@ -95,7 +95,7 @@ Feature: Copy discussions to another forum
     Given I log in as "admin"
     And I am on "Course 1" course homepage
     And I turn editing mode on
-    And I add a "ForumNG" to section "2" and I fill the form with:
+    And I add a forumng activity to course "Course 1" section "2" and I fill the form with:
       | name | Will change |
       | usesharedgroup[useshared] | 1 |
       | usesharedgroup[originalcmidnumber] | SHARED |
@@ -111,8 +111,8 @@ Feature: Copy discussions to another forum
     Then I should see "Copy discussion"
     When I press "Begin copy"
     And I am on "Course 1" course homepage
-    And I click on "Test shared forum" "link" in the "Topic 2" "section"
+    And I click on "Test shared forum" "link" in the "New section" "section"
     And I press "Paste discussion"
     Then I should see "To be copied"
     And I press "Open course index"
-    Then I should see "Topic 2"
+    Then I should see "New section"

@@ -6,18 +6,18 @@ Feature: Add forumng activity and test basic ratings functionality
 
   Background:
     Given the following "users" exist:
-      | username | firstname | lastname | email |
-      | teacher1 | Teacher | 1 | teacha1@asd.com |
+      | username | firstname | lastname | email           |
+      | teacher1 | Teacher   | 1        | teacha1@asd.com |
     And the following "courses" exist:
       | fullname | shortname | category |
-      | Course 1 | C1 | 0 |
+      | Course 1 | C1        | 0        |
     And the following "course enrolments" exist:
-      | user | course | role |
-      | teacher1 | C1 | teacher |
+      | user     | course | role    |
+      | teacher1 | C1     | teacher |
     And I log in as "admin"
     And I am on "Course 1" course homepage
     And I turn editing mode on
-    When I add a "ForumNG" to section "1" and I fill the form with:
+    And I add an forumng activity to course "Course 1" section "1" and I fill the form with:
       | Forum name | Test forum name |
       | Forum introduction | Test forum description |
       | Allow posts to be rated | 2 |
@@ -26,10 +26,10 @@ Feature: Add forumng activity and test basic ratings functionality
     And I am on the "Test forum name" "forumng activity" page
     And I add a discussion with the following data:
       | Subject | Admin1 |
-      | Message | Test |
+      | Message | Test   |
     And I reply to post "1" with the following data:
       | Change subject (optional) | Admin2 |
-      | Message | Test2 |
+      | Message                   | Test2  |
     # Forum chooses average of ratings by default for point scales.
     Then I should see "Average of ratings"
     And I am on homepage
@@ -43,7 +43,7 @@ Feature: Add forumng activity and test basic ratings functionality
     And I follow "Admin1"
     When I reply to post "2" with the following data:
       | Change subject (optional) | Teacher1 post |
-      | Message | Test 3 |
+      | Message                   | Test 3        |
     Then I should see "Test2"
     And I should see "Test 3"
     And ".forumng-ratings-standard" "css_element" should exist
