@@ -47,7 +47,7 @@ Feature: Add forumng activity and test mark post all read in the app.
     # Test mark as all read function on post page.
     And I am on homepage
     When I log in as "student1"
-    And I change viewport size to "1280x768"
+    And I change viewport size to "1280x768" without runtime scaling
     And I am on "Course 1" course homepage
     And I follow "Test forum name"
     When I click on "Change" "link"
