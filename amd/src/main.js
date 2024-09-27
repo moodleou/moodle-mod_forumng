@@ -2117,7 +2117,7 @@ class Main {
             form.intro.classList.add('forumng-selectintro');
             main.parentNode.insertBefore(form.intro, main);
             const introText = document.createElement('p');
-            introText.textContent = this.stringList.selectintro;
+            introText.innerHTML = this.stringList.selectintro;
             form.intro.appendChild(introText);
 
             // Make buttons to select all/none.
@@ -2231,7 +2231,7 @@ class Main {
             info.appendChild(span);
             post.extraSpan = span;
             post.classList.add('forumng-deselected');
-            const postid = post.querySelector('> a').id;
+            const postid = post.querySelector(':scope > a').id;
 
             const check = document.createElement('input');
             check.setAttribute('type', 'checkbox');
