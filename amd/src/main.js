@@ -309,8 +309,6 @@ class Main {
             this.initDeldiscussion(div1);
         }
 
-        // Set up magic links.
-        this.forumng_expirelinks = [];
         this.initContent(document.querySelector('#forumng-main'));
 
         // Hide 'save ratings' button if present.
@@ -2009,7 +2007,7 @@ class Main {
             if (match) {
                 const linkMatch = link.href.match(/draft=([0-9]+)(&clone=[0-9]+)?$/);
                 if (linkMatch) {
-                    link.href = `discuss.php?d=${match[1]}${this.cloneparam}&draft=${linkMatch[1]}#p${match[2]}`;
+                    link.href = `discuss.php?d=${match[1]}${this.cloneParam}&draft=${linkMatch[1]}#p${match[2]}`;
                 }
             }
         });
