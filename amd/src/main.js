@@ -996,14 +996,9 @@ class Main {
                 } else {
                     replies = document.createElement('div');
                     replies.className = 'forumng-replies';
-                    let existingReplies = document.querySelector('.forumng-replies');
-                    if (existingReplies) {
-                        replies = existingReplies;
-                    } else {
-                        // Insert the newly created replies div.
-                        post.parentNode.insertBefore(replies, post.nextElementSibling);
-                        this.applyStopIndents();
-                    }
+                    // Insert the newly created replies div.
+                    post.parentNode.insertBefore(replies, post.nextElementSibling);
+                    this.applyStopIndents();
                 }
 
                 // Add item there.
