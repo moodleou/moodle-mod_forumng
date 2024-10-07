@@ -315,8 +315,8 @@ class mod_forumng_discussion_testcase  extends forumng_test_lib {
         $tagsused2 = $forum->get_tags_used($group2->id);
         $this->assertCount(1, $tagsused2);
         $this->assertArrayHasKey($tagid, $tagsused2);
-        $this->assertObjectHasAttribute('displayname', $tagsused2[$tagid]);
-        $this->assertObjectHasAttribute('count', $tagsused2[$tagid]);
+        $this->assertObjectHasProperty('displayname', $tagsused2[$tagid]);
+        $this->assertObjectHasProperty('count', $tagsused2[$tagid]);
         $this->assertEquals('tag1', $tagsused2[$tagid]->displayname);
         $this->assertEquals(1, $tagsused2[$tagid]->count);
 
