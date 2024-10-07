@@ -1087,5 +1087,7 @@ $string['onlyposnum'] = 'Only accepts positive numbers.';
 $string['savecheck'] = 'Enable save check';
 $string['savecheck_desc'] = 'Enable checking of session etc on submitting the post form.';
 
+$string['subplugintype_forumngfeature'] = 'Forum feature';
+$string['subplugintype_forumngtype'] = 'Forum type';
 $string['subplugintype_forumngfeature_plural'] = 'Forum features';
 $string['subplugintype_forumngtype_plural'] = 'Forum types';
