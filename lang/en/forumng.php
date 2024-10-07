@@ -192,6 +192,8 @@ $string['pluginadministration'] = 'ForumNG administration';
 $string['modulename'] = 'ForumNG';
 $string['pluginname'] = 'ForumNG';
 $string['modulenameplural'] = 'ForumNGs';
+$string['subplugintype_forumngfeature_plural'] = 'ForumNG feature sub-plugins';
+$string['subplugintype_forumngtype_plural'] = 'ForumNG type sub-plugins';
 $string['forbidattachments'] = 'Attachments not permitted';
 $string['configenablerssfeeds'] = 'This switch will enable the possibility of RSS feeds for all
 forums.  You will still need to turn feeds on manually in the settings for each forum, or below.';
