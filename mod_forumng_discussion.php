@@ -1680,7 +1680,8 @@ WHERE
         // Merging the discussion into another might cause completion changes
         // (if there was a requirement for discussions and this is no longer
         // a discussion in its own right).
-        $this->update_completion(false);
+        $targetdiscussion = self::get_from_id($targetdiscussion->get_id(), 0, -1);
+        $targetdiscussion->update_completion(false);
 
         if ($log) {
             $this->log('merge discussion', 'd' . $this->get_id() . ' into d' .
