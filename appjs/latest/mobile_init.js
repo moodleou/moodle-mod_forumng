@@ -23,56 +23,88 @@
 (function (t) {
     t.mod_forumng = {};
     t.removeEvent = true;
+    window.mod_forumng_init = t;
 
     /* Register a link handler to open mod/forumng/view.php links anywhere in the app. */
-    function AddonModForumngLinkHandler() {
-        t.CoreContentLinksModuleIndexHandler.call(this, t.CoreCourseHelperProvider, 'mmaModForumng', 'forumng');
-        this.name = "AddonModForumngLinkHandler";
+    class AddonModForumngLinkHandler extends t.CoreContentLinksModuleIndexHandler {
+        constructor() {
+            super('mmaModForumng', 'forumng');
+            this.name = 'AddonModForumngLinkHandler';
+        }
     }
-    AddonModForumngLinkHandler.prototype = Object.create(t.CoreContentLinksModuleIndexHandler.prototype);
-    AddonModForumngLinkHandler.prototype.constructor = AddonModForumngLinkHandler;
-    t.CoreContentLinksDelegate.registerHandler(new AddonModForumngLinkHandler());
+    t.CoreContentLinksDelegate.registerHandler(new AddonModForumngLinkHandler);
 
     /* Register a link handler to open mod/forumng/discuss links anywhere in the app. */
-    function AddonModForumNGModuleDiscussionLinkToPageHandler() {
-        this.pattern = new RegExp('\/mod\/forumng\/discuss\\.php\\?d=(\\d+)#p(\\d+)');
-        this.name = "AddonModForumNGModuleDiscussionLinkToPageHandler";
-        this.priority = 0;
-    }
-    AddonModForumNGModuleDiscussionLinkToPageHandler.prototype = Object.create(t.CoreContentLinksHandlerBase.prototype);
-    AddonModForumNGModuleDiscussionLinkToPageHandler.prototype.constructor = AddonModForumNGModuleDiscussionLinkToPageHandler;
-    AddonModForumNGModuleDiscussionLinkToPageHandler.prototype.getActions = function(siteIds, url, params) {
-        var action = {
-            action: function(siteId, navCtrl) {
-                t.CoreSitesProvider.getSite(siteId).then(function(site) {
-                    site.read('mod_forumng_get_discussion', {discussionid: parseInt(params.d, 10)}).then(function(result) {
-                        if (!result) {
-                            return Promise.reject(that.CoreWSProvider.createFakeWSError(response.errormsg));
-                        } else {
-                            var pageParams = {
-                                title: result.subject,
-                                component: 'mod_forumng',
-                                method: 'posts_view',
-                                args: {discussionid: params.d},
-                                initResult: {},
-                            };
-                            t.CoreContentLinksHelperProvider.goInSite(navCtrl, 'CoreSitePluginsPluginPage', pageParams, siteId);
-                        }
-                    });
-                });
-            }
-        };
-        return [action];
-    };
-    t.CoreContentLinksDelegate.registerHandler(new AddonModForumNGModuleDiscussionLinkToPageHandler());
+    class AddonModForumNGModuleDiscussionLinkToPageHandler extends t.CoreContentLinksHandlerBase {
+        constructor() {
+            super();
+            this.pattern = new RegExp('\/mod\/forumng\/discuss\\.php\\?d=(\\d+)#p(\\d+)');
+            this.name = "AddonModForumNGModuleDiscussionLinkToPageHandler";
+            this.priority = 0;
+        }
 
-   t.newDiscussion = {
-       subject: '',
-       message: '',
-       files: [],
-       sticky: 0,
-       date: 0,
-       postas: 0,
+        getActions(siteIds, url, params) {
+            var action = {
+                action: (siteId, navCtrl) => {
+                    t.CoreSitesProvider.getSite(siteId).then((site) => {
+                        site.read('mod_forumng_get_discussion', {discussionid: parseInt(params.d, 10)}).then((result) => {
+                            if (!result) {
+                                return Promise.reject(that.CoreWSProvider.createFakeWSError(response.errormsg));
+                            } else {
+                                const args = {
+                                    contextlevel: result.contextLevel,
+                                    instanceid: result.instanceid,
+                                    courseid: result.courseid,
+                                    messageid: result.messageid
+                                };
+                                const hash = t.Md5.hashAsciiStr(JSON.stringify(args));
+                                const pageParams = {
+                                    title: result.subject,
+                                    component: 'mod_forumng',
+                                    method: 'posts_view',
+                                    args: {discussionid: params.d},
+                                };
+                                t.CoreNavigatorService.navigateToSitePath('siteplugins/content/mod_forumng/posts_view/' + hash,
+                                    { params: pageParams });
+                            }
+                        });
+                    });
+                }
+            };
+            return [action];
+        }
+
+    }
+    t.CoreContentLinksDelegate.registerHandler(new AddonModForumNGModuleDiscussionLinkToPageHandler);
+
+    /**
+     * Even though we don't require downloadables for the forum, we still want to manage forum data on the "Course Downloads" page,
+     * thus we must register module prefetch handlers so that the getModuleStoredSize function can identify this activity.
+     * src\core\features\course\services\module-prefetch-delegate.ts
+     *
+     * Create a class that extends from CoreCourseActivityPrefetchHandlerBase.
+     */
+    class AddonModForumngModulePrefetchHandler extends t.CoreCourseActivityPrefetchHandlerBase {
+        constructor() {
+            super();
+            this.name = 'AddonModForumngModulePrefetchHandler';
+            this.modName = 'forumng';
+            // This must match the plugin identifier from db/mobile.php.
+            this.component = 'mod_forumng';
+            this.updatesNames = /^configuration$|^.*files$/;
+            this.skipListStatus = true;
+        }
+    }
+
+    t.CoreCourseModulePrefetchDelegate.registerHandler(new AddonModForumngModulePrefetchHandler());
+
+    t.newDiscussion = {
+        subject: '',
+        message: '',
+        files: [],
+        sticky: 0,
+        date: 0,
+        postas: 0,
     };
     t.currentReply = {
         subject: '',
@@ -97,19 +129,19 @@
     t.showfrom = 0;
     t.showsticky = 0;
 
-   t.editDraft = {
-       subject: '',
-       message: '',
-       files: [],
-       sticky: 0,
-       date: 0,
-       postas: 0,
-       important: 0,
-       draftexists: '',
-   };
-   t.isAddDraft = 0;
-   t.isEditDraft = 0;
-   t.isAddDiscussion = 0;
+    t.editDraft = {
+        subject: '',
+        message: '',
+        files: [],
+        sticky: 0,
+        date: 0,
+        postas: 0,
+        important: 0,
+        draftexists: '',
+    };
+    t.isAddDraft = 0;
+    t.isEditDraft = 0;
+    t.isAddDiscussion = 0;
 
     /**
      * Handles a request for more discussions, getting the next chunk and displaying.
@@ -135,12 +167,12 @@
                     that.CONTENT_OTHERDATA.discussions.push(discussion);
                 });
                 that.CONTENT_OTHERDATA.page = page;
-                infiniteScrollEvent.complete();
+                infiniteScrollEvent.target.complete();
             }).catch(function() {
-                infiniteScrollEvent.complete();
+                infiniteScrollEvent.target.complete();
             });
         } else {
-            infiniteScrollEvent.complete();
+            infiniteScrollEvent.target.complete();
         }
     };
 
@@ -189,18 +221,18 @@
         var showsticky = that.CONTENT_OTHERDATA.showsticky;
         var showfrom = that.CONTENT_OTHERDATA.showfrom;
         var postas = that.CONTENT_OTHERDATA.postas;
-        showfrom = showfrom !== 0 ? Date.parse(showfrom) / 1000 : 0;
+        showfrom = showfrom !== 0 ? Math.round(Date.parse(showfrom) / 1000) : 0;
         //var discTimecreated = Date.now(); //TODO part of offline - that.timeCreated || Date.now();
         var saveOffline = false;
         var modal;
         var promise;
         var regexp = /\S+/;
         if (!subject || !subject.match(regexp)) {
-            that.CoreUtilsProvider.domUtils.showErrorModal('plugin.mod_forumng.erroremptysubject', true);
+            that.CoreDomUtilsProvider.showErrorModal('plugin.mod_forumng.erroremptysubject', true);
             return;
         }
         if (subject && subject.length > 255) {
-            that.CoreUtilsProvider.domUtils.showErrorModal('plugin.mod_forumng.errormaximumsubjectcharacter', true);
+            that.CoreDomUtilsProvider.showErrorModal('plugin.mod_forumng.errormaximumsubjectcharacter', true);
             return;
         }
         // Check text in the message.
@@ -208,12 +240,12 @@
         div.innerHTML = message;
         var messagetext = div.textContent;
         if (!message || !messagetext.match(regexp)) {
-            that.CoreUtilsProvider.domUtils.showErrorModal('plugin.mod_forumng.erroremptymessage', true);
+            that.CoreDomUtilsProvider.showErrorModal('plugin.mod_forumng.erroremptymessage', true);
             return;
         }
         message = that.CoreTextUtilsProvider.formatHtmlLines(message);
 
-        modal = that.CoreUtilsProvider.domUtils.showModalLoading('core.sending', true);
+        modal = that.CoreDomUtilsProvider.showModalLoading('core.sending', true);
         // Upload attachments first if any.
         var error = t.mod_forumng.checkDuplicatedFiles(attachments);
         var duplicatedmessage = that.TranslateService.instant('plugin.mod_forumng.cannotuploadfile');
@@ -283,8 +315,7 @@
                 t.mod_forumng.setNeedUpdate(cmid, 1, userid);
                 //TODO check all functionality in core forum (new-discussion.ts) returnToDiscussions(discussionId) is covered.
                 // Navigate back to the discussions page and refresh to show new discussion.
-                t.mod_forumng.viewSubscribe =
-                    that.CoreAppProvider.appCtrl.viewDidEnter.subscribe(t.mod_forumng.forumngRefreshContent);
+                t.mod_forumng.forumngRefreshContent();
                 that.subject = '';
                 that.message = '';
                 that.CONTENT_OTHERDATA.files = []; // Type [FileEntry].
@@ -293,15 +324,19 @@
                 that.CONTENT_OTHERDATA.postas = 0;
                 t.newDiscussion.date = 0;
                 t.isAddDiscussion = 1;
-                that.NavController.pop();
+                that.CoreNavigatorService.back();
             }).catch(function(msg) {
-                that.CoreUtilsProvider.domUtils.showErrorModalDefault(msg, 'plugin.mod_forumng.cannotcreatediscussion', true);
+                that.CoreDomUtilsProvider.showErrorModalDefault(msg, 'plugin.mod_forumng.cannotcreatediscussion', true);
             }).finally(function() {
-                modal.dismiss();
+                modal.then(function(result) {
+                    result.dismiss();
+                })
             });
         } else {
-            modal.dismiss();
-            that.CoreUtilsProvider.domUtils.showErrorModalDefault(duplicatedmessage + error, 'plugin.mod_forumng.cannotcreatediscussion', true);
+            modal.then(function(result) {
+                result.dismiss();
+            })
+            that.CoreDomUtilsProvider.showErrorModalDefault(duplicatedmessage + error, 'plugin.mod_forumng.cannotcreatediscussion', true);
         }
 
     };
@@ -326,18 +361,18 @@
         var showfrom = that.CONTENT_OTHERDATA.showfrom ? that.CONTENT_OTHERDATA.showfrom : 0;
         var postas = that.CONTENT_OTHERDATA.postas;
         var important = that.CONTENT_OTHERDATA.important;
-        showfrom = showfrom !== 0 ? Date.parse(showfrom) / 1000 : 0;
+        showfrom = showfrom !== 0 ? Math.round(Date.parse(showfrom) / 1000) : 0;
         //var discTimecreated = Date.now(); //TODO part of offline - that.timeCreated || Date.now();
         var saveOffline = false;
         var modal;
         var promise;
         var regexp = /\S+/;
         if (!isreply && (!subject || !subject.match(regexp))) {
-            that.CoreUtilsProvider.domUtils.showErrorModal('plugin.mod_forumng.erroremptysubject', true);
+            that.CoreDomUtilsProvider.showErrorModal('plugin.mod_forumng.erroremptysubject', true);
             return;
         }
         if (subject && subject.length > 255) {
-            that.CoreUtilsProvider.domUtils.showErrorModal('plugin.mod_forumng.errormaximumsubjectcharacter', true);
+            that.CoreDomUtilsProvider.showErrorModal('plugin.mod_forumng.errormaximumsubjectcharacter', true);
             return;
         }
         // Check text in the message.
@@ -345,12 +380,12 @@
         div.innerHTML = message;
         var messagetext = div.textContent;
         if (!message || !messagetext.match(regexp)) {
-            that.CoreUtilsProvider.domUtils.showErrorModal('plugin.mod_forumng.erroremptymessage', true);
+            that.CoreDomUtilsProvider.showErrorModal('plugin.mod_forumng.erroremptymessage', true);
             return;
         }
         message = that.CoreTextUtilsProvider.formatHtmlLines(message);
 
-        modal = that.CoreUtilsProvider.domUtils.showModalLoading('core.sending', true);
+        modal = that.CoreDomUtilsProvider.showModalLoading('core.sending', true);
 
         // Upload attachments first if any.
         var error = t.mod_forumng.checkDuplicatedFiles(attachments);
@@ -442,18 +477,22 @@
                     t.isAddDraft = 1;
                 }
             }).catch(function(msg) {
-                that.CoreUtilsProvider.domUtils.showErrorModalDefault(msg, 'plugin.mod_forumng.cannotcreatedraft', true);
+                that.CoreDomUtilsProvider.showErrorModalDefault(msg, 'plugin.mod_forumng.cannotcreatedraft', true);
             }).finally(function() {
-                modal.dismiss();
+                modal.then(function(result) {
+                    result.dismiss();
+                })
             });
         } else {
-            modal.dismiss();
-            that.CoreUtilsProvider.domUtils.showErrorModalDefault(duplicatedmessage + error, 'plugin.mod_forumng.cannotcreatediscussion', true);
+            modal.then(function(result) {
+                result.dismiss();
+            })
+            that.CoreDomUtilsProvider.showErrorModalDefault(duplicatedmessage + error, 'plugin.mod_forumng.cannotcreatediscussion', true);
         }
 
     };
 
-    t.mod_forumng.deleteDiscussion = function (outerThis, site) {
+    t.mod_forumng.deleteDiscussion = async function (outerThis, site) {
         var discussionid = outerThis.CONTENT_OTHERDATA.discussionid;
         var cmid = outerThis.CONTENT_OTHERDATA.cmid;
 
@@ -463,33 +502,33 @@
                 'cloneid': cmid,
                 'isdeleted': outerThis.CONTENT_OTHERDATA.isdeleteddiscussion,
             };
-            site.write('mod_forumng_delete_discussion', args).then(function(result) {
+            site.write('mod_forumng_delete_discussion', args).then(async function(result) {
                 if (!result.errormsg) {
                     if(args.isdeleted) {
                         outerThis.refreshContent();
                     } else {
-                        outerThis.NavController.pop();
+                        outerThis.CoreNavigatorService.back();
                     }
                 } else {
-                    var alert = outerThis.AlertController.create({
-                        title: "Error",
-                        subTitle: result.errormsg,
+                    var alert = await outerThis.AlertController.create({
+                        header: "Error",
+                        message: result.errormsg,
                     });
-                    alert.present();
+                    await alert.present();
                 }
-            }).catch( function(error) {
-                var alert = outerThis.AlertController.create({
-                    title: "Error",
-                    subTitle: error,
+            }).catch(async function(error) {
+                var alert = await outerThis.AlertController.create({
+                    header: "Error",
+                    message: error,
                 });
-                alert.present();
+                await alert.present();
             });
         } else {
-            var alert = outerThis.AlertController.create({
-                title: "Error",
-                subTitle: "Offline is not supported",
+            var alert = await outerThis.AlertController.create({
+                header: "Error",
+                message: "Offline is not supported",
             });
-            alert.present();
+            await alert.present();
             //TODO switch below to our own offline functionality.
             // Will be implemented sync later.
         }
@@ -506,55 +545,45 @@
     t.mod_forumng.deleteDraft = function(that, draftid, refresh) {
         var site = that.CoreSitesProvider.getCurrentSite();
         var cmid = that.CONTENT_OTHERDATA.cmid;
-        site.write('mod_forumng_delete_draft', {'draftid': draftid, 'clone': cmid}).then(function(result) {
+        site.write('mod_forumng_delete_draft', {'draftid': draftid, 'clone': cmid}).then(async function(result) {
             if (!result.errormsg) {
                 if (refresh) {
-                    t.mod_forumng.viewSubscribe = that.CoreAppProvider.appCtrl.viewDidEnter.subscribe(t.mod_forumng.forumngDraftRefreshContent);
-                    that.NavController.pop();
+                    t.mod_forumng.forumngDraftRefreshContent()
+                    that.CoreNavigatorService.back();
                 }
                 // Don't show anything.
             } else {
-                var alert = that.AlertController.create({
-                    title: "Error",
-                    subTitle: result.errormsg,
+                var alert = await that.AlertController.create({
+                    header: "Error",
+                    message: result.errormsg,
                 });
-                alert.present();
+                await alert.present();
             }
-        }).catch( function(error) {
-            var alert = that.AlertController.create({
-                title: "Error",
-                subTitle: error,
+        }).catch(async function(error) {
+            var alert = await that.AlertController.create({
+                header: "Error",
+                message: error,
             });
-            alert.present();
+            await alert.present();
         });
     };
 
     /**
      * Allows refreshing content after creating a new discussion.
-     *
-     * @param {object} view Object returned by subscription to viewDidEnter.
      */
-    t.mod_forumng.forumngRefreshContent = function(view) {
-        if (view.name === 'CoreSitePluginsModuleIndexPage') {
-            t.mod_forumng.viewSubscribe.unsubscribe();
-            delete t.mod_forumng.viewSubscribe;
-            t.mod_forumng.currentDiscussionsPage.refreshContent();
-            // Clear forum form content after refresh.
-            t.newDiscussion.postas = 0;
-            t.newDiscussion.message = '';
-            t.newDiscussion.subject = '';
-            t.newDiscussion.files = [];
-            t.newDiscussion.date = 0;
-            t.newDiscussion.showsticky = 0;
-        }
+    t.mod_forumng.forumngRefreshContent = function() {
+        t.mod_forumng.currentDiscussionsPage.refreshContent();
+        // Clear forum form content after refresh.
+        t.newDiscussion.postas = 0;
+        t.newDiscussion.message = '';
+        t.newDiscussion.subject = '';
+        t.newDiscussion.files = [];
+        t.newDiscussion.date = 0;
+        t.newDiscussion.showsticky = 0;
     };
 
-    t.mod_forumng.forumngDraftRefreshContent = function(view) {
-        if (view.name === 'CoreSitePluginsModuleIndexPage') {
-            t.mod_forumng.viewSubscribe.unsubscribe();
-            delete t.mod_forumng.viewSubscribe;
-            t.mod_forumng.currentDiscussionsPage.refreshContent();
-        }
+    t.mod_forumng.forumngDraftRefreshContent = function() {
+        t.mod_forumng.currentDiscussionsPage.refreshContent();
     };
 
     /**
@@ -577,16 +606,16 @@
         var promise;
 
         if (subject && subject.length > 255) {
-            that.CoreUtilsProvider.domUtils.showErrorModal('plugin.mod_forumng.errormaximumsubjectcharacter', true);
+            that.CoreDomUtilsProvider.showErrorModal('plugin.mod_forumng.errormaximumsubjectcharacter', true);
             return;
         }
         if (!message) {
-            that.CoreUtilsProvider.domUtils.showErrorModal('plugin.mod_forumng.erroremptymessage', true);
+            that.CoreDomUtilsProvider.showErrorModal('plugin.mod_forumng.erroremptymessage', true);
             return;
         }
         message = that.CoreTextUtilsProvider.formatHtmlLines(message);
 
-        modal = that.CoreUtilsProvider.domUtils.showModalLoading('core.sending', true);
+        modal = that.CoreDomUtilsProvider.showModalLoading('core.sending', true);
 
         // Upload attachments first if any.
         var error = t.mod_forumng.checkDuplicatedFiles(attachments);
@@ -651,13 +680,17 @@
                 //TODO check all functionality in core forum (new-discussion.ts) returnToDiscussions(discussionId) is covered.
                 that.refreshContent();
             }).catch(function(msg) {
-                that.CoreUtilsProvider.domUtils.showErrorModalDefault(msg, 'plugin.mod_forumng.cannotlockdiscussion', true);
+                that.CoreDomUtilsProvider.showErrorModalDefault(msg, 'plugin.mod_forumng.cannotlockdiscussion', true);
             }).finally(function() {
-                modal.dismiss();
+                modal.then(function(result) {
+                    result.dismiss();
+                })
             });
         } else {
-            modal.dismiss();
-            that.CoreUtilsProvider.domUtils.showErrorModalDefault(duplicatedmessage + error, 'plugin.mod_forumng.cannotcreatediscussion', true);
+            modal.then(function(result) {
+                result.dismiss();
+            })
+            that.CoreDomUtilsProvider.showErrorModalDefault(duplicatedmessage + error, 'plugin.mod_forumng.cannotcreatediscussion', true);
         }
 
     };
@@ -699,7 +732,14 @@
         var cmid = outerThis.module.id;
         var userid = site.getUserId();
         var courseid = outerThis.courseId;
-        var preSets = {updateFrequency: 0, getFromCache: false};
+        // We need the component and componentId properties in the preset
+        // so that the CoreCourseModulePrefetchDelegate.getModuleStoredSize function can query the cache table correctly.
+        var preSets = {
+            updateFrequency: 0,
+            getFromCache: false,
+            component: 'mod_forumng',
+            componentId: cmid,
+        };
         var PopoverTransition = function() {
             var popover = document.querySelector('.popover-content');
             if (popover) {
@@ -707,14 +747,14 @@
                 popover.style.left = null;
             }
         };
-        var defaultarg = {
+        const defaultArg = {
             'cmid': cmid,
             'courseid' : courseid,
             'group' : outerThis.CONTENT_OTHERDATA.defaultgroup,
             'sortid': outerThis.CONTENT_OTHERDATA.selectedsort,
             'isupdate': '1',
         };
-        outerThis.CoreSitePluginsProvider.getContent('mod_forumng', 'forumng_view', defaultarg, preSets);
+        outerThis.CoreSitePluginsProvider.getContent('mod_forumng', 'forumng_view', defaultArg, preSets);
 
         if (t.removeEvent) {
             window.addEventListener("orientationchange", PopoverTransition);
@@ -738,28 +778,37 @@
         };
         // Same for isOnline.
         outerThis.isOnline = function() {
-            return outerThis.CoreAppProvider.isOnline();
+            return outerThis.CoreNetwork.isOnline();
         };
 
-        outerThis.ionViewWillLeave = function() {
-            var preSets = {updateFrequency: 0, getFromCache: false};
-            var updatemainpageargs = {'cmid' : cmid, 'courseid': courseid};
-            window.removeEventListener("orientationchange", PopoverTransition);
-            t.mod_forumng.getNeedUpdate(cmid, userid).then(function(result) {
-                // When we go the forum the agrs is only have {cmid, courseid} so we need to update the cache the newest version.
-                if (typeof(result) != 'undefined' && result != null && result) {
-                    t.mod_forumng.setNeedUpdate(cmid, null, userid);
-                    outerThis.CoreSitePluginsProvider.getContent('mod_forumng', 'forumng_view', updatemainpageargs, preSets);
-                }
-            });
+        /**
+         * Handle event when entering the forum discussion page.
+         */
+        outerThis.ionViewDidEnter = function() {
+            outerThis.CoreSitePluginsProvider.getContent('mod_forumng', 'forumng_view', defaultArg, preSets);
+            t.mod_forumng.setNeedUpdate(cmid, 1, userid);
+            outerThis.updateContent(defaultArg, 'mod_forumng', 'forumng_view', true);
         };
-        outerThis.showMessage = function (text) {
-            var successalert = this.AlertController.create({
-                title: '',
-                subTitle: text,
+
+        /**
+         * Handle event when leaving the forum discussion page.
+         */
+        outerThis.ionViewWillLeave = function() {
+            window.removeEventListener("orientationchange", PopoverTransition);
+            try {
+                // Get content when navigating to the forums page.
+                outerThis.CoreSitePluginsProvider.getContent('format_oustudyplan', 'forums_page', {'courseid': courseid}, preSets);
+            } catch (err) {
+                t.CoreDomUtilsProvider.showErrorModalDefault(err, '', false);
+            }
+        };
+        outerThis.showMessage = async function (text) {
+            var successalert = await this.AlertController.create({
+                header: '',
+                message: text,
                 buttons: [this.TranslateService.instant('core.ok')]
             });
-            successalert.present();
+            await successalert.present();
         };
 
         /**
@@ -776,10 +825,10 @@
      * Mark all post read.
      *
      */
-    t.mod_forumng.toMarkAllPostsRead = function(outerThis, site, cmid, courseid, userid, PopoverTransition, forumView) {
+    t.mod_forumng.toMarkAllPostsRead = async function(outerThis, site, cmid, courseid, userid, PopoverTransition, forumView) {
         if (outerThis.isOnline()) {
             if (forumView) {
-                site.write('mod_forumng_mark_all_post_read', {'cmid': cmid, 'cloneid' : cmid, 'groupid' : outerThis.CONTENT_OTHERDATA.defaultgroup}).then(function(result) {
+                site.write('mod_forumng_mark_all_post_read', {'cmid': cmid, 'cloneid' : cmid, 'groupid' : outerThis.CONTENT_OTHERDATA.defaultgroup}).then(async function(result) {
                     if (!result.errormsg) {
                         // We need to update the newest content because the cached page.
                         var args = {'cmid' : cmid, 'courseid': courseid, group: outerThis.CONTENT_OTHERDATA.defaultgroup,
@@ -790,45 +839,45 @@
                         window.removeEventListener("orientationchange", PopoverTransition);
                         outerThis.updateContent(args, 'mod_forumng', 'forumng_view', true);
                     } else {
-                        var alert = outerThis.AlertController.create({
-                            title: "Error",
-                            subTitle: result.errormsg,
+                        var alert = await outerThis.AlertController.create({
+                            header: "Error",
+                            message: result.errormsg,
                         });
-                        alert.present();
+                        await alert.present();
                     }
-                }).catch( function(error) {
-                    var alert = outerThis.AlertController.create({
-                        title: "Error",
-                        subTitle: error,
+                }).catch(async function(error) {
+                    var alert = await outerThis.AlertController.create({
+                        header: "Error",
+                        message: error,
                     });
-                    alert.present();
+                    await alert.present();
                 });
             } else {
                 // We should use default -1 not 0 for discussion.
-                site.write('mod_forumng_mark_all_post_read', {'cmid': cmid, 'cloneid' : cmid, 'groupid' : -1, 'discussionid' : outerThis.CONTENT_OTHERDATA.discussionid}).then(function(result) {
+                site.write('mod_forumng_mark_all_post_read', {'cmid': cmid, 'cloneid' : cmid, 'groupid' : -1, 'discussionid' : outerThis.CONTENT_OTHERDATA.discussionid}).then(async function(result) {
                     if (!result.errormsg) {
                         outerThis.refreshContent();
                     } else {
-                        var alert = outerThis.AlertController.create({
-                            title: "Error",
-                            subTitle: result.errormsg,
+                        var alert = await outerThis.AlertController.create({
+                            header: "Error",
+                            message: result.errormsg,
                         });
-                        alert.present();
+                        await alert.present();
                     }
-                }).catch( function(error) {
-                    var alert = outerThis.AlertController.create({
-                        title: "Error",
-                        subTitle: error,
+                }).catch(async function(error) {
+                    var alert = await outerThis.AlertController.create({
+                        header: "Error",
+                        message: error,
                     });
-                    alert.present();
+                    await alert.present();
                 });
             }
         } else {
-            var alert = outerThis.AlertController.create({
-                title: "Error",
-                subTitle: "Offline is not supported",
+            var alert = await outerThis.AlertController.create({
+                header: "Error",
+                message: "Offline is not supported",
             });
-            alert.present();
+            await alert.present();
             //TODO switch below to our own offline functionality.
             // Will be implemented sync later.
         }
@@ -857,7 +906,6 @@
         };
 
         outerThis.PostControl = outerThis.FormBuilder.control();
-        var regexp = /\S+/;
         t.removeEvent = true;
         setTimeout(function() {
             if (t.isReply) {
@@ -894,7 +942,7 @@
         }, 100);
 
         outerThis.isOnline = function() {
-            return outerThis.CoreAppProvider.isOnline();
+            return outerThis.CoreNetwork.isOnline();
         };
 
         var PopoverTransition = function() {
@@ -979,11 +1027,11 @@
         outerThis.doRefresh = function() {
             outerThis.CONTENT_OTHERDATA.refreshicon = 'spinner';
             outerThis.refreshContent().finally(function() {
-               outerThis.CONTENT_OTHERDATA.refreshicon = 'refresh';
+                outerThis.CONTENT_OTHERDATA.refreshicon = 'refresh';
             });
         };
 
-        outerThis.ionViewCanLeave = function() {
+        outerThis.canLeave = function() {
             var message = outerThis.message;
             var subject = outerThis.subject;
             var attachments = outerThis.CONTENT_OTHERDATA.files; // Type [FileEntry].
@@ -1072,8 +1120,8 @@
             return true;
         };
 
-        outerThis.showDelete = function(postid) {
-            outerThis.AlertController.create({
+        outerThis.showDelete = async function(postid) {
+            var alert = await outerThis.AlertController.create({
                 message: outerThis.TranslateService.instant('plugin.mod_forumng.confirmdelete'),
                 buttons: [
                     {
@@ -1087,10 +1135,11 @@
                         }
                     }
                 ]
-            }).present();
+            });
+            await alert.present();
         };
 
-        outerThis.showDeleteDiscussion = function () {
+        outerThis.showDeleteDiscussion = async function () {
             var confirmmes = outerThis.TranslateService.instant('plugin.mod_forumng.confirmdeletediscussion'),
                 button = {
                     text: outerThis.TranslateService.instant('plugin.mod_forumng.delete'),
@@ -1102,7 +1151,7 @@
                 confirmmes = outerThis.TranslateService.instant('plugin.mod_forumng.confirmundeletediscussion');
                 button.text = outerThis.TranslateService.instant('plugin.mod_forumng.undelete');
             }
-            outerThis.AlertController.create({
+            var alert = await outerThis.AlertController.create({
                 message: confirmmes,
                 buttons: [
                     {
@@ -1111,10 +1160,12 @@
                     },
                     button
                 ]
-            }).present();
+            });
+            await alert.present();
         }
-        outerThis.showUnDelete = function(postid) {
-            outerThis.AlertController.create({
+
+        outerThis.showUnDelete = async function(postid) {
+            var alert = await outerThis.AlertController.create({
                 message: outerThis.TranslateService.instant('plugin.mod_forumng.confirmundelete'),
                 buttons: [
                     {
@@ -1128,7 +1179,8 @@
                         }
                     }
                 ]
-            }).present();
+            });
+            await alert.present();
         };
 
         outerThis.delete = function(postid) {
@@ -1140,7 +1192,7 @@
             };
 
 
-            var modal = outerThis.CoreUtilsProvider.domUtils.showModalLoading('core.sending', true);
+            var modal = outerThis.CoreDomUtilsProvider.showModalLoading('core.sending', true);
 
             site.write('mod_forumng_delete_post_mobile', params).then(function(response) {
                 if (response.message) {
@@ -1151,9 +1203,11 @@
             }).then(function(postId) {
                 outerThis.refreshContent();
             }).catch(function(msg) {
-                outerThis.CoreUtilsProvider.domUtils.showErrorModalDefault(msg, 'addon.mod_forum.cannotcreatereply', true);
+                outerThis.CoreDomUtilsProvider.showErrorModalDefault(msg, 'addon.mod_forum.cannotcreatereply', true);
             }).finally(function() {
-                modal.dismiss();
+                modal.then(function(result) {
+                    result.dismiss();
+                })
             });
         };
 
@@ -1164,7 +1218,7 @@
                 postid: postid,
                 clone: cmid,
             };
-            var modal = outerThis.CoreUtilsProvider.domUtils.showModalLoading('core.sending', true);
+            var modal = outerThis.CoreDomUtilsProvider.showModalLoading('core.sending', true);
 
             site.write('mod_forumng_undelete_post_mobile', params).then(function(response) {
                 if (response.message) {
@@ -1175,9 +1229,11 @@
             }).then(function(postId) {
                 outerThis.refreshContent();
             }).catch(function(msg) {
-                outerThis.CoreUtilsProvider.domUtils.showErrorModalDefault(msg, 'addon.mod_forum.cannotcreatereply', true);
+                outerThis.CoreDomUtilsProvider.showErrorModalDefault(msg, 'addon.mod_forum.cannotcreatereply', true);
             }).finally(function() {
-                modal.dismiss();
+                modal.then(function(result) {
+                    result.dismiss();
+                })
             });
         };
 
@@ -1191,13 +1247,7 @@
         };
 
         outerThis.onMessageChange = function (text) {
-            // Check text in the message.
-            var div = document.createElement('div');
-            div.innerHTML = text;
-            var messagetext = div.textContent;
-            if (!messagetext.match(regexp)) {
-                outerThis.message = '';
-            }
+            outerThis.message = text;
             t.currentReply.message = text;
         };
 
@@ -1205,7 +1255,12 @@
             t.currentReply.important = outerThis.CONTENT_OTHERDATA.important;
         };
 
-        outerThis.PostAsChange = function () {
+        outerThis.onDateChange = function (showfrom) {
+            outerThis.CONTENT_OTHERDATA.showfrom = showfrom.detail.value
+        }
+
+        outerThis.PostAsChange = function (postas) {
+            outerThis.CONTENT_OTHERDATA.postas = postas.detail.value
             t.currentReply.postas = outerThis.CONTENT_OTHERDATA.postas;
         };
 
@@ -1314,7 +1369,7 @@
             t.isEdit = postdata.postid;
         };
 
-        outerThis.edit = function() {
+        outerThis.edit = async function() {
             if (outerThis.isOnline()) {
                 var subject = outerThis.subject; // Can be empty or undefined - probably usually is!
                 var message = outerThis.message;
@@ -1325,7 +1380,7 @@
                 var postas = outerThis.CONTENT_OTHERDATA.postas;
                 var important = outerThis.CONTENT_OTHERDATA.important;
                 var sticky = outerThis.CONTENT_OTHERDATA.showsticky ? outerThis.CONTENT_OTHERDATA.showsticky : 0;
-                var showfrom =  parseInt(outerThis.CONTENT_OTHERDATA.showfrom) > 0 ? Date.parse(outerThis.CONTENT_OTHERDATA.showfrom) / 1000 : 0;
+                var showfrom =  parseInt(outerThis.CONTENT_OTHERDATA.showfrom) > 0 ? Math.round(Date.parse(outerThis.CONTENT_OTHERDATA.showfrom) / 1000) : 0;
                 var isrootpost = parseInt(replyto) === parseInt(outerThis.CONTENT_OTHERDATA.rootpostid) ? true : false;
                 var draftid = outerThis.CONTENT_OTHERDATA.draftid ? outerThis.CONTENT_OTHERDATA.draftid : 0;
                 var cmid = outerThis.CONTENT_OTHERDATA.cmid;
@@ -1334,12 +1389,12 @@
                 var modal;
                 var promise;
                 if (subject && subject.length > 255) {
-                    outerThis.CoreUtilsProvider.domUtils.showErrorModal('plugin.mod_forumng.errormaximumsubjectcharacter', true);
+                    outerThis.CoreDomUtilsProvider.showErrorModal('plugin.mod_forumng.errormaximumsubjectcharacter', true);
                     return;
                 }
                 message = outerThis.CoreTextUtilsProvider.formatHtmlLines(message);
 
-                modal = outerThis.CoreUtilsProvider.domUtils.showModalLoading('core.sending', true);
+                modal = outerThis.CoreDomUtilsProvider.showModalLoading('core.sending', true);
                 // Upload attachments first if any.
                 var error = t.mod_forumng.checkDuplicatedFiles(attachments);
                 var duplicatedmessage = outerThis.TranslateService.instant('plugin.mod_forumng.cannotuploadfile');
@@ -1419,22 +1474,24 @@
                         t.isReply = 0;
                         t.isAddDraft = 0;
                         if (isrootpost && isedit) {
-                            var currentView = document.querySelector('[style="z-index: '+ outerThis.NavController.getActive()._zIndex + ';"]');
-                            var currentTitle = currentView.querySelector('.toolbar-title');
+                            var currentView = document.querySelector('page-core-site-plugins-plugin:not(.ion-page-hidden)');
+                            var currentTitle = currentView.querySelector('ion-header ion-toolbar h1');
                             currentTitle.textContent = subject;
                         }
                         outerThis.refreshContent();
                     }).catch(function(msg) {
-                        outerThis.CoreUtilsProvider.domUtils.showErrorModalDefault(msg, 'addon.mod_forum.cannotcreatereply', true);
+                        outerThis.CoreDomUtilsProvider.showErrorModalDefault(msg, 'addon.mod_forum.cannotcreatereply', true);
                     }).finally(function() {
-                        modal.dismiss();
+                        modal.then(function(result) {
+                            result.dismiss();
+                        })
                     });
                 } else {
-                    modal.dismiss();
-                    outerThis.CoreUtilsProvider.domUtils.showErrorModalDefault(duplicatedmessage + error, 'plugin.mod_forumng.cannotcreatediscussion', true);
+                    modal.then(function(result) {
+                        result.dismiss();
+                    })
+                    outerThis.CoreDomUtilsProvider.showErrorModalDefault(duplicatedmessage + error, 'plugin.mod_forumng.cannotcreatediscussion', true);
                 }
-            } else {
-
             }
         };
 
@@ -1624,13 +1681,13 @@
         var currentOuterThis = outerThis;
         // Same for isOnline.
         outerThis.isOnline = function() {
-            return outerThis.CoreAppProvider.isOnline();
+            return outerThis.CoreNetwork.isOnline();
         };
         outerThis.deleteDraftInPage = function(draftid) {
             t.mod_forumng.deleteDraft(currentOuterThis, draftid, true);
         };
         outerThis.cancelDeleteDraft = function() {
-            outerThis.NavController.pop();
+            outerThis.CoreNavigatorService.back();
         };
         t.mod_forumng.currentDraftPage = outerThis;
     };
@@ -1650,6 +1707,7 @@
         outerThis.CONTENT_OTHERDATA.postas = t.newDiscussion.postas ? t.newDiscussion.postas : outerThis.CONTENT_OTHERDATA.postas;
         var regexp = /\S+/;
         outerThis.addDiscussion = function() {
+            t.newDiscussion = outerThis.resetData(t.newDiscussion);
             t.mod_forumng.addDiscussion(outerThis);
         };
 
@@ -1708,10 +1766,11 @@
         };
 
         outerThis.NewDiscussionCancel = function() {
-            outerThis.NavController.pop();
+            t.newDiscussion = outerThis.resetData(t.newDiscussion);
+            outerThis.CoreNavigatorService.back();
         };
 
-        outerThis.ionViewCanLeave = function() {
+        outerThis.canLeave = function() {
             var subject = outerThis.subject;
             var message = outerThis.message;
             var attachments = outerThis.CONTENT_OTHERDATA.files; // Type [FileEntry].
@@ -1752,6 +1811,7 @@
                 outerThis.CONTENT_OTHERDATA.showfrom = 0;
                 outerThis.CONTENT_OTHERDATA.postas = 0;
                 t.editDraft = outerThis.resetData(t.editDraft);
+                t.newDiscussion = outerThis.resetData(t.newDiscussion);
                 t.isEditDraft = 0;
                 if (t.isAddDraft || draft) {
                     t.isAddDraft = 0;
@@ -1764,14 +1824,7 @@
         };
 
         outerThis.onMessageChange = function (text) {
-            // Check text in the message.
-            var div = document.createElement('div');
-            div.innerHTML = text;
-            var messagetext = div.textContent;
-            if (!messagetext.match(regexp)) {
-                text = '';
-                outerThis.message = '';
-            }
+            outerThis.message = text
             t.newDiscussion.message = text;
         };
         /**
@@ -1795,11 +1848,13 @@
             t.newDiscussion.sticky = outerThis.CONTENT_OTHERDATA.showsticky;
         };
 
-        outerThis.onDateChange = function() {
+        outerThis.onDateChange = function(showfrom) {
+            outerThis.CONTENT_OTHERDATA.showfrom = showfrom.detail.value
             t.newDiscussion.date = outerThis.CONTENT_OTHERDATA.showfrom;
         };
 
-        outerThis.PostAsChange = function() {
+        outerThis.PostAsChange = function(postas) {
+            outerThis.CONTENT_OTHERDATA.postas = postas.detail.value;
             t.newDiscussion.postas = outerThis.CONTENT_OTHERDATA.postas;
         };
 
@@ -1812,14 +1867,14 @@
 
         // Network online check that disables the submission button if the app is offline.
         if (!t.mod_forumng.subscription) {
-            t.mod_forumng.subscription = outerThis.CoreAppProvider.network.onchange().subscribe(function(online) {
+            t.mod_forumng.subscription = outerThis.CoreNetwork.onChange().subscribe(function(online) {
                 if (!document.getElementById('mma-forumng-add-discussion-button')) {
                     t.mod_forumng.subscription.unsubscribe();
                     delete t.mod_forumng.subscription;
                     return;
                 }
                 // Disable the add discusion button if the device goes offline.
-                document.getElementById('mma-forumng-add-discussion-button').disabled = !t.CoreAppProvider.isOnline();
+                document.getElementById('mma-forumng-add-discussion-button').disabled = !t.CoreNetwork.isOnline();
             });
         }
     };
