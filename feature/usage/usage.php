@@ -177,89 +177,32 @@ if (has_capability('forumngfeature/usage:viewusage', $forum->get_context())) {
         $days[$endday] = 0;
     }
     $allposts->close();
-    // Setup YUI chart data. Gets passed to js.
+    // Setup moodle chart data. Gets passed to js.
     $data = [];
     $postcount = 0;
-    $datelabel = get_string('usagechartday', 'forumngfeature_usage');
-    $postslabel = get_string('usagechartposts', 'forumngfeature_usage');
-    $totallabel = get_string('usagecharttotal', 'forumngfeature_usage');
+    $barvalue = [];
+    $lineValue = [];
+    $datelabels = [];
     foreach ($days as $day => $count) {
         $postcount += $count;
-        $data[] = (object) [
-                $datelabel => $day,
-                $postslabel => $count,
-                $totallabel => $postcount,
-                ];
+        array_push($barvalue, $count);
+        array_push($lineValue, $postcount);
+        array_push($datelabels, $day);
     }
-    $axes = (object) [
-            $datelabel => (object) [
-                    'type' => 'time',
-                    'keys' => [$datelabel],
-                    'labelFormat' => get_string('strftimedate', 'langconfig'),
-                    'position' => 'bottom',
-                    ],
-            $postslabel => (object) [
-                    'position' => 'left',
-                    'keys' => [$postslabel],
-                    'type' => 'numeric',
-                    'title' => get_string('usagechartpostslabel', 'forumngfeature_usage'),
-                    'minimum' => 0,
-                    ],
-            $totallabel => (object) [
-                    'position' => 'right',
-                    'keys' => [$totallabel],
-                    'type' => 'numeric',
-                    'title' => get_string('usagecharttotallabel', 'forumngfeature_usage'),
-                    'minimum' => 0,
-                    ],
-
-            ];
-    $options = (object) [
-            'render' => '#usagechart',
-            'categoryKey' => $datelabel,
-            'categoryType' => 'time',
-            'styles' => (object) ['axes' => (object) [$datelabel => (object) ['label' => (object) ['rotation' => -90]]]],
-            'type' => 'combo',
-            'seriesCollection' => [
-                    (object) [
-                            'type' => 'column',
-                            'yKey' => $postslabel,
-                            ],
-                    ],
-            ];
-    // There are 11 day labels shown by default on chart - if less available update axis.
-    $interval = $startdate->diff($enddate);
-    $totaldays = $interval->days + 1;// Add 1 to day diff as we always show start and end days.
-    if ($totaldays < 11) {
-        // Show axis labels for each day.
-        $options->styles->axes->$datelabel->majorUnit = new stdClass();
-        $options->styles->axes->$datelabel->majorUnit->count = $totaldays;
-    }
-    if (count($data) > 1) {
-        // Chart only works if more than 1 record.
-        $PAGE->requires->yui_module('moodle-forumngfeature_usage-usagegraph',
-                'M.mod_forumng.forumngfeature_usage_chart.output', [$data, $axes, $options]);
-    }
-
+    $chart = new \core\chart_bar(); // Create a bar chart instance.
+    $series1 = new \core\chart_series(get_string('usagechartposts', 'forumngfeature_usage'), $barvalue);
+    $series2 = new \core\chart_series(get_string('usagecharttotal', 'forumngfeature_usage'), $lineValue);
+    $series2->set_type(\core\chart_series::TYPE_LINE); // Set the series type to line chart.
+    $chart->add_series($series2);
+    $chart->add_series($series1);
+    $chart->set_labels($datelabels);
     $usageoutput .= html_writer::start_div('forumng_usage_usagechart');
     $help = $OUTPUT->help_icon('usagechartpoststot', 'forumngfeature_usage');
     $usageoutput .= $OUTPUT->heading(get_string('usagechartpoststotal', 'forumngfeature_usage',
-            $postcount) . $help, 4);
+                    $postcount) . $help, 4);
     $usageoutput .= $dateform->render();
-    // Accessible table of chart.
-    $charttable = new html_table();
-    $charttable->head = [$datelabel, $postslabel, $totallabel];
-    $charttable->data = $data;
-    $charttable->summary = get_string('usagechartpoststable', 'forumngfeature_usage');
-    if (count($data) > 1) {
-        // Show table hidden for screenreaders (also keyboard focus toggled by css).
-        $usageoutput .= get_accesshide(html_writer::table($charttable), 'div', 'skip', 'tabindex = 0');
-        $usageoutput .= html_writer::div('', 'forumng_usage_chart', ['id' => 'usagechart']);
-    } else {
-        // Show table instead of chart.
-        $usageoutput .= html_writer::table($charttable);
-    }
-    $usageoutput .= html_writer::end_div();
+    $usageoutput .= $OUTPUT->render($chart);
+    $usageoutput .= html_writer::end_tag('div');
 }
 if ($forum->can_view_subscribers()) {
     // View subscriber info.

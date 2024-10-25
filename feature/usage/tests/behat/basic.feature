@@ -160,7 +160,9 @@ Feature: Show usage statistics for ForumNG
     And I should see "Student 3" in the ".forumng_usage_contrib .forumng_usage_contrib_cont:nth-child(2) .forumng_usage_table tr:nth-child(2) .forumng_usage_list_info .fng_userlink a" "css_element"
     And I should see "Student 1" in the ".forumng_usage_contrib .forumng_usage_contrib_cont:nth-child(2) .forumng_usage_table tr:nth-child(3) .forumng_usage_list_info .fng_userlink a" "css_element"
 
-    And I should see "Post history - 13 posts" in the ".forumng_usage_usagechart" "css_element"
+    And "div.chart-image" "css_element" should exist
+    And I click on ".chart-table p.chart-table-expand a" "css_element"
+    And I should see "13" in the ".chart-table-data table.chart-output-htmltable tr:nth-child(2) > td:nth-child(2)" "css_element"
     And "Update post history" "button" should exist
     And ".forumng_usage_subscribers" "css_element" should exist
     And I should see "Subscribers" in the ".forumng_usage_subscribers h4" "css_element"

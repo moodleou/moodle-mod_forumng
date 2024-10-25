@@ -926,3 +926,14 @@ Feature: Add forumng activity and test basic functionality
     And I am on the "Test forum name" "forumng activity" page logged in as "student1"
     And I press "Start a new discussion"
     And I should see "Attachments"
+
+  @javascript
+  Scenario: Verify ForumNG save check.
+    Given I am on the "Test forum name" "forumng activity" page logged in as "student1"
+    And I press "Start a new discussion"
+    And I set the following fields to these values:
+      | Message | A post |
+    And I clear the session cookie in forumng
+    And I press "Post discussion"
+    Then I should see "Post save failed"
+    And I should see "Course or activity not accessible. (You are not logged in)"

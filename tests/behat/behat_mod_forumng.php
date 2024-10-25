@@ -278,6 +278,15 @@ class behat_mod_forumng extends behat_base {
     }
 
     /**
+     * Ends the user session by clearing the Moodle session.
+     *
+     * @Given /^I clear the session cookie in forumng$/
+     */
+    public function i_clear_the_session_cookie_in_forumng() {
+        $this->getSession()->setCookie('MoodleSession', null);
+    }
+
+    /**
      * Scrolls to bottom of the app.
      *
      * @When /^I scroll to bottom of the app in ForumNG$/

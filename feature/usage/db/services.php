@@ -15,17 +15,22 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version.
+ * Services.
  *
  * @package mod_forumng
- * @copyright 2014 The Open University
+ * @copyright 2023 The Open University
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2024032802;
-$plugin->requires = 2022041900;
-$plugin->component = 'mod_forumng';
-$plugin->maturity = MATURITY_STABLE;
-$plugin->release = '4.0 r1';
+$functions = [
+    'mod_forumng_get_usage' => [
+        'classname' => '\forumngfeature_usage\external\get_usage',
+        'methodname' => 'execute',
+        'classpath' => '',
+        'description' => 'Gets usage of forumng',
+        'type' => 'read',
+        'ajax' => true,
+    ],
+];

@@ -205,8 +205,7 @@ class forumngfeature_usage_renderer extends plugin_renderer_base {
             $noscript = html_writer::link($url, get_string('noscript', 'forumngfeature_usage'));
             $content = html_writer::start_div('forumngusage_loader forumngusageshow' . $name);
             $content .= html_writer::div($noscript, 'forumngusage_loader_noscript');
-            $PAGE->requires->yui_module('moodle-forumngfeature_usage-usageloader',
-                    'M.mod_forumng.forumngfeature_usage_loader.init', array($name, $params));
+            $PAGE->requires->js_call_amd('forumngfeature_usage/usageloader', 'init', [$name, $params]);
             $content .= html_writer::end_div();
         }
         return $content;

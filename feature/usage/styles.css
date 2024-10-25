@@ -83,3 +83,7 @@ ol.forumng_usage_list li {
     height: 20px;
     background: url([[pix:i/ajaxloader]]) no-repeat;
 }
+
+#page-mod-forumng-feature-usage-usage .chart-area .chart-image {
+    max-width: 100%;
+}
