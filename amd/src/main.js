@@ -1112,6 +1112,7 @@ class Main {
             if (this.areLinksDisabled(link) || link.classList.contains('disabled')) {
                 return;
             }
+            let pendingPromise = new Pending('forumng_postread');
             const url = link.href + '&ajax=1';
             const cfg = {
                 method: 'GET',
@@ -1121,9 +1122,12 @@ class Main {
             };
 
             fetch(url, cfg)
-                .then(response => {
-                    if (response.content !== 'ok') {
+                .then(async (response) => {
+                    // Read response body text and check if word ok is in text.
+                    const text = await response.text();
+                    if (!text.includes('ok')) {
                         alert(this.stringList.jserr_alter);
+                        pendingPromise.resolve();
                         return;
                     }
                     link.classList.add('disabled');
@@ -1132,9 +1136,11 @@ class Main {
                     if (post) {
                         post.classList.replace('forumng-unread', 'forumng-read');
                     }
+                    pendingPromise.resolve();
                 })
                 .catch(() => {
                     alert(this.stringList.jserr_alter);
+                    pendingPromise.resolve();
                 });
         });
     }
