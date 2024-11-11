@@ -64,6 +64,9 @@ class tool_datamasking_test extends \advanced_testcase {
         $DB->insert_record('forumng_posts',
                 ['discussionid' => 1, 'userid' => 1, 'created' => 1, 'modified' => 1, 'messageformat' => 1,
                 'subject' => 'Q!', 'message' => '']);
+        $itemid = $DB->insert_record('forumng_posts',
+                ['discussionid' => 1, 'userid' => 1, 'created' => 1, 'modified' => 1, 'messageformat' => 1,
+                        'subject' => 'Q!', 'message' => '<img src="@@PLUGINFILE@@/f%201.txt" alt="X"/>']);
 
         $DB->insert_record('forumng_drafts',
                 ['forumngid' => 1, 'userid' => 1, 'saved' => 1, 'messageformat' => 1,
@@ -79,15 +82,16 @@ class tool_datamasking_test extends \advanced_testcase {
         $fileids[] = \tool_datamasking\testing_utils::add_file('mod_forumng', 'draftmessage', 'c.txt', 'ccc');
         $fileids[] = \tool_datamasking\testing_utils::add_file('mod_forumng', 'message', 'd.txt', 'dddd');
         $fileids[] = \tool_datamasking\testing_utils::add_file('mod_forumng', 'intro', 'e.txt', 'eeeee');
+        $fileids[] = \tool_datamasking\testing_utils::add_file('mod_forumng', 'message', 'f 1.txt', 'ffffff', $itemid);
 
         // Before checks.
         $forumngreportingemailsql = 'SELECT reportingemail FROM {forumng} ORDER BY id';
         $this->assertEquals(['secret@example.org', ''], $DB->get_fieldset_sql($forumngreportingemailsql));
 
         $forumngpostsmessagesql = 'SELECT message FROM {forumng_posts} ORDER BY id';
-        $this->assertEquals(['<p>Q.</p>', ''], $DB->get_fieldset_sql($forumngpostsmessagesql));
+        $this->assertEquals(['<p>Q.</p>', '', '<img src="@@PLUGINFILE@@/f%201.txt" alt="X"/>'], $DB->get_fieldset_sql($forumngpostsmessagesql));
         $forumngpostssubjectsql = 'SELECT subject FROM {forumng_posts} ORDER BY id';
-        $this->assertEquals([null, 'Q!'], $DB->get_fieldset_sql($forumngpostssubjectsql));
+        $this->assertEquals([null, 'Q!', 'Q!'], $DB->get_fieldset_sql($forumngpostssubjectsql));
 
         $forumngdraftsmessagesql = 'SELECT message FROM {forumng_drafts} ORDER BY id';
         $this->assertEquals(['<p>Q.</p>', ''], $DB->get_fieldset_sql($forumngdraftsmessagesql));
@@ -99,6 +103,7 @@ class tool_datamasking_test extends \advanced_testcase {
         \tool_datamasking\testing_utils::check_file($this, $fileids[2], 'c.txt', 3);
         \tool_datamasking\testing_utils::check_file($this, $fileids[3], 'd.txt', 4);
         \tool_datamasking\testing_utils::check_file($this, $fileids[4], 'e.txt', 5);
+        \tool_datamasking\testing_utils::check_file($this, $fileids[5], 'f 1.txt', 6);
 
         // Run the full masking plan including this plugin, but without requiring mapping tables.
         \tool_datamasking\api::get_plan()->execute([], [\tool_datamasking\tool_datamasking::TAG_SKIP_ID_MAPPING]);
@@ -107,8 +112,10 @@ class tool_datamasking_test extends \advanced_testcase {
         $this->assertEquals(['email' . $forumngid . '@open.ac.uk.invalid', ''],
                 $DB->get_fieldset_sql($forumngreportingemailsql));
 
-        $this->assertEquals(['<p>X.</p>', ''], $DB->get_fieldset_sql($forumngpostsmessagesql));
-        $this->assertEquals([null, 'X!'], $DB->get_fieldset_sql($forumngpostssubjectsql));
+        $posts = $DB->get_fieldset_sql($forumngpostsmessagesql);
+
+        $this->assertEquals(['<p>X.</p>', '', '<img src="@@PLUGINFILE@@/masked.txt" alt="X"/>'], $DB->get_fieldset_sql($forumngpostsmessagesql));
+        $this->assertEquals([null, 'X!', 'X!'], $DB->get_fieldset_sql($forumngpostssubjectsql));
 
         $this->assertEquals(['<p>X.</p>', ''], $DB->get_fieldset_sql($forumngdraftsmessagesql));
         $this->assertEquals([null, 'X!'], $DB->get_fieldset_sql($forumngdraftssubjectsql));
@@ -118,5 +125,6 @@ class tool_datamasking_test extends \advanced_testcase {
         \tool_datamasking\testing_utils::check_file($this, $fileids[2], 'masked.txt', 224);
         \tool_datamasking\testing_utils::check_file($this, $fileids[3], 'masked.txt', 224);
         \tool_datamasking\testing_utils::check_file($this, $fileids[4], 'e.txt', 5);
+        \tool_datamasking\testing_utils::check_file($this, $fileids[5], 'masked.txt', 224);
     }
 }
