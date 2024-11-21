@@ -889,10 +889,20 @@ ion-app.app-root .mma-forumng-posts-list-wrapper core-format-text[maxHeight] {
     margin-top: 50px;
     background: #ffffff;
 }
+
+body.ionic5.dark ion-app .delete-draft-popup {
+    background: unset;
+}
+
 .mma-forumng-draft-subject {
     font-weight: 700;
     color: #002158;
 }
+
+body.ionic5.dark .mma-forumng-draft-subject {
+    color: #ffffff;
+}
+
 .delete-draft-message-warning {
     padding-top: 20px;
     padding-bottom: 20px;
@@ -1418,4 +1428,14 @@ html[style="--zoom-level: 120%;"] body.ionic5.moodleapp-4 .ios.popover-forumng .
 
 body.ionic5 .mma-forumng-file-attachment core-download-refresh {
     margin-right: 6px;
+}
+
+body.ionic5 ion-app .mma-forumng-attachments core-local-file ion-item ion-button:has(ion-icon[name='fas-share-from-square']),
+body.ionic5 ion-app .mma-forumng-attachments core-file ion-item ion-button:has(ion-icon[name='fas-share-from-square']) {
+    display: none;
+}
+
+body.ionic5.dark ion-app .mma-forumng-attachments core-file ion-thumbnail[slot=start],
+body.ionic5.dark ion-app .mma-forumng-attachments core-local-file ion-thumbnail[slot=start] {
+    filter: invert(100%);
 }

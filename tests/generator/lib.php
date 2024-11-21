@@ -209,7 +209,7 @@ class mod_forumng_generator extends testing_module_generator {
         }
 
         if (!isset($record['parentpostid'])) {
-            $record['parentpostid'] = 0;
+            $record['parentpostid'] = $DB->get_field('forumng_discussions', 'postid', ['id' => $record['discussionid']]);
         }
 
         if (!isset($record['subject'])) {

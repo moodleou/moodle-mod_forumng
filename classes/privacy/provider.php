@@ -515,7 +515,7 @@ class provider implements
 
         if ($post->userid == $user->id) {
             $postdata->message = writer::with_context($context)->rewrite_pluginfile_urls(
-                    $postarea, 'mod_forumng', 'post', $post->id, $post->message);
+                    $postarea, 'mod_forumng', 'message', $post->id, $post->message);
             // Store the post.
             // Store the associated files.
             writer::with_context($context)->export_data(

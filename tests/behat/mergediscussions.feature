@@ -112,3 +112,43 @@ Feature: Test merge discussions functionality
     And I follow "Discussion 1"
     Then "Cancel merge" "button" should exist
     And I should see "(Cannot merge here.)" in the ".forumngfeature-merge-extrahtml" "css_element"
+
+  Scenario: Check forum completion with discussion merge.
+    Given the following "users" exist:
+      | username | firstname | lastname | email      |
+      | student1 | Student   | 1        | s1@asd.com |
+    And the following "courses" exist:
+      | fullname | shortname | format      | enablecompletion |
+      | Course 2 | C2        | oustudyplan | 1                |
+    And the following "course enrolments" exist:
+      | user     | course | role    |
+      | student1 | C2     | student |
+      | teacher1 | C2     | teacher |
+    And the following "activities" exist:
+      | activity | name                  | introduction           | course | idnumber | completion | completionview | completiondiscussionsenabled | completiondiscussions |
+      | forumng  | Test forum completion | Test forum description | C2     | forumng3 | 2          | 1              | 1                            | 1                     |
+    And the following "mod_forumng > discussions" exist:
+      | forum                 | subject     | user     |
+      | Test forum completion | discussion1 | teacher1 |
+    And the following "mod_forumng > posts" exist:
+      | discussion  | message | user     |
+      | discussion1 | reply1  | student1 |
+    And the following "mod_forumng > discussions" exist:
+      | forum                 | subject     | user     |
+      | Test forum completion | discussion2 | student1 |
+    And the following "mod_forumng > posts" exist:
+      | discussion  | message | user     |
+      | discussion2 | reply2  | student1 |
+    When I log in as "admin"
+    And I am on "Course 2" course homepage
+    And I follow "Test forum completion"
+    Then I should see "discussion2"
+    And I should see "discussion1"
+    When I follow "discussion2"
+    And I press "Merge"
+    Then I should see "Begin merge" in the "Merging Instructions" "dialogue"
+    And I press "Begin merge"
+    And I follow "discussion1"
+    And I press "Merge here"
+    Then I should see "reply1"
+    And I should see "reply2"

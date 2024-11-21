@@ -65,3 +65,25 @@ Feature: Manually mark discussions read
     # Check discussions read state
     Then ".forumng-discussion-unread .forumng-unreadcount .iconsmall" "css_element" should not exist in the "Discussion 2" "table_row"
     And ".forumng-discussion-unread .forumng-unreadcount .iconsmall" "css_element" should exist in the "Discussion 1" "table_row"
+
+  @javascript
+  Scenario: Testing manual post marking javascript
+    Given I log in as "student1"
+    And I am on "Course 1" course homepage
+    Then I should see "(Unread posts)"
+    And I follow "Test forum name marking"
+    Then I should see "Test forum marking description"
+
+    # Default state of discussion marking
+    And I should see "Automatically mark as read"
+    And "Change" "button" should exist
+
+    # Change state of discussion marking
+    Given I click on "Change" "link"
+    Then I should see "Manually mark as read"
+
+    Given I follow "Discussion 2"
+    Then "Mark post read" "link" should exist
+    When I click on "Mark post read" "link"
+    Then "div.forumng-read" "css_element" should exist
+    And ".forumng-markread a.disabled" "css_element" should exist
