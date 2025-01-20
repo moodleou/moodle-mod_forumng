@@ -2450,8 +2450,8 @@ WHERE
                 // This is an 'unsubscribe' request. These are only allowed
                 // for initial-subscription, otherwise ignored
                 if ($subscriptionoption == self::SUBSCRIPTION_INITIALLY_SUBSCRIBED
-                    && array_key_exists($user->id, $users)) {
-                    // set wholeforum = false for user (if they are in the array)
+                    && array_key_exists($rec->u_id, $users)) {
+                    // Set wholeforum = false for user (if they are in the array).
                     $users[$rec->u_id]->unsubscribe = true;
                     $users[$rec->u_id]->wholeforum = false;
                 }
