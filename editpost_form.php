@@ -146,7 +146,7 @@ class mod_forumng_editpost_form extends moodleform {
             }
             $mform->setType('message', PARAM_RAW);
             if (editors_get_preferred_editor() instanceof \editor_tiny\editor) {
-                $mform->addHelpButton('message', 'message', 'forumng');
+                $mform->addHelpButton('message', 'message_tiny', 'forumng');
             }
             if (!$allowemptymsg) {
                 $mform->addRule('message', null,

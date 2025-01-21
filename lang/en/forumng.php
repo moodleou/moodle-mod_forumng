@@ -124,8 +124,8 @@ $string['linktoforumview'] = 'Link to forum view';
 $string['addanewdiscussion'] = 'Start a new discussion';
 $string['subject'] = 'Subject';
 $string['message'] = 'Message';
-$string['message_help'] = '<b>Keyboard shortcuts</b> <br />
-Access buttons in the menu bar using Alt + F (Windows) or ⌥ + F9 (Mac). <br />
+$string['message_tiny'] = 'Keyboard shortcuts';
+$string['message_tiny_help'] = 'Access buttons in the menu bar using Alt + F9 (Windows) or ⌥ + F9 (Mac). <br />
 Access the toolbar using Alt + F10 (Windows) or ⌥ + F10 (Mac) including the help menu which contains a full list of keyboard shortcuts.
 ';
 $string['subscribestart'] = 'Send me email copies of posts to this forum';
