@@ -364,12 +364,6 @@
                             <core-format-text [text]="'plugin.mod_forumng.unread' | translate "></core-format-text>
                         </div>
                     </ion-label>
-                    <div *ngIf="!reply.isexpanded" slot="end" class="mma-forumng-post-reply-expandall">
-                        <ion-icon *ngIf="!(reply.hidedeleteionformation && reply.showdeletemessage)" name="fa-chevron-down" (click)="reply.isexpanded = !reply.isexpanded"></ion-icon>
-                    </div>
-                    <div *ngIf="reply.isexpanded" slot="end" class="mma-forumng-post-reply-expandall">
-                        <ion-icon *ngIf="!(reply.hidedeleteionformation && reply.showdeletemessage)" name="fa-chevron-up" (click)="reply.isexpanded = !reply.isexpanded"></ion-icon>
-                    </div>
                 </ion-item>
                 <ion-item *ngIf="!reply.hidedeleteionformation" class="mma-forumng-posts ion-text-wrap" lines="none">
                     <ion-label>
@@ -400,6 +394,9 @@
                                            componentId="<% cmid %>">
                                 </core-file>
                             </ion-list>
+                            <div class="custom-show-less">
+                                <core-format-text (click)="reply.isexpanded = !reply.isexpanded" [text]=" 'core.showless' | translate "></core-format-text>
+                            </div>
                             <ion-grid *ngIf="reply.isexpanded" class="mma-forumng-commands-buttons">
                                 <ion-row class="ion-justify-content-start ion-align-items-center mma-forumng-row-max">
                                     <ion-col size="auto" *ngIf="reply.canreply">
@@ -538,12 +535,6 @@
                                         <core-format-text [text]="'plugin.mod_forumng.unread' | translate "></core-format-text>
                                     </div>
                                 </ion-label>
-                                <div *ngIf="!subreply.isexpanded" slot="end" class="mma-forumng-post-subreply-expandall">
-                                    <ion-icon *ngIf="!(subreply.hidedeleteionformation && subreply.showdeletemessage)" name="fa-chevron-down" (click)="subreply.isexpanded = !subreply.isexpanded"></ion-icon>
-                                </div>
-                                <div *ngIf="subreply.isexpanded" slot="end" class="mma-forumng-post-reply-expandall">
-                                    <ion-icon *ngIf="!(subreply.hidedeleteionformation && subreply.showdeletemessage)" name="fa-chevron-up" (click)="subreply.isexpanded = !subreply.isexpanded"></ion-icon>
-                                </div>
                             </ion-item>
                             <ion-item class="mma-forumng-posts ion-text-wrap" *ngIf="!subreply.hidedeleteionformation" lines="none">
                                 <ion-label>
@@ -574,6 +565,9 @@
                                                        componentId="<% cmid %>">
                                             </core-file>
                                         </ion-list>
+                                        <div class="custom-show-less">
+                                            <core-format-text (click)="subreply.isexpanded = !subreply.isexpanded" [text]=" 'core.showless' | translate "></core-format-text>
+                                        </div>
                                         <ion-grid *ngIf="subreply.isexpanded" class="mma-forumng-commands-buttons">
                                             <ion-row class="ion-justify-content-start ion-align-items-center mma-forumng-row-max">
                                                 <ion-col size="auto" *ngIf="subreply.canreply">
