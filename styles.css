@@ -137,9 +137,6 @@ form.forumng-paste-buttons {
     padding: 0.7em 0.5em;
     background: #FFD991;
 }
-.ie7 form.forumng-paste-buttons {
-    padding: 0.5em 0.5em;
-}
 
 #forumng-buttons {
     margin:0 0 1em;
@@ -491,9 +488,6 @@ ul.forumng-commands {
     white-space: nowrap;
     float: left;
     margin-bottom: .7em;
-}
-.ie7 ul.forumng-commands {
-    display: inline;
 }
 ul.forumng-commands li {
     display:inline;
@@ -944,10 +938,6 @@ form.markread input {
     min-width: 370px;
 }
 
-.ie#page-mod-forumng-addattachment #page {
-    width: auto;
-}
-
 #page-mod-forumng-addattachment h1 {
     font-size: 0.85em;
     margin: 0;
@@ -1079,10 +1069,6 @@ padding-top: 1em;
     margin: 0.5em 0 1em;
 }
 
-.ie7 .forumng-manualmark {
-    position: relative;
-    top: -0.4em;
-}
 .forumng-manualmark .iconhelp {
     vertical-align: -3px;
 }
