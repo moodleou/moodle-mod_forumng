@@ -3960,6 +3960,7 @@ ORDER BY
             'loaderpix' => $out->image_url('i/ajaxloader')->out(false),
             'starpix' => $starurls,
             'postquota' => $postquota,
+            'isusingtiny' => editors_get_preferred_editor() instanceof \editor_tiny\editor,
         ];
 
         $PAGE->requires->js_call_amd('mod_forumng/main', 'init', [$data]);

@@ -23,6 +23,7 @@ import * as Common from 'mod_forumng/common';
 import Pending from 'core/pending';
 import Config from 'core/config';
 import * as Rating from 'local_themeextras/rating';
+import * as TinyRepository from 'tiny_autosave/repository';
 
 /**
  * JavaScript to handle forumng.
@@ -119,6 +120,8 @@ class Main {
     /** @var {object} stringList List of strings */
     stringList = {};
 
+    /** @var {boolean} isUsingTiny Is using Tiny editor */
+    isUsingTiny = false;
 
     /**
      * Class constructor
@@ -134,6 +137,7 @@ class Main {
         this.loaderPix = options.loaderpix;
         this.starPix = options.starpix;
         this.postQuota = options.postquota;
+        this.isUsingTiny = options.isusingtiny;
     }
 
     /**
@@ -798,6 +802,7 @@ class Main {
                             e.cancelBubble = true;
                         }
                     }
+                    this.removeTinyAutoSaveSession(innerwin, 'id_message');
                     this.removeIframe(iframe);
                     return false;
                 }
@@ -813,23 +818,40 @@ class Main {
                             clearInterval(x);
                         }
                     }, 500);
+                    this.removeTinyAutoSaveSession(innerwin, 'id_message');
+                });
+            }
+
+            const submit = doc.getElementById('id_submitbutton');
+            if (submit) {
+                submit.addEventListener('click', () => {
+                    this.removeTinyAutoSaveSession(innerwin, 'id_message');
                 });
             }
 
             // Focus the editor.
-            const try_focus = () => {
-                if (innerwin.tinyMCE) {
-                    for (let edId in innerwin.tinyMCE.editors) {
-                        if (edId === 'id_message') {
-                            innerwin.tinyMCE.execCommand('mceFocus', false, 'id_message');
-                            return;
-                        }
+            const tryFocus = () => {
+                const observer = new MutationObserver(() => {
+                    if (!innerwin.tinyMCE) {
+                        observer.disconnect();
+                        return;
                     }
-                }
-                setTimeout(try_focus, 100);
+                    const editor = innerwin?.tinyMCE?.activeEditor;
+
+                    if (editor?.selection) {
+                        editor.focus();
+                        observer.disconnect();
+                    }
+                });
+
+                observer.observe(doc.body, {
+                    childList: true,
+                    subtree: true
+                });
             };
+
             if (!this.isMobile()) {
-                setTimeout(try_focus, 250);
+                setTimeout(tryFocus, 250);
             }
             pendingPromisefil.resolve();
         };
@@ -2423,6 +2445,25 @@ class Main {
      */
     linearEasing(t) {
         return t;
+    }
+
+    /**
+     * Remove draft data from the Tiny editor, which is auto-saved according to editorID.
+     *
+     * In this context, we will remove the auto-save after
+     * creating/editing a reply, canceling, and saving a draft.
+     *
+     * @param {Object} innerWin The current window
+     * @param {String} editorID The editor ID for which draft data needs to be removed.
+     */
+    removeTinyAutoSaveSession(innerWin, editorID) {
+        // Execute this only if it's a Tiny editor.
+        if (this.isUsingTiny) {
+            const editor = innerWin?.tinyMCE?.get(editorID);
+            if (editor) {
+                TinyRepository.removeAutosaveSession(editor);
+            }
+        }
     }
 }
 
