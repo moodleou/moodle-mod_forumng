@@ -421,7 +421,7 @@ Feature: Add forumng activity and test basic functionality
     Then ".forumng-p2 .forumng-edit a.forumng-disabled" "css_element" should exist
     Then ".forumng-p2 .forumng-replylink a.forumng-disabled" "css_element" should exist
     And I switch to "forumng-post-iframe" iframe
-    And I press "Cancel"
+    And I click on "Cancel" "button" in the "#fgroup_id_buttonar" "css_element"
     Then ".forumng-p2 .forumng-delete a.forumng-disabled" "css_element" should not exist
     Then ".forumng-p2 .forumng-edit a.forumng-disabled" "css_element" should not exist
     Then ".forumng-p2 .forumng-replylink a.forumng-disabled" "css_element" should not exist

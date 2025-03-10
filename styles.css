@@ -1201,6 +1201,12 @@ padding-top: 1em;
     }
 }
 
+@media only screen and (max-width: 767px) {
+    #page-mod-forumng-editpost div[id^=fitem_id_message] .btn.btn-link[data-content*="help-popover-container"] {
+        display: none;
+    }
+}
+
 #fgroup_id_completiontracking div[data-groupname="timetrackingfrom"] > label,
 #fgroup_id_completiontracking div[data-groupname="timetrackingto"] > label {
     display: contents;

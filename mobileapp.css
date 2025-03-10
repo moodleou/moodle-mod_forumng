@@ -965,6 +965,23 @@ body.dark .mma-forumng-posts-list-wrapper .mma-forumng-post-reply .mma-forumng-p
     background-color: #e7f4fa;
 }
 
+.mma-forumng-posts-list-wrapper .mma-forumng-post-reply .mma-forumng-posts .custom-show-less {
+    background-color: transparent;
+    color: #002158;
+    font-size: 1em;
+    font-weight: 500;
+    line-height: 1;
+    text-align: right;
+}
+
+body.dark .mma-forumng-posts-list-wrapper .mma-forumng-post-reply .mma-forumng-posts .custom-show-less {
+    color: #ffffff;
+}
+
+.mma-forumng-posts-list-wrapper .custom-show-less ~ .mma-forumng-commands-buttons {
+    margin: 0;
+}
+
 .mma-forumng-required-after:after,
 .mma-forumng-required-before:before {
     background-image: url("@@WWWROOT@@/theme/osep/pix_plugins/mod/forumng/req.gif");

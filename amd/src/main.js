@@ -289,6 +289,19 @@ class Main {
             }
         }
 
+        let iscollapse = this.getValueParameter('collapse');
+        let isexpand = this.getValueParameter('expand');
+        if (iscollapse || isexpand) {
+            let link = document.querySelector('#forumng-expandall a');
+            if (link) {
+                link.focus();
+                link.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        }
+
         // Tell CSS that we have JS working.
         let forumngMain = document.getElementById('forumng-main');
         if (forumngMain) {
