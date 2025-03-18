@@ -1194,12 +1194,16 @@ padding-top: 1em;
 }
 
 #fgroup_id_completiontracking div[data-groupname="timetrackingfrom"] > label,
-#fgroup_id_completiontracking div[data-groupname="timetrackingto"] > label {
+#fgroup_id_completiontracking div[data-groupname="timetrackingto"] > label,
+#fgroup_id_completiontracking_forumng div[data-groupname="timetrackingfrom_forumng"] > label,
+#fgroup_id_completiontracking_forumng div[data-groupname="timetrackingto_forumng"] > label {
     display: contents;
     font-weight: 600;
 }
 
 #fgroup_id_completiontracking div[data-groupname="timetrackingfrom"] span,
-#fgroup_id_completiontracking div[data-groupname="timetrackingto"] span {
+#fgroup_id_completiontracking div[data-groupname="timetrackingto"] span,
+#fgroup_id_completiontracking_forumng div[data-groupname="timetrackingfrom_forumng"] span,
+#fgroup_id_completiontracking_forumng div[data-groupname="timetrackingto_forumng"] span {
     margin-left: 5px;
 }

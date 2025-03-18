@@ -42,7 +42,7 @@ export const init = (formId, timeTracking) => {
  */
 const completionForm = (formElement) => {
     const forumngCompletionRequire = formElement.querySelectorAll('.forumng-completion-require:checked');
-    const allRequirements = document.querySelector('#id_completion_2');
+    const allRequirements = document.querySelector('#id_completion_2, #id_completion_forumng_2');
     if (!forumngCompletionRequire.length) {
         toggleHiddenClassWordcount(true);
         allRequirements.addEventListener('change', function() {
@@ -73,8 +73,10 @@ const completionForm = (formElement) => {
  * @param {Boolean} status hidden status.
  */
 const toggleHiddenClassWordcount = (status) => {
-    const fgroupWordcountMin = document.querySelector('#fgroup_id_completionwordcountmingroup');
-    const fgroupWordcountMax = document.querySelector('#fgroup_id_completionwordcountmaxgroup');
+    const fgroupWordcountMin = document.querySelector('#fgroup_id_completionwordcountmingroup,' +
+        '#fgroup_id_completionwordcountmingroup_forumng');
+    const fgroupWordcountMax = document.querySelector('#fgroup_id_completionwordcountmaxgroup,' +
+        '#fgroup_id_completionwordcountmaxgroup_forumng');
     if (status) {
         fgroupWordcountMin.classList.add('hidden');
         fgroupWordcountMax.classList.add('hidden');
@@ -90,8 +92,8 @@ const toggleHiddenClassWordcount = (status) => {
  * @param {Boolean} status
  */
 const enableDisableTrackingTime = (status) => {
-    const timeTrackingFrom = document.querySelector('#id_timetrackingfrom_enabled');
-    const timeTrackingTo = document.querySelector('#id_timetrackingto_enabled');
+    const timeTrackingFrom = document.querySelector('#id_timetrackingfrom_enabled, #id_timetrackingfrom_forumng_enabled');
+    const timeTrackingTo = document.querySelector('#id_timetrackingto_enabled, #id_timetrackingto_forumng_enabled');
     const timeTrackingSelects = document.querySelectorAll('select[id^="id_timetracking"]');
     if (status) {
         timeTrackingFrom.disabled = true;
