@@ -1220,12 +1220,20 @@ body.scheme-dark .mma-forumng-posts-list-wrapper .mma-forumng-post-reply .mma-fo
     padding-left: 10px;
 }
 
-body.moodleapp-4 .mma-forumng-discussion-list .mma-forumng-discussion .mma-forumng-discussion-last-post,
-body.moodleapp-4 .mod_forumng ion-item .mma-forumng-boldtitle,
-body.moodleapp-4 .mma-forumng-label-subject,
-body.moodleapp-4 .mma-forumng-attachments ion-label,
-body.moodleapp-4 .mma-forumng-label-message core-rich-text-editor {
+.mma-forumng-discussion-list .mma-forumng-discussion .mma-forumng-discussion-last-post,
+.mod_forumng ion-item .mma-forumng-boldtitle,
+.mma-forumng-label-subject,
+.mma-forumng-attachments ion-label,
+.mma-forumng-label-message core-rich-text-editor,
+.mma-forumng-label-message.item.item-label > ion-label.label-stacked {
     font-size: 0.85714rem;
+}
+
+.mma-forumng-label-subject ion-input[name="subject"] .label-text-wrapper.sc-ion-input-md,
+.mma-forumng-label-subject ion-input[name="subject"] .label-text-wrapper.sc-ion-input-ios,
+.mma-forumng-label-message ion-label.sc-ion-label-md-h,
+.mma-forumng-label-message ion-label.sc-ion-label-ios-h {
+    transform: scale(1);
 }
 
 .mma-forumng-discussion-list core-format-text[maxHeight].core-text-formatted.mma-forumng-discussion-introduction {
