@@ -64,10 +64,12 @@ abstract class forumngfeature_discussion extends forumngfeature {
      * @param bool $selector If true, adds a selector class to the form (indicating that the
      *   JavaScript post selector should be used)
      * @param string $extraclass Add extra css class to form
+     * @param bool $buttontag If true, use button tag instead of input
      * @return string HTML code for button
      */
     protected static function get_button($discussion, $name, $script,
-        $post = false, $options = array(), $extrahtml = '', $highlight = false, $selector = false, $extraclass = '') {
+        $post = false, $options = array(), $extrahtml = '', $highlight = false, $selector = false, $extraclass = '',
+        $buttontag = false) {
         $method = $post ? 'post' : 'get';
         $optionshtml = '';
         $options['d'] = $discussion->get_id();
@@ -93,8 +95,13 @@ abstract class forumngfeature_discussion extends forumngfeature {
         if ($class !== '') {
             $class = ' class="' . trim($class) . '"';
         }
+        if ($buttontag) {
+            $button = "<button type='submit' class='osep-smallbutton'>$name</button>";
+        } else {
+            $button = "<input type='submit' value='$name' />";
+        }
         return "<form method='$method' action='$script' $class><div>" .
-            "$optionshtml<input type='submit' value='$name' />" .
+            "$optionshtml$button" .
             "$extrahtml</div></form>";
     }
 

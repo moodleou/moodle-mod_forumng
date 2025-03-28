@@ -58,7 +58,8 @@ class forumngfeature_flagdiscussion extends forumngfeature_discussion {
 
         if ($button) {
             $html = parent::get_button($discussion, $name, $script, false,
-                    array('d' => $discussion->get_id(), 'flag' => $flag), '', false, false, 'fng-mobile-on');
+                    ['d' => $discussion->get_id(), 'flag' => $flag], '', false, false, 'fng-mobile-on',
+                    buttontag: true);
             return html_writer::div($html, "forumng_flagdis $starred fngflg$flag");
         }
     }
