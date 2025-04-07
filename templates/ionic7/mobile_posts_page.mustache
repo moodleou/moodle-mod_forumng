@@ -462,7 +462,8 @@
                     </ion-label>
                 </ion-item>
                 <ion-item class="mma-forumng-label-subject" lines="none">
-                    <ion-input type="text" (ionChange)="onSubjectChange()" [placeholder]="'plugin.mod_forumng.optionalsubject' | translate" [(ngModel)]="subject" labelPlacement="stacked">
+                    <ion-input type="text" (ionChange)="onSubjectChange()" [placeholder]="'plugin.mod_forumng.optionalsubject' | translate"
+                               [(ngModel)]="subject" labelPlacement="stacked" name="subject">
                         <span slot="label" class="mma-forumng-boldtitle">{{ 'plugin.mod_forumng.subject' | translate }}</span>
                     </ion-input>
                 </ion-item>
