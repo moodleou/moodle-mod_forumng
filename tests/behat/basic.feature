@@ -937,3 +937,50 @@ Feature: Add forumng activity and test basic functionality
     And I press "Post discussion"
     Then I should see "Post save failed"
     And I should see "Course or activity not accessible. (You are not logged in)"
+
+  @javascript @editor_tiny
+  Scenario: Check TinyMCE does not autosave when creating a discussion.
+    Given I am on the "Test forum name" "forumng activity" page logged in as "student1"
+    And I press "Start a new discussion"
+    And I set the following fields to these values:
+      | Subject | Discussion 1                |
+      | Message | Student1 posts discussion 1 |
+    And I wait "2" seconds
+    And I press "Post discussion"
+    And I wait "2" seconds
+    And I am on the "Test forum name" "forumng activity" page
+    And I press "Start a new discussion"
+    When I switch to the "Message" TinyMCE editor iframe
+    Then I should not see "Student1 posts discussion 1"
+    And I switch to the main frame
+    # Content should be autosaved when reload the page.
+    And I set the following fields to these values:
+      | Subject | Discussion 2                |
+      | Message | Student1 posts discussion 2 |
+    And I reload the page
+    And I switch to the "Message" TinyMCE editor iframe
+    And I should see "Student1 posts discussion 2"
+    And I switch to the main frame
+    # Content should not be autosaved when cancel the page.
+    And I set the following fields to these values:
+      | Subject | Discussion 3                |
+      | Message | Student1 posts discussion 3 |
+    And I wait "2" seconds
+    And I press "Cancel"
+    And I wait "2" seconds
+    And I am on the "Test forum name" "forumng activity" page
+    And I press "Start a new discussion"
+    And I switch to the "Message" TinyMCE editor iframe
+    And I should not see "Student1 posts discussion 3"
+    And I switch to the main frame
+    # Content should not be autosaved when press Save as draft.
+    And I set the following fields to these values:
+      | Subject | Discussion 4                |
+      | Message | Student1 posts discussion 4 |
+    And I wait "2" seconds
+    And I press "Save as draft"
+    And I wait "2" seconds
+    And I am on the "Test forum name" "forumng activity" page
+    And I press "Start a new discussion"
+    And I switch to the "Message" TinyMCE editor iframe
+    And I should not see "Student1 posts discussion 4"

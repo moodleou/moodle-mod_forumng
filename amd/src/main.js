@@ -802,7 +802,7 @@ class Main {
                             e.cancelBubble = true;
                         }
                     }
-                    this.removeTinyAutoSaveSession(innerwin, 'id_message');
+                    removeTinyAutoSaveSession(this.isUsingTiny, 'id_message', innerwin);
                     this.removeIframe(iframe);
                     return false;
                 }
@@ -818,14 +818,14 @@ class Main {
                             clearInterval(x);
                         }
                     }, 500);
-                    this.removeTinyAutoSaveSession(innerwin, 'id_message');
+                    removeTinyAutoSaveSession(this.isUsingTiny, 'id_message', innerwin);
                 });
             }
 
             const submit = doc.getElementById('id_submitbutton');
             if (submit) {
                 submit.addEventListener('click', () => {
-                    this.removeTinyAutoSaveSession(innerwin, 'id_message');
+                    removeTinyAutoSaveSession(this.isUsingTiny, 'id_message', innerwin);
                 });
             }
 
@@ -2446,26 +2446,51 @@ class Main {
     linearEasing(t) {
         return t;
     }
+}
 
-    /**
-     * Remove draft data from the Tiny editor, which is auto-saved according to editorID.
-     *
-     * In this context, we will remove the auto-save after
-     * creating/editing a reply, canceling, and saving a draft.
-     *
-     * @param {Object} innerWin The current window
-     * @param {String} editorID The editor ID for which draft data needs to be removed.
-     */
-    removeTinyAutoSaveSession(innerWin, editorID) {
-        // Execute this only if it's a Tiny editor.
-        if (this.isUsingTiny) {
-            const editor = innerWin?.tinyMCE?.get(editorID);
-            if (editor) {
-                TinyRepository.removeAutosaveSession(editor);
-            }
+/**
+ * Remove draft data from the Tiny editor, which is auto-saved according to editorID.
+ *
+ * In this context, we will remove the auto-save after
+ * creating/editing a reply, canceling, and saving a draft.
+ *
+ * @param {boolean} isUsingTiny - Indicates if TinyMCE is being used.
+ * @param {String} editorID The editor ID for which draft data needs to be removed.
+ * @param {Object} innerWin The current window
+ */
+export const removeTinyAutoSaveSession = (isUsingTiny, editorID, innerWin = window) => {
+    // Execute this only if it's a Tiny editor.
+    if (isUsingTiny) {
+        const editor = innerWin?.tinyMCE?.get(editorID);
+        if (editor) {
+            TinyRepository.removeAutosaveSession(editor);
         }
     }
-}
+};
+
+/**
+ * Attaches click handlers to specific form buttons to remove the TinyMCE auto-save session.
+ *
+ * @param {boolean} isUsingTiny - Indicates if TinyMCE is being used.
+ * @param {string} editorID - The ID of the TinyMCE editor.
+ * @param {Window} [innerWin=window] - The window object to use, defaults to the global window.
+ */
+export const initButtons = (isUsingTiny, editorID, innerWin = window) => {
+    const buttonIds = ['id_submitbutton', 'id_savedraft'];
+    buttonIds.forEach((id) => {
+        const button = document.getElementById(id);
+        if (button) {
+            button.addEventListener('click', () => {
+                const pendingPromise = new Pending('mod/forumng:handle_buttons_click');
+                try {
+                    removeTinyAutoSaveSession(isUsingTiny, editorID, innerWin);
+                } finally {
+                    pendingPromise.resolve();
+                }
+            });
+        }
+    });
+};
 
 /**
  * Initialise function

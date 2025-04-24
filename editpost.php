@@ -795,6 +795,10 @@ try {
             $PAGE->requires->js_call_amd('mod_forumng/savecheck', 'init', array($forum->get_context()->id));
         }
 
+        $editorid = 'id_message';
+        $isusingtiny = editors_get_preferred_editor() instanceof \editor_tiny\editor;
+
+        $PAGE->requires->js_call_amd('mod_forumng/main', 'initButtons', [$isusingtiny, $editorid]);
         // Display footer
         print $out->footer();
     }
