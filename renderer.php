@@ -465,7 +465,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
             '<a href="deletedraft.php?draft=' . $draft->get_id() .
             $forum->get_clone_param(mod_forumng::PARAM_PLAIN) .
             '" title="' . get_string('deletedraft', 'forumng') .
-            '"><img src="' . $this->image_url('t/delete') . '" alt="' .
+            '"><img class="icon smallicon" src="' . $this->image_url('t/delete') . '" alt="' .
             get_string('deletedraft', 'forumng') . '"/></a></td>';
 
         if ($draft->is_reply()) {
