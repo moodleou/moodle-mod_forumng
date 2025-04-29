@@ -3554,9 +3554,10 @@ ORDER BY
     /**
      * Displays subscribe options for this forum.
      * @param bool $expectquery True if we expect this to make a DB query
+     * @param string $favouritesbutton If specified, pass through favourites button HTML
      * @return string HTML code for subscribe information section
      */
-    public function display_subscribe_options($expectquery = false) {
+    public function display_subscribe_options($expectquery = false, string $favouritesbutton = '') {
         $out = mod_forumng_utils::get_renderer();
 
         // Is user subscribed to this forum?
@@ -3702,7 +3703,7 @@ ORDER BY
         }
 
         return $out->render_subscribe_options($this, $text,
-            $subscribed, $canchange, $this->can_view_subscribers());
+            $subscribed, $canchange, $this->can_view_subscribers(), $favouritesbutton);
     }
 
     /**

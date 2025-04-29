@@ -949,10 +949,11 @@ class mod_forumng_renderer extends plugin_renderer_base {
      * @param int $subscribed
      * @param bool $button True if subscribe/unsubscribe button should be shown
      * @param bool $viewlink True if 'view subscribers' link should be shown
+     * @param string $favouritesbutton HTML for favourites button if included
      * @return string HTML code for this area
      */
     public function render_subscribe_options($forum, $text, $subscribed,
-        $button, $viewlink) {
+        $button, $viewlink, string $favouritesbutton = '') {
         $out = '<div class="forumng-subscribe-options forumng-subscribe-options' . $subscribed .
             '"><div class="forumng-subscribe-details">' .
             '<h3>' . get_string('subscription', 'forumng') . '</h3>' .
@@ -969,6 +970,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
         if ($subscribed != mod_forumng::NOT_SUBSCRIBED) {
             $out .= $this->render_subscribe_info($forum->get_context());
         }
+        $out .= $favouritesbutton;
         $out .= '</div>';
         return $out;
     }
