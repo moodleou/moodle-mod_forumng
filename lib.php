@@ -802,7 +802,15 @@ function mod_forumng_output_fragment_postform($args) {
         $replyoption['cancelbutton'] = true;
     }
 
-    $mform = new mod_forumng_editpost_form(null, array(
+    // Check this forum type is iPud and using TinyMCE.
+    if (is_a($forum->get_type(), 'forumngtype_ipud') &&
+            editors_get_preferred_editor() instanceof \editor_tiny\editor) {
+        $row = 20;
+    } else {
+        $row = 7;
+    }
+
+    $mform = new mod_forumng_editpost_form(null, [
             'params' => $params,
             'forum' => $forum,
             'isdiscussion' => false,
@@ -812,8 +820,8 @@ function mod_forumng_output_fragment_postform($args) {
             'post' => $post,
             'isroot' => false,
             'replyoption' => $replyoption,
-            'attorowheight' => 7
-        )
+            'attorowheight' => $row,
+        ]
     );
 
     // If editing a post setup data for form.
