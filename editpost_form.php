@@ -134,8 +134,14 @@ class mod_forumng_editpost_form extends moodleform {
                 $mform->addElement('html', html_writer::end_tag('div'));
 
             } else {
+                // Check using TinyMCE or empty 'iframe' param.
+                if (editors_get_preferred_editor() instanceof \editor_tiny\editor || empty($params['iframe'])) {
+                    $row = 30;
+                } else {
+                    $row = 15;
+                }
                 $editorattributes = array('id' => 'id_message' . (empty($post) ? '' : $post->get_id()),
-                                          'cols' => 50, 'rows' => !empty($params['iframe']) ? 15 : 30);
+                                          'cols' => 50, 'rows' => $row);
                 $editoroptions = array(
                     'maxfiles' => EDITOR_UNLIMITED_FILES,
                     'context' => $forum->get_context(true),
