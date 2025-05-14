@@ -296,10 +296,11 @@ class Main {
         let iscollapse = this.getValueParameter('collapse');
         let isexpand = this.getValueParameter('expand');
         if (iscollapse || isexpand) {
-            let link = document.querySelector('#forumng-expandall a');
-            if (link) {
-                link.focus();
-                link.scrollIntoView({
+            let button = document.querySelector(
+                '#forumng-expandall .forumng-expandall-btn, #forumng-expandall .forumng-collapseall-btn');
+            if (button) {
+                button.focus();
+                button.scrollIntoView({
                     behavior: 'smooth',
                     block: 'start'
                 });

@@ -223,10 +223,10 @@ class behat_mod_forumng extends behat_base {
         try {
             $exc = new ElementNotFoundException($this->getSession());
             if (empty($post)) {
-                if ($this->find('css', '.forumng-expandall-link', $exc, false, 3)) {
-                    // Ensure all posts available for reply as we found expand link.
-                    $this->execute('behat_general::click_link',
-                            array(get_string('expandall', 'mod_forumng')));
+                $button = $this->find('css', '#forumng-expandall .forumng-expandall-btn', $exc, false, 3);
+                if (!empty($button)) {
+                    // Ensure all posts available for reply as we found expand button.
+                    $this->execute('behat_general::i_click_on', [$button, 'NodeElement']);
                 }
             } else {
                 if ($this->find('css', '.forumng-p' . $post . ' .forumng-expandlink', $exc, false, 3)) {

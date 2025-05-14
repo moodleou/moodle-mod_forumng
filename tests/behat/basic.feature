@@ -575,7 +575,7 @@ Feature: Add forumng activity and test basic functionality
     And I reply to post "1" with the following data:
       | Message | REPLY1 |
     And I reload the page
-    And I click on "Expand all posts" "link"
+    And I click on "Expand all posts" "button"
     And I wait "2" seconds
     And I hover "li.forumng-delete a" "css_element"
     Given I click on "li.forumng-delete a" "css_element" in the "#forumng-main" "css_element"
@@ -627,7 +627,7 @@ Feature: Add forumng activity and test basic functionality
     And I reply to post "1" with the following data:
       | Message | REPLY1 |
     And I reload the page
-    And I click on "Expand all posts" "link"
+    And I click on "Expand all posts" "button"
     Then "//div[contains(@class, 'forumng-post')]//li[contains(@class, 'forumng-permalink')]//a[contains(@href, '&p=p')]" "xpath_element" should exist
 
   Scenario: Check user identity in list subscribers.
