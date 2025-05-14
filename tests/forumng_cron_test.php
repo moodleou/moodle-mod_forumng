@@ -344,4 +344,32 @@ class mod_forumng_cron_testcase extends forumng_test_lib
         // Check headers.
         $this->assertStringContainsString('Precedence: Bulk', $messages[0]->header);
     }
+
+    /**
+     * Test to check if the email body contains duplicate unsubscribe links.
+     *
+     */
+    public function test_email_normal_body_has_duplicate_unsubscribe_link() {
+        global $CFG;
+        $this->setUp();
+        $created = time() - $CFG->forumng_emailafter - 1;
+
+        // Create a post with no edit after the delay time.
+        $this->generator->create_post(['discussionid' => $this->discussionid,
+                'parentpostid' => $this->rootpostid, 'mailstate' => mod_forumng::MAILSTATE_NOT_MAILED,
+                'created' => $created, 'userid' => $this->adminid]);
+
+        unset_config('noemailever');
+        $sink = $this->redirectEmails();
+        \mod_forumng_cron::email_normal();
+        $messages = $sink->get_messages();
+
+        // Check 1 email sent.
+        $this->assertEquals(1, count($messages));
+
+        // Check for duplicate unsubscribe links in the email body.
+        $count = preg_match_all('/<div[^>]*class=["\'].*?forumng-email-unsubscribe.*?["\'][^>]*>.*?<\/div>/s',
+                quoted_printable_decode($messages[0]->body));
+        $this->assertEquals(2, $count);
+    }
 }

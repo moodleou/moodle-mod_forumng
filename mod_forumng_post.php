@@ -1955,6 +1955,19 @@ WHERE
             $html .= "\n<body id='forumng-email'>\n\n";
         }
 
+        if (!$digest && $canunsubscribe) {
+            $text .= get_string("unsubscribe", "forumng");
+            $text .= ": $CFG->wwwroot/mod/forumng/subscribe.php?" .
+                    $this->get_forum()->get_link_params(mod_forumng::PARAM_PLAIN);
+            $text .= "\n" . mod_forumng_cron::EMAIL_DIVIDER . "\n";
+
+            $html .= "<div class='forumng-email-unsubscribe'>" .
+                    "<a href='$CFG->wwwroot/mod/forumng/subscribe.php?" .
+                    $this->get_forum()->get_link_params(mod_forumng::PARAM_HTML) . "'>" .
+                    get_string('unsubscribe', 'forumng') . '</a></div>' .
+                    "<hr size='1' noshade='noshade' />";
+        }
+
         // Navigation bar (breadcrumbs)
         if (!$digest) {
             $text .= $forum->get_course()->shortname . ' -> ';
@@ -2028,7 +2041,7 @@ WHERE
 
         if (!$digest && $canunsubscribe) {
             $text .= "\n" . mod_forumng_cron::EMAIL_DIVIDER;
-            $text .= get_string("unsubscribe", "forum");
+            $text .= get_string("unsubscribe", "forumng");
             $text .= ": $CFG->wwwroot/mod/forumng/subscribe.php?" .
                 $this->get_forum()->get_link_params(mod_forumng::PARAM_PLAIN) . "\n";
 
