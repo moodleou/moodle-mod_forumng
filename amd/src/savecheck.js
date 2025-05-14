@@ -33,7 +33,7 @@ export const init = async (contextid) => {
                 } else {
                     pendingPromise.resolve();
                     FormChangeChecker.disableAllChecks();
-                    e.target.form.submit();
+                    e.target.form.requestSubmit(e.target);
                 }
             } catch (error) {
                 await savefail('savefailnetwork', error);
