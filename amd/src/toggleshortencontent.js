@@ -21,7 +21,11 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-define(['jquery'], function($) {
+define(function() {
+    const KEYS = {
+        ENTER: 13
+    };
+
     /**
      *
      * @alias module:mod_forum/toggleshortencontent
@@ -31,6 +35,10 @@ define(['jquery'], function($) {
              * Initialize.
              */
             initial: function() {
+                document.querySelectorAll('.wrapper_fullcontent, .toggle_showless').forEach(elem => {
+                    elem.style.display = 'none';
+                });
+
                 t.handleShortenContent();
             },
 
@@ -38,13 +46,43 @@ define(['jquery'], function($) {
              * Add events to selectors.
              */
             handleShortenContent: function() {
-                $('.toggle_showmore,.toggle_showless').on('click', function(e) {
-                    e.preventDefault();
-                    var contenttargets = $(this).parents('.wrapper_shortencontent, .wrapper_fullcontent');
-                    contenttargets.toggle();
-                    contenttargets.siblings('.wrapper_shortencontent, .wrapper_fullcontent').toggle();
+                const toggleContent = (e, el) => {
+                    var parent = el.parentElement.parentElement;
+                    var elems = parent.querySelectorAll('.wrapper_shortencontent, .wrapper_fullcontent');
+                    elems.forEach(elem => {
+                        t.toggle(elem);
+                    });
+
+                    elems = parent.querySelectorAll('.toggle_showmore, .toggle_showless');
+                    elems.forEach(elem => {
+                        t.toggle(elem);
+                    });
+                };
+
+                document.querySelectorAll('.toggle_showmore, .toggle_showless').forEach(elem => {
+                    elem.addEventListener('click', e => {
+                        toggleContent(e, elem);
+                    });
+                    elem.addEventListener('keypress', e => {
+                        if (e.keyCode === KEYS.ENTER) {
+                            toggleContent(e, elem);
+                        }
+                    });
                 });
                 return false;
+            },
+
+            /**
+             * Toggle the element.
+             *
+             * @param {HTMLElement} elem
+             */
+            toggle: (elem) => {
+                if (elem.style.display !== 'none') {
+                    elem.style.display = 'none';
+                } else {
+                    elem.style.display = 'inline';
+                }
             }
         };
     return t;

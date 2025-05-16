@@ -743,10 +743,12 @@ class mod_forumng_renderer extends plugin_renderer_base {
         $showmore = $showmore ? $showmore : strlen($shortentext) >= self::SHORTENED_LENGTH;
         if ($showmore) {
             $shortencontent = html_writer::div('<p>' . self::nice_shorten_text($shortentext, $length) .'</p>' .
-                html_writer::span(get_string('showmore', 'mod_forumng'), 'toggle_showmore'), 'wrapper_shortencontent');
+                html_writer::span(get_string('showmore', 'mod_forumng'), 'toggle_showmore', ['tabindex' => '0']),
+                    'wrapper_shortencontent');
 
             $fullcontent = html_writer::div('<p>' . $content .'</p>'.
-                html_writer::span(get_string('showless', 'mod_forumng'), 'toggle_showless'), 'wrapper_fullcontent');
+                html_writer::span(get_string('showless', 'mod_forumng'), 'toggle_showless', ['tabindex' => '0']),
+                    'wrapper_fullcontent');
             $content = $shortencontent . $fullcontent;
         }
         return $content;

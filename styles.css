@@ -1159,9 +1159,6 @@ padding-top: 1em;
 
 /* CSS for toggle shorten content */
 .wrapper_fullcontent {
-    display: none;
-}
-.wrapper_fullcontent {
     margin-bottom: 15px;
 }
 .wrapper_fullcontent p,
