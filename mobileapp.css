@@ -78,6 +78,7 @@ html[style="font-size: 75.89%;"] .mma-forumng-discussion-list core-format-text[m
 .mma-forumng-discussion-list .mma-forumng-drafts .mma-forumng-draft-heading img {
     position: relative;
     top: 1px;
+    width: 15px;
 }
 
 .mma-forumng-discussion-list .mma-forumng-drafts ion-row:nth-child(2) {
@@ -902,8 +903,15 @@ body.dark .mma-forumng-draft-subject {
     padding-top: 20px;
     padding-bottom: 20px;
 }
+
 .mma-forumng-delete-draft {
     vertical-align: middle;
+    width: 15px;
+    margin-left: 5px;
+}
+
+body.dark .mma-forumng-delete-draft {
+    filter: brightness(0) invert(1);
 }
 
 .mma-forumng-posts-list .deleted-post .item ion-avatar[item-start] {
