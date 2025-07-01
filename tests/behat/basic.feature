@@ -90,7 +90,7 @@ Feature: Add forumng activity and test basic functionality
     Given I follow "Discussion 1"
     Then "li.forumng-edit" "css_element" should not exist
     And "li.forumng-delete" "css_element" should not exist
-    And I should see "Collapse all posts"
+    And "Collapse all posts" "button" should exist
     And ".forumng-p2 a.forumng-parent" "css_element" should exist
     And ".forumng-p2 a.forumng-next" "css_element" should exist
     And ".forumng-p2 a.forumng-prev" "css_element" should exist
