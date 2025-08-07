@@ -37,4 +37,18 @@ class hook_callbacks {
         }
     }
 
+    /**
+     * Clean AI prompts by removing dynamic elements for better caching.
+     *
+     *
+     * @param \tool_ouladmin\hook\before_prompt_generation $hook Hook containing prompt to clean
+     * @return void
+     */
+    public static function before_prompt_generation(\tool_ouadmin\hook\before_prompt_generation $hook) {
+        $originalprompt = $hook->get_prompt();
+
+        // TODO: Remove dynamic page elements.
+
+        $hook->set_prompt($originalprompt);
+    }
 }
