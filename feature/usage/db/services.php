@@ -25,7 +25,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $functions = [
-    'mod_forumng_get_usage' => [
+    'forumngfeature_usage_get_usage' => [
         'classname' => '\forumngfeature_usage\external\get_usage',
         'methodname' => 'execute',
         'classpath' => '',

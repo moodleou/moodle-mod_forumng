@@ -23,7 +23,7 @@ export const init = (name, params) => {
     div.classList.add('ajaxworking');
     container.append(div);
     Ajax.call([{
-        methodname: 'mod_forumng_get_usage',
+        methodname: 'forumngfeature_usage_get_usage',
         args: {
             type: name,
             param: params
