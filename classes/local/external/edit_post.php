@@ -161,7 +161,7 @@ class edit_post extends external_api {
                 \mod_forumng::IPUD_SHORTEN_LENGTH);
 
             // Clear the atto editor saved message.
-            $DB->delete_records('editor_atto_autosave', array(
+            $DB->delete_records('tiny_autosave', array(
                 'userid' => $USER->id,
                 'elementid' => 'id_message' . $neweditpost->get_id(),
                 'contextid' => $forumcontext->id
