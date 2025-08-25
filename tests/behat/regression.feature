@@ -33,6 +33,8 @@ Feature: To Create a ForumNG on Learn2
     And I reply to post "1" with the following data:
       | Message    | Text r1                              |
       | Attachment | mod/forumng/tests/fixtures/Reply.txt |
+    And I reload the page
+    And I expand post "3"
     And I click on "Split" "link" in the "li.forumng-split" "css_element"
     And I should see "A new discussion will be created (shown below)."
     And I press "Cancel"
