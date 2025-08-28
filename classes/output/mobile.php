@@ -476,37 +476,39 @@ class mobile {
         // Check is draft.
         $draftid = empty($args->draft) ? 0 : $args->draft;
         $replytoid = empty($args->replytoid) ? 0 : $args->replytoid;
+        $discussionid = empty($args->discussionid) ? 0 : $args->discussionid;
         $draftexists = '';
         $setimportant = false;
         $attachmentforform = [];
         $cloneid = empty($args->cmid) ? mod_forumng::CLONE_DIRECT : $args->cmid;
-        $discussion = \mod_forumng_discussion::get_from_id($args->discussionid, $cloneid);
-        $forumng = $discussion->get_forum();
+        $error = null;
+
+        // Initialize reusable error handler.
+        $rendererror = function($errormsg) use ($OUTPUT, $foldername) {
+            $html = $OUTPUT->render_from_template('mod_forumng/' . $foldername . 'mobile_posts_page',
+                    ['error' => $errormsg]);
+            return [
+                'templates' => [['id' => 'main', 'html' => $html]],
+                'javascript' => '',
+                'otherdata' => [],
+                'files' => [],
+            ];
+        };
+
+        try {
+            $discussion = \mod_forumng_discussion::get_from_id($discussionid, $cloneid);
+            $forumng = $discussion->get_forum();
+        } catch (\moodle_exception $e) {
+            $error = $rendererror($e->getMessage());
+        }
         $setpostas = 0;
-        if ($draftid) {
+        if (!$error && $draftid) {
             try {
                 $draft = \mod_forumng_draft::get_from_id($draftid);
             } catch (\moodle_exception $e) {
-                $error = $e->getMessage();
-                $data = [
-                        'error' => $error,
-                ];
-
-                $html = $OUTPUT->render_from_template('mod_forumng/' . $foldername . 'mobile_posts_page', $data);
-                return [
-                        'templates' => [
-                                [
-                                        'id' => 'main',
-                                        'html' => $html,
-                                ]
-                        ],
-                        'javascript' => '',
-                        'otherdata' => [
-                        ],
-                        'files' => []
-                ];
+                $error = $rendererror($e->getMessage());
             }
-            if ($draft) {
+            if (!$error && $draft) {
                 $postid = $draft->get_parent_post_id();
                 $postwithdraft = \mod_forumng_post::get_from_id($postid, $cloneid,
                         false, false, 0, true);
@@ -515,57 +517,33 @@ class mobile {
                 if (!$canreply) {
                     $drafterror = get_string('draft_cannotreply', 'forumng',
                             $forumng->get_url(mod_forumng::PARAM_HTML));
-                    $data = new \stdClass();
-                    $data->error = $drafterror;
-                    $html = $OUTPUT->render_from_template('mod_forumng/' . $foldername . 'mobile_posts_page', $data);
-                    return [
-                            'templates' => [
-                                    [
-                                            'id' => 'main',
-                                            'html' => $html,
-                                    ]
-                            ],
-                            'javascript' => '',
-                            'otherdata' => [
-                            ],
-                            'files' => []
-                    ];
-                }
-                $forumng = \mod_forumng::get_from_id($draft->get_forumng_id(), $cloneid);
-                $draftexists = get_string('draftexists', 'forumng', \mod_forumng_utils::display_date($draft->get_saved()));
-                if ($draftoptions = $draft->get_options()) {
-                    if ($draftoptions->setimportant) {
-                        $setimportant = true;
+                    $error = $rendererror($drafterror);
+                } else {
+                    $forumng = \mod_forumng::get_from_id($draft->get_forumng_id(), $cloneid);
+                    $draftexists = get_string('draftexists', 'forumng', \mod_forumng_utils::display_date($draft->get_saved()));
+                    if ($draftoptions = $draft->get_options()) {
+                        if ($draftoptions->setimportant) {
+                            $setimportant = true;
+                        }
+                        if ($draftoptions->asmoderator) {
+                            $setpostas = $draftoptions->asmoderator;
+                        }
                     }
-                    if ($draftoptions->asmoderator) {
-                        $setpostas = $draftoptions->asmoderator;
-                    }
+                    $attachmentforform = self::get_attachment_draft_post($draftid, $cloneid);
                 }
-                $attachmentforform = self::get_attachment_draft_post($draftid, $cloneid);
             }
         }
 
-        try {
-            $discussion->require_view();
-        } catch (\moodle_exception $e) {
-            $error = $e->getMessage();
-            $data = [
-                    'error' => $error,
-            ];
+        if (!$error) {
+            try {
+                $discussion->require_view();
+            } catch (\moodle_exception $e) {
+                $error = $rendererror($e->getMessage());
+            }
+        }
 
-            $html = $OUTPUT->render_from_template('mod_forumng/' . $foldername . 'mobile_posts_page', $data);
-            return [
-                    'templates' => [
-                            [
-                                    'id' => 'main',
-                                    'html' => $html,
-                            ]
-                    ],
-                    'javascript' => '',
-                    'otherdata' => [
-                    ],
-                    'files' => []
-            ];
+        if ($error) {
+            return $error;
         }
 
         // Auto mark read - it seems that viewing any bit of a discussion counts as viewing all discussion posts.
