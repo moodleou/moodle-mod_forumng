@@ -248,10 +248,10 @@ Feature:  Add discussion in forumng and test app can view discussion listing pag
     And I click on "//ion-list[contains(@class,'mma-forumng-discussion-list')]/ion-item[contains(@class, 'mma-forumng-discussion-short')][1]" "xpath_element"
     # Before click Expand all, I should see short message with (...) .
     And I should see "..."
-    And I should see "EXPAND ALL POSTS"
+    And "EXPAND ALL POSTS" "button" should exist
     And I press "EXPAND ALL POSTS"
-    And I should not see "EXPAND ALL POSTS"
-    And I should see "COLLAPSE ALL POSTS"
+    And "EXPAND ALL POSTS" "button" should not exist
+    And "COLLAPSE ALL POSTS" "button" should exist
     Then I click on "page-core-site-plugins-plugin core-context-menu button" "css_element"
     And I should see "Open in browser"
     And I should see "Refresh"

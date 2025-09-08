@@ -90,7 +90,7 @@ Feature: Add forumng activity and test basic functionality
     Given I follow "Discussion 1"
     Then "li.forumng-edit" "css_element" should not exist
     And "li.forumng-delete" "css_element" should not exist
-    And I should see "Collapse all posts"
+    And "Collapse all posts" "button" should exist
     And ".forumng-p2 a.forumng-parent" "css_element" should exist
     And ".forumng-p2 a.forumng-next" "css_element" should exist
     And ".forumng-p2 a.forumng-prev" "css_element" should exist
@@ -575,7 +575,7 @@ Feature: Add forumng activity and test basic functionality
     And I reply to post "1" with the following data:
       | Message | REPLY1 |
     And I reload the page
-    And I click on "Expand all posts" "link"
+    And I click on "Expand all posts" "button"
     And I wait "2" seconds
     And I hover "li.forumng-delete a" "css_element"
     Given I click on "li.forumng-delete a" "css_element" in the "#forumng-main" "css_element"
@@ -627,7 +627,7 @@ Feature: Add forumng activity and test basic functionality
     And I reply to post "1" with the following data:
       | Message | REPLY1 |
     And I reload the page
-    And I click on "Expand all posts" "link"
+    And I click on "Expand all posts" "button"
     Then "//div[contains(@class, 'forumng-post')]//li[contains(@class, 'forumng-permalink')]//a[contains(@href, '&p=p')]" "xpath_element" should exist
 
   Scenario: Check user identity in list subscribers.
@@ -932,9 +932,11 @@ Feature: Add forumng activity and test basic functionality
     Given I am on the "Test forum name" "forumng activity" page logged in as "student1"
     And I press "Start a new discussion"
     And I set the following fields to these values:
+      | Subject | Test   |
       | Message | A post |
     And I clear the session cookie in forumng
     And I press "Post discussion"
+    And I wait until ".modal-dialog" "css_element" exists
     Then I should see "Post save failed"
     And I should see "Course or activity not accessible. (You are not logged in)"
 

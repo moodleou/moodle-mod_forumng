@@ -83,7 +83,6 @@ $addons = [
             ['deletepostbutton', 'forumng'],
             ['undeletepostbutton', 'forumng'],
             ['editpostmobile', 'forumng'],
-            ['expandallpost', 'forumng'],
             ['savedraft', 'forumng'],
             ['cannotcreatedraft', 'forumng'],
             ['confirmdeletedraft', 'forumng'],

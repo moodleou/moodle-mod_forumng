@@ -304,7 +304,6 @@ class forumngtype_general extends forumngtype {
         $options[mod_forumng_post::OPTION_READ_TIME] = $previousread;
 
         // Display expand all option if there are any 'Expand' links in content
-        $fakedate = '&amp;timeread=' . $previousread;
         print '<div id="forumng-expandall">';
         $showexpandall = preg_match(
             '~<a [^>]*href="discuss\.php\?d=[0-9]+[^"]*&amp;expand=1#p[0-9]+">~',
@@ -313,18 +312,19 @@ class forumngtype_general extends forumngtype {
         $showcollapseall = preg_match(
             '~<div class="forumng-post forumng-full.*<div class="forumng-post forumng-full~s',
             $content) && $PAGE->devicetypeinuse != 'legacy';
+        $script = $discussion->get_url(mod_forumng::PARAM_HTML);
         if ($showexpandall) {
-            print '<a class="forumng-expandall-link" href="' .
-                        $discussion->get_url(mod_forumng::PARAM_HTML) . '&amp;expand=1' .
-                        $fakedate . '">' . get_string('expandall', 'forumng') . '</a>';
+            print forumngfeature_discussion_list::get_button($forum, get_string('expandall', 'forumng'),
+                $script, false, ['d' => $discussion->get_id(), 'expand' => 1, 'timeread' => $previousread],
+                buttonclass: 'forumng-expandall-btn');
             if ($showcollapseall) {
                 print '<span class="forumng-dot-separator"> &#x2022; </span>';
             }
         }
         if ($showcollapseall) {
-            print '<a class="forumng-collapseall-link" href="' .
-                    $discussion->get_url(mod_forumng::PARAM_HTML) . '&amp;collapse=1' .
-                    $fakedate . '">' . get_string('collapseall', 'forumng') . '</a> ';
+            print forumngfeature_discussion_list::get_button($forum, get_string('collapseall', 'forumng'),
+                $script, false, ['d' => $discussion->get_id(), 'collapse' => 1, 'timeread' => $previousread],
+                buttonclass: 'forumng-collapseall-btn');
         }
         print '</div>';
 
