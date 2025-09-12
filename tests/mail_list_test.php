@@ -29,7 +29,7 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->dirroot . '/mod/forumng/mod_forumng_mail_list.php');
 
-class mail_list_testcase extends \advanced_testcase
+class mail_list_test extends \advanced_testcase
 {
     public function test_mail_list() {
         global $DB, $CFG;

@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+namespace mod_forumng;
+
 /**
  * PHPUnit ForumNG ipud tests.
  *
@@ -29,7 +31,7 @@ require_once($CFG->dirroot . '/mod/forumng/tests/forumng_test_lib.php');
 require_once($CFG->dirroot . '/mod/forumng/type/forumngtype.php');
 require_once($CFG->dirroot . '/mod/forumng/type/ipud/forumngtype_ipud.php');
 
-class forumngtype_ipud_testcase extends forumng_test_lib {
+class forumngtype_ipud_test extends \forumng_test_lib {
 
     /**
      * Test get first level posts with its replies.
@@ -49,7 +51,7 @@ class forumngtype_ipud_testcase extends forumng_test_lib {
         $forum = $generator->create_instance(array('course' => $course->id));
 
         // Create discussion for current user.
-        $record = new stdClass();
+        $record = new \stdClass();
         $record->course = $course->id;
         $record->forum = $forum->id;
         $record->userid = $USER->id;
@@ -99,11 +101,11 @@ class forumngtype_ipud_testcase extends forumng_test_lib {
                 'message' => 'Reply 3.1'
             )
         );
-        $reply2 = mod_forumng_post::get_from_id($reply2->id, 0);
-        $reply3 = mod_forumng_post::get_from_id($reply3->id, 0);
-        $reply31 = mod_forumng_post::get_from_id($reply31->id, 0);
+        $reply2 = \mod_forumng_post::get_from_id($reply2->id, 0);
+        $reply3 = \mod_forumng_post::get_from_id($reply3->id, 0);
+        $reply31 = \mod_forumng_post::get_from_id($reply31->id, 0);
 
-        $discussion = mod_forumng_discussion::get_from_id($discussion[0], 0);
+        $discussion = \mod_forumng_discussion::get_from_id($discussion[0], 0);
 
         $ipud = new \forumngtype_ipud();
 
@@ -119,13 +121,13 @@ class forumngtype_ipud_testcase extends forumng_test_lib {
 
         // Check when important post is deleted.
         $reply3->delete(); // Important post should still be returned.
-        $discussion = mod_forumng_discussion::get_from_id($discussion->get_id(), 0);
+        $discussion = \mod_forumng_discussion::get_from_id($discussion->get_id(), 0);
         $options = $ipud->get_reply_options(true, false, $discussion);
         $this->assertFalse($options['markimportant']);
 
         // Check when important post reply is deleted.
         $reply31->delete(); // Important post not be returned as itself and all replies deleted.
-        $discussion = mod_forumng_discussion::get_from_id($discussion->get_id(), 0);
+        $discussion = \mod_forumng_discussion::get_from_id($discussion->get_id(), 0);
         $options = $ipud->get_reply_options(true, false, $discussion);
         $this->assertNotFalse($options['markimportant']);
 
@@ -154,13 +156,13 @@ class forumngtype_ipud_testcase extends forumng_test_lib {
         $user1 = $this->get_new_user('student', $course->id);
 
         // Create discussion for current user.
-        $record = new stdClass();
+        $record = new \stdClass();
         $record->course = $course->id;
         $record->forum = $forum->id;
         $record->userid = $USER->id;
         $discussion = $generator->create_discussion($record);
 
-        $discussionuser1 = mod_forumng_discussion::get_from_id($discussion[0], 0, $user1->id);
+        $discussionuser1 = \mod_forumng_discussion::get_from_id($discussion[0], 0, $user1->id);
         // Root post always count as read in IPUD.
         $numposts = $discussionuser1->get_num_posts();
         $unreadnumposts = $discussionuser1->get_num_unread_posts();
@@ -188,13 +190,13 @@ class forumngtype_ipud_testcase extends forumng_test_lib {
         $user1 = $this->get_new_user('student', $course->id);
 
         // Create discussion for current user.
-        $record = new stdClass();
+        $record = new \stdClass();
         $record->course = $course->id;
         $record->forum = $forum->id;
         $record->userid = $USER->id;
         $discussion = $generator->create_discussion($record);
 
-        $forums = \mod_forumng::get_course_forums($course, $user1->id, mod_forumng::UNREAD_DISCUSSIONS);
+        $forums = \mod_forumng::get_course_forums($course, $user1->id, \mod_forumng::UNREAD_DISCUSSIONS);
         $forumuser1 = $forums[$forum->id];
         // Root post always count as read in IPUD.
         $unreadnumposts = $forumuser1->has_unread_discussions();

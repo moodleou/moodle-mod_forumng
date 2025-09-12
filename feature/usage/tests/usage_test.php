@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+namespace mod_forumng;
+
 /**
  * Unit test for feature.
  *
@@ -31,7 +33,7 @@ require_once($CFG->dirroot . '/mod/forumng/mod_forumng.php');
 /**
  * Unit test.
  */
-class forumngfeature_usage_usage_testcase extends forumng_test_lib {
+class usage_test extends \forumng_test_lib {
 
     /**
      * Tests that discussions can be marked as read.

@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+namespace mod_forumng;
+
 /**
  * Test data provider for forumngfeature_manualmark.
  *
@@ -36,7 +38,7 @@ use forumngfeature_manualmark\privacy\provider;
  * @copyright 2018 The Open University
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class forumngfeature_manualmark_privacy_testcase extends provider_testcase {
+class privacy_test extends provider_testcase {
 
     public function setUp(): void {
         $this->resetAfterTest();
@@ -51,7 +53,7 @@ class forumngfeature_manualmark_privacy_testcase extends provider_testcase {
         $user = $this->getDataGenerator()->create_user();
         provider::export_user_preferences($user->id);
 
-        $writer = writer::with_context(context_user::instance($user->id));
+        $writer = writer::with_context(\context_user::instance($user->id));
         $this->assertFalse($writer->has_any_data());
     }
 
@@ -68,7 +70,7 @@ class forumngfeature_manualmark_privacy_testcase extends provider_testcase {
 
         // Validate exported data.
         provider::export_user_preferences($user->id);
-        $context = context_user::instance($user->id);
+        $context = \context_user::instance($user->id);
 
         $writer = writer::with_context($context);
         $this->assertTrue($writer->has_any_data());

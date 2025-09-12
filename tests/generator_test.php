@@ -22,6 +22,8 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+namespace mod_forumng;
+
 defined('MOODLE_INTERNAL') || die();
 
 
@@ -32,7 +34,7 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright 2014 The Open University
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class mod_forumng_generator_testcase extends advanced_testcase {
+class generator_test extends \advanced_testcase {
     public function test_generator() {
         global $DB, $SITE;
 
@@ -65,7 +67,7 @@ class mod_forumng_generator_testcase extends advanced_testcase {
         $this->assertEquals($SITE->id, $cm->course);
 
         // Check the context is correct.
-        $context = context_module::instance($cm->id);
+        $context = \context_module::instance($cm->id);
         $this->assertEquals($forum->cmid, $context->instanceid);
     }
 
@@ -85,7 +87,7 @@ class mod_forumng_generator_testcase extends advanced_testcase {
         $course = self::getDataGenerator()->create_course();
 
         // The forum.
-        $record = new stdClass();
+        $record = new \stdClass();
         $record->course = $course->id;
         $forum = self::getDataGenerator()->create_module('forumng', $record);
 
@@ -121,7 +123,7 @@ class mod_forumng_generator_testcase extends advanced_testcase {
         $course = self::getDataGenerator()->create_course();
 
         // The forum.
-        $record = new stdClass();
+        $record = new \stdClass();
         $record->course = $course->id;
         $forum = self::getDataGenerator()->create_module('forumng', $record);
 
@@ -132,7 +134,7 @@ class mod_forumng_generator_testcase extends advanced_testcase {
         $discussionid = self::getDataGenerator()->get_plugin_generator('mod_forumng')->create_discussion($record);
 
         // Add a bunch of replies, changing the userid.
-        $record = new stdClass();
+        $record = new \stdClass();
         $record->discussionid = $discussionid[0];
         $record->userid = $user2->id;
         self::getDataGenerator()->get_plugin_generator('mod_forumng')->create_post($record);

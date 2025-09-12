@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+namespace mod_forumng;
+
 /**
  * PHPUnit ForumNG forward feature tests.
  *
@@ -27,12 +29,12 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->dirroot . '/mod/forumng/tests/forumng_test_lib.php');
 
-class mod_forumng_forward_testcase  extends forumng_test_lib {
+class forumng_forward_test  extends \forumng_test_lib {
 
     protected $helper;
 
     public function setUp(): void {
-        $helper = new stdClass();
+        $helper = new \stdClass();
 
         // Catch all messages.
         $helper->mailsink = $this->redirectEmails();

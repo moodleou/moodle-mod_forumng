@@ -22,13 +22,15 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+namespace mod_forumng;
+
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 require_once($CFG->dirroot . '/mod/forumng/tests/forumng_test_lib.php');
 
 
-class mod_forumng_discussion_testcase  extends forumng_test_lib {
+class forumng_discussion_test  extends \forumng_test_lib {
 
     /**
      * ForumNG generator reference
@@ -70,7 +72,7 @@ class mod_forumng_discussion_testcase  extends forumng_test_lib {
         $generator = self::getDataGenerator()->get_plugin_generator('mod_forumng');
 
         // Create course.
-        $record = new stdClass();
+        $record = new \stdClass();
         $record->shortname = 'testcourse';
         $course = self::getDataGenerator()->create_course($record);
 
@@ -83,7 +85,7 @@ class mod_forumng_discussion_testcase  extends forumng_test_lib {
         $futuretime = $utime + (24 * 60 * 60);
 
         // Start a discussion in forum.
-        $record = new stdClass();
+        $record = new \stdClass();
         $record->course = $course->id;
         $record->forum = $forum->id;
         $record->userid = $USER->id;
@@ -94,7 +96,7 @@ class mod_forumng_discussion_testcase  extends forumng_test_lib {
         // Test to see that the created discussion and root post records contains a matching timestart to futuretime.
         $discussionid = $ids[0];
         $rootpostid = $ids[1];
-        $discussion = mod_forumng_discussion::get_from_id($discussionid , 0);
+        $discussion = \mod_forumng_discussion::get_from_id($discussionid , 0);
         $starttime = $discussion->get_time_start();
         $this->assertEquals($futuretime, $starttime);
         $root = $discussion->get_root_post();
@@ -102,7 +104,7 @@ class mod_forumng_discussion_testcase  extends forumng_test_lib {
         $this->assertEquals($futuretime, $root->get_modified());
 
         // Test to see we can not create a post with an earlier start time than today.
-        $record = new stdClass();
+        $record = new \stdClass();
         $record->course = $course->id;
         $record->forum = $forum->id;
         $record->userid = $USER->id;
@@ -113,7 +115,7 @@ class mod_forumng_discussion_testcase  extends forumng_test_lib {
         // Test to see that the created discussion and root post records contains a matching time for now (utime).
         $discussionid = $ids[0];
         $rootpostid = $ids[1];
-        $discussion = mod_forumng_discussion::get_from_id($discussionid , 0);
+        $discussion = \mod_forumng_discussion::get_from_id($discussionid , 0);
         $starttime = $discussion->get_time_start();
         $root = $discussion->get_root_post();
         $this->assertNotEquals($pasttime, $root->get_created());
@@ -159,7 +161,7 @@ class mod_forumng_discussion_testcase  extends forumng_test_lib {
         $forumrecord = $generator->create_instance(array('course' => $SITE->id));
 
         // Start a discussion in forum.
-        $record = new stdClass();
+        $record = new \stdClass();
         $record->course = $SITE->id;
         $record->forum = $forumrecord->id;
         $record->userid = $USER->id;
@@ -169,13 +171,13 @@ class mod_forumng_discussion_testcase  extends forumng_test_lib {
 
         $discussionid = $ids[0];
         $rootpostid = $ids[1];
-        $discussion = mod_forumng_discussion::get_from_id($discussionid, 0);
+        $discussion = \mod_forumng_discussion::get_from_id($discussionid, 0);
         $this->assertFalse($discussion->is_flagged());
         // Set flagged discussion.
         $this->assertTrue($discussion->can_flag());
         $discussion->set_flagged(true, $USER->id);
 
-        $forum = mod_forumng::get_from_id($forumrecord->id, mod_forumng::CLONE_DIRECT, false);
+        $forum = \mod_forumng::get_from_id($forumrecord->id, \mod_forumng::CLONE_DIRECT, false);
 
         $flagged = $forum->get_flagged_discussions($USER->id);
         $this->assertCount(1, $flagged);
@@ -213,7 +215,7 @@ class mod_forumng_discussion_testcase  extends forumng_test_lib {
         $generator = self::getDataGenerator()->get_plugin_generator('mod_forumng');
 
         // Create course.
-        $record = new stdClass();
+        $record = new \stdClass();
         $record->shortname = 'testcourse';
         $course = self::getDataGenerator()->create_course($record);
 
@@ -224,7 +226,7 @@ class mod_forumng_discussion_testcase  extends forumng_test_lib {
         // Create forum.
         $forumrecord = $generator->create_instance(array('course' => $course->id, 'enabletags' => true,
                 'groupmode' => VISIBLEGROUPS));
-        $forum = mod_forumng::get_from_id($forumrecord->id, mod_forumng::CLONE_DIRECT, true);
+        $forum = \mod_forumng::get_from_id($forumrecord->id, \mod_forumng::CLONE_DIRECT, true);
 
         // Set use tag.
         $CFG->usetags = true;
@@ -234,7 +236,7 @@ class mod_forumng_discussion_testcase  extends forumng_test_lib {
         $this->assertEquals(true, $forum->get_tags_enabled());
 
         // Start a discussion in forum (group1).
-        $record = new stdClass();
+        $record = new \stdClass();
         $record->course = $course->id;
         $record->forum = $forum->get_id();
         $record->groupid = $group1->id;
@@ -243,7 +245,7 @@ class mod_forumng_discussion_testcase  extends forumng_test_lib {
         $ids1 = $generator->create_discussion($record);
 
         // Start a second discussion in forum (group1).
-        $record = new stdClass();
+        $record = new \stdClass();
         $record->course = $course->id;
         $record->forum = $forum->get_id();
         $record->groupid = $group1->id;
@@ -252,7 +254,7 @@ class mod_forumng_discussion_testcase  extends forumng_test_lib {
         $ids2 = $generator->create_discussion($record);
 
         // Start a third discussion in forum (group2).
-        $record = new stdClass();
+        $record = new \stdClass();
         $record->course = $course->id;
         $record->forum = $forum->get_id();
         $record->groupid = $group2->id;
@@ -262,7 +264,7 @@ class mod_forumng_discussion_testcase  extends forumng_test_lib {
 
         // Set up tags in each discussion.
         $discussionid = $ids1[0];
-        $discussion = mod_forumng_discussion::get_from_id($discussionid , 0);
+        $discussion = \mod_forumng_discussion::get_from_id($discussionid , 0);
         $this->assertEmpty($discussion->get_tags());
         // Edit discussion settings.
         $discussion->edit_settings($discussion::NOCHANGE, $discussion::NOCHANGE, $discussion::NOCHANGE, $discussion::NOCHANGE,
@@ -272,29 +274,29 @@ class mod_forumng_discussion_testcase  extends forumng_test_lib {
         $discussion1 = $discussion;
 
         $discussionid = $ids2[0];
-        $discussion = mod_forumng_discussion::get_from_id($discussionid , 0);
+        $discussion = \mod_forumng_discussion::get_from_id($discussionid , 0);
         $this->assertEmpty($discussion->get_tags());
         // Edit discussion settings.
-        $discussion->edit_settings(mod_forumng_discussion::NOCHANGE, mod_forumng_discussion::NOCHANGE,
-                mod_forumng_discussion::NOCHANGE, mod_forumng_discussion::NOCHANGE, mod_forumng_discussion::NOCHANGE,
+        $discussion->edit_settings(\mod_forumng_discussion::NOCHANGE, \mod_forumng_discussion::NOCHANGE,
+                \mod_forumng_discussion::NOCHANGE, \mod_forumng_discussion::NOCHANGE, \mod_forumng_discussion::NOCHANGE,
                 array('tag1', 'tag2'));
         $tags2 = $discussion->get_tags();
         $this->assertCount(2, $tags2);
         $discussion2 = $discussion;
 
         $discussionid = $ids3[0];
-        $discussion = mod_forumng_discussion::get_from_id($discussionid , 0);
+        $discussion = \mod_forumng_discussion::get_from_id($discussionid , 0);
         $this->assertEmpty($discussion->get_tags());
         // Edit discussion settings.
-        $discussion->edit_settings(mod_forumng_discussion::NOCHANGE, mod_forumng_discussion::NOCHANGE,
-                mod_forumng_discussion::NOCHANGE, mod_forumng_discussion::NOCHANGE,
-                mod_forumng_discussion::NOCHANGE, array('tag1'));
+        $discussion->edit_settings(\mod_forumng_discussion::NOCHANGE, \mod_forumng_discussion::NOCHANGE,
+                \mod_forumng_discussion::NOCHANGE, \mod_forumng_discussion::NOCHANGE,
+                \mod_forumng_discussion::NOCHANGE, array('tag1'));
         $tags3 = $discussion->get_tags();
         $this->assertCount(1, $tags3);
         $discussion3 = $discussion;
 
         // Create a discussion with no tags for later use.
-        $record = new stdClass();
+        $record = new \stdClass();
         $record->course = $course->id;
         $record->forum = $forum->get_id();
         $record->groupid = $group2->id;
@@ -321,65 +323,65 @@ class mod_forumng_discussion_testcase  extends forumng_test_lib {
         $this->assertEquals(1, $tagsused2[$tagid]->count);
 
         // Get all discussions featuring 'tag1'.
-        $list = $forum->get_discussion_list(mod_forumng::ALL_GROUPS, $forum->can_view_hidden(),
-                1, mod_forumng::SORT_DATE, false, 0, true,  $tagid);
+        $list = $forum->get_discussion_list(\mod_forumng::ALL_GROUPS, $forum->can_view_hidden(),
+                1, \mod_forumng::SORT_DATE, false, 0, true,  $tagid);
         $taggedlist = $list->get_normal_discussions();
         $this->assertCount(3, $taggedlist);
 
         // Get all discussions featuring 'tag1'.for group1.
         $list1 = $forum->get_discussion_list($group1->id, $forum->can_view_hidden(),
-                1, mod_forumng::SORT_DATE, false, 0, true,  $tagid);
+                1, \mod_forumng::SORT_DATE, false, 0, true,  $tagid);
         $taggedlist1 = $list1->get_normal_discussions();
         $this->assertCount(2, $taggedlist1);
 
         // Get all discussions featuring 'tag1'.for group2.
         $list2 = $forum->get_discussion_list($group2->id, $forum->can_view_hidden(),
-                1, mod_forumng::SORT_DATE, false, 0, true,  $tagid);
+                1, \mod_forumng::SORT_DATE, false, 0, true,  $tagid);
         $taggedlist2 = $list2->get_normal_discussions();
         $this->assertCount(1, $taggedlist2);
 
         // Get all discussions featuring 'tag3'.for group2 - which should be none.
         $tagid = array_search('tag3', $tags1);
         $list = $forum->get_discussion_list($group2->id, $forum->can_view_hidden(),
-                1, mod_forumng::SORT_DATE, false, 0, true,  $tagid);
+                1, \mod_forumng::SORT_DATE, false, 0, true,  $tagid);
         $taggedlist = $list->get_normal_discussions();
         $this->assertCount(0, $taggedlist);
 
         // Set tags specifically for group 1.
-        $forumng = new stdClass();
+        $forumng = new \stdClass();
         $forumng->settags = array('g1 vamp', 'g1 zomb', 'g1 mumm', 'g1 damm');
         $forumng->id = $forum->get_id();
         $forumng->instance = $forum->get_id();
         $forumng->enabletags = 1;
         forumng_update_instance($forumng);
         $context = $forum->get_context();
-        mod_forumng::set_group_tags($forum->get_id(), $group1->id, $forumng->settags);
-        $tagsused1 = mod_forumng::get_set_tags($forumng->id, $group1->id);
+        \mod_forumng::set_group_tags($forum->get_id(), $group1->id, $forumng->settags);
+        $tagsused1 = \mod_forumng::get_set_tags($forumng->id, $group1->id);
         $this->assertCount(8, $tagsused1);
 
         // Set tags for group 2 (should return main set tags also).
         $g2tags = array('g2 ghost', 'g2 ghoul', 'g2 googl', 'g2 welf', 'g2 gobb');
-        mod_forumng::set_group_tags($forum->get_id(), $group2->id, $g2tags);
-        $tagsused2 = mod_forumng::get_set_tags($forumng->id, $group2->id);
+        \mod_forumng::set_group_tags($forum->get_id(), $group2->id, $g2tags);
+        $tagsused2 = \mod_forumng::get_set_tags($forumng->id, $group2->id);
         $this->assertCount(9, $tagsused2);
 
         $tagsused3 = $forum::get_set_tags($forumng->id);
         $this->assertCount(4, $tagsused3);
 
         // Test that group only tags can be returned.
-        $tagsused1 = mod_forumng::get_set_tags($forumng->id, $group1->id, true);
+        $tagsused1 = \mod_forumng::get_set_tags($forumng->id, $group1->id, true);
         $this->assertCount(4, $tagsused1);
-        $tagsused2 = mod_forumng::get_set_tags($forumng->id, $group2->id, true);
+        $tagsused2 = \mod_forumng::get_set_tags($forumng->id, $group2->id, true);
         $this->assertCount(5, $tagsused2);
 
         // Need to test permanently delete.
         $discussionid = $ids4[0];
-        $discussion = mod_forumng_discussion::get_from_id($discussionid , 0);
+        $discussion = \mod_forumng_discussion::get_from_id($discussionid , 0);
         $this->assertEmpty($discussion->get_tags());
         // Edit discussion settings.
-        $discussion->edit_settings(mod_forumng_discussion::NOCHANGE, mod_forumng_discussion::NOCHANGE,
-                mod_forumng_discussion::NOCHANGE, mod_forumng_discussion::NOCHANGE,
-                mod_forumng_discussion::NOCHANGE, array('t1', 't2', 't3'));
+        $discussion->edit_settings(\mod_forumng_discussion::NOCHANGE, \mod_forumng_discussion::NOCHANGE,
+                \mod_forumng_discussion::NOCHANGE, \mod_forumng_discussion::NOCHANGE,
+                \mod_forumng_discussion::NOCHANGE, array('t1', 't2', 't3'));
         $tags4 = $discussion->get_tags();
         $this->assertCount(3, $tags4);
         $discussion4 = $discussion;
@@ -392,36 +394,36 @@ class mod_forumng_discussion_testcase  extends forumng_test_lib {
         // Test group tag setting.
         $user2 = $this->get_new_user();
         $this->setUser($user2);
-        mod_forumng::set_group_tags($forumng->id, $group1->id, array('t1', 'tnew'));
+        \mod_forumng::set_group_tags($forumng->id, $group1->id, array('t1', 'tnew'));
         $tagsused = $forum::get_set_tags($forumng->id, $group1->id, true);
         $this->assertCount(2, $tagsused);
-        mod_forumng::set_group_tags($forumng->id, $group1->id, array('t1'));
+        \mod_forumng::set_group_tags($forumng->id, $group1->id, array('t1'));
         $tagsused = $forum::get_set_tags($forumng->id, $group1->id, true);
         $this->assertCount(1, $tagsused);
         // Create a new forum and add same group tags.
         $forumrecord2 = $generator->create_instance(array('course' => $course->id, 'enabletags' => true,
                 'groupmode' => VISIBLEGROUPS));
-        $forum2 = mod_forumng::get_from_id($forumrecord2->id, mod_forumng::CLONE_DIRECT, true);
-        mod_forumng::set_group_tags($forumrecord2->id, $group1->id, array('t1'));
+        $forum2 = \mod_forumng::get_from_id($forumrecord2->id, \mod_forumng::CLONE_DIRECT, true);
+        \mod_forumng::set_group_tags($forumrecord2->id, $group1->id, array('t1'));
         $tagsused = $forum::get_set_tags($forumrecord2->id, $group1->id, true);
         $this->assertCount(1, $tagsused);
         // Create a new forum and add same group tags (should use another user).
         $forumrecord2 = $generator->create_instance(array('course' => $course->id, 'enabletags' => true,
                 'groupmode' => VISIBLEGROUPS));
-        $forum2 = mod_forumng::get_from_id($forumrecord2->id, mod_forumng::CLONE_DIRECT, true);
-        mod_forumng::set_group_tags($forumrecord2->id, $group1->id, array('t1'));
+        $forum2 = \mod_forumng::get_from_id($forumrecord2->id, \mod_forumng::CLONE_DIRECT, true);
+        \mod_forumng::set_group_tags($forumrecord2->id, $group1->id, array('t1'));
         $tagsused = $forum::get_set_tags($forumrecord2->id, $group1->id, true);
         $this->assertCount(1, $tagsused);
         // Create a new forum and add same group tags (should fail as out of users).
         $forumrecord2 = $generator->create_instance(array('course' => $course->id, 'enabletags' => true,
                 'groupmode' => VISIBLEGROUPS));
-        $forum2 = mod_forumng::get_from_id($forumrecord2->id, mod_forumng::CLONE_DIRECT, true);
-        mod_forumng::set_group_tags($forumrecord2->id, $group1->id, array('t1'));
+        $forum2 = \mod_forumng::get_from_id($forumrecord2->id, \mod_forumng::CLONE_DIRECT, true);
+        \mod_forumng::set_group_tags($forumrecord2->id, $group1->id, array('t1'));
         $this->expectException('moodle_exception');
         $forumrecord2 = $generator->create_instance(array('course' => $course->id, 'enabletags' => true,
                 'groupmode' => VISIBLEGROUPS));
-        $forum2 = mod_forumng::get_from_id($forumrecord2->id, mod_forumng::CLONE_DIRECT, true);
-        mod_forumng::set_group_tags($forumrecord2->id, $group1->id, array('t1'));
+        $forum2 = \mod_forumng::get_from_id($forumrecord2->id, \mod_forumng::CLONE_DIRECT, true);
+        \mod_forumng::set_group_tags($forumrecord2->id, $group1->id, array('t1'));
         // Do not add any tests after this point as exception called above.
     }
 
@@ -443,7 +445,7 @@ class mod_forumng_discussion_testcase  extends forumng_test_lib {
 
         $forum = $this->get_new_forumng($course->id, array('removeafter' => 1, 'removeto' => 0,
                 'completion' => 2, 'completiondiscussions' => 1));
-        $completion = new completion_info($forum->get_course());
+        $completion = new \completion_info($forum->get_course());
 
         $discussion = $this->get_new_discussion($forum, array('userid' => $USER->id));
         $root1 = $discussion->get_root_post();
@@ -453,7 +455,7 @@ class mod_forumng_discussion_testcase  extends forumng_test_lib {
         $discussion2 = $this->get_new_discussion($forum, array('userid' => $USER->id));
         // Make post old.
         $root2 = $discussion2->get_root_post();
-        $dataobject = new stdClass();
+        $dataobject = new \stdClass();
         $dataobject->id = $root2->get_id();
         $dataobject->modified = $root2->get_modified() - 100;
         $DB->update_record('forumng_posts', $dataobject);
@@ -462,7 +464,7 @@ class mod_forumng_discussion_testcase  extends forumng_test_lib {
         $this->assertFalse($DB->get_record('forumng_discussions', array('id' => $discussion->get_id())));
         $this->assertFalse($DB->get_record('forumng_posts', array('id' => $root1->get_id())));
         // Check cron cleanup (Does permanently_delete() on discussion2).
-        mod_forumng_cron::archive_old_discussions();
+        \mod_forumng_cron::archive_old_discussions();
         $this->assertFalse($DB->get_record('forumng_discussions', array('id' => $discussion2->get_id())));
         $this->assertFalse($DB->get_record('forumng_posts', array('id' => $root2->get_id())));
 
@@ -505,14 +507,14 @@ class mod_forumng_discussion_testcase  extends forumng_test_lib {
         $other = $this->get_new_forumng($course2->id);
 
         $dis = $this->get_new_discussion($orig, array('groupid' => $group1->id, 'userid' => $USER->id));
-        $lastpost = mod_forumng_post::get_from_id($dis->get_last_post_id(), 0);
+        $lastpost = \mod_forumng_post::get_from_id($dis->get_last_post_id(), 0);
         $dis->create_reply($lastpost, 'reply', 'reply', FORMAT_HTML);
 
         $dis->copy($orig, $group2->id);
-        $dis->copy($other, mod_forumng::CLONE_DIRECT);
+        $dis->copy($other, \mod_forumng::CLONE_DIRECT);
 
-        $forums1 = mod_forumng::get_course_forums($course1);
-        $forums2 = mod_forumng::get_course_forums($course2);
+        $forums1 = \mod_forumng::get_course_forums($course1);
+        $forums2 = \mod_forumng::get_course_forums($course2);
 
         $this->assertEquals(2, $forums1[$orig->get_id()]->get_num_discussions());
         $this->assertEquals(1, $forums2[$other->get_id()]->get_num_discussions());
@@ -539,7 +541,7 @@ class mod_forumng_discussion_testcase  extends forumng_test_lib {
         $dis3 = $this->get_new_discussion($orig, array('userid' => $USER->id));
         // Alter post modified times to in past.
         foreach ($DB->get_records('forumng_posts') as $post) {
-            $new = new stdClass();
+            $new = new \stdClass();
             $new->id = $post->id;
             $new->modified = 1420070400;
             $DB->update_record('forumng_posts', $new);
@@ -554,21 +556,21 @@ class mod_forumng_discussion_testcase  extends forumng_test_lib {
         $this->assertTrue($dis->is_locked());
         $this->assertFalse($dis->is_auto_locked());
 
-        $dis = mod_forumng_discussion::get_from_id($dis->get_id(), mod_forumng::CLONE_DIRECT);
+        $dis = \mod_forumng_discussion::get_from_id($dis->get_id(), \mod_forumng::CLONE_DIRECT);
         $this->assertTrue($dis->is_locked());
         $this->assertFalse($dis->is_auto_locked());
         $dis->unlock();
         $this->assertFalse($dis->is_locked());
         $this->assertFalse($dis->is_auto_locked());
-        $lockpost = mod_forumng_post::get_from_id($lockpostid, mod_forumng::CLONE_DIRECT);
+        $lockpost = \mod_forumng_post::get_from_id($lockpostid, \mod_forumng::CLONE_DIRECT);
         $this->assertNotEmpty($lockpost->get_deleted());
 
         // Check auto-locking ($dis3 should be auto-locked only).
         $dis->lock('', '', FORMAT_HTML);
-        mod_forumng_cron::archive_old_discussions();
-        $dis = mod_forumng_discussion::get_from_id($dis->get_id(), mod_forumng::CLONE_DIRECT);
-        $dis2 = mod_forumng_discussion::get_from_id($dis2->get_id(), mod_forumng::CLONE_DIRECT);
-        $dis3 = mod_forumng_discussion::get_from_id($dis3->get_id(), mod_forumng::CLONE_DIRECT);
+        \mod_forumng_cron::archive_old_discussions();
+        $dis = \mod_forumng_discussion::get_from_id($dis->get_id(), \mod_forumng::CLONE_DIRECT);
+        $dis2 = \mod_forumng_discussion::get_from_id($dis2->get_id(), \mod_forumng::CLONE_DIRECT);
+        $dis3 = \mod_forumng_discussion::get_from_id($dis3->get_id(), \mod_forumng::CLONE_DIRECT);
         $this->assertTrue($dis->is_locked());
         $this->assertFalse($dis->is_auto_locked());
         $this->assertFalse($dis2->is_locked());
@@ -585,7 +587,7 @@ class mod_forumng_discussion_testcase  extends forumng_test_lib {
         $generator = self::getDataGenerator()->get_plugin_generator('mod_forumng');
 
         // Create course.
-        $record = new stdClass();
+        $record = new \stdClass();
         $record->shortname = 'testcourse';
         $course = self::getDataGenerator()->create_course($record);
 
@@ -594,7 +596,7 @@ class mod_forumng_discussion_testcase  extends forumng_test_lib {
 
         // Create forum.
         $forumrecord = $generator->create_instance(array('course' => $course->id));
-        $forums = \mod_forumng::get_course_forums($course, $user1->id, mod_forumng::UNREAD_DISCUSSIONS, array($forumrecord->cmid));
+        $forums = \mod_forumng::get_course_forums($course, $user1->id, \mod_forumng::UNREAD_DISCUSSIONS, array($forumrecord->cmid));
         $forum = reset($forums);
         $this->assertEquals(0, $forum->get_num_discussions());
 
@@ -609,7 +611,7 @@ class mod_forumng_discussion_testcase  extends forumng_test_lib {
         $generator = self::getDataGenerator()->get_plugin_generator('mod_forumng');
 
         // Create course.
-        $record = new stdClass();
+        $record = new \stdClass();
         $record->shortname = 'testcourse';
         $course = self::getDataGenerator()->create_course($record);
 
@@ -623,7 +625,7 @@ class mod_forumng_discussion_testcase  extends forumng_test_lib {
         // Generate $n discussions
         $n = $generator->create_discussions($course->id, $forumrecord->id, $user1->id);
 
-        $forums = \mod_forumng::get_course_forums($course, $user1->id, mod_forumng::UNREAD_DISCUSSIONS, array($forumrecord->cmid));
+        $forums = \mod_forumng::get_course_forums($course, $user1->id, \mod_forumng::UNREAD_DISCUSSIONS, array($forumrecord->cmid));
         $forum = reset($forums);
         $this->assertEquals($n, $forum->get_num_discussions());
 
@@ -638,7 +640,7 @@ class mod_forumng_discussion_testcase  extends forumng_test_lib {
         $generator = self::getDataGenerator()->get_plugin_generator('mod_forumng');
 
         // Create course.
-        $record = new stdClass();
+        $record = new \stdClass();
         $record->shortname = 'testcourse';
         $course = self::getDataGenerator()->create_course($record);
 
@@ -670,16 +672,16 @@ class mod_forumng_discussion_testcase  extends forumng_test_lib {
         // Create $m discussions in group 2.
         $m = $generator->create_discussions($course->id, $forumrecord->id, $user2->id, $group2->id);
 
-        $forums = \mod_forumng::get_course_forums($course, $user1->id, mod_forumng::UNREAD_DISCUSSIONS, array($forumrecord->cmid));
+        $forums = \mod_forumng::get_course_forums($course, $user1->id, \mod_forumng::UNREAD_DISCUSSIONS, array($forumrecord->cmid));
         $forum = reset($forums);
         $this->assertEquals($n, $forum->get_num_discussions());
 
-        $forums = \mod_forumng::get_course_forums($course, $user2->id, mod_forumng::UNREAD_DISCUSSIONS, array($forumrecord->cmid));
+        $forums = \mod_forumng::get_course_forums($course, $user2->id, \mod_forumng::UNREAD_DISCUSSIONS, array($forumrecord->cmid));
         $forum = reset($forums);
         $this->assertEquals($m, $forum->get_num_discussions());
 
         // Admin user can view all groups
-        $forums = \mod_forumng::get_course_forums($course, $USER->id, mod_forumng::UNREAD_DISCUSSIONS, array($forumrecord->cmid));
+        $forums = \mod_forumng::get_course_forums($course, $USER->id, \mod_forumng::UNREAD_DISCUSSIONS, array($forumrecord->cmid));
         $forum = reset($forums);
         $this->assertEquals($n + $m, $forum->get_num_discussions());
 
@@ -687,11 +689,11 @@ class mod_forumng_discussion_testcase  extends forumng_test_lib {
         $DB->set_field('course_modules', 'groupmode', VISIBLEGROUPS, array('id' => $forumrecord->cmid));
         rebuild_course_cache($course->id);
 
-        $forums = \mod_forumng::get_course_forums($course, $user1->id, mod_forumng::UNREAD_DISCUSSIONS, array($forumrecord->cmid));
+        $forums = \mod_forumng::get_course_forums($course, $user1->id, \mod_forumng::UNREAD_DISCUSSIONS, array($forumrecord->cmid));
         $forum = reset($forums);
         $this->assertEquals($n + $m, $forum->get_num_discussions());
 
-        $forums = \mod_forumng::get_course_forums($course, $user2->id, mod_forumng::UNREAD_DISCUSSIONS, array($forumrecord->cmid));
+        $forums = \mod_forumng::get_course_forums($course, $user2->id, \mod_forumng::UNREAD_DISCUSSIONS, array($forumrecord->cmid));
         $forum = reset($forums);
         $this->assertEquals($n + $m, $forum->get_num_discussions());
     }
@@ -708,7 +710,7 @@ class mod_forumng_discussion_testcase  extends forumng_test_lib {
         $generator = self::getDataGenerator()->get_plugin_generator('mod_forumng');
 
         // Create course.
-        $record = new stdClass();
+        $record = new \stdClass();
         $record->shortname = 'testcourse';
         $course = self::getDataGenerator()->create_course($record);
 
@@ -731,18 +733,18 @@ class mod_forumng_discussion_testcase  extends forumng_test_lib {
             $m += $generator->create_discussions($course->id, $forumrecord->id, $user2->id);
         }
 
-        $forums = \mod_forumng::get_course_forums($course, $user1->id, mod_forumng::UNREAD_DISCUSSIONS, array($forumrecord->cmid));
+        $forums = \mod_forumng::get_course_forums($course, $user1->id, \mod_forumng::UNREAD_DISCUSSIONS, array($forumrecord->cmid));
         $forum = reset($forums);
         $this->assertEquals($n, $forum->get_num_discussions());
         $this->assertEquals(0, $forum->get_num_unread_discussions());
 
-        $forums = \mod_forumng::get_course_forums($course, $user2->id, mod_forumng::UNREAD_DISCUSSIONS, array($forumrecord->cmid));
+        $forums = \mod_forumng::get_course_forums($course, $user2->id, \mod_forumng::UNREAD_DISCUSSIONS, array($forumrecord->cmid));
         $forum = reset($forums);
         $this->assertEquals($m, $forum->get_num_discussions());
         $this->assertEquals(0, $forum->get_num_unread_discussions());
 
         // Admin can view all discussions
-        $forums = \mod_forumng::get_course_forums($course, $USER->id, mod_forumng::UNREAD_DISCUSSIONS, array($forumrecord->cmid));
+        $forums = \mod_forumng::get_course_forums($course, $USER->id, \mod_forumng::UNREAD_DISCUSSIONS, array($forumrecord->cmid));
         $forum = reset($forums);
         $this->assertEquals($n + $m, $forum->get_num_discussions());
         $this->assertEquals($n + $m, $forum->get_num_unread_discussions());
@@ -763,16 +765,16 @@ class mod_forumng_discussion_testcase  extends forumng_test_lib {
         $user2 = $this->get_new_user('student', $course->id);
 
         $forumrecord = $this->get_new_forumng($course->id, array('type' => 'ipud'));
-        $forums = \mod_forumng::get_course_forums($course, $user1->id, mod_forumng::UNREAD_DISCUSSIONS,
+        $forums = \mod_forumng::get_course_forums($course, $user1->id, \mod_forumng::UNREAD_DISCUSSIONS,
             array($forumrecord->get_course_module_id()));
         $forum = reset($forums);
-        $discussionrecord = new stdClass();
+        $discussionrecord = new \stdClass();
         $discussionrecord->course = $course->id;
         $discussionrecord->userid = $user1->id;
         $discussionrecord->forum = $forumrecord->get_id();
 
         $newdiscussion = $generator->create_discussion($discussionrecord);
-        $discussionuser1 = mod_forumng_discussion::get_from_id($newdiscussion[0], 0, $user1->id);
+        $discussionuser1 = \mod_forumng_discussion::get_from_id($newdiscussion[0], 0, $user1->id);
         // Root post always count as read in IPUD.
         $numposts = $discussionuser1->get_num_posts();
         $unreadnumposts = $discussionuser1->get_num_unread_posts();
@@ -789,10 +791,10 @@ class mod_forumng_discussion_testcase  extends forumng_test_lib {
             )
         );
         // User 1 shouldn't read User 2 post yet.
-        $discussionuser1updated = mod_forumng_discussion::get_from_id($newdiscussion[0], 0, $user1->id);
+        $discussionuser1updated = \mod_forumng_discussion::get_from_id($newdiscussion[0], 0, $user1->id);
         $numposts = $discussionuser1updated->get_num_posts();
         $unreadnumposts = $discussionuser1updated->get_num_unread_posts();
-        $discussionuser2 = mod_forumng_discussion::get_from_id($newdiscussion[0], 0, $user2->id);
+        $discussionuser2 = \mod_forumng_discussion::get_from_id($newdiscussion[0], 0, $user2->id);
         $this->assertEquals(1, $numposts);
         $this->assertEquals(1, $unreadnumposts);
         // User 2 should already read his post.
@@ -825,7 +827,7 @@ class mod_forumng_discussion_testcase  extends forumng_test_lib {
         $forum = $generator->create_instance(array('course' => $course->id));
 
         // Create discussion for current user.
-        $record = new stdClass();
+        $record = new \stdClass();
         $record->course = $course->id;
         $record->forum = $forum->id;
         $record->userid = $USER->id;
@@ -883,10 +885,10 @@ class mod_forumng_discussion_testcase  extends forumng_test_lib {
                 'message' => 'Reply 3.1'
             )
         );
-        $reply3 = mod_forumng_post::get_from_id($reply3->id, 0);
-        $reply31 = mod_forumng_post::get_from_id($reply31->id, 0);
+        $reply3 = \mod_forumng_post::get_from_id($reply3->id, 0);
+        $reply31 = \mod_forumng_post::get_from_id($reply31->id, 0);
 
-        $discussion = mod_forumng_discussion::get_from_id($discussion[0], 0);
+        $discussion = \mod_forumng_discussion::get_from_id($discussion[0], 0);
 
         // Test get only one replies.
         $posts = $discussion->get_root_post_replies(1);
@@ -920,12 +922,12 @@ class mod_forumng_discussion_testcase  extends forumng_test_lib {
         $this->assertEquals(2, count($posts));
         $this->assertTrue($posts[1]->is_important());
         $reply3->delete(); // Important post should still be returned.
-        $discussion = mod_forumng_discussion::get_from_id($discussion->get_id(), 0);
+        $discussion = \mod_forumng_discussion::get_from_id($discussion->get_id(), 0);
         $posts = $discussion->get_root_post_replies(1, true);
         $this->assertEquals(2, count($posts));
         $this->assertTrue($posts[1]->is_important());
         $reply31->delete(); // Important post not be returned as itself and all replies deleted.
-        $discussion = mod_forumng_discussion::get_from_id($discussion->get_id(), 0);
+        $discussion = \mod_forumng_discussion::get_from_id($discussion->get_id(), 0);
         $posts = $discussion->get_root_post_replies(1, true);
         $this->assertEquals(1, count($posts));
         $this->assertFalse($posts[0]->is_important());
@@ -962,8 +964,8 @@ class mod_forumng_discussion_testcase  extends forumng_test_lib {
         $this->assertEquals($forum1->id, $record->forumngid);
 
         // Move the discussion into the other forum.
-        $discussionobj = mod_forumng_discussion::get_from_id($discussionids[0], $forum1->cmid);
-        $forum2obj = mod_forumng::get_from_id($forum2->id, $forum2->cmid);
+        $discussionobj = \mod_forumng_discussion::get_from_id($discussionids[0], $forum1->cmid);
+        $forum2obj = \mod_forumng::get_from_id($forum2->id, $forum2->cmid);
         $before = time();
         $discussionobj->move($forum2obj, null);
         $after = time();
@@ -1004,7 +1006,7 @@ class mod_forumng_discussion_testcase  extends forumng_test_lib {
         $this->assertEquals(0, $record->deleted);
 
         // Delete the discussion.
-        $discussionobj = mod_forumng_discussion::get_from_id($discussionids[0], $forum->cmid);
+        $discussionobj = \mod_forumng_discussion::get_from_id($discussionids[0], $forum->cmid);
         $before = time();
         $discussionobj->delete();
         $after = time();
@@ -1016,7 +1018,7 @@ class mod_forumng_discussion_testcase  extends forumng_test_lib {
         $this->assertTrue($record->deleted >= $before && $record->deleted <= $after);
 
         // Undelete it.
-        $discussionobj = mod_forumng_discussion::get_from_id($discussionids[0], $forum->cmid);
+        $discussionobj = \mod_forumng_discussion::get_from_id($discussionids[0], $forum->cmid);
         $before = time();
         $discussionobj->undelete();
         $after = time();
@@ -1098,7 +1100,7 @@ class mod_forumng_discussion_testcase  extends forumng_test_lib {
 
         $discuss = $this->get_new_discussion($forum, ['userid' => $student1->id]);
         $this->setUser($student2);
-        $lastpost = mod_forumng_post::get_from_id($discuss->get_last_post_id(), 0);
+        $lastpost = \mod_forumng_post::get_from_id($discuss->get_last_post_id(), 0);
         $discuss->create_reply($lastpost, 'reply', 'reply', FORMAT_HTML);
 
         $this->setUser($student2);
@@ -1125,30 +1127,30 @@ class mod_forumng_discussion_testcase  extends forumng_test_lib {
         $user1 = $this->get_new_user();
 
         $forumrecord = $this->get_new_forumng($course->id);
-        $discussionrecord = new stdClass();
+        $discussionrecord = new \stdClass();
         $discussionrecord->course = $course->id;
         $discussionrecord->userid = $user1->id;
         $discussionrecord->forum = $forumrecord->get_id();
 
         $newdiscussion = $generator->create_discussion($discussionrecord);
-        $discussionuser1 = mod_forumng_discussion::get_from_id($newdiscussion[0], 0, $user1->id);
+        $discussionuser1 = \mod_forumng_discussion::get_from_id($newdiscussion[0], 0, $user1->id);
         $forumcm = $discussionuser1->get_forum()->get_course_module();
         $this->assertEquals($user1->id, $forumcm->get_modinfo()->get_user_id());
-        $discussionuser1 = mod_forumng_discussion::get_from_id($newdiscussion[0], 0, $user1->id, true);
+        $discussionuser1 = \mod_forumng_discussion::get_from_id($newdiscussion[0], 0, $user1->id, true);
         $forumcm = $discussionuser1->get_forum()->get_course_module();
         $this->assertEquals($user1->id, $forumcm->get_modinfo()->get_user_id());
 
-        $discussionadmin = mod_forumng_discussion::get_from_id($newdiscussion[0], 0);
+        $discussionadmin = \mod_forumng_discussion::get_from_id($newdiscussion[0], 0);
         $forumcm = $discussionadmin->get_forum()->get_course_module();
         $this->assertEquals($USER->id, $forumcm->get_modinfo()->get_user_id());
-        $discussionadmin = mod_forumng_discussion::get_from_id($newdiscussion[0], 0, 0, true);
+        $discussionadmin = \mod_forumng_discussion::get_from_id($newdiscussion[0], 0, 0, true);
         $forumcm = $discussionadmin->get_forum()->get_course_module();
         $this->assertEquals($USER->id, $forumcm->get_modinfo()->get_user_id());
 
-        $discussionnoread = mod_forumng_discussion::get_from_id($newdiscussion[0], 0, -1);
+        $discussionnoread = \mod_forumng_discussion::get_from_id($newdiscussion[0], 0, -1);
         $forumcm = $discussionnoread->get_forum()->get_course_module();
         $this->assertEquals($USER->id, $forumcm->get_modinfo()->get_user_id());
-        $discussionnoread = mod_forumng_discussion::get_from_id($newdiscussion[0], 0, -1, true);
+        $discussionnoread = \mod_forumng_discussion::get_from_id($newdiscussion[0], 0, -1, true);
         $forumcm = $discussionnoread->get_forum()->get_course_module();
         $this->assertEquals($USER->id, $forumcm->get_modinfo()->get_user_id());
     }

@@ -22,6 +22,8 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+namespace mod_forumng;
+
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
@@ -32,7 +34,7 @@ require_once($CFG->dirroot . '/mod/forumng/mod_forumng_post.php');
 /**
  * Class mod_forumng_form_testcase
  */
-class mod_forumng_form_testcase extends forumng_test_lib {
+class forumng_form_test extends \forumng_test_lib {
     /**
      * Set up for form test
      */

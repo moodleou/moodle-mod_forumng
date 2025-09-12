@@ -48,7 +48,7 @@ require_once($CFG->dirroot . '/mod/forumng/tests/forumng_test_lib.php');
 /**
  * Mobile web service function tests.
  */
-class mobile_testcase extends forumng_test_lib {
+class mobile_test extends forumng_test_lib {
 
     /**
      * Prepare a forum and its clone forum.

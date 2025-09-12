@@ -22,6 +22,8 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+namespace mod_forumng;
+
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
@@ -33,7 +35,7 @@ use \mod_forumng\search\post as search_post;
 /**
  * Test case for generic functions in classes/searcg/post.php where covered.
  */
-class mod_forumng_search_post_testcase extends forumng_test_lib {
+class search_post_test extends \forumng_test_lib {
 
     /**
      * Tests get_recordset_by_timestamp function (obtains modified document pages) and get_document
@@ -46,7 +48,7 @@ class mod_forumng_search_post_testcase extends forumng_test_lib {
 
         // Enable global search for this test.
         set_config('enableglobalsearch', true);
-        $search = testable_core_search::instance();
+        $search = \testable_core_search::instance();
 
         // First check there are no results with empty database.
         $page = new search_post();
@@ -226,7 +228,7 @@ class mod_forumng_search_post_testcase extends forumng_test_lib {
      * @param moodle_recordset $rs Record set to convert
      * @return stdClass[] Array of converted records
      */
-    protected static function recordset_to_array(moodle_recordset $rs) {
+    protected static function recordset_to_array(\moodle_recordset $rs) {
         $result = array();
         foreach ($rs as $rec) {
             $result[] = $rec;
@@ -245,7 +247,7 @@ class mod_forumng_search_post_testcase extends forumng_test_lib {
 
         // Enable global search for this test.
         set_config('enableglobalsearch', true);
-        $search = testable_core_search::instance();
+        $search = \testable_core_search::instance();
 
         // Get the search area and test generators.
         $forumngpostareaid = \core_search\manager::generate_areaid('mod_forumng', 'post');
@@ -317,7 +319,7 @@ class mod_forumng_search_post_testcase extends forumng_test_lib {
         set_config('enableglobalsearch', true);
 
         $forumngpostareaid = \core_search\manager::generate_areaid('mod_forumng', 'post');
-        $search = testable_core_search::instance();
+        $search = \testable_core_search::instance();
         $generator = $this->getDataGenerator();
         $adminuser = get_admin();
         $course1 = $generator->create_course();
@@ -381,7 +383,7 @@ class mod_forumng_search_post_testcase extends forumng_test_lib {
 
         // Enable global search for this test.
         set_config('enableglobalsearch', true);
-        $search = testable_core_search::instance();
+        $search = \testable_core_search::instance();
 
         // First check there are no results with empty database.
         $page = new search_post();

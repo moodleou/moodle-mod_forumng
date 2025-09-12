@@ -22,15 +22,16 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
+namespace mod_forumng;
 
+defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 require_once($CFG->dirroot . '/mod/forumng/tests/forumng_test_lib.php');
 require_once($CFG->dirroot . '/mod/forumng/mod_forumng_mail_list.php');
 require_once($CFG->dirroot . '/mod/forumng/mod_forumng_cron.php');
 
-class mod_forumng_cron_testcase extends forumng_test_lib
+class forumng_cron_test extends \forumng_test_lib
 {
     /**
      * Unit tests to check mod_forumng_cron::email_normal() and class mod_forumng_mail_list send the correct posts
@@ -87,12 +88,17 @@ class mod_forumng_cron_testcase extends forumng_test_lib
 
         // Create post with no edit after delay times no edit.
         $postrecord = $this->generator->create_post(array('discussionid' => $this->discussionid,
-            'parentpostid' => $this->rootpostid, 'mailstate' => mod_forumng::MAILSTATE_NOT_MAILED,
+            'parentpostid' => $this->rootpostid, 'mailstate' => \mod_forumng::MAILSTATE_NOT_MAILED,
             'created' => $created, 'userid' => $this->adminid));
 
         unset_config('noemailever');
         $sink = $this->redirectEmails();
+
+        // Start output buffering to catch echo/mtrace output
+        ob_start();
         \mod_forumng_cron::email_normal();
+        ob_end_clean(); // discard any output
+
         $messages = $sink->get_messages();
 
         // Check 1 email sent.
@@ -109,9 +115,9 @@ class mod_forumng_cron_testcase extends forumng_test_lib
 
         // Create post with no edit after delay times.
         $postrecord = $this->generator->create_post(array('discussionid' => $this->discussionid,
-            'parentpostid' => $this->rootpostid, 'mailstate' => mod_forumng::MAILSTATE_NOT_MAILED,
+            'parentpostid' => $this->rootpostid, 'mailstate' => \mod_forumng::MAILSTATE_NOT_MAILED,
             'created' => $created, 'userid' => $this->adminid));
-        $post = mod_forumng_post::get_from_id($postrecord->id, 0);
+        $post = \mod_forumng_post::get_from_id($postrecord->id, 0);
 
         // Edit post within delay times.
         $gotsubject = $post->edit_start("New subject");
@@ -119,7 +125,12 @@ class mod_forumng_cron_testcase extends forumng_test_lib
 
         unset_config('noemailever');
         $sink = $this->redirectEmails();
+
+        // Start output buffering to catch echo/mtrace output
+        ob_start();
         \mod_forumng_cron::email_normal();
+        ob_end_clean(); // discard any output
+
         $messages = $sink->get_messages();
 
         // Check only 1 mail sent for latest edited post.
@@ -137,15 +148,19 @@ class mod_forumng_cron_testcase extends forumng_test_lib
 
         // Create post with no edit after delay times.
         $postrecord = $this->generator->create_post(array('discussionid' => $this->discussionid,
-            'parentpostid' => $this->rootpostid, 'mailstate' => mod_forumng::MAILSTATE_NOT_MAILED,
+            'parentpostid' => $this->rootpostid, 'mailstate' => \mod_forumng::MAILSTATE_NOT_MAILED,
             'created' => $createtime, 'userid' => $this->adminid));
-        $post = mod_forumng_post::get_from_id($postrecord->id, 0);
+        $post = \mod_forumng_post::get_from_id($postrecord->id, 0);
 
         unset_config('noemailever');
         $sink = $this->redirectEmails();
 
         // Send email.
+        // Start output buffering to catch echo/mtrace output
+        ob_start();
         \mod_forumng_cron::email_normal();
+        ob_end_clean(); // discard any output
+
         $messages = $sink->get_messages();
 
         // Check 1 email sent for created port.
@@ -156,7 +171,12 @@ class mod_forumng_cron_testcase extends forumng_test_lib
         $post->edit_finish($post->get_raw_message(), $post->get_format(), $gotsubject);
 
         $sink = $this->redirectEmails();
+
+        // Start output buffering to catch echo/mtrace output
+        ob_start();
         \mod_forumng_cron::email_normal();
+        ob_end_clean(); // discard any output
+
         $messages = $sink->get_messages();
         // Check send email again.
         $this->assertEquals(1, count($messages));
@@ -173,9 +193,9 @@ class mod_forumng_cron_testcase extends forumng_test_lib
 
         // Create post after delay times.
         $postrecord = $this->generator->create_post(array('discussionid' => $this->discussionid,
-            'parentpostid' => $this->rootpostid, 'mailstate' => mod_forumng::MAILSTATE_NOT_MAILED,
+            'parentpostid' => $this->rootpostid, 'mailstate' => \mod_forumng::MAILSTATE_NOT_MAILED,
             'created' => $createtime, 'userid' => $this->adminid));
-        $post = mod_forumng_post::get_from_id($postrecord->id, 0);
+        $post = \mod_forumng_post::get_from_id($postrecord->id, 0);
 
         // Edit post within delay times.
         $gotsubject = $post->edit_start("New subject");
@@ -183,14 +203,24 @@ class mod_forumng_cron_testcase extends forumng_test_lib
 
         unset_config('noemailever');
         $sink = $this->redirectEmails();
+
+        // Start output buffering to catch echo/mtrace output
+        ob_start();
         \mod_forumng_cron::email_normal();
+        ob_end_clean(); // discard any output
+
         $messages = $sink->get_messages();
 
         // Check the sending email after delay time.
         $this->assertEquals(1, count($messages));
 
         $sink = $this->redirectEmails();
+
+        // Start output buffering to catch echo/mtrace output
+        ob_start();
         \mod_forumng_cron::email_normal();
+        ob_end_clean(); // discard any output
+
         $messages = $sink->get_messages();
 
         // Check no email again.
@@ -207,12 +237,17 @@ class mod_forumng_cron_testcase extends forumng_test_lib
 
         // Create post with no edit after delay time.
         $postrecord = $this->generator->create_post(['discussionid' => $this->discussionid,
-                'parentpostid' => $this->rootpostid, 'mailstate' => mod_forumng::MAILSTATE_NOT_MAILED,
+                'parentpostid' => $this->rootpostid, 'mailstate' => \mod_forumng::MAILSTATE_NOT_MAILED,
                 'created' => $created, 'userid' => $this->adminid]);
 
         unset_config('noemailever');
         $sink = $this->redirectEmails();
+
+        // Start output buffering to catch echo/mtrace output
+        ob_start();
         \mod_forumng_cron::email_normal();
+        ob_end_clean(); // discard any output
+
         $messages = $sink->get_messages();
 
         // Check 1 email sent.
@@ -235,7 +270,7 @@ class mod_forumng_cron_testcase extends forumng_test_lib
 
         // Create post with no edit after delay time.
         $postrecord = $this->generator->create_post(['discussionid' => $this->discussionid,
-                'parentpostid' => $this->rootpostid, 'mailstate' => mod_forumng::MAILSTATE_NOT_MAILED,
+                'parentpostid' => $this->rootpostid, 'mailstate' => \mod_forumng::MAILSTATE_NOT_MAILED,
                 'created' => $created, 'userid' => $this->adminid]);
 
         $this->forum->unsubscribe($this->student->id);
@@ -244,7 +279,12 @@ class mod_forumng_cron_testcase extends forumng_test_lib
 
         unset_config('noemailever');
         $sink = $this->redirectEmails();
+
+        // Start output buffering to catch echo/mtrace output
+        ob_start();
         \mod_forumng_cron::email_normal();
+        ob_end_clean(); // discard any output
+
         $messages = $sink->get_messages();
 
         // Check 1 email sent.
@@ -267,14 +307,19 @@ class mod_forumng_cron_testcase extends forumng_test_lib
 
         // Create post with no edit after delay time.
         $postrecord = $this->generator->create_post(['discussionid' => $this->discussionid,
-                'parentpostid' => $this->rootpostid, 'mailstate' => mod_forumng::MAILSTATE_NOT_MAILED,
+                'parentpostid' => $this->rootpostid, 'mailstate' => \mod_forumng::MAILSTATE_NOT_MAILED,
                 'created' => $created, 'userid' => $this->adminid, 'asmoderator' => \mod_forumng::ASMODERATOR_NO]);
 
         $DB->set_field('forumng', 'canpostanon', \mod_forumng::CANPOSTATON_NONMODERATOR);
 
         unset_config('noemailever');
         $sink = $this->redirectEmails();
+
+        // Start output buffering to catch echo/mtrace output
+        ob_start();
         \mod_forumng_cron::email_normal();
+        ob_end_clean(); // discard any output
+
         $messages = $sink->get_messages();
 
         // Check 1 email sent.
@@ -297,13 +342,18 @@ class mod_forumng_cron_testcase extends forumng_test_lib
 
         // Create post with no edit after delay time.
         $postrecord = $this->generator->create_post(['discussionid' => $this->discussionid,
-                'parentpostid' => $this->rootpostid, 'mailstate' => mod_forumng::MAILSTATE_NOT_MAILED,
+                'parentpostid' => $this->rootpostid, 'mailstate' => \mod_forumng::MAILSTATE_NOT_MAILED,
                 'created' => $created, 'userid' => $this->adminid]);
 
         unset_config('noemailever');
         $CFG->forumng_usebcc = 1;
         $sink = $this->redirectEmails();
+
+        // Start output buffering to catch echo/mtrace output
+        ob_start();
         \mod_forumng_cron::email_normal();
+        ob_end_clean(); // discard any output
+
         $messages = $sink->get_messages();
 
         // Check 1 email sent.
@@ -325,18 +375,28 @@ class mod_forumng_cron_testcase extends forumng_test_lib
 
         // Create post with no edit after delay time.
         $postrecord = $this->generator->create_post(['discussionid' => $this->discussionid,
-                'parentpostid' => $this->rootpostid, 'mailstate' => mod_forumng::MAILSTATE_NOT_MAILED,
+                'parentpostid' => $this->rootpostid, 'mailstate' => \mod_forumng::MAILSTATE_NOT_MAILED,
                 'created' => $created, 'userid' => $this->adminid]);
 
         $DB->set_field('user', 'maildigest',  2, ['id' => $this->student->id]);
 
         unset_config('noemailever');
         $sink = $this->redirectEmails();
+
+        // Start output buffering to catch echo/mtrace output
+        ob_start();
         \mod_forumng_cron::email_normal();
+        ob_end_clean(); // discard any output
+
         $messages = $sink->get_messages();
 
         $sink->clear();
+
+        // Start output buffering to catch echo/mtrace output
+        ob_start();
         \mod_forumng_cron::email_digest();
+        ob_end_clean(); // discard any output
+
         $messages = $sink->get_messages();
 
         $this->assertEquals(1, count($messages));
@@ -356,12 +416,17 @@ class mod_forumng_cron_testcase extends forumng_test_lib
 
         // Create a post with no edit after the delay time.
         $this->generator->create_post(['discussionid' => $this->discussionid,
-                'parentpostid' => $this->rootpostid, 'mailstate' => mod_forumng::MAILSTATE_NOT_MAILED,
+                'parentpostid' => $this->rootpostid, 'mailstate' => \mod_forumng::MAILSTATE_NOT_MAILED,
                 'created' => $created, 'userid' => $this->adminid]);
 
         unset_config('noemailever');
         $sink = $this->redirectEmails();
+
+        // Start output buffering to catch echo/mtrace output
+        ob_start();
         \mod_forumng_cron::email_normal();
+        ob_end_clean(); // discard any output
+
         $messages = $sink->get_messages();
 
         // Check 1 email sent.

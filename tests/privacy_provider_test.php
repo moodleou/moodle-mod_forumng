@@ -22,6 +22,8 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+namespace mod_forumng;
+
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
@@ -42,7 +44,7 @@ use core_privacy\local\request\writer;
  * @copyright 2018 The Open University
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class mod_forumng_privacy_provider_testcase extends \core_privacy\tests\provider_testcase {
+class privacy_provider_test extends \core_privacy\tests\provider_testcase {
 
     // Include the privacy subcontext_info trait.
     // This includes the subcontext builders.
@@ -56,7 +58,7 @@ class mod_forumng_privacy_provider_testcase extends \core_privacy\tests\provider
 
     // Include the mod_forum test helpers.
     // This includes functions to create forums, users, discussions, and posts.
-    use forumng_helper;
+    use \forumng_helper;
 
     protected $currentuser = '';
     protected $context = '';
@@ -72,21 +74,21 @@ class mod_forumng_privacy_provider_testcase extends \core_privacy\tests\provider
         $this->resetAfterTest(true);
         // Create a course, with a forum, our user under test, another user, and a discussion + post from the other user.
         $course = $this->getDataGenerator()->create_course();
-        $forumnglib = new mod_forumng_privacy_helper();
+        $forumnglib = new \mod_forumng_privacy_helper('test');
         $forumnglib->get_new_forumng($course->id, ['name' => 'TEST', 'intro' => 'abc123',
-            'enableratings' => mod_forumng::FORUMNG_STANDARD_RATING, 'ratingscale' => 10]);
+            'enableratings' => \mod_forumng::FORUMNG_STANDARD_RATING, 'ratingscale' => 10]);
         $course = $this->getDataGenerator()->create_course();
         $forumnglib->get_new_forumng($course->id, ['name' => 'TEST2', 'intro' => 'abc123',
-            'enableratings' => mod_forumng::FORUMNG_STANDARD_RATING, 'ratingscale' => 10]);
+            'enableratings' => \mod_forumng::FORUMNG_STANDARD_RATING, 'ratingscale' => 10]);
         $course = $this->getDataGenerator()->create_course();
         $forum = $forumnglib->get_new_forumng($course->id, ['name' => 'TEST3', 'intro' => 'Test forum 3',
-            'enableratings' => mod_forumng::FORUMNG_STANDARD_RATING, 'ratingscale' => 10,
-            'subscription' => mod_forumng::SUBSCRIPTION_PERMITTED]);
+            'enableratings' => \mod_forumng::FORUMNG_STANDARD_RATING, 'ratingscale' => 10,
+            'subscription' => \mod_forumng::SUBSCRIPTION_PERMITTED]);
         list($user, $otheruser) = $this->helper_create_users($course, 2);
         $this->setUser($user);
         $dis1 = $forumnglib->get_new_discussion($forum, array('userid' => $user->id, 'timestart' => 1420070400,
                 'subject' => 'Welcome/to the Developing as a Researcher seminar'));
-        $lastpost = mod_forumng_post::get_from_id($dis1->get_last_post_id(), 0);
+        $lastpost = \mod_forumng_post::get_from_id($dis1->get_last_post_id(), 0);
         $lastpost->set_flagged(true, $user->id);
         $lastpost->mark_read(1420070400, $user->id);
         $lastpost->rate(5, $user->id);
@@ -102,9 +104,9 @@ class mod_forumng_privacy_provider_testcase extends \core_privacy\tests\provider
         $context = \context_module::instance($cm->id);
         \core_tag_tag::set_item_tags('mod_forumng', 'forumng_discussions', $dis1->get_id(), $context, ['example', 'tag']);
         // Create draft.
-        $draftid = mod_forumng_draft::save_new($forum, null, $lastpost->get_id(), 'draft', 'draft message',
+        $draftid = \mod_forumng_draft::save_new($forum, null, $lastpost->get_id(), 'draft', 'draft message',
             FORMAT_HTML, false, null, $user->id);
-        $draft = mod_forumng_draft::get_from_id($draftid);
+        $draft = \mod_forumng_draft::get_from_id($draftid);
         $fs = get_file_storage();
         // Add a fake inline image to the draft.
         $fs->create_file_from_string([
@@ -208,7 +210,7 @@ class mod_forumng_privacy_provider_testcase extends \core_privacy\tests\provider
         $dis1 = $this->discussion;
         $user = $this->currentuser;
         $context = $this->context;
-        $discussion = new stdClass();
+        $discussion = new \stdClass();
         $discussion->id = $dis1->get_id();
         $discussionarea = static::get_discussion_area($discussion);
 
@@ -243,7 +245,7 @@ class mod_forumng_privacy_provider_testcase extends \core_privacy\tests\provider
             'saved' => \core_privacy\local\request\transform::datetime($this->draft->get_saved()),
         ], $contextdata->get_data([get_string('forumngdraft', 'mod_forumng') . '-' . $this->draft->get_id()]));
         // Check discussion data.
-        $dis1 = mod_forumng_discussion::get_from_id($dis1->get_id(), 0);
+        $dis1 = \mod_forumng_discussion::get_from_id($dis1->get_id(), 0);
         $this->assert_all_tags_match_on_context(
                 $user->id,
                 $context,
@@ -276,7 +278,7 @@ class mod_forumng_privacy_provider_testcase extends \core_privacy\tests\provider
         $postarea = $discussionarea;
         $postarea[] = get_string('posts', 'mod_forumng');
         $rootpost = $dis1->get_root_post();
-        $post = new stdClass();
+        $post = new \stdClass();
         $post->created = $rootpost->get_created();
         $post->subject = $rootpost->get_subject();
         $post->id = $rootpost->get_id();
@@ -309,18 +311,18 @@ class mod_forumng_privacy_provider_testcase extends \core_privacy\tests\provider
         $flag = $DB->get_record('forumng_flags', ['userid' => $user->id, 'postid' => $rootpost->get_id()]);
         $this->assertEquals((object)[
             'userid' => get_string('privacy_you', 'mod_forumng'),
-            'flagged' => core_privacy\local\request\transform::yesno(1)
+            'flagged' => \core_privacy\local\request\transform::yesno(1)
         ], $contextdata->get_metadata($rootpostarea, 'flags' . $flag->id));
         // Check custom rating.
         $rating = $DB->get_record('forumng_ratings', ['postid' => $rootpost->get_id()]);
         $this->assertEquals((object)[
             'author' => get_string('privacy_you', 'mod_forumng'),
             'customrating' => '5',
-            'time' => core_privacy\local\request\transform::datetime($rating->time)
+            'time' => \core_privacy\local\request\transform::datetime($rating->time)
         ], $contextdata->get_metadata($rootpostarea, 'customrating' . $rating->id));
         // Check reply post.
-        $lastpost = mod_forumng_post::get_from_id($dis1->get_last_post_id(), 0);
-        $post = new stdClass();
+        $lastpost = \mod_forumng_post::get_from_id($dis1->get_last_post_id(), 0);
+        $post = new \stdClass();
         $post->created = $lastpost->get_created();
         $post->subject = $lastpost->get_subject();
         $post->id = $lastpost->get_id();
@@ -359,7 +361,7 @@ class mod_forumng_privacy_provider_testcase extends \core_privacy\tests\provider
         $contextids = provider::get_contexts_for_userid($user->id)->get_contextids();
         $appctx = new approved_contextlist($user, 'mod_forumng', $contextids);
         $fs = get_file_storage();
-        $discussion = new stdClass();
+        $discussion = new \stdClass();
         $discussion->id = $dis1->get_id();
         $discussionarea = static::get_discussion_area($discussion);
         provider::export_user_data($appctx);
@@ -387,7 +389,7 @@ class mod_forumng_privacy_provider_testcase extends \core_privacy\tests\provider
         $postarea = $discussionarea;
         $postarea[] = get_string('posts', 'mod_forumng');
         $rootpost = $dis1->get_root_post();
-        $post = new stdClass();
+        $post = new \stdClass();
         $post->created = $rootpost->get_created();
         $post->subject = $rootpost->get_subject();
         $post->id = $rootpost->get_id();
@@ -402,8 +404,8 @@ class mod_forumng_privacy_provider_testcase extends \core_privacy\tests\provider
         $this->assertEquals($adminid, $rootpost->get_user()->id);
 
         // Check reply post.
-        $lastpost = mod_forumng_post::get_from_id($dis1->get_last_post_id(), 0);
-        $post = new stdClass();
+        $lastpost = \mod_forumng_post::get_from_id($dis1->get_last_post_id(), 0);
+        $post = new \stdClass();
         $post->created = $lastpost->get_created();
         $post->subject = $lastpost->get_subject();
         $post->id = $lastpost->get_id();
@@ -421,11 +423,11 @@ class mod_forumng_privacy_provider_testcase extends \core_privacy\tests\provider
         $context = $this->context;
         $contextids = provider::get_contexts_for_userid($user->id)->get_contextids();
         $appctx = new approved_contextlist($user, 'mod_forumng', $contextids);
-        $discussion = new stdClass();
+        $discussion = new \stdClass();
         $discussion->id = $dis1->get_id();
         $discussionarea = static::get_discussion_area($discussion);
         $dis1->set_flagged(true. $user->id);
-        $lastposts[1] = mod_forumng_post::get_from_id($dis1->get_last_post_id(), 0);
+        $lastposts[1] = \mod_forumng_post::get_from_id($dis1->get_last_post_id(), 0);
         $lastposts[1]->set_flagged(1, $user->id);
         provider::export_user_data($appctx);
         $this->assertTrue(writer::with_context($context)->has_any_data());
@@ -455,7 +457,7 @@ class mod_forumng_privacy_provider_testcase extends \core_privacy\tests\provider
         $user = $this->currentuser;
         $contextids = provider::get_contexts_for_userid($user->id)->get_contextids();
         $appctx = new approved_contextlist($user, 'mod_forumng', $contextids);
-        $writer = writer::with_context(context_user::instance($user->id));
+        $writer = writer::with_context(\context_user::instance($user->id));
         $this->assertFalse($writer->has_any_data());
     }
 
@@ -467,7 +469,7 @@ class mod_forumng_privacy_provider_testcase extends \core_privacy\tests\provider
         $this->setUser($user);
         set_user_preference('forumng_simplemode', true);
         provider::export_user_preferences($user->id);
-        $context = context_user::instance($user->id);
+        $context = \context_user::instance($user->id);
         $writer = writer::with_context($context);
         $prefs = $writer->get_user_preferences('mod_forumng');
         $this->assertCount(2, (array) $prefs);
@@ -491,18 +493,18 @@ class mod_forumng_privacy_provider_testcase extends \core_privacy\tests\provider
      * @return array
      * @throws \coding_exception
      */
-    private function create_basic_test_data() {
+    private function create_basic_test_data(): array {
         $generator = $this->getDataGenerator();
 
         $course = $generator->create_course();
 
-        $forumnglib = new mod_forumng_privacy_helper();
+        $forumnglib = new \mod_forumng_privacy_helper('test');
         $forums[1] = $forumnglib->get_new_forumng($course->id, ['name' => 'TEST', 'intro' => 'Test forum 1',
-            'enableratings' => mod_forumng::FORUMNG_STANDARD_RATING, 'ratingscale' => 10,
-            'subscription' => mod_forumng::SUBSCRIPTION_PERMITTED ]);
+            'enableratings' => \mod_forumng::FORUMNG_STANDARD_RATING, 'ratingscale' => 10,
+            'subscription' => \mod_forumng::SUBSCRIPTION_PERMITTED ]);
         $forums[2] = $forumnglib->get_new_forumng($course->id, ['name' => 'TEST', 'intro' => 'Test forum 2',
-            'enableratings' => mod_forumng::FORUMNG_STANDARD_RATING, 'ratingscale' => 10,
-            'subscription' => mod_forumng::SUBSCRIPTION_PERMITTED ]);
+            'enableratings' => \mod_forumng::FORUMNG_STANDARD_RATING, 'ratingscale' => 10,
+            'subscription' => \mod_forumng::SUBSCRIPTION_PERMITTED ]);
 
         $users[1] = $generator->create_user();
         $users[2] = $generator->create_user();
@@ -510,14 +512,14 @@ class mod_forumng_privacy_provider_testcase extends \core_privacy\tests\provider
 
         $dis[1] = $forumnglib->get_new_discussion($forums[1], array('userid' => $users[1]->id, 'timestart' => 1420070400,
             'subject' => 'Welcome/to the Developing'));
-        $lastposts[1] = mod_forumng_post::get_from_id($dis[1]->get_last_post_id(), 0);
+        $lastposts[1] = \mod_forumng_post::get_from_id($dis[1]->get_last_post_id(), 0);
         $lastposts[1]->set_flagged(true, $users[1]->id);
         $lastposts[1]->mark_read(1420070400, $users[1]->id);
         $lastposts[1]->rate(5, $users[1]->id);
 
         $dis[2] = $forumnglib->get_new_discussion($forums[2], array('userid' => $users[1]->id, 'timestart' => 1420070400,
             'subject' => 'Welcome/to the Developing as a Researcher seminar'));
-        $lastposts[2] = mod_forumng_post::get_from_id($dis[2]->get_last_post_id(), 0);
+        $lastposts[2] = \mod_forumng_post::get_from_id($dis[2]->get_last_post_id(), 0);
         $lastposts[2]->set_flagged(true, $users[1]->id);
         $lastposts[2]->mark_read(1420070400, $users[1]->id);
         $lastposts[2]->rate(5, $users[1]->id);
@@ -677,7 +679,7 @@ class mod_forumng_privacy_provider_testcase extends \core_privacy\tests\provider
         $cm = get_coursemodule_from_instance('forumng', $forums[2]->get_id());
         $context = \context_module::instance($cm->id);
 
-        $draft = new stdClass();
+        $draft = new \stdClass();
         $draft->forumngid = $forums[2]->get_id();
         $draft->userid = $users[2]->id;
         $draft->subject = 'Test';
@@ -868,7 +870,7 @@ class mod_forumng_privacy_provider_testcase extends \core_privacy\tests\provider
         $cm = get_coursemodule_from_instance('forumng', $forums[1]->get_id());
         $context = \context_module::instance($cm->id);
 
-        $draft = new stdClass();
+        $draft = new \stdClass();
         $draft->forumngid = $forums[1]->get_id();
         $draft->userid = $users[2]->id;
         $draft->subject = 'Test';
