@@ -1584,4 +1584,43 @@ class forumng_test extends forumng_test_lib {
         $this->assertEquals($coursemaxbytes, $forum->get_max_bytes());
         $this->assertFalse($forum->can_create_attachments());
     }
+
+    /**
+     * Tests the grade item update.
+     */
+    public function test_grade_item_update() {
+        global $DB;
+        $this->resetAfterTest();
+
+        $course = $this->get_new_course();
+        $user = $this->get_new_user('student', $course->id);
+        $forum = $this->get_new_forumng($course->id, ['name' => 'TEST', 'intro' => 'abc123',
+            'cmidnumber' => 'IPMR', 'enableratings' => \mod_forumng::FORUMNG_STANDARD_RATING, 'ratingscale' => 10]);
+        $forumng = $DB->get_record('forumng', ['id' => $forum->get_id()]);
+
+        forumng_grade_item_update($forumng);
+
+        $grades = [];
+        $grades[$user->id] = (object)[
+            'rawgrade' => 123, 'userid' => $user->id
+        ];
+        forumng_grade_item_update($forumng, $grades);
+    }
+
+    /**
+     * Tests the update grades.
+     */
+    public function test_update_grades() {
+        global $DB;
+        $this->resetAfterTest();
+
+        $course = $this->get_new_course();
+        $user = $this->get_new_user('student', $course->id);
+        $forum = $this->get_new_forumng($course->id, ['name' => 'TEST', 'intro' => 'abc123',
+            'cmidnumber' => 'IPMR', 'enableratings' => \mod_forumng::FORUMNG_STANDARD_RATING, 'ratingscale' => 10]);
+        $forumng = $DB->get_record('forumng', ['id' => $forum->get_id()]);
+
+        forumng_update_grades($forumng, $user->id);
+        forumng_update_grades($forumng);
+    }
 }

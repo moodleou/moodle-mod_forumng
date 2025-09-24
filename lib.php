@@ -748,6 +748,20 @@ function mod_forumng_rating_can_see_item_ratings($params) {
 }
 
 /**
+ * Update a grade item for the given forumng.
+ *
+ * @param object $forumng
+ * @param mixed $grades optional array/object of grade(s)
+ * @return int 0 if ok, error code otherwise
+ */
+function forumng_grade_item_update($forumng, $grades = null) {
+    require_once(dirname(__FILE__) . '/mod_forumng.php');
+    $cm = get_coursemodule_from_instance('forumng', $forumng->id);
+    $forum = mod_forumng::get_from_id($forumng->id, mod_forumng::CLONE_DIRECT, true, $cm);
+    $forum->grade_item_update($grades, $cm->idnumber);
+}
+
+/**
  * Update activity grades.
  *
  * @param stdClass $forumng database record

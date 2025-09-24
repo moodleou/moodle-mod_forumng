@@ -3041,7 +3041,7 @@ WHERE
      *   course-module
      * @throws coding_exception
      */
-    private function grade_item_update($grades = array(), $idnumber=null) {
+    public function grade_item_update($grades = array(), $idnumber = null) {
         global $DB;
         if (is_null($idnumber)) {
             $cm = $this->get_course_module();
