@@ -422,7 +422,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
         $result .= $this->help_icon('drafts', 'forumng') . '</div>';
 
         $th = "<th scope='col' class='header c";
-        $result .= "<table class='generaltable'><tr>" .
+        $result .= "<table class='generaltable table-reboot'><tr>" .
             "{$th}0'>" . get_string('draft', 'forumng') .
             "</th>{$th}1'>" . get_string('discussion', 'forumng') .
             "</th>{$th}2 lastcol'>" . get_string('date') . '</th></tr>';
@@ -553,7 +553,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
 
         $th = "<th scope='col' class='header c";
 
-        $result .= "<table class='generaltable'><tr>" .
+        $result .= "<table class='generaltable table-reboot'><tr>" .
                     "{$th}0'>" . $th0 .
                     "</th>{$th}1'>" . $th1 .
                     "</th>{$th}2 lastcol'>" . $th2 . '</th></tr>';
@@ -2230,7 +2230,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
         $npnum = $nextnum + 2;
         $sbnum = $nextnum + 3;
         $table = html_writer::start_tag('nav', array('aria-label' => get_string('discussions', 'forumng')));
-        $table .= html_writer::start_tag('table', array('class' => 'generaltable forumng-discussionlist'));
+        $table .= html_writer::start_tag('table', ['class' => 'generaltable forumng-discussionlist table-reboot']);
         $table .= html_writer::start_tag('thead');
         $table .= html_writer::start_tag('tr');
         // Subject column th.
