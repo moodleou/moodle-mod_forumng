@@ -116,6 +116,7 @@ class mobile_test extends forumng_test_lib {
         $record['course'] = $course->id;
         $record['forum'] = $forum->id;
         $record['userid'] = $student->id;
+        $record['subject'] = 'Test subject has ampersand &';
         $forumnggenerator->create_discussion($record);
         $result = mobile::forumng_view($args);
         $otherdata = $result['otherdata'];
@@ -123,6 +124,8 @@ class mobile_test extends forumng_test_lib {
         $this->assertEquals(1, count(json_decode($otherdata['discussions'])));
         $this->assertEquals(1, $otherdata['totaldiscussions']);
         $this->assertEquals(1, $otherdata['page']);
+        $this->assertStringNotContainsString('Test subject has ampersand &amp;',
+                (json_decode($otherdata['discussions']))[0]->subject);
     }
 
     /**

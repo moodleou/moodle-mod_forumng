@@ -412,7 +412,7 @@ class mobile {
                     $decorators[] = (object)['src' => $url, 'alt' => $alt];
                 }
                 // Subject.
-                $subject = format_string($discussion->get_subject(true));
+                $subject = html_entity_decode(format_string($discussion->get_subject(true)));
                 $rootpost = $discussion->get_root_post()->get_formatted_message();
                 // Unread.
                 $canmarkread = $discussion->get_forum()->can_mark_read();
