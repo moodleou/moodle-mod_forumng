@@ -51,6 +51,7 @@ export class SelectDiscussion {
         }
         const confirm = document.createElement('input');
         confirm.setAttribute('type', 'submit');
+        confirm.disabled = true;
 
         const main = document.querySelector('table.forumng-discussionlist');
         const all = document.createElement('input');

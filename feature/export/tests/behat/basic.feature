@@ -59,6 +59,7 @@ Feature: Export discussions using portfolio
     When I follow "Test forum"
     Then "div.forumngfeature_export" "css_element" should not exist
 
+  @javascript
   Scenario: Try and get as far as we can exporting discussions
     Given the following config values are set as admin:
       | enableportfolios | 1 |
@@ -66,7 +67,6 @@ Feature: Export discussions using portfolio
     And I am on site homepage
     And I navigate to "Plugins > Portfolios > Manage portfolios" in site administration
     And I set the field with xpath "//form[@id='applytodownload']/select" to "Enabled and visible"
-    And I click on "form#applytodownload input[type='submit']" "css_element"
     And I press "Save"
     And I am on "Course 1" course homepage
     And I follow "Test forum"
@@ -78,17 +78,26 @@ Feature: Export discussions using portfolio
       | Subject | Ms2 |
       | Message | abc |
     And I follow "Test forum"
-    When I press "Export"
-    Then I should see "Do you want to include all discussions listed on this page, or only selected discussions"
-    Given I press "All discussions shown"
-    When I follow "Return to where you were"
-    Then I should see "Ms1"
+
+    # Export selected discussions
     Given I press "Export"
+    Then I should see "Do you want to include all discussions listed on this page, or only selected discussions"
     When I press "Selected discussions"
     Then I should see "Tick the box beside each discussion you want to include"
-    Given I set the field "Select discussion" to "1"
-    When I press "Confirm selection"
+    And I set the field "Select post" to "1"
+    And I press "Confirm selection"
     Then I should see "Downloading"
+    When I follow "Return to where you were"
+    Then I should see "Ms1"
+
+    # Export all discussions
+    Given I click on "ForumNG" "link"
+    When I press "Export"
+    And I press "All discussions shown"
+    And I click on "Continue" "button"
+    Then I should see "Downloading"
+    When I follow "Return to where you were"
+    Then I should see "Ms1"
 
   Scenario: Try and get as far as we can exporting a discussion
     Given the following config values are set as admin:

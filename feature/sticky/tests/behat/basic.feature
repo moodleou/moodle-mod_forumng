@@ -21,11 +21,7 @@ Feature: Make discussions sticky
     And the following "activities" exist:
       | activity | name                   | introduction                  | course | idnumber |
       | forumng  | Test forum name sticky | Test forum sticky description | C1     | forumng1 |
-    And I log in as "admin"
-    And I am on "Course 1" course homepage
-    And I turn editing mode on
-    And I am on "Course 1" course homepage
-    And I follow "Test forum name sticky"
+    And I am on the "Test forum name sticky" "forumng activity" page logged in as admin
     And I add a discussion with the following data:
       | Subject | Discussion 1 |
       | Message | Discussion 1 |
@@ -43,6 +39,7 @@ Feature: Make discussions sticky
       | Message | Discussion 4 |
     And I log out
 
+  @javascript
   Scenario: Testing the 'Make discussion sticky' options
     Given I log in as "admin"
     And I am on "Course 1" course homepage
