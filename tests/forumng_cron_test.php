@@ -437,4 +437,47 @@ class forumng_cron_test extends \forumng_test_lib
                 quoted_printable_decode($messages[0]->body));
         $this->assertEquals(2, $count);
     }
+
+    /**
+     * Test to check if the email body contains the style tag.
+     *
+     */
+    public function test_email_body_has_style() {
+        global $CFG, $DB;
+        $this->setUp();
+        $created = time() - $CFG->forumng_emailafter - 1;
+
+        // Create a post with no edit after the delay time.
+        $this->generator->create_post(['discussionid' => $this->discussionid,
+                'parentpostid' => $this->rootpostid, 'mailstate' => \mod_forumng::MAILSTATE_NOT_MAILED,
+                'created' => $created, 'userid' => $this->adminid]);
+
+        unset_config('noemailever');
+        $sink = $this->redirectEmails();
+
+        // Start output buffering to catch echo/mtrace output.
+        ob_start();
+        \mod_forumng_cron::email_normal();
+        ob_end_clean();
+
+        // Create post with no edit after delay time.
+        $postrecord = $this->generator->create_post(['discussionid' => $this->discussionid,
+                'parentpostid' => $this->rootpostid, 'mailstate' => \mod_forumng::MAILSTATE_NOT_MAILED,
+                'created' => $created, 'userid' => $this->adminid]);
+        // Set student to use digests.
+        $DB->set_field('user', 'maildigest',  2, ['id' => $this->student->id]);
+
+        ob_start();
+        \mod_forumng_cron::email_digest();
+        ob_end_clean();
+
+        $messages = $sink->get_messages();
+
+        // Check 2 emails sent.
+        $this->assertEquals(2, count($messages));
+
+        // Check for style tag.
+        $this->assertStringContainsString('<style', $messages[0]->body);
+        $this->assertStringContainsString('<style', $messages[1]->body);
+    }
 }
