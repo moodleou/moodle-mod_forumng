@@ -30,4 +30,8 @@ $callbacks = [
         'callback' => \mod_forumng\hook_callbacks::class . '::activity_search_info',
         'priority' => 500,
     ],
+    [
+        'hook' => \tool_ouadmin\hook\before_prompt_generation::class,
+        'callback' => \mod_forumng\hook_callbacks::class . '::before_prompt_generation',
+    ],
 ];

@@ -1154,4 +1154,59 @@ class forumng_discussion_test  extends \forumng_test_lib {
         $forumcm = $discussionnoread->get_forum()->get_course_module();
         $this->assertEquals($USER->id, $forumcm->get_modinfo()->get_user_id());
     }
+
+    /**
+     * Tests the get_discussion_list method.
+     */
+    public function test_get_discussion_list() {
+        global $USER;
+
+        $this->resetAfterTest(true);
+        $this->setAdminUser();
+
+        $course = $this->get_new_course();
+        $forum = $this->get_new_forumng($course->id, ['name' => 'ForumNG 1',
+            'introduction' => 'Sample introduction', 'showsticky' => true]);
+        // Create normal discussion.
+        $normaldiscussion = $this->get_new_discussion($forum, ['userid' => $USER->id]);
+        $root1 = $normaldiscussion->get_root_post();
+        // Create sticky discussion.
+        $stickydiscussion = $this->get_new_discussion($forum, ['userid' => $USER->id, 'sticky' => true]);
+        // Make post newer.
+        $root2 = $stickydiscussion->get_root_post();
+        $this->update_post(['id' => $root2->get_id(), 'modified' => $root2->get_modified() + 300000]);
+        $stickydiscussion->delete(false);
+
+        // Get discussions without viewhidden.
+        $list = $forum->get_discussion_list();
+        $normallist = $list->get_normal_discussions();
+        $stickylist = $list->get_sticky_discussions();
+        // Check discussions.
+        $this->assertCount(1, $normallist);
+        $this->assertCount(0, $stickylist);
+        $this->assertTrue(array_key_exists($normaldiscussion->get_id(), $normallist));
+
+        // Get discussions with viewhidden.
+        $list = $forum->get_discussion_list(null, true);
+        $normallist = $list->get_normal_discussions();
+        $stickylist = $list->get_sticky_discussions();
+        // Check discussions.
+        $this->assertCount(1, $normallist);
+        $this->assertCount(1, $stickylist);
+        $this->assertTrue(array_key_exists($normaldiscussion->get_id(), $normallist));
+        $this->assertTrue(array_key_exists($stickydiscussion->get_id(), $stickylist));
+
+        // Make discussion non-sticky.
+        $this->update_discussion(['id' => $stickydiscussion->get_id(), 'sticky' => 0]);
+
+        // Get discussions with viewhidden.
+        $list = $forum->get_discussion_list(null, true);
+        $normallist = $list->get_normal_discussions();
+        $stickylist = $list->get_sticky_discussions();
+        // Check discussions.
+        $this->assertCount(2, $normallist);
+        $this->assertCount(0, $stickylist);
+        $this->assertTrue(array_key_exists($normaldiscussion->get_id(), $normallist));
+        $this->assertTrue(array_key_exists($stickydiscussion->get_id(), $normallist));
+    }
 }

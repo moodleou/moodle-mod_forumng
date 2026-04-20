@@ -180,4 +180,25 @@ abstract class forumng_test_lib extends advanced_testcase {
         return array($forum, array($dis1, $dis2, $dis3, $dis4, $dis5, $dis6));
     }
 
+    /**
+     * Updates a discussion in DB.
+     *
+     * @param stdClass|array $data
+     */
+    public function update_discussion($data) {
+        global $DB;
+
+        $DB->update_record('forumng_discussions', $data);
+    }
+
+    /**
+     * Updates a post in DB.
+     *
+     * @param stdClass|array $data
+     */
+    public function update_post($data) {
+        global $DB;
+
+        $DB->update_record('forumng_posts', $data);
+    }
 }

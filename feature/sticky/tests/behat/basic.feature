@@ -291,10 +291,10 @@ Feature: Make discussions sticky
     And I wait "1" seconds
     And I press "Delete"
 
-    # Check 'delete' reorders the 'sticky' discussion threads
-    And "Discussion 1" "table_row" should appear before "Discussion 5" "table_row"
-    And "Discussion 5" "table_row" should appear before "Discussion 3" "table_row"
-    And "Discussion 3" "table_row" should appear before "Discussion 2" "table_row"
+    # Check 'delete' keeps the order of the discussion threads
+    Then "Discussion 1" "table_row" should appear before "Discussion 3" "table_row"
+    And "Discussion 3" "table_row" should appear before "Discussion 5" "table_row"
+    And "Discussion 5" "table_row" should appear before "Discussion 2" "table_row"
     And "Discussion 2" "table_row" should appear before "Discussion 4" "table_row"
     And "Discussion 4" "table_row" should appear before "Discussion 6" "table_row"
     And ".forumng-deleted" "css_element" should exist in the "Discussion 3" "table_row"

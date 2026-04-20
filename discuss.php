@@ -107,6 +107,8 @@ if ($draftid) {
 // Print main div
 print '<div id="forumng-main" class="forumng-discuss forumng-nojs' .
     ($discussion->is_deleted() ? ' forumng-deleted-discussion' : '' ) . '">';
+print '<span id="forumng-discussionid-for-prompt-ai" class="visually-hidden" aria-hidden="true">' .
+    'discussionidforpromptai:' . $discussion->get_id() . '</span>';
 print $out->render_switch_link($forum);
 print $OUTPUT->skip_link_target();
 

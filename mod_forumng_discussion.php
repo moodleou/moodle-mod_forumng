@@ -1053,9 +1053,9 @@ WHERE
      *   it doesn't
      * @param bool $locked True if discussion should be locked
      * @param bool $sticky True if discussion should be sticky
-     * @param array $tags
+     * @param array|null $tags
      */
-    public function edit_settings($groupid, $timestart, $timeend, $locked, $sticky, array $tags = null) {
+    public function edit_settings($groupid, $timestart, $timeend, $locked, $sticky, ?array $tags = null) {
         global $DB, $CFG;
         require_once($CFG->dirroot . '/tag/lib.php');
 

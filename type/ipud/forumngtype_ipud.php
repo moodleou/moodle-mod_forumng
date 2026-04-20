@@ -166,14 +166,14 @@ class forumngtype_ipud extends forumngtype_general {
      *
      * @param bool $normalreply check if this forum use normal reply for cancel button to display.
      * @param bool $renderpostas check if this forum render post as feature in the form.
-     * @param mod_forumng_discussion Discussion reply will be in
-     * @param mod_forumng_post $editpost If editing existing post
-     * @param mod_forumng_post $replytopost If replying to post
+     * @param mod_forumng_discussion|null Discussion reply will be in
+     * @param mod_forumng_post|null $editpost If editing existing post
+     * @param mod_forumng_post|null $replytopost If replying to post
      * @return array which option should allow in reply form. True is allow,false is prevent. (array is for toolbar option).
      * @throws \moodle_exception
      */
-    public function get_reply_options($normalreply, $renderpostas, mod_forumng_discussion $discussion = null,
-            mod_forumng_post $editpost = null, mod_forumng_post $replytopost = null) {
+    public function get_reply_options($normalreply, $renderpostas, ?mod_forumng_discussion $discussion = null,
+            ?mod_forumng_post $editpost = null, ?mod_forumng_post $replytopost = null) {
         // We don't need option for message and post button here because they are always required.
         $toolbaroption = get_config('', 'forumng_customeditortoolbar');
         $options = array(
@@ -260,6 +260,12 @@ class forumngtype_ipud extends forumngtype_general {
      * @return int calculate number of unread posts.
      */
     public function calculate_number_of_unread_posts($originalunreadpostnumber, $discussion) {
+        global $PAGE;
+        // For ipud - students don't ever get to mark posts read, so always say they are read.
+        if (isset($PAGE) && !has_capability('mod/forumng:viewrealipud', $PAGE->context)) {
+            // TODO - If unread marking support is added to the widget then remove this logic.
+            return 0;
+        }
         $unreadrootpost = $discussion->get_root_post()->is_unread();
         if ($unreadrootpost) {
            return $originalunreadpostnumber - 1; // Unread rootpost always treat as read for ipud.

@@ -908,3 +908,13 @@ function mod_forumng_output_fragment_formatmessage($args) {
 
     return $formattedmessage;
 }
+
+/**
+ * Returns the system time stamp.
+ *
+ * @param $useclock An indicator to use the clock interface
+ * @return int
+ */
+function mod_forumng_get_time($useclock = false) : int {
+    return $useclock ? \core\di::get(\core\clock::class)->time() : time();
+}

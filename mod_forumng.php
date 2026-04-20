@@ -1357,7 +1357,7 @@ WHERE
 
         // View hidden posts
         if (!$viewhidden) {
-            $now = time();
+            $now = mod_forumng_get_time(true);
             $conditions .= " AND fd.deleted = 0";
             $conditions .= " AND (fd.timestart = 0 OR fd.timestart <= ?)".
               " AND (fd.timeend = 0 OR fd.timeend > ?)";
@@ -1511,7 +1511,7 @@ WHERE $conditions AND m.name = 'forumng' AND $restrictionsql",
             $discussion->maybe_invalidate_cache();
 
             // Add to results
-            $result->add_discussion($discussion);
+            $result->add_discussion($discussion, $viewhidden);
         }
         $rs->close();
         return $result;
@@ -3108,7 +3108,7 @@ WHERE
      *   with course-module ID listed in the array
      * @param bool $realforums Set this to true to obtain real forums
      *   if any are clones; has a performance cost if shared forums are used
-     * @return array Array of forum objects (keys are forum IDs; in the case of
+     * @return mod_forumng[] Array of forum objects (keys are forum IDs; in the case of
      *   shared forums, the id is of the clone not the forum, even if
      *   $realforums is set)
      */
@@ -5789,8 +5789,8 @@ class mod_forumng_filemanager_evilhack_requires {
         $this->evilhack = $evilhack;
     }
 
-    public function js_init_call($function, array $extraarguments = null,
-            $ondomready = false, array $module = null) {
+    public function js_init_call($function, ?array $extraarguments = null,
+            $ondomready = false, ?array $module = null) {
         if (!$module) {
             if (!preg_match('~^M\.editor_tinymce\.~', $function)) {
                 throw new coding_exception('This needs changing, unsupported function');

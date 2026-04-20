@@ -46,10 +46,10 @@ class mod_forumng_generator extends testing_module_generator {
      * Creates new forumng module instance.
      *
      * @param array|stdClass $record Resource module record, as from form
-     * @param array $options Standard options about how to create it
+     * @param array|null $options Standard options about how to create it
      * @return stdClass Activity record, with extra cmid field
      */
-    public function create_instance($record = null, array $options = null) {
+    public function create_instance($record = null, ?array $options = null) {
         global $CFG, $DB;
         require_once($CFG->dirroot . '/mod/forumng/lib.php');
 
@@ -147,13 +147,15 @@ class mod_forumng_generator extends testing_module_generator {
             $record['asmoderator'] = 0;
         }
 
+        $sticky = isset($record['sticky']) && $record['sticky'] ? true : false;
+
         // Get a forum object.
         $forum = mod_forumng::get_from_id($record['forum'], mod_forumng::CLONE_DIRECT);
 
         // Create the discussion.
-        $discussionids = $forum->create_discussion($record['groupid'], $record['subject'],
-                $record['message'], $record['format'], false, false, $record['timestart'], $record['timeend'], false,
-                false, $record['userid'], true, $record['asmoderator'], null, $record['ipudloc'], $record['modified']);
+        $discussionids = $forum->create_discussion($record['groupid'], $record['subject'], $record['message'],
+            $record['format'], false, false, $record['timestart'], $record['timeend'], false, $sticky,
+            $record['userid'], true, $record['asmoderator'], null, $record['ipudloc'], $record['modified']);
 
         return $discussionids;
     }

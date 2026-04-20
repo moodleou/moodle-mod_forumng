@@ -60,6 +60,7 @@ class post_selector extends \forumngfeature_post_selector {
         $a = (object)array('name' => fullname($USER, true));
 
         $allhtml = "<body id='forumng-email'>\n";
+        $allhtml .= \mod_forumng_cron::email_style();
 
         $preface = get_string('forward_preface', 'forumngfeature_forward', $a);
         $allhtml .= $preface;

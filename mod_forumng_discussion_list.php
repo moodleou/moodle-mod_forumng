@@ -46,9 +46,10 @@ class mod_forumng_discussion_list {
     /**
      * Adds a discussion to the list (internal use only).
      * @param mod_forumng_discussion $discussion
+     * @param bool $viewhidden True if user can view hidden discussions
      */
-    public function add_discussion($discussion) {
-        if ($discussion->is_sticky() && !$discussion->is_deleted()) {
+    public function add_discussion($discussion, $viewhidden = false) {
+        if ($discussion->is_sticky() && (!$discussion->is_deleted() || $viewhidden)) {
             $this->stickydiscussions[$discussion->get_id()]=$discussion;
         } else {
             $this->normaldiscussions[$discussion->get_id()]=$discussion;

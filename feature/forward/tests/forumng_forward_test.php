@@ -84,6 +84,9 @@ class forumng_forward_test  extends \forumng_test_lib {
         // There should be the expected number of messages.
         $this->assertEquals(1, count($messages));
 
+        // Check style tag included in the message.
+        $this->assertStringContainsString('<style', $messages[0]->body);
+
         $formdata = (object) array(
                 'email' => 'example@example.com;example2@example.com',
                 'message' => array(

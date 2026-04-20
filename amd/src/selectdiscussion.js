@@ -14,7 +14,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 import {linksDisable, linksEnable, scrollPage, simulateClick} from 'mod_forumng/common';
-
+import Pending from 'core/pending';
 /**
  * JavaScript to handle select discussion.
  *
@@ -213,9 +213,14 @@ export class SelectDiscussion {
                     }
                 }
             });
-            none.disabled = !ok;
-            confirm.disabled = !ok;
-            all.disabled = checkcount == availcount;
+            const pendingPromise = new Pending('mod/forumng:handle_buttons_disabled');
+            try {
+                none.disabled = !ok;
+                confirm.disabled = !ok;
+                all.disabled = checkcount == availcount;
+            } finally {
+                pendingPromise.resolve();
+            }
         };
 
         if (this.select.on) {

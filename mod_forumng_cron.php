@@ -852,8 +852,24 @@ $mainquery", $mainparams);
             print "</pre></div>";
             return;
         }
+        $html = self::email_style() . $html;
+
         email_to_user($to, $from, $subject, $text, $html, '', '',
             $CFG->forumng_replytouser);
+    }
+
+    /**
+     * Returns CSS styles to be included in forumng emails.
+     * @return string CSS styles
+     */
+    public static function email_style() :string {
+        $style = \html_writer::start_tag('style', ['type' => 'text/css']);
+        $style .= '.icon { width: 16px; height: 16px; } ';
+        $style .= 'form {display: none;} ';
+        $style .= '.forumng-expandcontainer, .forumng-collapsecontainer {display: none;} ';
+        $style .= 'img { max-width: 100%} ';
+        $style .= \html_writer::end_tag('style');
+        return $style;
     }
 
     /**
@@ -898,6 +914,7 @@ $mainquery", $mainparams);
 
         global $CFG;
         $emailcount = 0;
+        $html = self::email_style() . $html;
 
         // Loop through in batches of specified size
         $copy = array();
